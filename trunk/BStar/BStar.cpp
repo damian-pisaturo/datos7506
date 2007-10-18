@@ -1,8 +1,8 @@
 //============================================================================
-// Name        : Datos2.cpp
-// Author      : Dami y Manu
+// Name        : BStar.cpp
+// Author      : Dami - Manu
 // Version     :
-// Copyright   : Esto es nuestro y de nadie mas
+// Copyright   : Copyright 2007
 // Description : Hello World in C, Ansi-style
 //============================================================================
 

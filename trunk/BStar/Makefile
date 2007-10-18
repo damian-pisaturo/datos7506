@@ -1,10 +1,10 @@
 CXXFLAGS =	-O2 -g -Wall
 
-OBJS =		Datos2.o
+OBJS =		bstar.o
 
 LIBS =
 
-TARGET =	Datos2.exe
+TARGET =	bstar.exe
 
 $(TARGET):	$(OBJS)
 	$(CXX) -o $(TARGET) $(OBJS) $(LIBS)
