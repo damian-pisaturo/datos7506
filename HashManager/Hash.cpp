@@ -45,6 +45,13 @@ int Hash::aplicarHash(char *clave)
 	return aux;
 }
 
+int Hash::insertarRegistro(char* clave)
+{
+	int nroBloque = aplicarHash(clave) % tabla.getTamanio();
+	bucket->leer(tabla.getDireccionBucket(nroBloque));
+	return OK;
+}
+
 int main()
 {
 	return 0;
