@@ -31,23 +31,16 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-	ClaveEntera::ClaveEntera()
-	{
-		/* ATTENZIONE!
-		LOS TAMANIOS AHORA VARIAN PORQUE AGREGAMOS EL
-		ATRIBUTO hijoDer. SI LA CLAVE ESTA EN UN NODO HOJA, hijoDer
-		NO DEBE PERSISTIR. SI EL ARBOL ES B+, EL ATRIBUTO ESTA DE MAS (esta D+ --redobles de bateria).
-		*/
-
-		this->tamanio = 2*sizeof(int);
-	}
 
 	ClaveEntera::ClaveEntera(int clave, unsigned int referencia, unsigned int hijoDer)
 	{
 		this->setValor(new int(clave));
 		this->setReferencia(referencia);
-		this->tamanio = 2*sizeof(int);
 		this->setHijoDer(hijoDer);
+		this->tamanio = sizeof(int) + sizeof(unsigned int);
+		//Si la clave si insertará en un nodo interno
+		//agrego el tamaño de la referencia al hijo derecho
+		if (hijoDer != 0) this->tamanio += sizeof(unsigned int);
 	}
 
 	ClaveEntera::~ClaveEntera()
@@ -99,6 +92,29 @@
 		salida<<"Clave: "<<clave;
 		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
 	}
+	
+	bool ClaveEntera::operator < (const Clave& clave) const {
+		
+		int estaClave = *((int*)this->getValor());
+		int paramClave = *((int*)clave.getValor());
+		return (estaClave < paramClave);
+		
+	}
+
+	bool ClaveEntera::operator == (const Clave& clave) const {
+		
+		int estaClave = *((int*)this->getValor());
+		int paramClave = *((int*)clave.getValor());
+		return (estaClave == paramClave);
+		
+	}
+	
+	void ClaveEntera::setValor(void* nuevoValor) {
+		
+		if (this->valor) delete (int*)this->valor;
+		this->valor = nuevoValor;
+		
+	}
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -110,17 +126,17 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-	ClaveBoolean::ClaveBoolean()
-	{
-		this->tamanio = sizeof(bool) + sizeof(unsigned int);
-	}
-
-	ClaveBoolean::ClaveBoolean(bool clave, unsigned int referencia, int hijoDer)
+	
+	ClaveBoolean::ClaveBoolean(bool clave, unsigned int referencia,
+											unsigned int hijoDer)
 	{
 		this->setValor(new bool(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
 		this->tamanio = sizeof(bool) + sizeof(unsigned int);
+		//Si la clave si insertará en un nodo interno
+		//agrego el tamaño de la referencia al hijo derecho
+		if (hijoDer != 0) this->tamanio += sizeof(unsigned int);
 	}
 
 	ClaveBoolean::~ClaveBoolean()

@@ -33,7 +33,7 @@ using namespace std;
 
 class Clave
 {
-	private:
+	protected:
 	///////////////////////////////////////////////////////////////////////////
 	// Atributos
 	///////////////////////////////////////////////////////////////////////////
@@ -44,9 +44,7 @@ class Clave
 		unsigned int refRegistro;
 
 		//hijoDer
-		/*Referencia al nodo derecho del arbol
-		  (Claves mayores a la clave actual).
-		*/
+		/*Referencia al nodo derecho del arbol (Claves mayores a la clave actual).*/
 		unsigned int hijoDer;
 
 		//valor
@@ -55,7 +53,13 @@ class Clave
 		*/
 		void* valor;
 
-	protected:
+		//El tamanio de la clave depende de si se va a insertar en un nodo interno o
+		//en un nodo hoja. Representa el tamaño que ocupa la misma en disco.
+		//Si hijoDer == 0, significa que la clave se va a insertar en un nodo hoja,
+		//por lo cual no se tendra en cuenta el tamaño de este atributo. En cualquier
+		//otro caso se considerará el tamaño del hijo derecho.
+		//El valor 0 hace referencia al nodo Raíz, pero ningún nodo puede tener como hijo
+		//al nodo raíz, por lo tanto utilizar este valor no presenta inconvenientes.
 		unsigned int tamanio;
 
 	public:
@@ -147,7 +151,6 @@ class ClaveEntera: public Clave
 	///////////////////////////////////////////////////////////////////////////
 	// Constructores/Destructor
 	///////////////////////////////////////////////////////////////////////////
- 		ClaveEntera();
  		ClaveEntera(int clave, unsigned int referencia = 0,
                                 unsigned int hijoDer = 0);
 
@@ -164,6 +167,16 @@ class ClaveEntera: public Clave
 		virtual char comparar(Clave* otraClave);
 
 		virtual void imprimir(ostream& salida);
+		
+		//Operador "Menor" utilizado para comprobar si una clave es menor a otra
+		virtual bool operator < (const Clave& clave) const;
+
+		//Operador "Igual" utilizado para comprobar si una clave es igual a otra
+		virtual bool operator == (const Clave& clave) const;
+		
+		//Este método es virtual para que cada clase heredera pueda liberar la memoria
+		//utilizada por el valor anterior, según el tipo de dato que utilice.
+		virtual void setValor(void* nuevoValor);
 
 }; //Fin clase ClaveEntera
 
@@ -180,7 +193,6 @@ class ClaveBoolean: public Clave
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		ClaveBoolean();
 		ClaveBoolean(bool clave, unsigned int referencia = 0,
 									unsigned int hijoDer = 0);
 		virtual ~ClaveBoolean();
@@ -212,7 +224,6 @@ class ClaveChar: public Clave
 	///////////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////////
-		ClaveChar();
 		ClaveChar(char clave, unsigned int referencia = 0,
 								unsigned int hijoDer = 0);
 		virtual ~ClaveChar();
@@ -244,7 +255,6 @@ class ClaveShort: public Clave
 	////////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	////////////////////////////////////////////////////////////////////////
-		ClaveShort();
 		ClaveShort(short clave, unsigned int referencia = 0,
 									unsigned int hijoDer = 0);
 		virtual ~ClaveShort();
@@ -276,7 +286,6 @@ class ClaveReal: public Clave
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		ClaveReal();
 		ClaveReal(float clave, unsigned int referencia = 0,
 								unsigned int hijoDer = 0);
 		virtual ~ClaveReal();
@@ -348,12 +357,6 @@ class ClaveFecha: public Clave
 {
 	private:
 
-		/*ATTENZIONE!
-			NO SE SI EL FORMATO CORRESPONDE AL QUE ESTA EN EL
-			ENUNCIADO (pareciera querer decir que la fecha es un string
-			de 6 bytes o un entero del estilo "20071119"), PERO DE ESTA FORMA
-			SON BASTANTE SENCILLAS LAS COMPARACIONES Y EL SIZE DEL DATO ES MINIMO.
-		*/
 		typedef struct TFECHA{
 			short anio;
 			char mes;
@@ -377,7 +380,6 @@ class ClaveFecha: public Clave
 	/////////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	/////////////////////////////////////////////////////////////////////////
-		ClaveFecha();
 		ClaveFecha(fecha* clave, unsigned int referencia = 0,
 									unsigned int hijoDer = 0);
 		virtual ~ClaveFecha();
