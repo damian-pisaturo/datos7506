@@ -115,6 +115,10 @@
 		this->valor = nuevoValor;
 		
 	}
+	
+	unsigned int ClaveEntera::getTamanioValor() const {
+		return sizeof(int);
+	}
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -183,10 +187,37 @@
 
 	void ClaveBoolean::imprimir(ostream& salida)
 	{
-		int clave = *(static_cast<bool*>(this->getValor()));
+		bool clave = *(static_cast<bool*>(this->getValor()));
 
 		salida<<"Clave: "<<clave;
 		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
+	}
+	
+	bool ClaveBoolean::operator < (const Clave& clave) const {
+			
+			bool estaClave = *((bool*)this->getValor());
+			bool paramClave = *((bool*)clave.getValor());
+			return (estaClave < paramClave);
+			
+	}
+
+	bool ClaveBoolean::operator == (const Clave& clave) const {
+		
+		bool estaClave = *((bool*)this->getValor());
+		bool paramClave = *((bool*)clave.getValor());
+		return (estaClave == paramClave);
+		
+	}
+	
+	void ClaveBoolean::setValor(void* nuevoValor) {
+		
+		if (this->valor) delete (bool*)this->valor;
+		this->valor = nuevoValor;
+		
+	}
+	
+	unsigned int ClaveBoolean::getTamanioValor() const {
+		return sizeof(bool);
 	}
 
 
@@ -200,17 +231,17 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-	ClaveChar::ClaveChar()
-	{
-		this->tamanio = sizeof(char) + sizeof(unsigned int);
-	}
 
-	ClaveChar::ClaveChar(char clave, unsigned int referencia, int hijoDer)
+	ClaveChar::ClaveChar(char clave, unsigned int referencia,
+										unsigned int hijoDer)
 	{
 		this->setValor(new char(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
 		this->tamanio = sizeof(char) + sizeof(unsigned int);
+		//Si la clave si insertará en un nodo interno
+		//agrego el tamaño de la referencia al hijo derecho
+		if (hijoDer != 0) this->tamanio += sizeof(unsigned int);
 	}
 
 	ClaveChar::~ClaveChar()
@@ -262,7 +293,33 @@
 		salida<<"Clave: "<<clave;
 		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
 	}
+	
+	bool ClaveChar::operator < (const Clave& clave) const {
+			
+			char estaClave = *((char*)this->getValor());
+			char paramClave = *((char*)clave.getValor());
+			return (estaClave < paramClave);
+			
+	}
+	
+	bool ClaveChar::operator == (const Clave& clave) const {
+		
+		char estaClave = *((char*)this->getValor());
+		char paramClave = *((char*)clave.getValor());
+		return (estaClave == paramClave);
+		
+	}
+	
+	void ClaveChar::setValor(void* nuevoValor) {
+		
+		if (this->valor) delete (char*)this->valor;
+		this->valor = nuevoValor;
+		
+	}
 
+	unsigned int ClaveChar::getTamanioValor() const {
+		return sizeof(char);
+	}
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -274,17 +331,17 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-	ClaveShort::ClaveShort()
-	{
-		this->tamanio = sizeof(short) + sizeof(unsigned int);
-	}
 
-	ClaveShort::ClaveShort(short clave, unsigned int referencia, int hijoDer)
+	ClaveShort::ClaveShort(short clave, unsigned int referencia,
+											unsigned int hijoDer)
 	{
 		this->setValor(new short(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
 		this->tamanio = sizeof(short) + sizeof(unsigned int);
+		//Si la clave si insertará en un nodo interno
+		//agrego el tamaño de la referencia al hijo derecho
+		if (hijoDer != 0) this->tamanio += sizeof(unsigned int);
 	}
 
 	ClaveShort::~ClaveShort()
@@ -336,6 +393,33 @@
 		salida<<"Clave: "<<clave;
 		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
 	}
+	
+	bool ClaveShort::operator < (const Clave& clave) const {
+			
+		short estaClave = *((short*)this->getValor());
+		short paramClave = *((short*)clave.getValor());
+		return (estaClave < paramClave);
+			
+	}
+
+	bool ClaveShort::operator == (const Clave& clave) const {
+		
+		short estaClave = *((short*)this->getValor());
+		short paramClave = *((short*)clave.getValor());
+		return (estaClave == paramClave);
+		
+	}
+	
+	void ClaveShort::setValor(void* nuevoValor) {
+		
+		if (this->valor) delete (short*)this->valor;
+		this->valor = nuevoValor;
+		
+	}
+	
+	unsigned int ClaveShort::getTamanioValor() const {
+		return sizeof(short);
+	}
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -347,17 +431,17 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-	ClaveReal::ClaveReal()
-	{
-		this->tamanio = sizeof(float) + sizeof(unsigned int);
-	}
 
-	ClaveReal::ClaveReal(float clave, unsigned int referencia, int hijoDer)
+	ClaveReal::ClaveReal(float clave, unsigned int referencia,
+										unsigned int hijoDer)
 	{
 		this->setValor(new float(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
 		this->tamanio = sizeof(float) + sizeof(unsigned int);
+		//Si la clave si insertará en un nodo interno
+		//agrego el tamaño de la referencia al hijo derecho
+		if (hijoDer != 0) this->tamanio += sizeof(unsigned int);
 	}
 
 	ClaveReal::~ClaveReal()
@@ -372,8 +456,8 @@
 
 	Clave* ClaveReal::copiar()
 	{
-		short clave = *((short*)this->getValor());
-		return new ClaveShort(clave,this->obtenerReferencia(), this->getHijoDer());
+		float clave = *((float*)this->getValor());
+		return new ClaveReal(clave,this->obtenerReferencia(), this->getHijoDer());
 	}
 
 	char ClaveReal::comparar(Clave* otraClave)
@@ -409,6 +493,33 @@
 		salida<<"Clave: "<<clave;
 		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
 	}
+	
+	bool ClaveReal::operator < (const Clave& clave) const {
+			
+		float estaClave = *((float*)this->getValor());
+		float paramClave = *((float*)clave.getValor());
+		return (estaClave < paramClave);
+		
+	}
+
+	bool ClaveReal::operator == (const Clave& clave) const {
+		
+		float estaClave = *((float*)this->getValor());
+		float paramClave = *((float*)clave.getValor());
+		return (estaClave == paramClave);
+		
+	}
+	
+	void ClaveReal::setValor(void* nuevoValor) {
+		
+		if (this->valor) delete (float*)this->valor;
+		this->valor = nuevoValor;
+		
+	}
+	
+	unsigned int ClaveReal::getTamanioValor() const {
+		return sizeof(float);
+	}
 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -421,17 +532,17 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-	ClaveFecha::ClaveFecha()
-	{
-		this->tamanio = sizeof(fecha) + sizeof(unsigned int);
-	}
 
-	ClaveFecha::ClaveFecha(fecha* clave, unsigned int referencia, int hijoDer)
+	ClaveFecha::ClaveFecha(fecha* clave, unsigned int referencia,
+											unsigned int hijoDer)
 	{
 		this->setValor(clave);
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
 		this->tamanio = sizeof(fecha) + sizeof(unsigned int);
+		//Si la clave si insertará en un nodo interno
+		//agrego el tamaño de la referencia al hijo derecho
+		if (hijoDer != 0) this->tamanio += sizeof(unsigned int);
 	}
 
 	ClaveFecha::~ClaveFecha()
@@ -494,7 +605,37 @@
 		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
 	}
 
+	bool ClaveFecha::operator < (const Clave& clave) const {
+			
+		fecha* estaClave = (fecha*)this->getValor();
+		fecha* paramClave = (fecha*)clave.getValor();
+		return ((estaClave->anio < paramClave->anio) ||
+		((estaClave->anio == paramClave->anio)&&(estaClave->mes < paramClave->mes)) ||
+		((estaClave->anio == paramClave->anio)&&(estaClave->mes == paramClave->mes) &&
+		(estaClave->dia < paramClave->dia)));
+		
+	}
 
+	bool ClaveFecha::operator == (const Clave& clave) const {
+		
+		fecha* estaClave = (fecha*)this->getValor();
+		fecha* paramClave = (fecha*)clave.getValor();
+		return ((estaClave->anio == paramClave->anio) &&
+				(estaClave->mes == paramClave->mes) &&
+				(estaClave->dia == paramClave->dia));
+		
+	}
+	
+	void ClaveFecha::setValor(void* nuevoValor) {
+		
+		if (this->valor) delete (fecha*)this->valor;
+		this->valor = nuevoValor;
+		
+	}
+	
+	unsigned int ClaveFecha::getTamanioValor() const {
+		return sizeof(fecha);
+	}
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -507,7 +648,7 @@
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 	ClaveVariable::ClaveVariable(const string& clave, unsigned int referencia,
-                                                                int hijoDer)
+														unsigned int hijoDer)
 	{
 		//Se trunca el nombre si es de mas de longMaxCadena caracteres
 //		if (clave.size()> ClaveCadena::longMaxCadena)
@@ -516,7 +657,10 @@
 		this->setValor(new string(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
-		this->tamanio = (clave.size()+1)*sizeof(char) + 2*sizeof(unsigned int);
+		this->tamanio = (clave.size()+1)*sizeof(char) + sizeof(unsigned int);
+		//Si la clave si insertará en un nodo interno
+		//agrego el tamaño de la referencia al hijo derecho
+		if (hijoDer != 0) this->tamanio += sizeof(unsigned int);
 	}
 
 	ClaveVariable::~ClaveVariable()
@@ -537,36 +681,67 @@
 
 	char ClaveVariable::comparar(Clave* otraClave)
 	{
-		string* palabraOtra = (string*) ((ClaveVariable*)otraClave)->getValor();
+		string* palabraOtra = (string*) otraClave->getValor();
 		string* palabraThis = (string*) this->getValor();
 
-		/*
-		for(unsigned int i=0;i<palabraOtra->length();i++)
-			*(palabraOtra + i) = tolower((*palabraOtra)[i]);
+		
+		for(unsigned int i=0; i < palabraOtra->length(); i++)
+			(*palabraOtra)[i] = tolower((*palabraOtra)[i]);
 
-		for(unsigned int j=0;j<palabraThis->length();j++)
-			*(palabraThis + j) = tolower((*palabraThis)[j]);
-		*/
-
-		char resultado = palabraThis->compare(*palabraOtra);
-
-		return resultado;
+		for(unsigned int j=0; j < palabraThis->length(); j++)
+			(*palabraThis)[j] = tolower((*palabraThis)[j]);
+		
+		return palabraThis->compare(*palabraOtra);
 	}
 
 
 	void ClaveVariable::imprimir(ostream& salida)
 	{
-		 /*
-		if(this->obtenerReferencia()==-1){
-			salida<<"Valor: "<<this->getNombre();
-			salida<<" ReferenciaLista: "<<this->getRefListaPrim()<<endl;
-		}
-		else{
-			salida<<"Valor: "<<this->getNombre();
-			salida<<" Referencia:"<<this->obtenerReferencia();
-			salida<<" ReferenciaLista: "<<this->getRefListaPrim()<<endl;
-		}
-		*/
+		string* clave = static_cast<string*>(this->getValor());
+
+		salida<<"Clave: "<<*clave;
+		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
+	}
+	
+	bool ClaveVariable::operator < (const Clave& clave) const {
+			
+		string* palabraOtra = (string*) clave.getValor();
+		string* palabraThis = (string*) this->getValor();
+
+		for(unsigned int i=0; i < palabraOtra->length(); i++)
+			(*palabraOtra)[i] = tolower((*palabraOtra)[i]);
+
+		for(unsigned int j=0; j < palabraThis->length(); j++)
+			(*palabraThis)[j] = tolower((*palabraThis)[j]);
+		
+		return (*palabraThis < *palabraOtra);
+			
+	}
+
+	bool ClaveVariable::operator == (const Clave& clave) const {
+		
+		string* palabraOtra = (string*) clave.getValor();
+		string* palabraThis = (string*) this->getValor();
+
+		for(unsigned int i=0; i < palabraOtra->length(); i++)
+			(*palabraOtra)[i] = tolower((*palabraOtra)[i]);
+
+		for(unsigned int j=0; j < palabraThis->length(); j++)
+			(*palabraThis)[j] = tolower((*palabraThis)[j]);
+		
+		return (*palabraThis == *palabraOtra);
+		
+	}
+	
+	void ClaveVariable::setValor(void* nuevoValor) {
+		
+		if (this->valor) delete (string*)this->valor;
+		this->valor = nuevoValor;
+		
+	}
+	
+	unsigned int ClaveVariable::getTamanioValor() const {
+		return (((string*)this->getValor())->size()+1)*sizeof(char);
 	}
 
 
@@ -577,101 +752,125 @@
 // Descripcion: Implementa claves compuestas (lista de claves).
 ///////////////////////////////////////////////////////////////////////////
 
-/*HASTA ACA LLEGO*/
-
-	/*
-ClaveNomMarc::ClaveNomMarc(string nombre,string marca, int referencia){
-
-	/*Trunco el nombre si es de mas de 40 caracteres*/
-/*	if(nombre.size()>40)
-		nombre.erase(40);
-
-	/*Trunco la marca si es de mas de 40 caracteres*/
-/*	if(marca.size()>40)
-		marca.erase(40);
-
-	Cadenas* nueva = new Cadenas;
-
-	nueva->marca = marca;
-	nueva->nombre = nombre;
-	this->setValor(nueva);
-	this->setReferencia(referencia);
-	this->tamanio = (marca.size()+1 + nombre.size()+1)*sizeof(char) + sizeof(int);
-}
-
-
-Clave* ClaveNomMarc::copiar(){
-	Cadenas* nueva = (Cadenas*)this->getValor();
- 	return new ClaveNomMarc(nueva->nombre,nueva->marca,this->obtenerReferencia());
-}
-
-int ClaveNomMarc::comparar(Clave* otraClave){
-
-	Cadenas cadOtra = *(Cadenas*)otraClave->getValor();
-	Cadenas cadThis = *(Cadenas*)this->getValor();
-
-	string nombreOtra = cadOtra.nombre;
-	string nombreThis = cadThis.nombre;
-
-	for(unsigned int i=0;i<nombreOtra.length();i++)
-		nombreOtra[i] = tolower(nombreOtra[i]);
-
-	for(unsigned int j=0;j<nombreThis.length();j++)
-		nombreThis[j] = tolower(nombreThis[j]);
-
-	int result = nombreThis.compare(nombreOtra);
-
-	/*Si los nombres son iguales comparo por marca*/
-/*	if(result==0){
-
-		string marcaOtra = cadOtra.marca;
-		string marcaThis = cadThis.marca;
-
-		for(unsigned int k=0;k<marcaOtra.length();k++)
-			marcaOtra[k] = tolower(marcaOtra[k]);
-
-		for(unsigned int w=0;w<marcaThis.length();w++)
-			marcaThis[w] = tolower(marcaThis[w]);
-
-		result = marcaThis.compare(marcaOtra);
-
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+	ClaveCompuesta::ClaveCompuesta(const ListaClaves& listaClaves,
+										unsigned int referencia,
+										unsigned int hijoDer)
+	{
+		this->setValor(new ListaClaves(listaClaves));
+		this->setReferencia(referencia);
+		this->setHijoDer(hijoDer);
+		
+		this->tamanio = sizeof(unsigned int);
+		
+		for (ListaClaves::iterator iter = listaClaves.begin();
+			iter != listaClaves.end(); ++iter)
+			this->tamanio += (*iter)->getTamanioValor();
+		
+		//Si la clave si insertará en un nodo interno
+		//agrego el tamaño de la referencia al hijo derecho
+		if (hijoDer != 0) this->tamanio += sizeof(unsigned int);
 	}
 
-	return result;
-}
+	ClaveCompuesta::~ClaveCompuesta()
+	{
+		ListaClaves* listaClaves = (ListaClaves*)this->getValor();
+		for (ListaClaves::iterator iter = listaClaves->begin();
+			iter != listaClaves->end(); ++iter)
+			delete *iter; //Libero la memoria reservada para cada clave
+		delete listaClaves; //Libero la memoria reservada para la lista de claves
+	}
 
-void ClaveNomMarc::setValor(void* nuevoValor){
 
-	Cadenas* nuevaCadena = (Cadenas*)nuevoValor;
+	///////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+	Clave* ClaveCompuesta::copiar()
+	{
+		//TERMINAR ESTO!! FALTA COPIAR TODAS LAS CLAVES QUE ESTAN DENTRO DE LA LISTA!!!
+		ListaClaves* listaClaves = (ListaClaves*)this->getValor();
 
-	/*Trunco el nombre si es de mas de 40 caracteres*/
-/*	if(nuevaCadena->nombre.size()>40)
-		nuevaCadena->nombre.erase(40);
+		return new ClaveCompuesta(*listaClaves,this->obtenerReferencia(),this->getHijoDer());
+	}
 
-	/*Trunco la marca si es de mas de 40 caracteres*/
-/*	if(nuevaCadena->marca.size()>40)
-		nuevaCadena->marca.erase(40);
+	char ClaveCompuesta::comparar(Clave* otraClave)
+	{
+		
+		//IMPLEMENTAR ESTO!!
+		
+		char resultado;
+		
+		/*if (codigoPropio->anio == codigoOtro->anio){
+			if (codigoPropio->mes == codigoOtro->mes){
+				if (codigoPropio->dia == codigoOtro->dia)
+					resultado = 0;
+				else if (codigoPropio->dia < codigoOtro->dia)
+					resultado = -1;
+				else
+					resultado = 1;
+			}else if (codigoPropio->mes < codigoOtro->mes)
+				resultado = -1;
+			else
+				resultado = 1;
+		}else if (codigoPropio->anio < codigoOtro->anio)
+			resultado = -1;
+		else
+			resultado = 1;
+		*/
+		
+		return resultado;
+	}
 
-	this->tamanio = (nuevaCadena->nombre.size() + nuevaCadena->marca.size()
-						+ 2)*sizeof(char) + sizeof(int);
 
-	Clave::setValor(nuevoValor);
-}
+	void ClaveCompuesta::imprimir(ostream& salida)
+	{
+		ListaClaves* listaClaves = (ListaClaves*)this->getValor();
 
-void ClaveNomMarc::imprimir(ostream& salida){
-/*
-	Cadenas* cadenas;
-	cadenas = static_cast<Cadenas*>(this->getValor());
+		salida<<"Clave: "<<*clave;
+		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
+	}
+	
+	bool ClaveCompuesta::operator < (const Clave& clave) const {
+			
+		string* palabraOtra = (string*) clave.getValor();
+		string* palabraThis = (string*) this->getValor();
 
-	salida<<"Nombre: "<<cadenas->nombre;
-	salida<<" Marca: "<<cadenas->marca;
-	salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
-	*/
+		for(unsigned int i=0; i < palabraOtra->length(); i++)
+			(*palabraOtra)[i] = tolower((*palabraOtra)[i]);
 
-/*}
+		for(unsigned int j=0; j < palabraThis->length(); j++)
+			(*palabraThis)[j] = tolower((*palabraThis)[j]);
+		
+		return (*palabraThis < *palabraOtra);
+			
+	}
 
-ClaveNomMarc::~ClaveNomMarc(){
-	delete (Cadenas*)this->getValor();
+	bool ClaveCompuesta::operator == (const Clave& clave) const {
+		
+		string* palabraOtra = (string*) clave.getValor();
+		string* palabraThis = (string*) this->getValor();
 
-}*/
+		for(unsigned int i=0; i < palabraOtra->length(); i++)
+			(*palabraOtra)[i] = tolower((*palabraOtra)[i]);
+
+		for(unsigned int j=0; j < palabraThis->length(); j++)
+			(*palabraThis)[j] = tolower((*palabraThis)[j]);
+		
+		return (*palabraThis == *palabraOtra);
+		
+	}
+	
+	void ClaveCompuesta::setValor(void* nuevoValor) {
+		
+		if (this->valor) delete (string*)this->valor;
+		this->valor = nuevoValor;
+		
+	}
+	
+	unsigned int ClaveCompuesta::getTamanioValor() const {
+		return (((string*)this->getValor())->size()+1)*sizeof(char);
+	}
+	
 

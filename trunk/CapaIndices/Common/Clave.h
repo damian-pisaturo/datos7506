@@ -98,6 +98,10 @@ class Clave
 		//utilizada por el valor anterior, según el tipo de dato que utilice.
 		virtual void setValor(void* nuevoValor) = 0;
 		
+		//Este método es virtual para que cada clase heredera devuelva el tamaño del
+		//tipo de dato que usa internamente.
+		virtual unsigned int getTamanioValor() const = 0;
+		
 		unsigned int obtenerReferencia() const
 		{
 			return refRegistro;
@@ -118,7 +122,7 @@ class Clave
 			return this->valor;
 		}
 
-		unsigned int getTamanio() const
+		unsigned int getTamanioEnDisco() const
 		{
 			return this->tamanio;
 		}
@@ -177,6 +181,10 @@ class ClaveEntera: public Clave
 		//Este método es virtual para que cada clase heredera pueda liberar la memoria
 		//utilizada por el valor anterior, según el tipo de dato que utilice.
 		virtual void setValor(void* nuevoValor);
+		
+		//Este método es virtual para que cada clase heredera devuelva el tamaño del
+		//tipo de dato que usa internamente.
+		virtual unsigned int getTamanioValor() const;
 
 }; //Fin clase ClaveEntera
 
@@ -209,6 +217,20 @@ class ClaveBoolean: public Clave
 		virtual char comparar(Clave* otraClave);
 
 		virtual void imprimir(ostream& salida);
+		
+		//Operador "Menor" utilizado para comprobar si una clave es menor a otra
+		virtual bool operator < (const Clave& clave) const;
+
+		//Operador "Igual" utilizado para comprobar si una clave es igual a otra
+		virtual bool operator == (const Clave& clave) const;
+		
+		//Este método es virtual para que cada clase heredera pueda liberar la memoria
+		//utilizada por el valor anterior, según el tipo de dato que utilice.
+		virtual void setValor(void* nuevoValor);
+		
+		//Este método es virtual para que cada clase heredera devuelva el tamaño del
+		//tipo de dato que usa internamente.
+		virtual unsigned int getTamanioValor() const;
 
 }; //Fin clase ClaveBoolean.
 
@@ -240,6 +262,20 @@ class ClaveChar: public Clave
 		virtual char comparar(Clave* otraClave);
 
 		virtual void imprimir(ostream& salida);
+		
+		//Operador "Menor" utilizado para comprobar si una clave es menor a otra
+		virtual bool operator < (const Clave& clave) const;
+
+		//Operador "Igual" utilizado para comprobar si una clave es igual a otra
+		virtual bool operator == (const Clave& clave) const;
+		
+		//Este método es virtual para que cada clase heredera pueda liberar la memoria
+		//utilizada por el valor anterior, según el tipo de dato que utilice.
+		virtual void setValor(void* nuevoValor);
+		
+		//Este método es virtual para que cada clase heredera devuelva el tamaño del
+		//tipo de dato que usa internamente.
+		virtual unsigned int getTamanioValor() const;
 
 }; //Fin clase ClaveChar.
 
@@ -271,6 +307,20 @@ class ClaveShort: public Clave
 		virtual char comparar(Clave* otraClave);
 
 		virtual void imprimir(ostream& salida);
+		
+		//Operador "Menor" utilizado para comprobar si una clave es menor a otra
+		virtual bool operator < (const Clave& clave) const;
+
+		//Operador "Igual" utilizado para comprobar si una clave es igual a otra
+		virtual bool operator == (const Clave& clave) const;
+		
+		//Este método es virtual para que cada clase heredera pueda liberar la memoria
+		//utilizada por el valor anterior, según el tipo de dato que utilice.
+		virtual void setValor(void* nuevoValor);
+		
+		//Este método es virtual para que cada clase heredera devuelva el tamaño del
+		//tipo de dato que usa internamente.
+		virtual unsigned int getTamanioValor() const;
 
 }; //Fin clase ClaveShort.
 
@@ -302,6 +352,20 @@ class ClaveReal: public Clave
 		virtual char comparar(Clave* otraClave);
 
 		virtual void imprimir(ostream& salida);
+		
+		//Operador "Menor" utilizado para comprobar si una clave es menor a otra
+		virtual bool operator < (const Clave& clave) const;
+
+		//Operador "Igual" utilizado para comprobar si una clave es igual a otra
+		virtual bool operator == (const Clave& clave) const;
+		
+		//Este método es virtual para que cada clase heredera pueda liberar la memoria
+		//utilizada por el valor anterior, según el tipo de dato que utilice.
+		virtual void setValor(void* nuevoValor);
+		
+		//Este método es virtual para que cada clase heredera devuelva el tamaño del
+		//tipo de dato que usa internamente.
+		virtual unsigned int getTamanioValor() const;
 
 }; //Fin clase ClaveReal.
 
@@ -344,6 +408,20 @@ class ClaveVariable: public Clave
 		virtual char comparar(Clave* otraClave);
 
 		virtual void imprimir(ostream& salida);
+		
+		//Operador "Menor" utilizado para comprobar si una clave es menor a otra
+		virtual bool operator < (const Clave& clave) const;
+
+		//Operador "Igual" utilizado para comprobar si una clave es igual a otra
+		virtual bool operator == (const Clave& clave) const;
+		
+		//Este método es virtual para que cada clase heredera pueda liberar la memoria
+		//utilizada por el valor anterior, según el tipo de dato que utilice.
+		virtual void setValor(void* nuevoValor);
+		
+		//Este método es virtual para que cada clase heredera devuelva el tamaño del
+		//tipo de dato que usa internamente.
+		virtual unsigned int getTamanioValor() const;
 
 }; //Fin clase ClaveVariable.
 
@@ -397,6 +475,20 @@ class ClaveFecha: public Clave
 		virtual char comparar(Clave* otraClave);
 
 		virtual void imprimir(ostream& salida);
+		
+		//Operador "Menor" utilizado para comprobar si una clave es menor a otra
+		virtual bool operator < (const Clave& clave) const;
+
+		//Operador "Igual" utilizado para comprobar si una clave es igual a otra
+		virtual bool operator == (const Clave& clave) const;
+		
+		//Este método es virtual para que cada clase heredera pueda liberar la memoria
+		//utilizada por el valor anterior, según el tipo de dato que utilice.
+		virtual void setValor(void* nuevoValor);
+		
+		//Este método es virtual para que cada clase heredera devuelva el tamaño del
+		//tipo de dato que usa internamente.
+		virtual unsigned int getTamanioValor() const;
 
 }; //Fin clase ClaveFecha.
 
@@ -410,15 +502,15 @@ typedef list<Clave*> ListaClaves;
 // Clase
 //-------------------------------------------------------------------------
 // Nombre: ClaveCompuesta
-// Descripcion: Implementa claves compuestas (lista de claves).
+// Descripcion: Implementa claves compuestas (lista de claves simples).
 ///////////////////////////////////////////////////////////////////////////
 
 class ClaveCompuesta: public Clave
 {
-    private:
-    	//En esta lista las claves que componen la clave compuesta se almacenan
-    	//por orden de prioridad
-        ListaClaves listaClaves;
+    //En esta clase el atributo void* apunta a una lista de claves (ListaClaves).
+    //En esta lista las claves que componen la clave compuesta se almacenan
+    //por orden de prioridad.
+    	
 	public:
 	///////////////////////////////////////////////////////////////////////////
 	// Constructores/Destructor
@@ -442,6 +534,20 @@ class ClaveCompuesta: public Clave
 		virtual char comparar(Clave* otraClave);
 
 		virtual void imprimir(ostream& salida);
+		
+		//Operador "Menor" utilizado para comprobar si una clave es menor a otra
+		virtual bool operator < (const Clave& clave) const;
+
+		//Operador "Igual" utilizado para comprobar si una clave es igual a otra
+		virtual bool operator == (const Clave& clave) const;
+		
+		//Este método es virtual para que cada clase heredera pueda liberar la memoria
+		//utilizada por el valor anterior, según el tipo de dato que utilice.
+		virtual void setValor(void* nuevoValor);
+		
+		//Este método es virtual para que cada clase heredera devuelva el tamaño del
+		//tipo de dato que usa internamente.
+		virtual unsigned int getTamanioValor() const;
 
 }; //Fin clase ClaveCompuesta.
 
