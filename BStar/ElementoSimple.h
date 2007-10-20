@@ -2,6 +2,7 @@
 #define ELEMENTOSIMPLE_H_
 
 #include "Elemento.h"
+#include "Clave.h"
 
 class ElementoSimple : public Elemento {
 	
