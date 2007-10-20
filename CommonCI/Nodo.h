@@ -1,96 +1,203 @@
+///////////////////////////////////////////////////////////////////////////
+//	Archivo   : Nodo.h
+//  Namespace : CapaIndice 
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Cabeceras e interfaz de la clase Nodo.
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel.
+//		- Pisaturo, Damian;	
+//		- Rodriguez, Maria Laura.
+///////////////////////////////////////////////////////////////////////////
 #ifndef NODO_H_
 #define NODO_H_
 
-#ifndef NULL
-#define NULL 0
-#endif
-
 #include "Lista.h"
-#include "ArchivoIndicePadre.h"
+#include "Codigo.h"
 #include "BpTree.h"
 
 /*Pre-Definition*/
-class ArchivoIndice;
 class Clave;
 class ListaClaves;
 class Codigo;
 
-class Nodo{
-      private:
-
-              /*Header del Nodo - Info que no son claves
-               * pero que se almacena en el archivo*/
-              int hijoIzq;
-              int nivel;
-              int espacioLibre;
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: Nodo (Abstracta)
+//////////////////////////////////////////////////////////////////////////
+class Nodo
+{
+	private:
+    //////////////////////////////////////////////////////////////////////////
+	// Atributos
+	///////////////////////////////////////////////////////////////////////////
+		
+		/*Header del Nodo
+		 * Datos que no son claves 
+		 * pero que se almacena en el archivo
+		 */
+		int hijoIzq;
+		unsigned int nivel;
+		unsigned int espacioLibre;
+		unsigned int posicionEnArchivo;
+		ListaClaves* claves; //TODO Modificar por el set de Dami.
+	
+	public:
+	///////////////////////////////////////////////////////////////////////////
+    // Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////////
+		
+		/*Crea el nodo sin setear ningun atributo*/
+		Nodo (int hijoIzq,int nivel,ArchivoIndice* archivo);
+		
+		/*Crea un nuevo nodo para insertarle una Clave*/
+		Nodo(int hijoIzq,int nivel,Clave* clave,ArchivoIndice* archivo);
+		
+		/*Lee el archivo y crea ese nodo*/
+		Nodo(ArchivoIndice* archivoIndice,int referencia);
+		
+		/*Destructor*/
+		virtual Nodo::~Nodo();
+		
+	///////////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	///////////////////////////////////////////////////////////////////////////
+		
+		/*insertarClave()
+		 * Inserta la clave pasada en el nodo corriente.
+		 * Devuelve un Codigo dependiendo del resultado:
+		 * 	Codigo::OK - Insercion llevada a cabo correctamente.
+		 *  Codigo::OVERFLOW - Sobreflujo de claves.
+		 * */
+		virtual char insertarClave(Clave* &clave) = 0;
+		//TODO insertarEnHoja e insertarEnNodo debieran ser casos particulares del
+		//arbol B+. Dejo comentadas sus cabeceras para futura referencia.
+		
+		//void insertarEnHoja(ArchivoIndice* archivoIndice,Clave* &clave,Codigo* codigo);
+		//void insertarEnNodo(ArchivoIndice* archivoIndice,Clave* &clave,Codigo* codigo);
+		
+		
+		/*siguiente()
+		 * */
+		virtual Nodo* siguiente(Clave* clave);
+		
+		/*eliminarClave()
+			 * Elimina la clave pasada en el nodo corriente.
+			 * Devuelve un Codigo dependiendo del resultado:
+			 * 	Codigo::OK - Insercion llevada a cabo correctamente.
+			 *  Codigo::UNDERFLOW - Subflujo de claves.
+			 * */		
+		virtual char eliminarClave(Clave* clave);
+		
+		//TODO Aparentemente este metodo puede fletarse.
+		//bool soportaSplit(Nodo* nodoConSubflow);
+		
+		/*actualizarEspacioLibre()
+				 * Modifica el espacioLibre en el nodo sumando o restando
+				 * el tamanio de la/s clave/s a insertar, segun sea una
+				 * insercion o una eliminacion.
+				 */
+		void actualizarEspacioLibre(ListaClaves* claves, bool insercion); //TODO cambiar a set STL.
+		void actualizarEspacioLibre(Clave* clave, bool insercion);
+		//void actualizarEspacioLibre(ArchivoIndice* archivo); TODO Esta comentado porque recibe un Archivo (comunicacion con la capa fisica a traves del pipe)
+				
+		//TODO condicionMinima() calcula el tamanio minimo que puede estar
+		//ocupado en un nodo, pero usa el Archivo. Reveer eso.
+		//int condicionMinima(ArchivoIndice* archivo);
+		
+		//TODO claveSiguiente() devuelve la clave siguiente a 
+		//la pasada por parametro la lista de claves del nodo.
+		//Cambiar a set STL.
+		//Clave* claveSiguiente(Clave* clave);
+		
+		/*reemplazarClave()
+		 * Reemplaza la claveVieja del Nodo actual con una copia de 
+		 * la clave nueva. Devuelve Codigo::MODIFICADO en codigo.
+		 */
+		Clave* reemplazarClave(Clave* claveVieja,Clave* claveNueva,char* codigo);
+		
+		//TODO Cambiar a set STL.
+		/*inserta la lista al final de  la existente en el nodo, graba el nodo en el archivo , actualiza el espcio libre*/
+		//void insertarFinal(ListaClaves* lista,ArchivoIndice* archivoIndice);
+		
+		/*Devuelven referencias a archivos de las claves anterior y posterior a la clave dada
+		 * devuelven -1 si la clave no tiene referencia posterior o anterior*/
+		char refAnterior(Clave* clave);
+		char refPosterior(Clave* clave);
+		
+	///////////////////////////////////////////////////////////////////////////
+	// Getters/Setters
+	///////////////////////////////////////////////////////////////////////////
+		/*Setters*/
+		void setHijoIzq(int hijoIzq)
+		{
+			this->hijoIzq = hijo;
+		}
+		
+		void setNivel(unsigned int nivel)
+		{
+			this->nivel = nivel;
+		}
+		
+		//TODO Cambiar al set STL.
+		/*
+		void setClaves(ListaClaves* lista)
+		{		
+			this->claves = lista;
+		}
+		*/
+		
+		void setEspacioLibre(unsigned int cant)
+		{
+			this->espacioLibre = cant;
+		}
+		void setPosicionEnArchivo(unsigned int posicion)
+		{
+			this->posicionEnArchivo = posicion;	
+		}		
+		
+		/*Getters*/
+		unsigned int getHijoIzq()
+		{
+			return this->hijoIzq;
+		}
+		
+		unsigned int getNivel()
+		{
+			return this->nivel;
+		}
+		
+		unsigned int getPosicionEnArchivo()
+		{
+			return this->posicionEnArchivo;
+		}
+		
+		unsigned int getEspacioLibre()
+		{
+			return this->espacioLibre;
+		}
+		
+		//TODO Los siguientes metodos usan ListaClaves.
+		//Cambiar al set STL (si es que son necesarios).
+		/*
+		ListaClaves* obtenerClaves(); 
+		
+		bool vacio(ArchivoIndice* archivo);
+		void primero();
+		Clave* obtenerClaveActual();
+		bool siguiente();
+		*/
+		
+             
                      
-              int posicionEnArchivo;
-              ListaClaves* claves;
-             
-              
-      public:
-              
-             /*Constructores*/
-             
-             /*Crea el nodo sin setear ningun atributo*/
-             Nodo (int hijoIzq,int nivel,ArchivoIndice* archivo);
-             /*Crea un nuevo nodo para insertarle una Clave*/
-             Nodo(int hijoIzq,int nivel,Clave* clave,ArchivoIndice* archivo);
-             /*Lee el archivo y crea ese nodo*/
-             Nodo(ArchivoIndice* archivoIndice,int referencia);
-             
-             /*Insercion*/
-		     void insertarEnHoja(ArchivoIndice* archivoIndice,Clave* &clave,Codigo* codigo);
-             void insertarEnNodo(ArchivoIndice* archivoIndice,Clave* &clave,Codigo* codigo);
-        
-             
-			 void actualizarEspacioLibre(ListaClaves* claves, bool insercion);          
-			 void actualizarEspacioLibre(Clave* clave, bool insercion);
-			 void actualizarEspacioLibre(ArchivoIndice* archivo);
-             /*Siguiente*/		
-             Nodo* siguiente(ArchivoIndice* archivo,Clave* clave);
-             
-             /*Eliminar*/
-             /*tiene que quitar la clave o la mas cercana ARREGLAR*/
-             void quitarClave(ArchivoIndice* archivo,Clave* clave,Codigo* codigo);
-             bool soportaSplit(Nodo* nodoConSubflow);
-             int condicionMinima(ArchivoIndice* archivo);
-             Clave* claveSiguiente(Clave* clave);
-             Clave* reemplazarClave(Clave* claveVieja,Clave* claveNueva,Codigo* codigo);
-             
-             /*inserta la lista al final de  la existente en el nodo, graba el nodo en el archivo , actualiza el espcio libre*/
-             void insertarFinal(ListaClaves* lista,ArchivoIndice* archivoIndice);
-             
-             /*Chequea si puede donar*/
-             bool puedeDonar(ArchivoIndice* archivo);
-             Clave* buscar(Clave* claveBuscada);
-             /*Setters*/
-             void setHijoIzq(int hijoIzq);
-             void setNivel(int nivel);
-             void setEspacioLibre(int cant);
-             
-             /*----------*/
-             void setPosicionEnArchivo(int posicion);
-             void setClaves(ListaClaves* lista);
-			
-             /*Getters*/
-             int getHijoIzq();
-             int getNivel();
-             int obtenerPosicionEnArchivo();
-             ListaClaves* obtenerClaves();
-             int getEspacioLibre();
-             bool vacio(ArchivoIndice* archivo);
-             void primero();
-             Clave* obtenerClaveActual();
-             bool siguiente();
-             
-             /*Devuelven referencias a archivos de las claves anterior y posterior a la clave dada
-              * devuelven -1 si la clave no tiene referencia posterior o anterior*/
-             int refAnterior(Clave* clave);
-             int refPosterior(Clave* clave);
-             
-             /*Destructor*/             
-             Nodo::~Nodo();          
-};            
+}; //Fin clase Nodo.       
 
 #endif /*NODO_H_*/
