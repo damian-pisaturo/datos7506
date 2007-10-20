@@ -1,19 +1,19 @@
 ///////////////////////////////////////////////////////////////////////////
-//	Archivo   : CClave.h
-//  Namespace : CapaIndice 
+//	Archivo   : Clave.h
+//  Namespace : CapaIndice
 ////////////////////////////////////////////////////////////////////////////
 //	75.06 Organizacion de Datos
 //	Trabajo practico: Framework de Persistencia
 ////////////////////////////////////////////////////////////////////////////
 //	Descripcion
-//		Cabeceras e interfaz de la clase CCClave.
+//		Cabeceras e interfaz de la clase Clave.
 ///////////////////////////////////////////////////////////////////////////
 //	Integrantes
 //		- Alvarez Fantone, Nicolas;
 //      - Caravatti, Estefania;
 //		- Garcia Cabrera, Manuel;
-//      - Grisolia, Nahuel.
-//		- Pisaturo, Damian;	
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;
 //		- Rodriguez, Maria Laura
 ///////////////////////////////////////////////////////////////////////////
 
@@ -21,19 +21,18 @@
 #define CLAVE_H_
 
 #include <iostream>
+#include <list>
+
 using namespace std;
-
-#include "Lista.h"
-
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: CClave (Abstracta)
+// Nombre: Clave (Abstracta)
 //////////////////////////////////////////////////////////////////////////
 
-class CClave
-{	
+class Clave
+{
 	private:
 	///////////////////////////////////////////////////////////////////////////
 	// Atributos
@@ -42,301 +41,316 @@ class CClave
 		/*En claves primarias: offset al registro del archivo de datos (indice griego).
 		  En claves secundarias: offset a una lista con claves primarias (indice romano).
 		*/
-		unsigned int refRegistro; 
+		unsigned int refRegistro;
 
 		//hijoDer
-		/*Referencia al nodo derecho del arbol 
-		  (Claves mayores/menores a la clave actual).
+		/*Referencia al nodo derecho del arbol
+		  (Claves mayores a la clave actual).
 		*/
-		int hijoDer; 
-		
+		unsigned int hijoDer;
+
 		//valor
 		/*Contenido de la clave dependiendo de su tipo.
 		  Numerico, string, lista de claves (claves compuestas), etc.
 		*/
 		void* valor;
-	
-	protected:		
+
+	protected:
 		unsigned int tamanio;
-	
+
 	public:
 	///////////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////////
-		CClave()
-		{
-			hijoDer = -1;
-			refRegistro = 0;
-			valor = NULL;
-		}
+		Clave() : refRegistro(0), hijoDer(0), valor(NULL), tamanio(0) {}
 
-		virtual ~CClave(){};
+		virtual ~Clave() {}
 
 	///////////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////////
-		/*Compara la CClave actual con otraCClave, 
-		  dependiendo el tipo de CClave.
+		/*Compara la Clave actual con otraClave,
+		  dependiendo el tipo de Clave.
 		*/
-		virtual char comparar(CClave* otraClave) = 0;
-		
-		/*Devuelve una copia de la CClave*/
-		virtual CClave* copiar() = 0;
-		
-		/*Imprime la CClave por salida*/
+		virtual char comparar(Clave* otraClave) = 0;
+
+		/*Devuelve una copia de la Clave*/
+		virtual Clave* copiar() = 0;
+
+		/*Imprime la Clave por salida*/
 		virtual void imprimir(ostream& salida) = 0;
+
+		//Operador "Menor" utilizado para comprobar si una clave es menor a otra
+		virtual bool operator < (const Clave& clave) const = 0;
+
+		//Operador "Igual" utilizado para comprobar si una clave es igual a otra
+		virtual bool operator == (const Clave& clave) const = 0;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Getters/Setters
 	///////////////////////////////////////////////////////////////////////////
-		virtual unsigned int obtenerReferencia()
+		
+		//Este método es virtual para que cada clase heredera pueda liberar la memoria
+		//utilizada por el valor anterior, según el tipo de dato que utilice.
+		virtual void setValor(void* nuevoValor) = 0;
+		
+		unsigned int obtenerReferencia() const
 		{
 			return refRegistro;
 		}
-		
-		virtual void setValor(void* nuevoValor)
-		{
-			this->valor = nuevoValor;
-		}
-		
-		virtual void setReferencia(unsigned int referencia)
+
+		void setReferencia(unsigned int referencia)
 		{
 			this->refRegistro = referencia;
 		}
 
-		virtual void setHijoDer(int hijoDer)
+		void setHijoDer(unsigned int hijoDer)
 		{
 			this->hijoDer = hijoDer;
 		}
-		
-		virtual void* getValor()
+
+		void* getValor() const
 		{
 			return this->valor;
 		}
-		
-		virtual unsigned int getTamanio()
+
+		unsigned int getTamanio() const
 		{
 			return this->tamanio;
 		}
 
-		virtual int getHijoDer()
+		unsigned int getHijoDer() const
 		{
 			return this->hijoDer;
 		}
-}; //Fin clase CClave (Abstracta)
- 
+}; //Fin clase Clave (Abstracta)
+
+
+//Estructura necesaria para comparar dos objetos de tipo Clave, dentro de un
+//contenedor de la STL
+struct Comparador {
+  bool operator()(const Clave* c1, const Clave* c2) const {
+    return (*c1 < *c2);
+  }
+};
+
+
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //-------------------------------------------------------------------------
-// Nombre: CClaveEntera 
+// Nombre: ClaveEntera
 // Descripcion: Implementa claves de tipo enteras (longitud fija).
 ///////////////////////////////////////////////////////////////////////////
-class CClaveEntera: public CClave
+class ClaveEntera: public Clave
 {
-	public:		
+	public:
 	///////////////////////////////////////////////////////////////////////////
 	// Constructores/Destructor
 	///////////////////////////////////////////////////////////////////////////
- 		CClaveEntera();
- 		CClaveEntera(int clave, unsigned int referencia, int hijoDer = -1);
+ 		ClaveEntera();
+ 		ClaveEntera(int clave, unsigned int referencia = 0,
+                                unsigned int hijoDer = 0);
 
-		virtual ~CClaveEntera();
+		virtual ~ClaveEntera();
 
 	///////////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////////
-		/*Devuelve una copia de la CClave*/
- 		virtual CClave* copiar();
-		
-		/*Devuelve 0 si es igual, -1 si la clave es menor a la otraClave, 
-		  1 si es mayor
-		*/
-		virtual char comparar(CClave* otraClave);
-			
+		/*Devuelve una copia de la Clave*/
+ 		virtual Clave* copiar();
+
+		/*Devuelve 0 si es igual, -1 si la clave es menor a la otraClave,
+		  1 si es mayor*/
+		virtual char comparar(Clave* otraClave);
+
 		virtual void imprimir(ostream& salida);
-			 
-}; //Fin clase CClaveEntera
+
+}; //Fin clase ClaveEntera
 
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //-------------------------------------------------------------------------
-// Nombre: CClaveBoolean
+// Nombre: ClaveBoolean
 // Descripcion: Implementa claves de tipo booleanas (verdadero/falso).
 ///////////////////////////////////////////////////////////////////////////
-class CClaveBoolean: public CClave
+class ClaveBoolean: public Clave
 {
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		CClaveBoolean();
-		CClaveBoolean(bool clave, unsigned int referencia, int hijoDer = -1);
-		virtual ~CClaveBoolean();
+		ClaveBoolean();
+		ClaveBoolean(bool clave, unsigned int referencia = 0,
+									unsigned int hijoDer = 0);
+		virtual ~ClaveBoolean();
 
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////
-		
+
  		/*Devuelve una copia de la clave*/
- 		virtual CClave* copiar();
-		
-		/*Devuelve 0 si es igual, 1 si el valor booleano es distinto.*/
-		virtual char comparar(CClave* otraClave);
-		
-		virtual void imprimir(ostream& salida);			
-			 
-}; //Fin clase CClaveBoolean.
+ 		virtual Clave* copiar();
+
+ 		/*Devuelve 0 si es igual, -1 si la clave es menor a la otraClave,
+ 		1 si es mayor*/
+		virtual char comparar(Clave* otraClave);
+
+		virtual void imprimir(ostream& salida);
+
+}; //Fin clase ClaveBoolean.
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //-------------------------------------------------------------------------
-// Nombre: CClaveChar
+// Nombre: ClaveChar
 // Descripcion: Implementa claves de tipo char.
 ///////////////////////////////////////////////////////////////////////////
-class CClaveChar: public CClave
+class ClaveChar: public Clave
 {
 	public:
 	///////////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////////
-		CClaveChar::CClaveChar();
-		CClaveChar(char clave, unsigned int referencia, int hijoDer = -1);
-		virtual ~CClaveChar();
+		ClaveChar();
+		ClaveChar(char clave, unsigned int referencia = 0,
+								unsigned int hijoDer = 0);
+		virtual ~ClaveChar();
 
 	///////////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////////
-		
+
  		/*Devuelve una copia de la clave*/
- 		virtual CClave* copiar();
-		
+ 		virtual Clave* copiar();
+
 		/*Devuelve 0 si es igual, -1 si la clave es menor a la otraClave,
-		  1 si es mayor
-		*/
-		virtual char comparar(CClave* otraClave);
-		
-		virtual void imprimir(ostream& salida);			
-			 
-}; //Fin clase CClaveChar.
+		  1 si es mayor*/
+		virtual char comparar(Clave* otraClave);
+
+		virtual void imprimir(ostream& salida);
+
+}; //Fin clase ClaveChar.
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //-------------------------------------------------------------------------
-// Nombre: CClaveShort
+// Nombre: ClaveShort
 // Descripcion: Implementa claves de tipo short.
 ///////////////////////////////////////////////////////////////////////////
-class CClaveShort: public CClave
+class ClaveShort: public Clave
 {
 	public:
 	////////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	////////////////////////////////////////////////////////////////////////
-		CClaveShort();
-		CClaveShort(short clave, unsigned int referencia, int hijoDer = -1);
-		virtual ~CClaveShort();
+		ClaveShort();
+		ClaveShort(short clave, unsigned int referencia = 0,
+									unsigned int hijoDer = 0);
+		virtual ~ClaveShort();
 
 	////////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	////////////////////////////////////////////////////////////////////////
-		
+
  		/*Devuelve una copia de la clave*/
- 		virtual CClave* copiar();
-		
+ 		virtual Clave* copiar();
+
 		/*Devuelve 0 si es igual, -1 si la clave es menor a la otraClave,
-		  1 si es mayor
-		*/
-		virtual char comparar(CClave* otraClave);
-		
-		virtual void imprimir(ostream& salida);			
-			 
-}; //Fin clase CClaveShort.
+		  1 si es mayor*/
+		virtual char comparar(Clave* otraClave);
+
+		virtual void imprimir(ostream& salida);
+
+}; //Fin clase ClaveShort.
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //-------------------------------------------------------------------------
-// Nombre: CClaveReal
+// Nombre: ClaveReal
 // Descripcion: Implementa claves de tipo float.
 ///////////////////////////////////////////////////////////////////////////
-class CClaveReal: public CClave
+class ClaveReal: public Clave
 {
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		CClaveReal();
-		CClaveReal(float clave, unsigned int referencia, int hijoDer = -1);
-		virtual ~CClaveReal();
+		ClaveReal();
+		ClaveReal(float clave, unsigned int referencia = 0,
+								unsigned int hijoDer = 0);
+		virtual ~ClaveReal();
 
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
-	///////////////////////////////////////////////////////////////////////		
+	///////////////////////////////////////////////////////////////////////
  		/*Devuelve una copia de la clave*/
- 		virtual CClave* copiar();
-		
+ 		virtual Clave* copiar();
+
 		/*Devuelve 0 si es igual, -1 si la clave es menor a la otraClave,
 		  1 si es mayor
 		*/
-		virtual char comparar(CClave* otraClave);
-		
-		virtual void imprimir(ostream& salida);			
-			 
-}; //Fin clase CClaveReal.
+		virtual char comparar(Clave* otraClave);
+
+		virtual void imprimir(ostream& salida);
+
+}; //Fin clase ClaveReal.
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //-------------------------------------------------------------------------
-// Nombre: CClaveVariable
+// Nombre: ClaveVariable
 // Descripcion: Implementa claves de longitud variable.
 ///////////////////////////////////////////////////////////////////////////
-class CClaveVariable: public CClave
+class ClaveVariable: public Clave
 {
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Atributos
 	///////////////////////////////////////////////////////////////////////
 		//Longitud maxima de la cadena a almacenar.
-		//static const unsigned char longMaxCadena = 40; 
-		
+		static const unsigned char longMaxCadena = 40;
+
 		/*La longitud actual de la cadena puede obtenerse mediante
-		  el metodo size() de la clase string. Aunque no este como atributo, 
+		  el metodo size() de la clase string. Aunque no esté como atributo,
 		  debe persistirse en disco.
 		*/
 
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		CClaveVariable(string clave, unsigned int referencia, int hijoDer = -1);
-		virtual ~CClaveVariable();
+		ClaveVariable(const string& clave, unsigned int referencia = 0,
+											unsigned int hijoDer = 0);
+		virtual ~ClaveVariable();
 
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
-	///////////////////////////////////////////////////////////////////////		
+	///////////////////////////////////////////////////////////////////////
  		/*Devuelve una copia de la clave*/
- 		virtual CClave* copiar();
-		
+ 		virtual Clave* copiar();
+
 		/*Devuelve 0 si es igual, -1 si la clave es menor a la otraClave,
 		  1 si es mayor
 		*/
-		virtual char comparar(CClave* otraClave);
-		
-		virtual void imprimir(ostream& salida);			
-			 
-}; //Fin clase CClaveVariable.
+		virtual char comparar(Clave* otraClave);
+
+		virtual void imprimir(ostream& salida);
+
+}; //Fin clase ClaveVariable.
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //-------------------------------------------------------------------------
-// Nombre: CClaveFecha
+// Nombre: ClaveFecha
 // Descripcion: Implementa claves de tipo fecha (AAAAMMDD).
 ///////////////////////////////////////////////////////////////////////////
-class CClaveFecha: public CClave
+class ClaveFecha: public Clave
 {
 	private:
 
 		/*ATTENZIONE!
 			NO SE SI EL FORMATO CORRESPONDE AL QUE ESTA EN EL
-			ENUNCIADO (pareciera querer decir que la fecha es un string 
+			ENUNCIADO (pareciera querer decir que la fecha es un string
 			de 6 bytes o un entero del estilo "20071119"), PERO DE ESTA FORMA
 			SON BASTANTE SENCILLAS LAS COMPARACIONES Y EL SIZE DEL DATO ES MINIMO.
 		*/
@@ -347,12 +361,12 @@ class CClaveFecha: public CClave
 
 			bool crear(short a, char m, char d)
 			{
-				if ((a > 9999) || (m > 12) || (d > 31)) 
+				if ((a > 9999) || (m > 12) || (d > 31))
 					return false;
-				else{					
+				else{
 					this->anio = a;
 					this->mes  = m;
-					this->dia  = d;				
+					this->dia  = d;
 				}
 
 				return true;
@@ -363,58 +377,71 @@ class CClaveFecha: public CClave
 	/////////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	/////////////////////////////////////////////////////////////////////////
-		CClaveFecha();
-		CClaveFecha(fecha* clave, unsigned int referencia, int hijoDer = -1);
-		virtual ~CClaveFecha();
+		ClaveFecha();
+		ClaveFecha(fecha* clave, unsigned int referencia = 0,
+									unsigned int hijoDer = 0);
+		virtual ~ClaveFecha();
 
 	/////////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	/////////////////////////////////////////////////////////////////////////
-		
+
  		/*Devuelve una copia de la clave*/
- 		virtual CClave* copiar();
-		
+ 		virtual Clave* copiar();
+
 		/*Devuelve 0 si es igual, -1 si la clave es menor a la otraClave,
 		  1 si es mayor
 		*/
-		virtual char comparar(CClave* otraClave);
-		
-		virtual void imprimir(ostream& salida);			
-			 
-}; //Fin clase CClaveFecha.
+		virtual char comparar(Clave* otraClave);
+
+		virtual void imprimir(ostream& salida);
+
+}; //Fin clase ClaveFecha.
+
+
+//Definición del tipo de dato de la lista de claves utilizada en la clase
+//ClaveCompuesta
+
+typedef list<Clave*> ListaClaves;
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //-------------------------------------------------------------------------
-// Nombre: CClaveCompuesta
+// Nombre: ClaveCompuesta
 // Descripcion: Implementa claves compuestas (lista de claves).
 ///////////////////////////////////////////////////////////////////////////
-			
-class CClaveCompuesta: public CClave
-{
 
+class ClaveCompuesta: public Clave
+{
+    private:
+    	//En esta lista las claves que componen la clave compuesta se almacenan
+    	//por orden de prioridad
+        ListaClaves listaClaves;
 	public:
 	///////////////////////////////////////////////////////////////////////////
 	// Constructores/Destructor
 	///////////////////////////////////////////////////////////////////////////
-		ClaveCompuesta(CListaClaves* listaClaves, int hijoDer = -1);
-		virtual ~CClaveCompuesta();
+		ClaveCompuesta(const ListaClaves& listaClaves,
+						unsigned int referencia = 0,
+						unsigned int hijoDer = 0);
+		virtual ~ClaveCompuesta();
 
 	///////////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////////
- 			
-		/*Devuelve una copia de la CClave*/
-		virtual CClave* copiar();
- 			
+
+		/*Devuelve una copia de la Clave*/
+		virtual Clave* copiar();
+
 		/*Devuelve 0 si es igual, -1 si la clave es menor a la otraClave,
 		  1 si es mayor. Compara secuencialmente en el orden de la lista
 		  de claves.
 		*/
-		virtual char comparar(CClave* otraClave);
+		virtual char comparar(Clave* otraClave);
 
 		virtual void imprimir(ostream& salida);
-}; //Fin clase CClaveCompuesta.
+
+}; //Fin clase ClaveCompuesta.
 
 
 #endif /*CLAVE_H_*/
