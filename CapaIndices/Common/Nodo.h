@@ -19,7 +19,7 @@
 #ifndef NODO_H_
 #define NODO_H_
 
-#include "Lista.h"
+//#include "Lista.h"
 #include "Codigo.h"
 
 class Clave;
@@ -85,7 +85,7 @@ class Nodo
 		
 		/*siguiente()
 		 * */
-		virtual Nodo* siguiente(Clave* clave); //TODO NADIE entiende este metodo. Creo que se usa en la gesta de embriones macho de Vicuña de la Pampa Humeda.
+		virtual Nodo* siguiente(Clave* clave); //TODO NADIE entiende este metodo. Creo que se usa en la gesta de embriones macho de Vicuï¿½a de la Pampa Humeda.
 		
 		/*eliminarClave()
 			 * Elimina la clave pasada en el nodo corriente.
@@ -135,7 +135,7 @@ class Nodo
 		 * Devuelve la clave mas cercana a la claveBuscada dentro de la lista
 		 * de claves contenidas en el nodo (o la misma si se encuentra presente).
 		 */ 
-		Clave* buscar(Clave* claveBuscada);
+		virtual Clave* buscar(Clave* claveBuscada);
 		
 	///////////////////////////////////////////////////////////////////////////
 	// Getters/Setters
@@ -143,7 +143,7 @@ class Nodo
 		/*Setters*/
 		void setHijoIzq(int hijoIzq)
 		{
-			this->hijoIzq = hijo;
+			this->hijoIzq = hijoIzq;
 		}
 		
 		void setNivel(unsigned int nivel)
