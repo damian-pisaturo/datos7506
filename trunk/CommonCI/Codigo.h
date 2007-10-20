@@ -4,9 +4,10 @@
 class Codigo {
 	
 	public:
-		const static int OK = 0;
-		const static int UNDERFLOW = 1;
-		const static int OVERFLOW = 2;
+		const static char OK = 0;
+		const static char UNDERFLOW = 1;
+		const static char OVERFLOW = 2;
+		const static char MODIFICADO = 3;
 		
 };
 
