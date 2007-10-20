@@ -201,50 +201,10 @@ while(!lista->fin()){
 
 this->espacioLibre = tamanioTotal - tamanioOcupado;
 }
-/*----------------------------------------------------------------------------------*/
-int Nodo::obtenerPosicionEnArchivo(){
-     return this->posicionEnArchivo;
-     }
-/*------------------------------------------------------------------------------------*/
-void Nodo::setHijoIzq(int hijo){
-     this->hijoIzq = hijo;
-     }
-/*-----------------------------------------------------------------------------------*/
-void Nodo::setNivel(int nivel){
-     this->nivel = nivel;
-     }
-/*------------------------------------------------------------------------------------*/
-void Nodo::setClaves(ListaClaves* lista){
-     this->claves = lista;
-     }
-/*------------------------------------------------------------------------------------*/
-void Nodo::setEspacioLibre(int cant){
-	this->espacioLibre = cant;	
-}
-/*------------------------------------------------------------------------------------*/
-int Nodo::getEspacioLibre(){
-	return this->espacioLibre;	
-}
-/*------------------------------------------------------------------------------------*/
-void Nodo::setPosicionEnArchivo(int posicion){
-	this->posicionEnArchivo = posicion;	
-}
-/*--------------------------------------------------------------------------------------*/
-int Nodo::getNivel(){
-     return this->nivel;
-     }
-/*---------------------------------------------------------------------------------------*/
-ListaClaves* Nodo::obtenerClaves(){
-     return this->claves;        
-     }
 
-/*------------------------------------------------------------------------------------*/
-int Nodo::getHijoIzq(){
-     return this->hijoIzq;
-     }
 
 /*-------------------------------------------------------------------------------------*/
-int Nodo::refPosterior(Clave* clave){
+char Nodo::refPosterior(Clave* clave){
 	
 	int post;
 	
@@ -270,7 +230,7 @@ int Nodo::refPosterior(Clave* clave){
     return post; 
 }
 /*------------------------------------------------------------------------------------------*/
-int Nodo::refAnterior(Clave* clave){
+char Nodo::refAnterior(Clave* clave){
 	
 	int ant;
 	Clave* buscada;
@@ -313,9 +273,11 @@ int Nodo::condicionMinima(ArchivoIndice* archivo){
 	return  (tamanioReal / 2);   
 }
 /*---------------------------------------------------------------------------------------*/
+/*
 void Nodo::primero(){
 	this->obtenerClaves()->primero();
 }
+*/
 /*---------------------------------------------------------------------------------------*/     
 void Nodo::quitarClave(ArchivoIndice* archivo,Clave* clave,Codigo* codigo){
 
@@ -345,6 +307,7 @@ return devolver;
 
 }
 /*-----------------------------------------------------------------------------------*/
+/*
 bool Nodo::siguiente(){
 bool devolver=true ;
 
@@ -354,10 +317,13 @@ if (this->obtenerClaves()->fin())
 
 return devolver;
 }
+*/
 /*-----------------------------------------------------------------------------------*/
+/*
 Clave* Nodo::obtenerClaveActual(){
  	return (Clave*)this->obtenerClaves()->obtenerDato();
 }
+*/
 /*------------------------------------------------------------------------------------------*/
 Clave* Nodo::claveSiguiente(Clave* clave){
 /*CONTEMPLA CASO EN EL CUAL EXISTA UNA UNICA CLAVE EN EL NODO EN EL CUAL SE DEBE BUSCAR LA CLAVE SIGUIENTE*/
@@ -376,6 +342,7 @@ Clave* Nodo::claveSiguiente(Clave* clave){
 	return devolver;
 }
 /*-----------------------------------------------------------------------------------*/
+/*
 bool Nodo::vacio(ArchivoIndice* archivo){
 	bool vacio = false;
 	if((this->espacioLibre) == (archivo->getTamanioNodo() - ArchivoIndice::getTamanioHeader()))
@@ -383,13 +350,14 @@ bool Nodo::vacio(ArchivoIndice* archivo){
 	
 	return vacio;
 }
+*/
 /*-----------------------------------------------------------------------------------------*/
-Clave* Nodo::reemplazarClave(Clave* claveVieja,Clave* claveNueva,Codigo* codigo){
-	/*Reemplaza la claveVieja del Nodo actual con una copia de la clave nueva*/
+Clave* Nodo::reemplazarClave(Clave* claveVieja,Clave* claveNueva,char* codigo){
+	
 	this->claves->buscar(claveVieja);
 	Clave* copia = claveNueva->copiar(); 
 	Clave* reemplazada = (Clave*)this->claves->reemplazar(copia);
-	codigo->setValor("NODO MODIFICADO");
+	*codigo = Codigo::MODIFICADO;
 
     delete reemplazada;
     
