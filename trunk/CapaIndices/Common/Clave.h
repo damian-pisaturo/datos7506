@@ -102,7 +102,7 @@ class Clave
 		//tipo de dato que usa internamente.
 		virtual unsigned int getTamanioValor() const = 0;
 		
-		unsigned int obtenerReferencia() const
+		unsigned int getReferencia() const
 		{
 			return refRegistro;
 		}
