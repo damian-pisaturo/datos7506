@@ -762,13 +762,7 @@
 		this->setValor(new ListaClaves(listaClaves));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
-		
-		this->tamanio = sizeof(unsigned int);
-		
-		for (ListaClaves::iterator iter = listaClaves.begin();
-			iter != listaClaves.end(); ++iter)
-			this->tamanio += (*iter)->getTamanioValor();
-		
+		this->tamanio = sizeof(unsigned int) + this->calcularTamanioValoresClaves(listaClaves);	
 		//Si la clave si insertará en un nodo interno
 		//agrego el tamaño de la referencia al hijo derecho
 		if (hijoDer != 0) this->tamanio += sizeof(unsigned int);
@@ -776,101 +770,133 @@
 
 	ClaveCompuesta::~ClaveCompuesta()
 	{
-		ListaClaves* listaClaves = (ListaClaves*)this->getValor();
-		for (ListaClaves::iterator iter = listaClaves->begin();
-			iter != listaClaves->end(); ++iter)
-			delete *iter; //Libero la memoria reservada para cada clave
-		delete listaClaves; //Libero la memoria reservada para la lista de claves
+		this->eliminarLista();
 	}
-
 
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////
 	Clave* ClaveCompuesta::copiar()
 	{
-		//TERMINAR ESTO!! FALTA COPIAR TODAS LAS CLAVES QUE ESTAN DENTRO DE LA LISTA!!!
-		ListaClaves* listaClaves = (ListaClaves*)this->getValor();
-
-		return new ClaveCompuesta(*listaClaves,this->obtenerReferencia(),this->getHijoDer());
+		ListaClaves* listaClaves = this->getListaClaves();
+		ListaClaves listaCopia;
+		Clave* claveCopia;
+		
+		for (ListaClaves::const_iterator iter = listaClaves->begin();
+			iter != listaClaves->end(); ++iter) {
+			
+			claveCopia = (*iter)->copiar();
+			listaCopia.push_back(claveCopia);
+		}
+		
+		return new ClaveCompuesta(listaCopia,this->obtenerReferencia(),this->getHijoDer());
 	}
 
 	char ClaveCompuesta::comparar(Clave* otraClave)
 	{
+		ListaClaves* listaClavesThis = this->getListaClaves();
+		ListaClaves* listaClavesParam = (static_cast<ClaveCompuesta*>(otraClave))->getListaClaves();
 		
-		//IMPLEMENTAR ESTO!!
+		for (ListaClaves::const_iterator iterThis = listaClavesThis->begin(),
+			iterParam = listaClavesParam->begin();
+			(iterThis != listaClavesThis->end()) &&
+			(iterParam != listaClavesParam->end());
+			++iterThis, ++iterParam) {
+			
+			if (*(*iterThis) < *(*iterParam)) return -1;
+			else if (*(*iterParam) < *(*iterThis)) return 1;
+		}
 		
-		char resultado;
-		
-		/*if (codigoPropio->anio == codigoOtro->anio){
-			if (codigoPropio->mes == codigoOtro->mes){
-				if (codigoPropio->dia == codigoOtro->dia)
-					resultado = 0;
-				else if (codigoPropio->dia < codigoOtro->dia)
-					resultado = -1;
-				else
-					resultado = 1;
-			}else if (codigoPropio->mes < codigoOtro->mes)
-				resultado = -1;
-			else
-				resultado = 1;
-		}else if (codigoPropio->anio < codigoOtro->anio)
-			resultado = -1;
-		else
-			resultado = 1;
-		*/
-		
-		return resultado;
+		return 0;
 	}
 
 
 	void ClaveCompuesta::imprimir(ostream& salida)
 	{
-		ListaClaves* listaClaves = (ListaClaves*)this->getValor();
+		ListaClaves* listaClaves = this->getListaClaves();
 
-		salida<<"Clave: "<<*clave;
-		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
+		salida << "ClaveCompuesta: " << endl;
+		
+		for (ListaClaves::iterator iter = listaClaves->begin();
+			iter != listaClaves->end(); ++iter)
+			(*iter)->imprimir(salida);
+		
+		salida << " Referencia: " << this->obtenerReferencia() << endl;
 	}
 	
 	bool ClaveCompuesta::operator < (const Clave& clave) const {
 			
-		string* palabraOtra = (string*) clave.getValor();
-		string* palabraThis = (string*) this->getValor();
-
-		for(unsigned int i=0; i < palabraOtra->length(); i++)
-			(*palabraOtra)[i] = tolower((*palabraOtra)[i]);
-
-		for(unsigned int j=0; j < palabraThis->length(); j++)
-			(*palabraThis)[j] = tolower((*palabraThis)[j]);
+		ListaClaves* listaClavesThis = this->getListaClaves();
+		ListaClaves* listaClavesParam = ((ClaveCompuesta&)clave).getListaClaves();
 		
-		return (*palabraThis < *palabraOtra);
+		for (ListaClaves::const_iterator iterThis = listaClavesThis->begin(),
+			iterParam = listaClavesParam->begin();
+			(iterThis != listaClavesThis->end()) &&
+			(iterParam != listaClavesParam->end());
+			++iterThis, ++iterParam) {
+			
+			if (*(*iterThis) < *(*iterParam)) return true;
+			else if (*(*iterParam) < *(*iterThis)) return false;
+		}
+		
+		return false;
 			
 	}
 
 	bool ClaveCompuesta::operator == (const Clave& clave) const {
 		
-		string* palabraOtra = (string*) clave.getValor();
-		string* palabraThis = (string*) this->getValor();
-
-		for(unsigned int i=0; i < palabraOtra->length(); i++)
-			(*palabraOtra)[i] = tolower((*palabraOtra)[i]);
-
-		for(unsigned int j=0; j < palabraThis->length(); j++)
-			(*palabraThis)[j] = tolower((*palabraThis)[j]);
+		ListaClaves* listaClavesThis = this->getListaClaves();
+		ListaClaves* listaClavesParam = ((ClaveCompuesta&)clave).getListaClaves();
 		
-		return (*palabraThis == *palabraOtra);
+		for (ListaClaves::const_iterator iterThis = listaClavesThis->begin(),
+			iterParam = listaClavesParam->begin();
+			(iterThis != listaClavesThis->end()) &&
+			(iterParam != listaClavesParam->end());
+			++iterThis, ++iterParam)
+			if (!(*(*iterThis) == *(*iterParam))) return false;
+		
+		return true;
 		
 	}
 	
 	void ClaveCompuesta::setValor(void* nuevoValor) {
 		
-		if (this->valor) delete (string*)this->valor;
+		if (this->valor) this->eliminarLista();
 		this->valor = nuevoValor;
 		
 	}
 	
 	unsigned int ClaveCompuesta::getTamanioValor() const {
-		return (((string*)this->getValor())->size()+1)*sizeof(char);
+		return this->calcularTamanioValoresClaves(*(this->getListaClaves()));
 	}
 	
-
+	ListaClaves* ClaveCompuesta::getListaClaves() const {
+		return (ListaClaves*)this->getValor();
+	}
+	
+	void ClaveCompuesta::eliminarLista() {
+		
+		ListaClaves* listaClaves = this->getListaClaves();
+		
+		for (ListaClaves::iterator iter = listaClaves->begin();
+			iter != listaClaves->end(); ++iter)
+			delete *iter; //Libero la memoria reservada para cada clave
+		
+		delete listaClaves; //Libero la memoria reservada para la lista de claves
+		
+		this->valor = NULL;
+		
+	}
+	
+	unsigned int ClaveCompuesta::calcularTamanioValoresClaves(const ListaClaves& listaClaves) const {
+		
+		unsigned int tamanioValores = 0;
+		
+		for (ListaClaves::const_iterator iter = listaClaves.begin();
+			iter != listaClaves.end(); ++iter)
+			tamanioValores += (*iter)->getTamanioValor();
+		
+		return tamanioValores;
+		
+	}
+	

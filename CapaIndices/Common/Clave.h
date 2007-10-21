@@ -548,6 +548,17 @@ class ClaveCompuesta: public Clave
 		//Este método es virtual para que cada clase heredera devuelva el tamaño del
 		//tipo de dato que usa internamente.
 		virtual unsigned int getTamanioValor() const;
+		
+		//Devuelve la lista de claves simples que componen esta clave
+		ListaClaves* getListaClaves() const;
+		
+	private:
+		//Método para liberar la memoria utilizada por la lista y por todas las claves
+		//que contiene
+		void eliminarLista();
+		
+		//Método que calcula el tamaño total de todos los valores de las claves de la lista
+		unsigned int calcularTamanioValoresClaves(const ListaClaves& listaClaves) const;
 
 }; //Fin clase ClaveCompuesta.
 
