@@ -24,7 +24,3 @@ char NodoBStar::eliminarClave(Clave* clave){
 	return 0;
 }
 
-Clave* NodoBStar::buscar(Clave* claveBuscada){
-	return 0;
-}
-

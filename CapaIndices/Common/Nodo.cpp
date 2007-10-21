@@ -65,15 +65,21 @@
 	///////////////////////////////////////////////////////////////////////              
 	Nodo* Nodo::siguiente(ArchivoIndice* archivo,Clave* clave)
 	{
-		/*Te tiene que devolver la mas cercana (menos o mayor) o la misma*/
-		/*si tiene que ir al hijo izquierdo la clave cercana es NULL*/
+		/*buscar() debe devolver la misma clave que la buscada, si se
+		 * encuentra ya en la lista, o la menor mas proxima.
+		 * Si la clave a buscar es menor que la menor de la lista, el
+		 * nodo a moverse es el hijo izquierdo de la menor de las claves y
+		 * buscar() devuelve NULL.
+		 */
         Clave* cercana = this->claves->buscar(clave);
         
         /*reveer el obtener Referencia de las claves*/ 
         Nodo* nodoEnMemoria;                	
             
         if (!cercana)
-        	/*Caso de que la clave cercana sea el hijo izquierdo del nodo*/
+        	/*Caso de que la clave cercana sea el hijo izquierdo de la menor
+        	 * de las claves dentro del nodo (hijo mas a la izquierda)
+        	 */
          	nodoEnMemoria = new Nodo(archivo,this->getHijoIzq());
         else
         	nodoEnMemoria = new Nodo(archivo,cercana->obtenerReferencia());
@@ -250,140 +256,4 @@ Clave* Nodo::obtenerClaveActual(){
 		return copia;
 	}
 /*---------------------------------------------------------------------------------------*/
-//TODO Aca empieza NodoBp
-	//////////////////////////////////////
-////////////////////////////////////
-///////////////////////////////////////
-//////////////////////////////
-void Nodo::insertarEnHoja(ArchivoIndice* archivoIndice,Clave* &clave,Codigo* codigo){
-       	   
-           if (this->getNivel()==0){  
-             
-                /*INSERCION*/
-                this->claves->insertarOrdenado(clave);
-                 
-                /*Si hay espacio suficiente para la nueva clave ...*/ 
-                if (this->espacioLibre > clave->getTamanio()){
-                                       
-                          codigo->setValor("NODO MODIFICADO");     
-                          this->actualizarEspacioLibre(clave,true); 		           
-                
-                }/*sino....*/
-                else {
-                           codigo->setValor("OVERFLOW");
-                     
-                           Nodo* nuevoNodo = new Nodo(this->hijoIzq,this->nivel,archivoIndice);
-               
-                     
-                           /*Condición para overflow, devuelve la cantidad de claves que 
-							* deben quedar en el nodo que se va a dividir
-							* o sea la mitad y si el numero es impar la parte mas chica*/ 
-                           int division = this->claves->getCantidadNodos() /2; 
-                           
-                           /*El dividir devuelve una lista nueva ya creada*/
-                           ListaClaves* listaNueva = this->claves->dividir(division);   /*listaNueva va a ser la parte mas grande*/                     
-                           nuevoNodo->claves = listaNueva;
-                                                    
-      					   this->actualizarEspacioLibre(listaNueva,false);
-      					   this->actualizarEspacioLibre(clave,true);
-      					   
-                           /*Lo grabo en el archivo*/   
-                           archivoIndice->grabarNuevoNodo(nuevoNodo);
-                     
-                           listaNueva->primero();
-                           
-                           /*Obtengo la primer clave de la lista del nuevo nodo*/
-                           /*La quito de la lista, asi no se borra cuando borro el nodo
-                            * OBSERVACION: El nodo ya fue grabado, y despues de esto se destruye
-                            * (no se pierde info)*/
-                           clave = (Clave*)listaNueva->quitar(1);
-                           
-                           clave->setReferencia(nuevoNodo->obtenerPosicionEnArchivo());
-                           
-                           /*Actualizpo el Hijo Izquierdo de estes nodo*/
-                           this->setHijoIzq(nuevoNodo->obtenerPosicionEnArchivo());
-          
-                           /*Borrar de memoria el nuevo nodo creado*/
-                           delete nuevoNodo;
-                      } 
-           
-                     
-           /*Sobreescribe el nodo, actualizando las modificaciones*/
-           archivoIndice-> sobreescribirNodo(this);          
-       
-       } /*fin if (this->esHoja())*/
-}              
-/*----------------------------------------------------------------------------------*/
-void Nodo::insertarEnNodo(ArchivoIndice* archivoIndice,Clave* &clave,Codigo* codigo){			
-         /*INSERCION*/               
-         this->claves->insertarOrdenado(clave);
-                       
-         if (this->espacioLibre> clave->getTamanio()){
-                           
-                    codigo->setValor("NODO MODIFICADO");    
-                    this->actualizarEspacioLibre(clave,true); 
-  
-         	/*sino....*/
-          }  
-           else {
-                         codigo->setValor("OVERFLOW");
-							
-                         Nodo* nuevoNodo = new Nodo(this->hijoIzq,this->getNivel(),archivoIndice);
-                         
-                         /*Condición para overflow, devuelve la cantidad de claves que 
-							* deben quedar en el nodo que se va a dividir
-							* o sea la mitad y si el numero es impar la parte mas chica*/                                                        
-                         int division = this->claves->getCantidadNodos() /2;
-                         
-                         ListaClaves* listaNueva = this->claves->dividir(division);   /*listaNueva va a ser la parte mas grande*/
-                     	
-                     	 /*se le coloca la lista proveniente de la division al nuevoNodo*/
-                         nuevoNodo->claves = listaNueva;
-                         
-                         /*se le quita la lista proveniente de la division this*/
-                         this->actualizarEspacioLibre(listaNueva,false);
-                         /*corrección debido a que la division de listas se hace luego de 
-                          * efectuada la inserción*/
-        				 this->actualizarEspacioLibre(clave,true);
-                         
-                         /*El quitar quita de la lista y devuelve un puntero a la clave quitada 
-                          * para que se devuelva al salir*/
-                         clave = (Clave*)nuevoNodo->claves->quitar(1);//COOREGIR LUEGO, EL ACUTALIZAR SE DEBE LLAMAR DENTRO DEL QUITAR
-                                                  
-                         /*El hijo izq del nuevo nodo es la referencia de la clave promovida*/
-                         nuevoNodo->hijoIzq = clave->obtenerReferencia();
-                         
-                         /*Lo grabo en el archivo*/
-                         archivoIndice->grabarNuevoNodo(nuevoNodo);
-                                                                                            
-                         clave->setReferencia(nuevoNodo->posicionEnArchivo);                 
-                                                   
-                        /*Borrar de memoria el nuevo nodo creado*/
-                     	delete nuevoNodo;
-                            
-               }
-               
-               /*Sobreescribe el nodo, actualizando las modificaciones*/
-           	  archivoIndice-> sobreescribirNodo(this);      
 
-       
-}     
-
-void Nodo::quitarClave(ArchivoIndice* archivo,Clave* clave,Codigo* codigo){
-
-	ListaClaves* lista = this->obtenerClaves();
-	
-	this->actualizarEspacioLibre(clave,false);
-	
-	lista->quitarClave(clave);
-	
-	if (this->espacioLibre > (this->condicionMinima(archivo))){
-   		if (this->getNivel()==0)                               
-      		codigo->setValor("SUBFLOWenHOJA");
-   		else
-      		codigo->setValor("SUBFLOW");
- 	}
- 	else
- 		codigo->setValor("NODO MODIFICADO");
-	
-}

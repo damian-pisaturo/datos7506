@@ -1,4 +1,4 @@
-#include "BpTree.h"
+b #include "BpTree.h"
 
 
 /******************************************************************************/
@@ -135,8 +135,7 @@ void BpTree::insertarInterno(Nodo* Actual,Clave* &clave,Codigo* &codigo,Nodo* &A
 		}
 			/*Si no se registro nada como codigo significa que no se inserto nada aun,
 			 no se ha llegado a las hojas*/
-		if (codigo->getValor()=="NADA")
-				
+		if (codigo->getValor()=="NADA")				
 			insertarInterno(Actual->siguiente(this->archivoIndice,clave),clave,codigo,Anterior);
 		                     
 		if ( (codigo->getValor()=="OVERFLOW") && (Actual->getNivel()!=0) ){

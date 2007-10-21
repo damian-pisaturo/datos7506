@@ -6,7 +6,7 @@
 //	Trabajo practico: Framework de Persistencia
 ////////////////////////////////////////////////////////////////////////////
 //	Descripcion
-//		Cabeceras e interfaz de las clases Nodo, NodoBp y NodoBstar.
+//		Cabeceras e interfaz de las clase abstracta Nodo.
 ///////////////////////////////////////////////////////////////////////////
 //	Integrantes
 //		- Alvarez Fantone, Nicolas;
@@ -85,7 +85,7 @@ class Nodo
 		
 		/*siguiente()
 		 * */
-		virtual Nodo* siguiente(Clave* clave); //TODO NADIE entiende este metodo. Creo que se usa en la gesta de embriones macho de Vicu�a de la Pampa Humeda.
+		virtual Nodo* siguiente(Clave* clave); //TODO NADIE entiende este metodo. Creo que se usa en la gesta de embriones macho de Vicunia de la Pampa Humeda.
 		
 		/*eliminarClave()
 			 * Elimina la clave pasada en el nodo corriente.
@@ -135,7 +135,7 @@ class Nodo
 		 * Devuelve la clave mas cercana a la claveBuscada dentro de la lista
 		 * de claves contenidas en el nodo (o la misma si se encuentra presente).
 		 */ 
-		virtual Clave* buscar(Clave* claveBuscada);
+		Clave* buscar(Clave* claveBuscada);
 		
 	///////////////////////////////////////////////////////////////////////////
 	// Getters/Setters
@@ -200,63 +200,5 @@ class Nodo
 		bool siguiente();
 		*/                     
 }; //Fin clase Nodo.
-
-
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: NodoBp (Implementa nodos de Arbol B+)
-//////////////////////////////////////////////////////////////////////////
-class NodoBp: public Nodo
-{
-	private:
-		/*Referencia en nodos hoja al hermano derecho del nodo actual.
-		 * Su valor en nodos del index-set es -1.
-		 */
-	//////////////////////////////////////////////////////////////////////
-	// Atributos privados
-	//////////////////////////////////////////////////////////////////////
-		int hermanoSiguiente;
-	
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-		void insertarEnHoja(Clave* &clave, char* codigo);
-		void insertarEnNodo(Clave* &clave, char* codigo);
-	
-	public:
-	//////////////////////////////////////////////////////////////////////
-	// Constructores
-	//////////////////////////////////////////////////////////////////////
-		NodoBp(int hijoIzq, unsigned int nivel, int hermanoSiguiente = -1): 
-			Nodo(hijoIzq, nivel)
-		{
-			this->hermanoSiguiente = hermanoSiguiente;
-		}
-		
-		NodoBp(int hijoIzq, unsigned int nivel, Clave* clave, int hermanoSiguiente = -1) : 
-					Nodo(hijoIzq, nivel, clave)
-		{
-			this->hermanoSiguiente = hermanoSiguiente;
-		}
-	//////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	//////////////////////////////////////////////////////////////////////
-		virtual char insertarClave(Clave* &clave);	
-		virtual char eliminarClave(Clave* clave);
-	
-	//////////////////////////////////////////////////////////////////////
-	// Getters/Setters
-	//////////////////////////////////////////////////////////////////////		
-		int getHermanoSiguiente()
-		{
-			return this->hermanoSiguiente;
-		}
-		
-		void setHermanoSiguiente(int referencia)
-		{
-			this->hermanoSiguiente = referencia;			
-		}
-}; //Fin clase NodoBp
 
 #endif /*NODO_H_*/
