@@ -19,5 +19,8 @@ int main(int argc, char **argv)
 		misComu.escribir("Luke soy tu padre");	
 		cout << "proceso2 lee: " << misComu.leer(100) <<  endl;
 	}
+	
+	misComu.liberarRecursos();
+	return 0;
 
 }
