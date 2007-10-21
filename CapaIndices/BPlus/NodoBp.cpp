@@ -26,9 +26,9 @@
 // Nombre: NodoBp (Implementa nodos de Arbol B+)
 //////////////////////////////////////////////////////////////////////////
 	
-	///////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////
 	// Metodos publicos
-	/////////////////////////////////////////////////////////////////////// 
+	////////////////////////////////////////////////////////////////////// 
 	virtual char NodoBp::insertarClave(Clave* &clave)
 	{
 		char codigo = Codigo::OK;
@@ -60,9 +60,9 @@
 		/*No hay espacio libre suficiente para insertar la clave...*/
 		}else{
 			
-			Nodo* nuevoNodo = new NodopBp(this->hijoIzq,this->nivel);
+			Nodo* nuevoNodo = new NodopBp(this->refNodo,this->nivel);
 			
-			/*Condición para overflow, devuelve la cantidad de claves que
+			/*Condicion para overflow, devuelve la cantidad de claves que
 			 * deben quedar en el nodo que va a dividirse:
 			 * la mitad exacta o, si el numero es impar, la mitad con menor 
 			 * cantidad de claves.*/ 
@@ -91,7 +91,9 @@
 			clave = (Clave*)listaNueva->quitar(1);
 			clave->setReferencia(nuevoNodo->obtenerPosicionEnArchivo());
 			
-			/*Actualizo el Hijo Izquierdo de este nodo*/
+			/*Se actualiza el hermano derecho de este nodo. hijoIzq contiene
+			 * una referencia al hermano derecho si el nodo es hoja.
+			 */
 			this->setHijoIzq(nuevoNodo->obtenerPosicionEnArchivo());
 			
 			/*Borrar de memoria el nuevo nodo creado*/
@@ -123,9 +125,9 @@
 		/*No hay espacio libre suficiente para insertar la clave...*/
 		}else{
 			
-			Nodo* nuevoNodo = new Nodo(this->hijoIzq,this->getNivel());
+			Nodo* nuevoNodo = new Nodo(this->refNodo,this->getNivel());
 			
-			/*Condición para overflow, devuelve la cantidad de claves que 
+			/*Condiciï¿½n para overflow, devuelve la cantidad de claves que 
 			 * deben quedar en el nodo que se va a dividir
 			 * o sea la mitad y si el numero es impar la parte mas chica*/                                                        
 			unsigned int division = this->claves->getCantidadNodos()/2;
@@ -136,8 +138,8 @@
 			
 			/*se le quita la lista proveniente de la division this*/
 			this->actualizarEspacioLibre(listaNueva,false);
-			/*corrección debido a que la division de listas se hace luego de 
-			 *efectuada la inserción
+			/*correcciï¿½n debido a que la division de listas se hace luego de 
+			 *efectuada la inserciï¿½n
 			 */
 			this->actualizarEspacioLibre(clave,true);
                          
@@ -146,7 +148,7 @@
                          clave = (Clave*)nuevoNodo->claves->quitar(1);//COOREGIR LUEGO, EL ACUTALIZAR SE DEBE LLAMAR DENTRO DEL QUITAR
                                                   
                          /*El hijo izq del nuevo nodo es la referencia de la clave promovida*/
-                         nuevoNodo->hijoIzq = clave->obtenerReferencia();
+                         nuevoNodo->refNodo = clave->obtenerReferencia();
                          
                          /*Lo grabo en el archivo*/
                          archivoIndice->grabarNuevoNodo(nuevoNodo);
