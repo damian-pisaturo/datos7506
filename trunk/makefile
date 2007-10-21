@@ -18,7 +18,7 @@ extension = cpp
 # toma todos los archivos con la extensi�n mencionada. Para especificar hay que
 # descomentar la l�nea (quitarle el '#' del principio).
 # NOTA: No poner cabeceras (.h). 
-fuentes = CapaIndices\Common\Clave.cpp
+fuentes = CapaIndices/Common/Clave.cpp
 
 # Si es un programa GTK+, descoment� (quitale el '#' a) la siguiente l�nea.
 #gtk = si 
