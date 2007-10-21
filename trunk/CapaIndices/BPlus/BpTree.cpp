@@ -28,7 +28,7 @@ BpTree::BpTree(ArchivoIndice* archivo){
 
 /*----------------------------------------------------------------------------------------*/
 Nodo* BpTree::getRaiz(){
-/*Devuelve un nodo con la raiz del árbol*/
+/*Devuelve un nodo con la raiz del ï¿½rbol*/
 
 	/*Lee el primer registro del archivo -> la raiz*/
 	return new Nodo(archivoIndice,0);
@@ -91,10 +91,10 @@ void BpTree::Insertar(Clave* clave){
 	Codigo* codigo = new Codigo;
 	Nodo* Anterior = NULL;
 	
-	/*Busco la raíz para comenzar el recorrido de Inserción*/
+	/*Busco la raï¿½z para comenzar el recorrido de Inserciï¿½n*/
 	this->nodoActual = this->getRaiz();
 	
-	/*Se devuelve el código y la clave correspondiente*/
+	/*Se devuelve el cï¿½digo y la clave correspondiente*/
 	insertarInterno(this->nodoActual,clave,codigo,Anterior);
 	
 	if (codigo->getValor()=="OVERFLOW"){
@@ -142,7 +142,8 @@ void BpTree::insertarInterno(Nodo* Actual,Clave* &clave,Codigo* &codigo,Nodo* &A
 			
             /*Inserto en un nodo de forma similar al Arbol B*/   
             Actual->insertarEnNodo(this->archivoIndice,clave,codigo);			
-	        delete Anterior;
+	        
+            delete Anterior;
 	        Anterior = Actual;
         }
 
@@ -160,7 +161,7 @@ void BpTree::Eliminar(Clave* clave){
 		
 	Codigo* codigo = new Codigo;
 	Nodo* nodoConSubflow;
-	/*Busco la raíz para comenzar el recorrido de Eliminación*/
+	/*Busco la raï¿½z para comenzar el recorrido de Eliminaciï¿½n*/
 	this->nodoActual = this->getRaiz();
 	
 	/*se devuelve el codigo correspondiente*/
@@ -300,7 +301,7 @@ void BpTree::eliminarInterno(Nodo* Actual,Clave* clave,Codigo* codigo,Nodo* &nod
                                            /*anterior->setHijoIzq(posterior->obtenerPosicionEnArchivo());*/
                                            anterior->setHijoIzq(nodoConSubflow->getHijoIzq());
                            
-                                           /*El destructor tiene que setear los cambios en el archivoIndice también!*/
+                                           /*El destructor tiene que setear los cambios en el archivoIndice tambiï¿½n!*/
                                            this->archivoIndice->eliminarNodo(nodoConSubflow->obtenerPosicionEnArchivo());
                                            delete nodoConSubflow;
                  
@@ -327,7 +328,7 @@ void BpTree::eliminarInterno(Nodo* Actual,Clave* clave,Codigo* codigo,Nodo* &nod
                                             nodoConSubflow->insertarFinal(lista,this->archivoIndice);
                            					delete lista;
                            					nodoConSubflow->setHijoIzq(posterior->getHijoIzq());
-                                            /*El destructor tiene que setear los cambios en el archivoIndice también!*/
+                                            /*El destructor tiene que setear los cambios en el archivoIndice tambiï¿½n!*/
                                             this->archivoIndice->eliminarNodo(Actual->refPosterior(clave));
                                             delete posterior;
                                             

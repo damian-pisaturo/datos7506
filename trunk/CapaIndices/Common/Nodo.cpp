@@ -12,7 +12,7 @@
 //		- Alvarez Fantone, Nicolas;
 //      - Caravatti, Estefania;
 //		- Garcia Cabrera, Manuel;
-//      - Grisolia, Nahuel.
+//      - Grisolia, Nahuel;
 //		- Pisaturo, Damian;	
 //		- Rodriguez, Maria Laura.
 ///////////////////////////////////////////////////////////////////////////
@@ -28,34 +28,35 @@
 	///////////////////////////////////////////////////////////////////////
     // Constructores/Destructor
 	///////////////////////////////////////////////////////////////////////
-	Nodo::Nodo(int hijoIzq,int nivel,Clave* clave)
+	Nodo::Nodo(unsigned int refNodo,int nivel,Clave* clave)
 	{
-		this->hijoIzq = hijoIzq;
+		this->refNodo = refNodo;
 		this->nivel   = nivel;
 		//this->espacioLibre = archivo->getTamanioNodo()- archivo->getTamanioHeader();
 		/*Agrega la clave a la lista de claves del nodo*/
-		this->claves = new ListaClaves; //TODO Cambiar a set STL.
+		this->claves = new SetClaves();
 		this->claves->agregar(clave);
+		
 		this->actualizarEspacioLibre(clave,true);
 	}
 
-	Nodo::Nodo (int hijoIzq,int nivel)
+	Nodo::Nodo (unsigned int refNodo,int nivel)
 	{
-		this->hijoIzq = hijoIzq;
+		this->refNodo = hijoIzq;
 	    this->nivel = nivel;
 	    //this->espacioLibre = archivo->getTamanioNodo()- archivo->getTamanioHeader();
 	}
-
+	
+	/*
 	Nodo::Nodo(ArchivoIndice* archivoIndice, int referencia)
 	{	
 		archivoIndice->leer(referencia,this);
 		//this->espacioLibre = archivoIndice->getTamanioNodo()-archivoIndice->getTamanioNodo();		
 	}
+	*/
 	
 	Nodo::~Nodo()
 	{
-		/*Se liberan los recursos de memoria tomados para la lista de claves*/
-		//TODO actualizar a set STL.
 		if(claves)
 			delete this->claves;
 	}
@@ -95,7 +96,7 @@
 		   	this->espacioLibre = this->espacioLibre + clave->getTamanio();
 	}
 
-	void Nodo::actualizarEspacioLibre(ListaClaves* claves, bool insercion)
+	void Nodo::actualizarEspacioLibre(SetClaves* claves, bool insercion)
 	{
 		unsigned int suma = 0;
 		claves->primero();
@@ -112,59 +113,7 @@
 
 	}
 	
-	char Nodo::refPosterior(Clave* clave)
-	{	
-		int post;
-		
-		/*Busca la clave->la encuentra exacto porque esta en el nodo*/
-		Clave* buscada = this->claves->buscar(clave);
-	
-	    if(!buscada){
-	    	/*LA CLAVE BUSCADA ES MENOR A LA PRIMERA*/
-	    	this->claves->primero();
-	    	post = ((Clave*)this->claves->obtenerDato())->obtenerReferencia();
-	    }
-	    else{
-	    	/*NO HAY SIGUIENTE*/
-	    	this->claves->siguiente();
-	  		Clave* posterior = (Clave*)this->claves->obtenerDato();
-	        
-	    	if(posterior)
-	    		post = posterior->obtenerReferencia();
-	    	else
-	    		post = buscada->obtenerReferencia();
-	    	    
-	    }
-	    return post;
-	}
-
-	char Nodo::refAnterior(Clave* clave)
-	{
-		int ant;
-		Clave* buscada;
-		Clave* anterior = NULL;
-		/*Busca la clave->la encuentra exacto porque esta en el nodo*/
-		buscada = this->claves->buscar(clave);
-		
-		if(buscada){
-	    	this->claves->anterior();
-	  		anterior = (Clave*)this->claves->obtenerDato();
-		}
-		
-	    if(anterior)
-	    	ant = anterior->obtenerReferencia();
-	    else
-	    	ant = this->hijoIzq;
-	    	
-	    return ant; 
-    }      
-
-	void Nodo::insertarFinal(ListaClaves* lista,ArchivoIndice* archivoIndice)
-	{
-		this->actualizarEspacioLibre(lista,true); 
-		this->claves->insertarFinal(lista);	     
-	}
-	
+	/*
 	bool Nodo::puedeDonar(ArchivoIndice* archivo)
 	{
 		bool devolver = true;
@@ -174,20 +123,28 @@
 		
 		return devolver;     
 	}
-/*---------------------------------------------------------------------------------------*/
+	*/
+	
+	/*
 	unsigned int Nodo::condicionMinima(ArchivoIndice* archivo)
 	{
 		unsigned int tamanioReal = archivo->getTamanioNodo() - archivo->getTamanioHeader();
 		
 		return  (tamanioReal / 2);   
 	}
-/*---------------------------------------------------------------------------------------*/
-/*
-void Nodo::primero(){
-	this->obtenerClaves()->primero();
-}
-*/
-/*---------------------------------------------------------------------------------------*/     
+	*/
+
+	bool Nodo::siguiente()
+	{		
+		bool devolver=true;
+		
+		this->getClaves()->siguiente();
+		
+		if (this->getClaves()->fin())
+			devolver= false;
+		
+		return devolver;
+	}
 
 	Clave* Nodo::buscar(Clave* claveBuscada)
 	{
@@ -196,45 +153,10 @@ void Nodo::primero(){
 		
 		return devolver;	
 	}
-/*-----------------------------------------------------------------------------------*/
-/*
-bool Nodo::siguiente(){
-bool devolver=true ;
 
-this->obtenerClaves()->siguiente();
-if (this->obtenerClaves()->fin())
-	devolver= false;
-
-return devolver;
-}
-*/
-/*-----------------------------------------------------------------------------------*/
-/*
-Clave* Nodo::obtenerClaveActual(){
- 	return (Clave*)this->obtenerClaves()->obtenerDato();
-}
-*/
-/*------------------------------------------------------------------------------------------*/
-	Clave* Nodo::claveSiguiente(Clave* clave)
+	/*
+	bool vacio(ArchivoIndice* archivo)
 	{
-		/*CONTEMPLA CASO EN EL CUAL EXISTA UNA UNICA CLAVE EN EL NODO EN EL CUAL SE DEBE BUSCAR LA CLAVE SIGUIENTE*/
-		Clave* devolver;
-		ListaClaves* lista = this->obtenerClaves();
-		devolver = lista->buscar(clave);
-		
-		if(devolver){
-			lista->siguiente();
-			devolver = (Clave*)lista->obtenerDato();
-		}else{
-			lista->primero();
-			devolver = (Clave*)lista->obtenerDato();
-		}
-			 
-		return devolver;
-	}
-
-
-	bool vacio(ArchivoIndice* archivo){
 		bool vacio = false;
 		
 		if((this->espacioLibre) == (archivo->getTamanioNodo() - archivo->getTamanioHeader()))
@@ -242,9 +164,9 @@ Clave* Nodo::obtenerClaveActual(){
 		
 		return vacio;
 	}
+	*/
 
-
-	Clave* Nodo::reemplazarClave(Clave* claveVieja,Clave* claveNueva,char* codigo)
+	Clave* Nodo::reemplazarClave(Clave* claveVieja, Clave* claveNueva, char* codigo)
 	{		
 		this->claves->buscar(claveVieja);
 		Clave* copia = claveNueva->copiar(); 
@@ -255,5 +177,3 @@ Clave* Nodo::obtenerClaveActual(){
 	    
 		return copia;
 	}
-/*---------------------------------------------------------------------------------------*/
-
