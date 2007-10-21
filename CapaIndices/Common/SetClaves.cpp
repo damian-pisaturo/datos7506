@@ -6,14 +6,14 @@ SetClaves::~SetClaves()
 		delete *iter;
 }
 
-Clave* SetClaves::findClave(const Clave& clave) const {
+Clave* SetClaves::findClave(Clave* clave) const {
 	
 	//Busco la clave mayor o igual a la que me pasan por parametro
-	SetClaves::const_iterator iter = this->lower_bound(&clave);
+	SetClaves::const_iterator iter = this->lower_bound(clave);
 	
 	if (iter == this->end()) return *(--iter);
 	
-	if (*(*iter) == clave) return *iter;
+	if (*(*iter) == *clave) return *iter;
 	
 	if (iter == this->begin()) return NULL;
 	
@@ -25,18 +25,23 @@ SetClaves* SetClaves::splitBPlus(unsigned minClaves) {
 	
 	SetClaves* conjClavesMayores = new SetClaves();
 	SetClaves::iterator posFinal;
+	SetClaves::iterator iter = this->begin();
 	
-	for(SetClaves::iterator iter = this->begin(), unsigned i = 0;
-		(iter != this->end()) && (i < minClaves); ++iter, ++i) {
+	for(unsigned i = 0; (iter != this->end()) && (i < minClaves); ++iter, ++i) {
 		conjClavesMayores->insert(*iter);
 		posFinal = iter;
 	}
 	
 	this->erase(this->begin(), posFinal);
+	
+	return conjClavesMayores;
 }
 
 VectorConjuntos* SetClaves::splitBStar(unsigned minClaves) {
 	
+	VectorConjuntos* vectorConj = new VectorConjuntos();
+	
+	return vectorConj;
 	
 }
 

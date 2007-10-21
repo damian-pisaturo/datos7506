@@ -5,7 +5,11 @@
 #include <set>
 #include <vector>
 
-typedef VectorConjuntos vector<SetClaves*>
+using namespace std;
+
+class SetClaves;
+
+typedef vector<SetClaves*> VectorConjuntos;
 
 class SetClaves : public set<Clave*, Comparador> {
 	
@@ -20,7 +24,7 @@ class SetClaves : public set<Clave*, Comparador> {
 		//un puntero a la clave inmediatamente anterior (clave menor 
 		//a la buscada) o NULL si la clave es menor a todas las claves del
 		//conjunto.
-		Clave* findClave(const Clave& clave) const;
+		Clave* findClave(Clave* clave) const;
 		
 		//Este metodo divide al conjunto actual en dos.
 		//Si la cantidad de claves es impar, este conjunto se queda con la
