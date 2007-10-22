@@ -12,13 +12,14 @@
 //		- Alvarez Fantone, Nicolas;
 //      - Caravatti, Estefania;
 //		- Garcia Cabrera, Manuel;
-//      - Grisolia, Nahuel.
+//      - Grisolia, Nahuel;
 //		- Pisaturo, Damian;	
 //		- Rodriguez, Maria Laura.
 ///////////////////////////////////////////////////////////////////////////
 #ifndef NODO_H_
 #define NODO_H_
 
+#include "Clave.h"
 #include "SetClaves.h"
 #include "Codigo.h"
 
@@ -50,6 +51,7 @@ class Nodo
 		 * 		En nodos hoja, refNodo es 0; en nodos internos
 		 * 		indica offset a hijo izquierdo.
 		 */	
+		
 		unsigned int refNodo;
 		unsigned int nivel;
 		unsigned int espacioLibre;
@@ -61,14 +63,14 @@ class Nodo
     // Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		
-		/*Crea el nodo sin setear ningun atributo*/
-		Nodo(unsigned int refNodo, int nivel);
-		
 		/*Crea un nuevo nodo para insertarle una Clave*/
-		Nodo(unsigned int refNodo,int nivel,Clave* clave);
+		Nodo(unsigned int refNodo, unsigned int nivel, Clave* clave);
+		
+		/*Crea el nodo sin setear ningun atributo*/
+		Nodo(unsigned int refNodo, unsigned int nivel);
 		
 		/*Lee el archivo y crea ese nodo*/
-		Nodo(unsigned int referencia);
+		//Nodo(unsigned int referencia);
 		
 		/*Destructor*/
 		virtual ~Nodo();
@@ -79,32 +81,26 @@ class Nodo
 		
 		/*insertarClave()
 		 * Inserta la clave pasada en el nodo corriente.
-		 * Devuelve un Codigo dependiendo del resultado:
-		 * 	Codigo::OK - Insercion llevada a cabo correctamente.
+		 * Devuelve en codigo, dependiendo del resultado:
+		 * 	Codigo::NO_MODIFICADO - Insercion llevada a cabo correctamente.
 		 *  Codigo::OVERFLOW - Sobreflujo de claves.
 		 * */
-		virtual char insertarClave(Clave* &clave) = 0;
-		//TODO insertarEnHoja e insertarEnNodo debieran ser casos particulares del
-		//arbol B+. Dejo comentadas sus cabeceras para futura referencia.
-		
-		//void insertarEnHoja(ArchivoIndice* archivoIndice,Clave* &clave,Codigo* codigo);
-		//void insertarEnNodo(ArchivoIndice* archivoIndice,Clave* &clave,Codigo* codigo);
-		
-		
+		virtual void insertarClave(Clave* &clave, char* codigo) = 0;
+				
 		/*siguiente()
 		 *	Devuelve un puntero al siguiente Nodo en la busqueda
 		 *  recursiva (hijo derecho o izquierdo) de la clave pasada 
 		 *  por parametro.
 		 */
-		Nodo* siguiente(Clave* clave); 
+		virtual Nodo* siguiente(Clave* clave) = 0; 
 		
 		/*eliminarClave()
 		 * Elimina la clave pasada en el nodo corriente.
-		 * Devuelve un Codigo dependiendo del resultado:
-		 * 	Codigo::OK - Eliminacion llevada a cabo correctamente.
+		 * Devuelve en codigo, dependiendo del resultado:
+		 * 	Codigo::NO_MODIFICADO - Eliminacion llevada a cabo correctamente.
 		 *  Codigo::UNDERFLOW - Subflujo de claves.
 		 */		
-		virtual char eliminarClave(Clave* clave);
+		virtual void eliminarClave(Clave* clave, char* codigo);
 		
 		/*actualizarEspacioLibre()
 	     * Modifica el espacioLibre en el nodo sumando o restando
@@ -123,7 +119,7 @@ class Nodo
 		 * Reemplaza la claveVieja del Nodo actual con una copia de 
 		 * la clave nueva. Devuelve Codigo::MODIFICADO en codigo.
 		 */
-		Clave* reemplazarClave(Clave* claveVieja,Clave* claveNueva, char* codigo);
+		//Clave* reemplazarClave(Clave* claveVieja, Clave* claveNueva, char* codigo);
 	
 		/*buscar()
 		 * Devuelve la clave mas cercana a la claveBuscada dentro de la lista
@@ -147,9 +143,9 @@ class Nodo
 			this->nivel = nivel;
 		}
 		
-		void setClaves(ListaClaves* lista)
+		void setClaves(SetClaves* set)
 		{		
-			this->claves = lista;
+			this->claves = set;
 		}
 		
 		void setEspacioLibre(unsigned int cant)
