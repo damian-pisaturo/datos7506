@@ -56,7 +56,7 @@
 	Clave* ClaveEntera::copiar()
 	{
 		int clave = *((int*)this->getValor());
-		return new ClaveEntera(clave, this->obtenerReferencia(), this->getHijoDer());
+		return new ClaveEntera(clave, this->getReferencia(), this->getHijoDer());
 	}
 
 	char ClaveEntera::comparar(Clave* otraClave)
@@ -90,7 +90,7 @@
 		int clave = *(static_cast<int*>(this->getValor()));
 
 		salida<<"Clave: "<<clave;
-		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
+		salida<<" Referencia: "<<this->getReferencia()<<endl;
 	}
 	
 	bool ClaveEntera::operator < (const Clave& clave) const {
@@ -156,7 +156,7 @@
 	Clave* ClaveBoolean::copiar()
 	{
 		bool clave = *((bool*)this->getValor());
-		return new ClaveBoolean(clave,this->obtenerReferencia(), this->getHijoDer());
+		return new ClaveBoolean(clave,this->getReferencia(), this->getHijoDer());
 	}
 
 	char ClaveBoolean::comparar(Clave* otraClave)
@@ -190,7 +190,7 @@
 		bool clave = *(static_cast<bool*>(this->getValor()));
 
 		salida<<"Clave: "<<clave;
-		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
+		salida<<" Referencia: "<<this->getReferencia()<<endl;
 	}
 	
 	bool ClaveBoolean::operator < (const Clave& clave) const {
@@ -257,7 +257,7 @@
 	Clave* ClaveChar::copiar()
 	{
 		char clave = *((char*)this->getValor());
-		return new ClaveChar(clave,this->obtenerReferencia(), this->getHijoDer());
+		return new ClaveChar(clave,this->getReferencia(), this->getHijoDer());
 	}
 
 	char ClaveChar::comparar(Clave* otraClave)
@@ -291,7 +291,7 @@
 		char clave = *(static_cast<char*>(this->getValor()));
 
 		salida<<"Clave: "<<clave;
-		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
+		salida<<" Referencia: "<<this->getReferencia()<<endl;
 	}
 	
 	bool ClaveChar::operator < (const Clave& clave) const {
@@ -357,7 +357,7 @@
 	Clave* ClaveShort::copiar()
 	{
 		short clave = *((short*)this->getValor());
-		return new ClaveShort(clave,this->obtenerReferencia(), this->getHijoDer());
+		return new ClaveShort(clave,this->getReferencia(), this->getHijoDer());
 	}
 
 	char ClaveShort::comparar(Clave* otraClave)
@@ -391,7 +391,7 @@
 		short clave = *(static_cast<short*>(this->getValor()));
 
 		salida<<"Clave: "<<clave;
-		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
+		salida<<" Referencia: "<<this->getReferencia()<<endl;
 	}
 	
 	bool ClaveShort::operator < (const Clave& clave) const {
@@ -457,7 +457,7 @@
 	Clave* ClaveReal::copiar()
 	{
 		float clave = *((float*)this->getValor());
-		return new ClaveReal(clave,this->obtenerReferencia(), this->getHijoDer());
+		return new ClaveReal(clave,this->getReferencia(), this->getHijoDer());
 	}
 
 	char ClaveReal::comparar(Clave* otraClave)
@@ -491,7 +491,7 @@
 		float clave = *(static_cast<float*>(this->getValor()));
 
 		salida<<"Clave: "<<clave;
-		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
+		salida<<" Referencia: "<<this->getReferencia()<<endl;
 	}
 	
 	bool ClaveReal::operator < (const Clave& clave) const {
@@ -558,7 +558,7 @@
 	Clave* ClaveFecha::copiar()
 	{
 		fecha* clave = (fecha*)this->getValor();
-		return new ClaveFecha(clave,this->obtenerReferencia(), this->getHijoDer());
+		return new ClaveFecha(clave,this->getReferencia(), this->getHijoDer());
 	}
 
 	char ClaveFecha::comparar(Clave* otraClave)
@@ -602,7 +602,7 @@
 		fecha* clave = (static_cast<fecha*>(this->getValor()));
 
 		salida<<"Clave: "<<clave->dia << "/" << clave->mes << "/" << clave->anio;
-		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
+		salida<<" Referencia: "<<this->getReferencia()<<endl;
 	}
 
 	bool ClaveFecha::operator < (const Clave& clave) const {
@@ -676,7 +676,7 @@
 	{
 		string* clave = (string*)this->getValor();
 
-		return new ClaveVariable(*clave,this->obtenerReferencia(),this->getHijoDer());
+		return new ClaveVariable(*clave,this->getReferencia(),this->getHijoDer());
 	}
 
 	char ClaveVariable::comparar(Clave* otraClave)
@@ -700,7 +700,7 @@
 		string* clave = static_cast<string*>(this->getValor());
 
 		salida<<"Clave: "<<*clave;
-		salida<<" Referencia: "<<this->obtenerReferencia()<<endl;
+		salida<<" Referencia: "<<this->getReferencia()<<endl;
 	}
 	
 	bool ClaveVariable::operator < (const Clave& clave) const {
@@ -789,7 +789,7 @@
 			listaCopia.push_back(claveCopia);
 		}
 		
-		return new ClaveCompuesta(listaCopia,this->obtenerReferencia(),this->getHijoDer());
+		return new ClaveCompuesta(listaCopia,this->getReferencia(),this->getHijoDer());
 	}
 
 	char ClaveCompuesta::comparar(Clave* otraClave)
@@ -821,7 +821,7 @@
 			iter != listaClaves->end(); ++iter)
 			(*iter)->imprimir(salida);
 		
-		salida << " Referencia: " << this->obtenerReferencia() << endl;
+		salida << " Referencia: " << this->getReferencia() << endl;
 	}
 	
 	bool ClaveCompuesta::operator < (const Clave& clave) const {
