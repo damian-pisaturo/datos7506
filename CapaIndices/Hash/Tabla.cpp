@@ -1,5 +1,5 @@
 #include "Tabla.h"
-
+ 
 Tabla::Tabla()
 {
 	tamanio = 1;

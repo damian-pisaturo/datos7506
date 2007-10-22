@@ -3,7 +3,7 @@
 
 class Tabla
 {
-private:
+private: 
 	int tamanio;
 	int* direccionesBuckets;
 	

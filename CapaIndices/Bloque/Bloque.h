@@ -1,6 +1,6 @@
 #ifndef BLOQUE_H_
 #define BLOQUE_H_
-
+ 
 #define OK 0;
 #define FAIL 1;
 

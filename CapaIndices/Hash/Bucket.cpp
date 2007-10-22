@@ -29,7 +29,7 @@ void Bucket::leer(int offset)
 	char* auxTD = new char[2];
 	memcpy(auxTD,&datos[4],1);
 	auxTD[1]='\0';
-	tamDispersion = atoi(auxTD);
+	tamDispersion = atoi(auxTD); 
 	delete[] auxTD;
 	
 	//Obtengo la cantidad de registros.

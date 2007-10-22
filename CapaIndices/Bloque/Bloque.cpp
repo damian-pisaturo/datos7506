@@ -30,7 +30,7 @@ int Bloque::altaRegistro(char *registro){
 	memcpy(auxLongReg,registro,2); //Obtengo la longitud del registro
 	auxLongReg[3]= '\0';
 	longReg = atoi(auxLongReg);
-	
+ 	
 	//Obtengo el offset al espacio libre
 	memcpy(auxEspLibre,datos,4);
 	//TODO: Ver lo del '\0'
