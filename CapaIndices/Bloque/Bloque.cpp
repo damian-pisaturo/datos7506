@@ -5,6 +5,7 @@ Bloque::Bloque(int num,int tam)
 {
 	numero = num;
 	tamanio = tam;
+	//contendrá offset a espacio libre, cantidad de registros, y datos.-
 	datos = new char[tamanio];
 }
 
@@ -13,7 +14,7 @@ Bloque::~Bloque()
 	delete [] datos;
 }
 
-void Bloque::organizarBloque(){
+void Bloque::organizarBloque(int offsetToReg,int longReg){
 	
 }
 /*
@@ -43,21 +44,82 @@ int Bloque::altaRegistro(char *registro){
 		//inclusive los 2 bytes que indican la longitud.
 		offsetEspLibre = offsetEspLibre + longReg; 
 		insertarRegistro(registro,offsetEspLibre);
+		delete []auxEspLibre;
+		delete []auxLongReg;
 		return OK;	
 	}
+	delete []auxEspLibre;
+	delete []auxLongReg;
 	return FAIL;
 }
 	
 /*
  * 
  **/
-int Bloque::bajaRegistro(list <string>listaParam,int longReg){
+int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
+	bool registroBorrado = false;
+	unsigned short longCampo;
+	unsigned short longReg;
 	int offsetToPk = 0;
-
+	int offsetToRegDelete;
+	//Se usa para levantar la longitud del atributo variable del registro
+	char *longAtributo = new char [3];
+	list <string>::iterator it;
+	size_t posOfDelim;
+	string regAtribute;
+	string tipo;
+	string pk;
 	
+	//Itero la lista de atributos del registro
+	   for(it = listaParam.begin(); it != listaParam.end(); ++it){
+		   regAtribute = *it;
+		   posOfDelim = regAtribute.find(";");
+		   //Obtengo el tipo de atributo del registro
+		   tipo = regAtribute.substr(0,posOfDelim);
+		   //Obtengo el indicador de clave primaria
+		   pk = regAtribute.substr(posOfDelim+1);
+		  
+		   //Levanto el registro i
+		   //TODO: Agregar más tipos si hace falta
+		   
+		   if(tipo == "string"){}
+		   else if(tipo == "int"){
+			   
+		   }
+		   else if(tipo == "shortInt"){}
+		   else if(tipo == "double"){}
+		   else if (tipo == "char"){}
+		   
+		   if(pk == "true"){
+			   if(tipo == "string"){
+				   
+			   }
+			   else if(tipo == "int")
+			   //Obtengo el offset del registro dentro del bloque
+			   
+			   //Reorganizo el bloque pisando el registro a borrar
+			   organizarBloque(offsetToRegDelete,longReg);
+			   return OK;
+		   }
+		   /*else{
+			   if(tipo == "string"){
+				   //obtener la longitud del registro y sumarla al offset
+				   longAtributo[0] = 
+			   }
+			   else if (tipo == "int")
+				   offsetToPk += 4;
+			   else if(tipo == "unsigned short")
+				   offsetToPk += 2;
+			   //TODO: agregar los tipos y tamaños que faltan
+		  }*/
+	   } 
+
+	return OK;
 }
 
-int Bloque::modificarRegistro(list <string>listaParam,int longReg){}
+int Bloque::modificarRegistro(list <string>listaParam,int longReg){
+	
+}
 
 bool Bloque::verificarEspacioDisponible(int longReg,int offsetEspLibre){
 	int espacioDisponible;
@@ -70,3 +132,5 @@ bool Bloque::verificarEspacioDisponible(int longReg,int offsetEspLibre){
 }
 
 void Bloque::insertarRegistro(char *registro, int nuevoOffsetEspLibre){}
+
+//int Bloque::buscarRegistro(int offsetToPk,int longReg){};
