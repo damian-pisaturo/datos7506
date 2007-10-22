@@ -60,9 +60,11 @@ VectorConjuntos* SetClaves::splitBStar(unsigned minClaves) {
 			tamanioAcumulado += (*iter)->getTamanioEnDisco();
 		}
 		
+		if (iter != this->end()) nuevoConj->insert(*iter);
+		
 		vectorConj->push_back(nuevoConj);
 		
-		this->erase(this->begin(), iter);
+		this->erase(this->begin(), ++iter);
 		
 	}
 	
@@ -70,3 +72,39 @@ VectorConjuntos* SetClaves::splitBStar(unsigned minClaves) {
 	
 }
 
+
+void SetClaves::mergeBPlus(SetClaves* set, Clave* c1, Clave* c2) {
+	
+	this->insert(c1);
+	this->insert(c2);
+	
+	for (SetClaves::iterator iter = set->begin(); iter != set->end(); ++iter)
+		this->insert(*iter);
+	
+	//Borro los punteros dentro del set para que no libere la memoria de las claves
+	//al destruirse.
+	set->clear();
+	
+}
+
+void SetClaves::mergeBStar(SetClaves* set1, SetClaves* set2, Clave* c1, Clave* c2) {
+	
+	this->insert(c1);
+	this->insert(c2);
+	
+	for (SetClaves::iterator iter = set1->begin(); iter != set1->end(); ++iter)
+		this->insert(*iter);
+	
+	//Borro los punteros dentro del set para que no libere la memoria de las claves
+	//al destruirse.
+	set1->clear();
+	
+	for (SetClaves::iterator iter = set2->begin(); iter != set2->end(); ++iter)
+		this->insert(*iter);
+	
+	//Borro los punteros dentro del set para que no libere la memoria de las claves
+	//al destruirse.
+	set2->clear();
+	
+}
+		

@@ -42,6 +42,14 @@ class SetClaves : public set<Clave*, Comparador> {
 		//cada conjunto.
 		VectorConjuntos* splitBStar(unsigned minClaves);
 		
+		//Este metodo fusiona este conjunto con un conjunto hermano y con una clave
+		//padre. (Merge debido a underflow)
+		void mergeBPlus(SetClaves* set, Clave* c1, Clave* c2);
+		
+		//Este metodo fusiona este conjunto con dos conjuntos hermanos y con dos claves
+		//padre. (Merge debido a underflow)
+		void mergeBStar(SetClaves* set1, SetClaves* set2, Clave* c1, Clave* c2);
+		
 };
 
 #endif /*SETCLAVES_H_*/
