@@ -657,7 +657,10 @@
 		this->setValor(new string(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
-		this->tamanio = (clave.size()+1)*sizeof(char) + sizeof(unsigned int);
+		//El tamanio de esta clave esta compuesto por la cantidad de caracteres,
+		//los bytes utilizados para almacenar la longitud de la cadena y
+		//los bytes utilizados por la referencia.
+		this->tamanio = clave.size()*sizeof(char) + 2*sizeof(unsigned int);
 		//Si la clave si insertará en un nodo interno
 		//agrego el tamaño de la referencia al hijo derecho
 		if (hijoDer != 0) this->tamanio += sizeof(unsigned int);
