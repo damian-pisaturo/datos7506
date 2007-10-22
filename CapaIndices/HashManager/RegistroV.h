@@ -12,6 +12,7 @@ public:
 	RegistroV(char * contenido,int longitud);
 	virtual ~RegistroV();
 	char* getClave();
+	int getLongitudClave();
 };
 
 #endif /*REGISTROV_H_*/

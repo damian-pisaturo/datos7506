@@ -8,7 +8,7 @@ RegistroV::RegistroV(char* contenido, int longitud)
 	datos = new char[longitud];
 	memcpy(datos, contenido, longitud); // copio los datos del registro en "datos".
 	char aux[2];
-	memcpy(aux,datos,1);
+	memcpy(aux,datos,1); // en el primer byte del registro se encuentra la longitud de la clave
 	aux[1] = '\0';
 	longitudClave = atoi(aux);
 }
@@ -25,5 +25,10 @@ char* RegistroV::getClave()
 	aux[longitudClave] = '\0';
 	
 	return aux;
+}
+
+int RegistroV::getLongitudClave()
+{
+	return longitudClave;
 }
 

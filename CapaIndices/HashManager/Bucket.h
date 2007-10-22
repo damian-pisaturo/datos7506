@@ -9,11 +9,12 @@
 class Bucket
 {
 private:
-	int tamDispersion;
-	int cantRegs;
 	char* datos;
 	int tamanio;
 	char* registro;
+	int espacioLibre;
+	int tamDispersion;
+	int cantRegs;
 	
 public:
 	Bucket(int tamanioBucket);
@@ -21,6 +22,10 @@ public:
 	void leer(int offset);
 	void escribir(int offset);
 	bool buscarRegistro(char* clave, int tamanioClave);
+	
+private:
+	bool buscarRegClaveV(char* clave, int tamanioClave);
+	bool buscarRegClaveF(char* clave, int tamanioClave);
 };
 
 #endif /*BUCKET_H_*/
