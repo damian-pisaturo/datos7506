@@ -17,7 +17,7 @@ RegistroV::~RegistroV()
 {
 	delete[] datos;
 }
-
+ 
 char* RegistroV::getClave()
 {
 	char* aux = new char[longitudClave+1]; // TODO: ver q esten bien los offsets.

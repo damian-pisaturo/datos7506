@@ -5,7 +5,7 @@ class RegistroV
 {
 private:
 	int tamanio;
-	char* datos;
+	char* datos; 
 	int longitudClave;
 	
 public:
