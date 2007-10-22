@@ -150,7 +150,16 @@ void ComuDatos::escribir(string enviarDato)
 	}
 }
 
-string ComuDatos::leer(int cantidad)
+void ComuDatos::escribir(int enviarDato)
+{
+	if (sizeof(enviarDato)<(TOPE_ENVIAR_STRING-1))
+	{
+		write(this->fd_pipeP, &enviarDato, sizeof(int));
+	}
+}
+
+
+string ComuDatos::leerString(int cantidad)
 {
 	if (cantidad <= TOPE_ENVIAR_STRING)
 	{		
@@ -161,6 +170,17 @@ string ComuDatos::leer(int cantidad)
 		return retorno;
 	}else return "";
 }
+
+int ComuDatos::leerInt()
+{
+	if (4 <= TOPE_ENVIAR_STRING)
+	{		
+		int leo;
+		read(this->fd_pipeH, &leo, sizeof(int));
+		return leo;
+	}else return -123456; //OJO ACÁ! PENSAR OTRA COSA COMO ERROR DE LECTURA
+}
+
 
 void ComuDatos::liberarRecursos()
 {

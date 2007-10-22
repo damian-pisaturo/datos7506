@@ -52,9 +52,14 @@
 	 
 	 	//! Escribe un string en el canal de comunicación de datos correspondiente.
 	 	void escribir(string enviarDato);
-		//! Lee un string de longitud máxima "cantidad" del canal de comunicación de datos correspondiente.
-	 	string leer(int cantidad);
-		 
+	 	//! Escribe un INT en el canal de comunicación de datos correspondiente.
+	 	void escribir(int enviarDato);
+	 			
+	 	//! Lee un string de longitud máxima "cantidad" del canal de comunicación de datos correspondiente.
+	 	string leerString(int cantidad);
+	 	//! Lee un int del canal de comunicación de datos correspondiente.
+	 	int leerInt();
+	 		 			 
 		//! Libera los recursos reservados para las comunicaciones.
 	 	void liberarRecursos();
 	 
