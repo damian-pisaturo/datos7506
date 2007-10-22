@@ -24,7 +24,7 @@ private:
 	 * Organiza el bloque a partir de una modificación dentro del mismo
 	 **/
 	
-	void organizarBloque();
+	void organizarBloque(int offsetToReg,int longReg);
 	/*
 	 * Verifica que el registro a insertar tiene espacio dentro del bloque
 	 * Retorna "true" en caso de que haya espacio y "false" en caso contrario
@@ -35,6 +35,8 @@ private:
 	 * Inserta un registro dentro del bloque, actualizando el offset a espacio libre
 	 **/
 	void insertarRegistro(char *registro,int nuevoOffsetEspLibre);
+	
+	
 
 public:
 	Bloque(int num,int tam);
@@ -48,7 +50,7 @@ public:
 	/*
 	 * Elimina un registro del bloque, reorganizando el espacio libre
 	 **/
-	int bajaRegistro(list <string>listaParam,int longReg);
+	int bajaRegistro(list <string>listaParam,void *clavePrimaria);
 	
 	/*
 	 * Modifica el contenido de un registro 
