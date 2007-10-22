@@ -1,157 +1,156 @@
-b #include "BpTree.h"
+///////////////////////////////////////////////////////////////////////////
+//	Archivo   : BpTree.cpp
+//  Namespace : CapaIndice
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Implementacion de la clase BpTree.
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;
+//		- Rodriguez, Maria Laura.
+///////////////////////////////////////////////////////////////////////////
+
+#include "BpTree.h"
 
 
-/******************************************************************************/
-/* Clase Codigo */
-/*--------------*/
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: BpTree (Implementa Arboles B+ en disco)
+///////////////////////////////////////////////////////////////////////////
 
-Codigo::Codigo(){
-	this->valor = "NADA";
-}
+	//////////////////////////////////////////////////////////////////////
+	// Contructor/Destructor
+	//////////////////////////////////////////////////////////////////////
+	BpTree::BpTree(/*ArchivoIndice* archivo*/){
+		this->nodoActual = NULL;
+		//this->archivoIndice = archivo;
+	}
 
-string Codigo::getValor(){
-	return this->valor;
-}
+	NodoBp* BpTree::getRaiz()
+	{
+		/*Lee el primer registro del archivo -> la raiz*/
+		return new NodoBp(/*archivoIndice*/,0);
+	}
 
-void Codigo::setValor(string val){
-	this->valor = val;
-}
-
-
-/*************************************************************************************/
-/* Clase Arbol B+ */
-/*----------------*/
-BpTree::BpTree(ArchivoIndice* archivo){
-	this->nodoActual = NULL;
-	this->archivoIndice = archivo;
-}
-
-/*----------------------------------------------------------------------------------------*/
-Nodo* BpTree::getRaiz(){
-/*Devuelve un nodo con la raiz del �rbol*/
-
-	/*Lee el primer registro del archivo -> la raiz*/
-	return new Nodo(archivoIndice,0);
-}
-/*----------------------------------------------------------------------------------------*/
-void BpTree::primero(){
-/*El nodo actual termina siendo el primer nodo hoja del arbol B+
-     (para recorrudos)*/	
-this->nodoActual = this->getRaiz();
-int auxiliar;
-/*Busco hasta la hoja*/
-while(this->nodoActual->getNivel()!=0){
-	auxiliar =  this->nodoActual->getHijoIzq();
-	delete this->nodoActual;
-	this->nodoActual = new Nodo(this->archivoIndice,auxiliar);
-}
-/*me posiciono en la primer clave del primer nodo si el arbol no esta vacio*/
-if(!nodoActual->vacio(this->archivoIndice))
-	this->nodoActual->primero();
-else{
-	delete nodoActual;
- 	nodoActual = NULL;
-}
-}
-/*----------------------------------------------------------------------------------------*/
-Clave* BpTree::siguiente(){
-       
-Clave* devolver=NULL ;
-int aux;
-bool siguiente;
-
-if (this->nodoActual){
-	devolver = (Clave*) this->nodoActual->obtenerClaveActual()->copiar();
-
-	aux = this->nodoActual->getHijoIzq();
+	void BpTree::primero()
+	{
+		/*El nodo actual termina siendo el primer nodo hoja del arbol B+
+		     (para recorridos)*/	
+		this->nodoActual = this->getRaiz();
+		int auxiliar;
+		/*Busco hasta la hoja*/
+		while(this->nodoActual->getNivel()!=0){
+			auxiliar =  this->nodoActual->getHijoIzq();
+			delete this->nodoActual;
+			this->nodoActual = new Nodo(this->archivoIndice,auxiliar);
+		}
 	
-	siguiente = this->nodoActual->siguiente();
+		/*me posiciono en la primer clave del primer nodo si el arbol no esta vacio*/
+		if(!nodoActual->vacio(this->archivoIndice))
+			this->nodoActual->primero();
+		else{
+			delete nodoActual;
+			nodoActual = NULL;
+		}
+	}
+	/*
+	Clave* BpTree::siguiente()
+	{	       
+		Clave* devolver = NULL;
+		int aux;
+		bool siguiente;
 	
-	if (!siguiente){
-			if (aux!=0){
-				delete this->nodoActual;	
-				this->nodoActual = new Nodo(this->archivoIndice,aux);
-				this->nodoActual->primero();
- 			}
- 			else{
- 				delete this->nodoActual;
- 				this->nodoActual = NULL;
- 			}
-  	}
-  	
-}
-else
-	devolver = NULL;
-return devolver;
-
-}
-/*----------------------------------------------------------------------------------------*/
-
-void BpTree::Insertar(Clave* clave){
-	Codigo* codigo = new Codigo;
-	Nodo* Anterior = NULL;
-	
-	/*Busco la ra�z para comenzar el recorrido de Inserci�n*/
-	this->nodoActual = this->getRaiz();
-	
-	/*Se devuelve el c�digo y la clave correspondiente*/
-	insertarInterno(this->nodoActual,clave,codigo,Anterior);
-	
-	if (codigo->getValor()=="OVERFLOW"){
-                      
-              /*Se graba la raiz en un nuevoNodo en el archivo,
-               * se setea en nuevoNodo su posicionEnArchivo al grabarlo*/
-           
-              this->archivoIndice->grabarNuevoNodo(this->nodoActual);
-              
-              /*Sobreescribo la raiz con la clave que viene del recursivo*/
-              Nodo* nuevaRaiz = new Nodo(nodoActual->obtenerPosicionEnArchivo(),nodoActual->getNivel()+1,clave,this->archivoIndice);
-              
-              nuevaRaiz->setPosicionEnArchivo(0);
-              
-              this->archivoIndice->sobreescribirNodo(nuevaRaiz);
-              		
-			  delete this->nodoActual;
-			  this->nodoActual = nuevaRaiz;
-			  	      		  	  	        
-    }
-	
-	delete this->nodoActual;	
-	delete codigo;
-	
-}
-/*----------------------------------------------------------------------------------------*/
-
-void BpTree::insertarInterno(Nodo* Actual,Clave* &clave,Codigo* &codigo,Nodo* &Anterior){
+		if (this->nodoActual){
+			devolver = (Clave*) this->nodoActual->obtenerClaveActual()->copiar();	
+			aux = this->nodoActual->getHijoIzq();		
+			siguiente = this->nodoActual->siguiente();
 		
+			if (!siguiente){
+				if (aux!=0){
+					delete this->nodoActual;	
+					this->nodoActual = new Nodo(this->archivoIndice,aux);
+					this->nodoActual->primero();
+	 			}
+	 			else{
+	 				delete this->nodoActual;
+	 				this->nodoActual = NULL;
+	 			}
+			}
+	  	
+		}else
+			devolver = NULL;
+		
+		return devolver;
+	
+	}
+	*/
+
+	void BpTree::insertarClave(Clave* clave)
+	{
+		char codigo = Codigo::NO_MODIFICADO;
+		NodoBp* anterior = NULL;
+		
+		/*Busco la raIz para comenzar el recorrido de InserciOn*/
+		this->nodoActual = this->getRaiz();
+		
+		/*Se devuelve el codigo y la clave correspondiente*/
+		insertarInterno(this->nodoActual,clave,&codigo,anterior);
+		
+		if (codigo == Codigo::OVERFLOW){
+			/*Se graba la raiz en un nuevoNodo en el archivo,
+			 *se setea en nuevoNodo su posicionEnArchivo al grabarlo
+			 */
+			this->archivoIndice->grabarNuevoNodo(this->nodoActual);
+			
+			/*Sobreescribo la raiz con la clave que viene del recursivo*/
+			NodoBp* nuevaRaiz = new Nodo(nodoActual->obtenerPosicionEnArchivo(),nodoActual->getNivel()+1,clave,/*this->archivoIndice*/);
+			nuevaRaiz->setPosicionEnArchivo(0);
+			
+			//this->archivoIndice->sobreescribirNodo(nuevaRaiz);
+			
+			delete this->nodoActual;
+			this->nodoActual = nuevaRaiz;
+		}
+		
+		delete this->nodoActual;				
+	}
+	
+	void BpTree::insertarInterno(NodoBp* actual, Clave* &clave, char* codigo, NodoBp* &anterior)
+	{
 		/*Si se trata de una  hoja inserto el registro donde corresponda*/
-		if (Actual->getNivel()==0){
+		if (actual->getNivel() == 0){
 			/*Clave devuelve un puntero a la clave que obtuvo overflow en caso de haberlo habido, sino null*/
 			/*si devuelve como valor de codigo "nodo modificado" no se sigue el ciclo*/
 			
             /*Inserto en las hojas SIEMPRE*/
-            Actual->insertarEnHoja(this->archivoIndice,clave,codigo);		
-            Anterior = Actual;
+            *codigo = actual->insertarClave(this->archivoIndice,clave);		
+            anterior = actual;
 		}
-			/*Si no se registro nada como codigo significa que no se inserto nada aun,
-			 no se ha llegado a las hojas*/
-		if (codigo->getValor()=="NADA")				
-			insertarInterno(Actual->siguiente(this->archivoIndice,clave),clave,codigo,Anterior);
+		
+		/*Si se registra NO_MODIFICADO como codigo significa que no 
+		 * se ha llegado a las hojas
+		 */
+		if (codigo == Codigo::NO_MODIFICADO)				
+			insertarInterno(actual->siguiente(this->archivoIndice,clave), clave, codigo, anterior);
 		                     
-		if ( (codigo->getValor()=="OVERFLOW") && (Actual->getNivel()!=0) ){
-			
+		if ( (codigo == Codigo::OVERFLOW) && (actual->getNivel()!=0) ){			
             /*Inserto en un nodo de forma similar al Arbol B*/   
-            Actual->insertarEnNodo(this->archivoIndice,clave,codigo);			
+            actual->insertarEnNodo(this->archivoIndice,clave,codigo);			
 	        
             delete Anterior;
 	        Anterior = Actual;
-        }
-
-        else if ( (codigo->getValor()=="NODO MODIFICADO") && (Actual->getNivel()!= 0 ) ){
-            
+        }else if ( (codigo == Codigo::MODIFICADO) && (actual->getNivel()!= 0 ) ){            
             /*Elimino el nodo inmediatamente anterior(de menor nivel)*/
-            delete Anterior;
-            Anterior = Actual;
+            delete anterior;
+            a	`nterior = Actual;
          }
 }
 

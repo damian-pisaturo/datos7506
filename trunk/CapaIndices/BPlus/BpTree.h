@@ -1,83 +1,98 @@
+///////////////////////////////////////////////////////////////////////////
+//	Archivo   : BpTree.h
+//  Namespace : CapaIndice
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Cabeceras e interfaz de la clase BpTree.
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;
+//		- Rodriguez, Maria Laura
+///////////////////////////////////////////////////////////////////////////
+
 #ifndef BPTREE_H_
 #define BPTREE_H_
 
-#ifndef NULL
-#define NULL 0
-#endif
-
 #include "Clave.h"
-#include "Nodo.h"
-#include "ArchivoIndicePadre.h"
+#include "NodoBp.h"
+//#include "ArchivoIndicePadre.h"
 
 #include <string>
 #include <iostream>
 using namespace std;
 
-class ArchivoIndice;
-class Nodo;
-class Clave;
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: BpTree (Implementa Arboles B+ en disco)
+///////////////////////////////////////////////////////////////////////////
 
-/******************************************************************************/
-/* Clase Codigo */
-/*--------------*/
+class BpTree
+{
+	private:
+	//////////////////////////////////////////////////////////////////////
+	//Atributos privados
+	//////////////////////////////////////////////////////////////////////
+		NodoBp* nodoActual;
+		//ArchivoIndice* archivoIndice;   
 
-class Codigo{
-private:
-	string valor;
-
-public:
-	Codigo();
-	string getValor();
-	void setValor(string val);
-};
-
-/******************************************************************************/
-/* Clase ARBOL B+*/
-/*---------------*/
-
-class BpTree{
-
-private:
+	public:
+	//////////////////////////////////////////////////////////////////////
+	// Contructor/Destructor
+	//////////////////////////////////////////////////////////////////////
+		BpTree(/*ArchivoIndice* archivo*/);
+		
+		virtual ~BpTree();
 	
-	Nodo* nodoActual;
-	ArchivoIndice* archivoIndice;           
+	//////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	//////////////////////////////////////////////////////////////////////
+	    /*Insertar clave en un arbol B+*/	
+		void insertarClave(Clave* clave);
+		
+		/*Eliminar clave pasada por parametro en un arbol B+*/
+		void eliminarClave(Clave* clave);
+	    
+	  	/*Devuelve una copia de la clave buscada con su referencia 
+	  	 * o sino la mas cercana (menor).
+	  	 * Si el arbol esta vacio devuelve NULL.*/
+		Clave* buscarClave(Clave* clave);	
+		
+		/* primero()
+		 * Deja en nodoActual el primer nodo del set secuencial
+		 * (menor o mayor, dependiendo del orden de insercion).
+		 */
+		void primero();
+		
+		Clave* siguiente();
+		
+	private:
+		//////////////////////////////////////////////////////////////////////
+		// Metodos privados
+		//////////////////////////////////////////////////////////////////////       
     
-    void insertarInterno(Nodo* Actual,Clave* &clave,Codigo* &codigo,Nodo* &Anterior);
+		/*Devuelve un nodo con la raiz del arbol*/
+		NodoBp* getRaiz();
+		
+		void insertarInterno(Nodo* actual,Clave* &clave,Codigo* &codigo,Nodo* &anterior);		
     
-    Nodo* getRaiz();
+	    void eliminarInterno(Nodo* actual,Clave* clave,Codigo* codigo,Nodo* &nodoUnderflow);  
+	    
+	    void buscarInterno(Clave* clave,Clave*& claveBuscada);
+	    
+	    bool chequearEspacio(Nodo* otroNodo,Nodo* nodoUnderflow);
+	    
+	  	bool puedeDonar(Nodo* nodoDonador, Nodo* nodoAceptor);
     
-    void eliminarInterno(Nodo* Actual,Clave* clave,Codigo* codigo,Nodo* &nodoConSubflow);  
-    
-    void buscarInterno(Clave* clave,Clave*& Buscada);
-    
-    bool chequearEspacio(Nodo* otroNodo,Nodo* nodoConSubflow);
-    
-  	bool puedeDonar(Nodo* nodoDonador, Nodo* nodoAceptor);
-    
-    void Split(Nodo* donador, Nodo* aceptor);
-    
-public:
-
-
-	BpTree(ArchivoIndice* archivo);
-
-    /*Inserción*/	
-	void Insertar(Clave* clave);
-	
-	/*Eliminación*/
-	void Eliminar(Clave* clave);
-    
-  	/*Devuelve una copia de la clave buscada con su referencia 
-  	 * o sino la mas cercana (menor)
-  	 * Si el arbol esta vacio devuelve NULL*/
-	Clave* buscarClave(Clave* clave);	
-	
-	void primero();
-	
-	Clave* siguiente();
-	         
-	virtual ~BpTree();
-
-};
+	  	void split(Nodo* donador, Nodo* aceptor);
+	  	
+}; //Fin clase BpTree.
 
 #endif /*BPTREE_H_*/

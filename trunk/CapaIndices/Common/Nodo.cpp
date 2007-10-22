@@ -28,21 +28,21 @@
 	///////////////////////////////////////////////////////////////////////
     // Constructores/Destructor
 	///////////////////////////////////////////////////////////////////////
-	Nodo::Nodo(unsigned int refNodo,int nivel,Clave* clave)
+	Nodo::Nodo(unsigned int refNodo, unsigned int nivel, Clave* clave)
 	{
 		this->refNodo = refNodo;
 		this->nivel   = nivel;
 		//this->espacioLibre = archivo->getTamanioNodo()- archivo->getTamanioHeader();
 		/*Agrega la clave a la lista de claves del nodo*/
 		this->claves = new SetClaves();
-		this->claves->agregar(clave);
+		this->claves->insert(clave);
 		
 		this->actualizarEspacioLibre(clave,true);
 	}
 
-	Nodo::Nodo (unsigned int refNodo,int nivel)
+	Nodo::Nodo(unsigned int refNodo,unsigned int nivel)
 	{
-		this->refNodo = hijoIzq;
+		this->refNodo = refNodo;
 	    this->nivel = nivel;
 	    //this->espacioLibre = archivo->getTamanioNodo()- archivo->getTamanioHeader();
 	}
@@ -64,53 +64,27 @@
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////              
-	Nodo* Nodo::siguiente(ArchivoIndice* archivo,Clave* clave)
-	{
-		/*buscar() debe devolver la misma clave que la buscada, si se
-		 * encuentra ya en la lista, o la menor mas proxima.
-		 * Si la clave a buscar es menor que la menor de la lista, el
-		 * nodo a moverse es el hijo izquierdo de la menor de las claves y
-		 * buscar() devuelve NULL.
-		 */
-        Clave* cercana = this->claves->buscar(clave);
-        
-        /*reveer el obtener Referencia de las claves*/ 
-        Nodo* nodoEnMemoria;                	
-            
-        if (!cercana)
-        	/*Caso de que la clave cercana sea el hijo izquierdo de la menor
-        	 * de las claves dentro del nodo (hijo mas a la izquierda)
-        	 */
-         	nodoEnMemoria = new Nodo(archivo,this->getHijoIzq());
-        else
-        	nodoEnMemoria = new Nodo(archivo,cercana->obtenerReferencia());
-             
-        return nodoEnMemoria;
-	}
-
+	
 	void Nodo::actualizarEspacioLibre(Clave* clave, bool insercion)
 	{
 		if (insercion)
-			this->espacioLibre = this->espacioLibre - clave->getTamanio();
+			this->espacioLibre = this->espacioLibre - clave->getTamanioEnDisco();
 		else
-		   	this->espacioLibre = this->espacioLibre + clave->getTamanio();
+		   	this->espacioLibre = this->espacioLibre + clave->getTamanioEnDisco();
 	}
 
 	void Nodo::actualizarEspacioLibre(SetClaves* claves, bool insercion)
 	{
 		unsigned int suma = 0;
-		claves->primero();
-
-		while (!claves->fin()){
-	      suma += ((Clave*)claves->obtenerDato())->getTamanio();
-	      claves->siguiente();
+		
+		for (SetClaves::iterator iter = claves->begin(); iter != claves->end(); ++iter){
+			suma += (*iter)->getTamanioEnDisco();			
 		}
 		
 		if (insercion)
 			this->espacioLibre = this->espacioLibre - suma;
 		else
 		   	this->espacioLibre = this->espacioLibre + suma;
-
 	}
 	
 	/*
@@ -134,24 +108,12 @@
 	}
 	*/
 
-	bool Nodo::siguiente()
-	{		
-		bool devolver=true;
-		
-		this->getClaves()->siguiente();
-		
-		if (this->getClaves()->fin())
-			devolver= false;
-		
-		return devolver;
-	}
-
 	Clave* Nodo::buscar(Clave* claveBuscada)
 	{
-		ListaClaves* lista = this->obtenerClaves();
-		Clave* devolver = lista->buscar(claveBuscada);
+		SetClaves* set = this->getClaves();
+		Clave* devolver = set->findClave(claveBuscada);
 		
-		return devolver;	
+		return devolver;
 	}
 
 	/*
@@ -165,11 +127,12 @@
 		return vacio;
 	}
 	*/
-
+	
+	/*
 	Clave* Nodo::reemplazarClave(Clave* claveVieja, Clave* claveNueva, char* codigo)
 	{		
-		this->claves->buscar(claveVieja);
-		Clave* copia = claveNueva->copiar(); 
+		this->claves->findClave(claveVieja);
+		Clave* copia = claveNueva->copiar();
 		Clave* reemplazada = (Clave*)this->claves->reemplazar(copia);
 		*codigo = Codigo::MODIFICADO;
 		
@@ -177,3 +140,6 @@
 	    
 		return copia;
 	}
+	*/
+
+	
