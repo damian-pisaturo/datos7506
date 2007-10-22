@@ -33,6 +33,7 @@
 		this->refNodo = refNodo;
 		this->nivel   = nivel;
 		//this->espacioLibre = archivo->getTamanioNodo()- archivo->getTamanioHeader();
+		
 		/*Agrega la clave a la lista de claves del nodo*/
 		this->claves = new SetClaves();
 		this->claves->insert(clave);
@@ -40,11 +41,14 @@
 		this->actualizarEspacioLibre(clave,true);
 	}
 
-	Nodo::Nodo(unsigned int refNodo,unsigned int nivel)
+	Nodo::Nodo(unsigned int refNodo, unsigned int nivel)
 	{
 		this->refNodo = refNodo;
 	    this->nivel = nivel;
 	    //this->espacioLibre = archivo->getTamanioNodo()- archivo->getTamanioHeader();
+	    
+	    /*Agrega la clave a la lista de claves del nodo*/
+		this->claves = new SetClaves();
 	}
 	
 	/*

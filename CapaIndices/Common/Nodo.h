@@ -66,7 +66,7 @@ class Nodo
 		/*Crea un nuevo nodo para insertarle una Clave*/
 		Nodo(unsigned int refNodo, unsigned int nivel, Clave* clave);
 		
-		/*Crea el nodo sin setear ningun atributo*/
+		/*Crea el nodo sin setear ninguna clave*/
 		Nodo(unsigned int refNodo, unsigned int nivel);
 		
 		/*Lee el archivo y crea ese nodo*/
@@ -100,7 +100,7 @@ class Nodo
 		 * 	Codigo::NO_MODIFICADO - Eliminacion llevada a cabo correctamente.
 		 *  Codigo::UNDERFLOW - Subflujo de claves.
 		 */		
-		virtual void eliminarClave(Clave* clave, char* codigo);
+		virtual void eliminarClave(Clave* clave, char* codigo) = 0;
 		
 		/*actualizarEspacioLibre()
 	     * Modifica el espacioLibre en el nodo sumando o restando
@@ -144,7 +144,8 @@ class Nodo
 		}
 		
 		void setClaves(SetClaves* set)
-		{		
+		{	
+			if (this->claves) delete this->claves;
 			this->claves = set;
 		}
 		
@@ -152,6 +153,7 @@ class Nodo
 		{
 			this->espacioLibre = cant;
 		}
+		
 		void setPosicionEnArchivo(unsigned int posicion)
 		{
 			this->posicionEnArchivo = posicion;	

@@ -4,15 +4,16 @@
 #include "../Common/Nodo.h"
 
 class NodoBStar : public Nodo {
-	public:
-		NodoBStar(int hijoIzq, int nivel);
-		NodoBStar(int hijoIzq,int nivel,Clave* clave);
-		NodoBStar(int referencia);
-		virtual ~NodoBStar();
 	
-		char insertarClave(Clave* &clave);
-		char eliminarClave(Clave* clave);
-		Clave* buscar(Clave* claveBuscada);
+	public:
+		NodoBStar(unsigned int refNodo, unsigned int nivel) : Nodo(refNodo, nivel) {}
+		NodoBStar(unsigned int refNodo, unsigned int nivel, Clave* clave) : Nodo(refNodo, nivel, clave) {}
+		virtual ~NodoBStar() {}
+	
+		void insertarClave(Clave* &clave, char* codigo);
+		void eliminarClave(Clave* clave, char* codigo);
+		Nodo* siguiente(Clave* clave);
+		
 };
 
 #endif /*NODOBSTAR_H_*/

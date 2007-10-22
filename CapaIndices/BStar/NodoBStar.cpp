@@ -1,26 +1,38 @@
 #include "NodoBStar.h"
 
-NodoBStar::NodoBStar(int hijoIzq, int nivel):Nodo(hijoIzq, nivel) {	
+
+void NodoBStar::insertarClave(Clave* &clave, char* codigo) {
+	
+	
 	
 }
 
-NodoBStar::NodoBStar(int hijoIzq,int nivel,Clave* clave):Nodo(hijoIzq, nivel, clave) {
+
+void NodoBStar::eliminarClave(Clave* clave, char* codigo) {
+	
+	
 	
 }
 
-NodoBStar::NodoBStar(int referencia):Nodo(referencia){
+
+Nodo* NodoBStar::siguiente(Clave* clave) {
+	
+	//Este metodo es llamado solamente si en este nodo no se encontro
+	//la clave buscada.
+	
+	Nodo* nodo;
+	Clave* claveResultante = this->getClaves()->findClave(clave);
+	
+	if (claveResultante == NULL) {
+		//Cargar un nuevo nodo en memoria a partir del hijo izquierdo
+		//de este nodo.
+		//archivo->cargarNodo(nodo, this->refNodo);
+	} else {
+		//Cargar un nuevo nodo en memoria a partir del hijo derecho
+		//de claveResultante.
+		//archivo->cargarNodo(nodo, claveResultante->getHijoDer());
+	}
+	
+	return nodo;
 	
 }
-
-NodoBStar::~NodoBStar() {
-	
-}
-
-char NodoBStar::insertarClave(Clave* &clave) {
-	return 0;
-}
-
-char NodoBStar::eliminarClave(Clave* clave){
-	return 0;
-}
-
