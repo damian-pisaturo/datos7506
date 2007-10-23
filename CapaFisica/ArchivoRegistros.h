@@ -48,7 +48,7 @@ void escribir(const void* registro);
   registro : puntero hacia el registro donde colocar la lectura.
 */
 void leer(void* registro);
-
+  
 /*----------------------------------------------------------------------------*/
 /*
   post: devuelve true si se ha llegado al fin del archivo, es decir no se puede

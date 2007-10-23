@@ -46,7 +46,7 @@
 	// Metodos publicos
 	////////////////////////////////////////////////////////////////////// 
 	void NodoBp::insertarClave(Clave* &clave, char* codigo)
-	{		
+	{
 		if (this->getNivel() == 0)
 			*codigo = insertarEnHoja(clave);
 		else
@@ -70,8 +70,7 @@
 			codigo = Codigo::MODIFICADO;
 		
 		/*No hay espacio libre suficiente para insertar la clave...*/
-		}else{
-			
+		}else{			
 			Nodo* nuevoNodo = new NodoBp(this->getRefNodo(),this->getNivel());
 			
 			/*Condicion para overflow. Devuelve la cantidad de claves que
@@ -123,6 +122,8 @@
 		//TODO ACCESO A DISCOOO !
 		/*Sobreescribe el nodo, actualizando las modificaciones*/
 		//archivoIndice->sobreescribirNodo(this); 
+		
+		return codigo;
 	}
 	
 	char NodoBp::insertarEnNodo(Clave* &clave)
@@ -177,15 +178,16 @@
 		//TODO Y.... CRUZAAA EL DISCOOOOOOOOO!
                /*Sobreescribe el nodo, actualizando las modificaciones*/
            	  //archivoIndice-> sobreescribirNodo(this);
+		
+		return codigo;
 	}  
 	
 	void NodoBp::eliminarClave(/*ArchivoIndice* archivo,*/Clave* clave, char* codigo)
 	{
 		SetClaves* set = this->getClaves();
 		
-		this->actualizarEspacioLibre(clave,false);
-		
 		set->erase(clave);
+		this->actualizarEspacioLibre(clave,false);		
 		/*
 		if (this->espacioLibre > (this->condicionMinima(archivo))){
 	   		if (this->getNivel() == 0)                               
