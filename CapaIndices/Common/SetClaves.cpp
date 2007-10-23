@@ -2,7 +2,7 @@
 
 SetClaves::~SetClaves() {
 	for(SetClaves::iterator iter = this->begin(); iter != this->end(); ++iter)
-		delete *iter;
+		if (*iter) delete *iter;
 }
 
 Clave* SetClaves::findClave(Clave* clave) const {
@@ -73,10 +73,10 @@ VectorConjuntos* SetClaves::splitBStar(unsigned minClaves) {
 }
 
 
-void SetClaves::mergeBPlus(SetClaves* set, Clave* c1, Clave* c2) {
+void SetClaves::merge(SetClaves* set, Clave* c1, Clave* c2) {
 	
-	this->insert(c1);
-	this->insert(c2);
+	if (c1) this->insert(c1);
+	if (c2) this->insert(c2);
 	
 	for (SetClaves::iterator iter = set->begin(); iter != set->end(); ++iter)
 		this->insert(*iter);
@@ -87,17 +87,9 @@ void SetClaves::mergeBPlus(SetClaves* set, Clave* c1, Clave* c2) {
 	
 }
 
-void SetClaves::mergeBStar(SetClaves* set1, SetClaves* set2, Clave* c1, Clave* c2) {
+void SetClaves::merge(SetClaves* set1, SetClaves* set2, Clave* c1, Clave* c2) {
 	
-	this->insert(c1);
-	this->insert(c2);
-	
-	for (SetClaves::iterator iter = set1->begin(); iter != set1->end(); ++iter)
-		this->insert(*iter);
-	
-	//Borro los punteros dentro del set para que no libere la memoria de las claves
-	//al destruirse.
-	set1->clear();
+	this->merge(set1, c1, c2);
 	
 	for (SetClaves::iterator iter = set2->begin(); iter != set2->end(); ++iter)
 		this->insert(*iter);
