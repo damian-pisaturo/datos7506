@@ -16,6 +16,24 @@ Bloque::~Bloque()
 
 void Bloque::organizarBloque(int offsetToReg,int longReg){
 	
+	char* datosAux = new char[tamanio];
+	char * espLibreAux = new char[3];
+	short espLibre;
+	
+	memcpy(espLibreAux,datos,2);
+	espLibreAux[2] = '\0';
+	espLibre = atoi(espLibreAux);
+	
+	espLibre += longReg;
+	
+	
+	memcpy(datosAux,datos,offsetToReg);
+	memcpy(&datosAux[offsetToReg],&datos[offsetToReg+longReg],tamanio-offsetToReg-longReg);
+	memcpy(datosAux,(char*)espLibre,2);
+	delete[] datos;
+	datos = datosAux;
+	
+	
 }
 /*
  * Inserta un nuevo registro dentro del bloque
@@ -201,6 +219,10 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 					   delete[]campo;
 					   
 				   }
+			   }
+			   
+			   else if(tipo == "fecha"){
+				   //TODO: Completar la fecha
 			   }
 			   
 		   } 
