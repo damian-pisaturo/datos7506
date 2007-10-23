@@ -131,7 +131,7 @@
 			/*si devuelve como valor de codigo "nodo modificado" no se sigue el ciclo*/
 			
             /*Inserto en las hojas SIEMPRE*/
-            *codigo = actual->insertarClave(this->archivoIndice,clave);		
+            *codigo = actual->insertarClave(this->archivoIndice,clave); //TODO Nico, mira que lo que recibe no es esto.		
             anterior = actual;
 		}
 		
@@ -143,15 +143,15 @@
 		                     
 		if ( (codigo == Codigo::OVERFLOW) && (actual->getNivel()!=0) ){			
             /*Inserto en un nodo de forma similar al Arbol B*/   
-            actual->insertarEnNodo(this->archivoIndice,clave,codigo);			
+            actual->insertarClave(/*this->archivoIndice,*/clave,codigo);			
 	        
-            delete Anterior;
-	        Anterior = Actual;
+            delete anterior;
+	        anterior = actual;
         }else if ( (codigo == Codigo::MODIFICADO) && (actual->getNivel()!= 0 ) ){            
             /*Elimino el nodo inmediatamente anterior(de menor nivel)*/
             delete anterior;
-            a	`nterior = Actual;
-         }
+            anterior = actual;
+        }
 }
 
 /*----------------------------------------------------------------------------------------*/
