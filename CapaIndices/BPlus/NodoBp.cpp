@@ -103,8 +103,9 @@
 			 *OBSERVACION: El nodo ya fue grabado, y despues de esto se destruye
 			 * (no se pierde info)
 			 */
-			SetClaves::iterator iter = this->getClaves()->begin();
+			SetClaves::iterator iter = nuevoNodo->getClaves()->begin();
 			clave = *iter;
+			nuevoNodo->getClaves()->erase(iter); //Lo saco para que no se borre cuando borre de memoria al nodo
 			clave->setReferencia(nuevoNodo->getPosicionEnArchivo());
 			
 			/*Se actualiza el hermano derecho de este nodo. hijoIzq contiene
@@ -121,7 +122,7 @@
 		
 		//TODO ACCESO A DISCOOO !
 		/*Sobreescribe el nodo, actualizando las modificaciones*/
-		//archivoIndice-> sobreescribirNodo(this); 
+		//archivoIndice->sobreescribirNodo(this); 
 	}
 	
 	char NodoBp::insertarEnNodo(Clave* &clave)
