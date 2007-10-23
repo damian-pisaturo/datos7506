@@ -27,6 +27,7 @@ int Bloque::altaRegistro(char *registro){
 	char *auxEspLibre = new char [5]; //Reservo 4 bytes para obtener el espacio libre
 	char *auxLongReg = new char[3];
 	
+	
 	memcpy(auxLongReg,registro,2); //Obtengo la longitud del registro
 	auxLongReg[3]= '\0';
 	longReg = atoi(auxLongReg);
@@ -58,18 +59,44 @@ int Bloque::altaRegistro(char *registro){
  **/
 int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 	bool registroBorrado = false;
-	unsigned short longCampo;
-	unsigned short longReg;
-	int offsetToPk = 0;
-	int offsetToRegDelete;
+	int offsetToReg = 0;
+	int i = 1 ;
+	int j = 0;
+	int longReg;
+	int longCampo;
+	int campoInt;
+	string registro;
+	int offsetToProxCampo = 0;
 	//Se usa para levantar la longitud del atributo variable del registro
 	char *longAtributo = new char [3];
+	//Se usa para levantar la longitud del registro
+	char *longRegistro = new char [3];
+	//Cantidad de registros dentro del bloque
+	char *cantRegs = new char[3];
+	int cantRegistros;
 	list <string>::iterator it;
-	size_t posOfDelim;
 	string regAtribute;
+	size_t posOfDelim;
+	string campo;
 	string tipo;
 	string pk;
+	//Obtengo la cantidad de registros dentro del bloque
+	cantRegs[0] = datos[2];
+	cantRegs[1] = datos[3];
+	cantRegs[2] = '\0';
+	cantRegistros = atoi(cantRegs);
 	
+	//Mientras no itero sobre la cantidad total de registros o no borré el registro busco la clave primaria
+	while( (i<cantRegistros + 1) || (!registroBorrado) ){
+	//obtengo la longitud del registro;
+	longRegistro[0] = datos [4 + offsetToReg];
+	longRegistro[1] = datos [4 + offsetToReg + 1];
+	longRegistro[2] = '\0';
+	longReg = atoi(longRegistro);
+	//La próxima iteración se levantará la longitud del registro siguiente
+	offsetToReg = longReg;
+	registro = getRegistro(longReg,offsetToReg);
+
 	//Itero la lista de atributos del registro
 	   for(it = listaParam.begin(); it != listaParam.end(); ++it){
 		   regAtribute = *it;
@@ -82,9 +109,23 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 		   //Levanto el registro i
 		   //TODO: Agregar más tipos si hace falta
 		   
-		   if(tipo == "string"){}
+		   if(tipo == "string"){
+		   		longAtributo[0] = registro[offsetToProxCampo];
+		   		longAtributo[1] = registro[offsetToProxCampo + 1];
+		   		longAtributo[2] = '\0';
+		   		longCampo = atoi(longAtributo);
+		   		
+		   		campo = getRegisterAtribute(registro,offsetToProxCampo,longCampo);
+		   		
+		   		//Seteo el nuevo offset del próximo campo para la siguiente iteración
+		   		offsetToProxCampo = longCampo;
+		   }
 		   else if(tipo == "int"){
-			   
+			   for(j;j<4;j++)
+			   	campo[j] = registro[offsetToProxCampo + j];
+			  
+			   campo[4] = '\0';
+			   campoInt = atoi(campo.c_str());
 		   }
 		   else if(tipo == "shortInt"){}
 		   else if(tipo == "double"){}
@@ -98,7 +139,7 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 			   //Obtengo el offset del registro dentro del bloque
 			   
 			   //Reorganizo el bloque pisando el registro a borrar
-			   organizarBloque(offsetToRegDelete,longReg);
+			  // organizarBloque(offsetToRegDelete,longReg);
 			   return OK;
 		   }
 		   /*else{
@@ -113,7 +154,7 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 			   //TODO: agregar los tipos y tamaños que faltan
 		  }*/
 	   } 
-
+	}
 	return OK;
 }
 
@@ -133,4 +174,27 @@ bool Bloque::verificarEspacioDisponible(int longReg,int offsetEspLibre){
 
 void Bloque::insertarRegistro(char *registro, int nuevoOffsetEspLibre){}
 
-//int Bloque::buscarRegistro(int offsetToPk,int longReg){};
+string Bloque::getRegistro(int longReg,int offsetToReg){
+	string registro;
+	int i = 2;
+	//offsetToReg apunta al primer byte del registro, donde los dos primeros bytes
+	//indican la longitud del mismo
+	// Acá supongo que longReg tiene incluido sus dos bytes. 
+	for(i;i<longReg;i++)
+		// Los 4 corresponden al offset A espacio libre dentro del bloque y cantidad de registros
+		// i arranca de 2, asi omito los 2 bytes que indican la longitud del mismo y retorno los datos directamente
+		registro[i-2] = datos[4 + offsetToReg + i];
+	
+	return registro;
+	
+}
+
+string Bloque::getRegisterAtribute(string registro,int offsetCampo,int longCampo){
+	string campo;
+	int i;
+	
+	for(i = offsetCampo;i<offsetCampo + longCampo;i++)
+		//Corrimiento de 2, omitiendo el largo del campo
+		campo[0] = registro[i + 2];
+	return campo;
+}
