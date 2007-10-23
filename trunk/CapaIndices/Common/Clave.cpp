@@ -649,11 +649,11 @@
 	///////////////////////////////////////////////////////////////////////
 	ClaveVariable::ClaveVariable(const string& clave, unsigned int referencia,
 														unsigned int hijoDer)
-	{
+	{		
 		//Se trunca el nombre si es de mas de longMaxCadena caracteres
 //		if (clave.size()> ClaveCadena::longMaxCadena)
 //			clave.erase(ClaveCadena::longMaxCadena);
-
+		
 		this->setValor(new string(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);

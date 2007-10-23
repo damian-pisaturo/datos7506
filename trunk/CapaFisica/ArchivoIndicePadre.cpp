@@ -1,54 +1,258 @@
+///////////////////////////////////////////////////////////////////////////
+//	Archivo   : ArchivoIndicePadre.cpp
+//  Namespace : CapaFisica
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Implementacion de las clases ArchivoIndice, 
+//		ArchivoIndiceArbol, ArchivoIndiceArbolSecundario,
+//		ArchivoIndiceHash.
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;
+//		- Rodriguez, Maria Laura.
+///////////////////////////////////////////////////////////////////////////
 #include "ArchivoIndicePadre.h"
-#include "Nodo.h"
 
-/******************************************************************************/
-/* Clase Archivo Indice - (Abstracta)*/
-/*-----------------------------------*/
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndice
+//			(Abstracta. Clase que sirve de abstraccion de la capa 
+//			fisica para los indices de la capa de indices).
+///////////////////////////////////////////////////////////////////////////
+	
+	///////////////////////////////////////////////////////////////////////
+	// Constructor
+	///////////////////////////////////////////////////////////////////////
+	ArchivoIndice::ArchivoIndice(string nombreArchivo, unsigned int tamanioBloque)
+	{
+		this->nombreArchivo = nombreArchivo;
+		this->tamanioBloque = tamanioBloque;
+	}
 
-void ArchivoIndice::escribirRaizVacia(){
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndiceArbol
+//			(Abstracta. Clase que sirve de abstraccion de la capa 
+//			fisica para los indices en arboles de la capa de indices).
+///////////////////////////////////////////////////////////////////////////
 	
-	char* buffer = new char[this->tamanioNodo];
-	char* puntero = buffer;
-	Header headerNodo;
+	///////////////////////////////////////////////////////////////////////
+	// Constructor
+	///////////////////////////////////////////////////////////////////////
+	ArchivoIndiceArbol::ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo):
+		ArchivoIndice(nombreArchivo, tamNodo)
+	{ 
+		//TODO Usar ComuDato para escribir la raiz vacia si el 
+		//archivo de indice esta vacio.	
+		
+		/*
+		//Si el archivo de indice esta vacio creo una raiz hoja sin claves
+		if(this->archivoIndex->fin())
+			escribirRaizVacia();
+		*/
+	}
 	
-	/*Copiar el header al buffer*/
-	headerNodo.nivel = 0;  
-	headerNodo.hijoIzq = 0;	 
-	headerNodo.espacioLibre = this->tamanioNodo - this->getTamanioHeader();
+	///////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	///////////////////////////////////////////////////////////////////////	
+	void ArchivoIndiceArbol::escribirRaizVacia()
+	{	
+		char* buffer = new char[this->getTamanioBloque()];
+		char* puntero = buffer;
+		Header headerNodo;
+		
+		/*Copiar el header al buffer*/
+		headerNodo.nivel   = 0;  
+		headerNodo.hijoIzq = 0;	 
+		headerNodo.espacioLibre = this->getTamanioBloque() - this->getTamanioHeader();
+		
+		memcpy(buffer,&headerNodo,this->getTamanioHeader());
+		puntero += this->getTamanioHeader();
+		
+		/*Escribir la raiz*/
+		//TODO Usar ComuDato
+		//this->archivoIndex->escribir(buffer);
+		
+		delete[] buffer;
+	}
 	
-	memcpy(buffer,&headerNodo,this->getTamanioHeader());
-	puntero += this->getTamanioHeader();
+	///////////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	///////////////////////////////////////////////////////////////////////////	
+	void ArchivoIndiceArbol::leerBloque(int numeroRegistro, Bloque* bloqueLeido)
+	{
+		Nodo* nodoLeido = (Nodo*) bloqueLeido;
+		
+		/*Variables de Lectura del buffer*/		
+		char* buffer = new char[this->getTamanioNodo()];
+		char* puntero = buffer;
+		char* punteroFinal;
+		Header headerNodo;
+		
+		/*Variables de interpretacion del nodo*/
+		Clave* claveNueva;
+		SetClaves* set = new SetClaves();
+		
+		/*Posicionarse en el numeroRegistro*/
+		//TODO Usar ComuDato.
+		this->archivoIndex->posicionarse(numeroRegistro);
+		
+		/*Leer el bloque de 512 bytes y dejarlo apuntado a un char*/
+		try{
+			this->archivoIndex->leer(buffer);
+		}
+		catch(string s){
+			delete[] buffer;
+			delete lista;
+			throw string("Bloque de Archivo Indice Inexistente");	
+		}
+		
+		/*Castear el header*/
+		memcpy(&headerNodo,puntero,sizeof(Header));
+		puntero += sizeof(Header);
+		
+		/*Setear el espacio libre, si es hoja y el HijoIzq*/
+		nodoLeido->setNivel(headerNodo.nivel);
+		nodoLeido->setEspacioLibre(headerNodo.espacioLibre); 
+		nodoLeido->setHijoIzq(headerNodo.hijoIzq);
+		
+		/*Recorrer el buffer desde donde quedo hasta que supere
+		 * el espacio libre casteando a de a pedazos de a una clave*/
+		 /*Apunto al final de los datos validos para saber cuando parar de leer*/
+		 punteroFinal = buffer + (tamanioNodo - headerNodo.espacioLibre);
+		
+		if(nodoLeido->getNivel() == 0){
+			while(puntero < punteroFinal){	
+				/*leer la clave*/	
+				claveNueva = leerClaveHoja(puntero);
+				/*Agregarla a la lista*/	
+				set->insert(claveNueva);
+			}	
+		}else{
+			while(puntero < punteroFinal){	
+				/*leer la clave*/	
+				claveNueva = leerClaveNoHoja(puntero);
+				/*Agregarla a la lista*/	
+				lista->agregar(claveNueva);
+			}
+		}
+		
+		/*libero el buffer*/
+		delete[] buffer;
+		
+		/*Agregar el setClaves al nodo*/
+		nodoLeido->setClaves(set);
+		/*Setear la posicion del nodo en el archivo*/
+		nodoLeido->setPosicionEnArchivo(numeroRegistro);
+	}
 	
-	/*Escribir la raiz*/
-	this->archivoIndex->escribir(buffer);
-	
-	delete[] buffer;
-}
+	void ArchivoIndiceArbol::escribirBloque(Bloque* bloqueNuevo)
+	{
+		Nodo* nodoNuevo = (Nodo*) bloqueNuevo;
+		
+		/*Variables de escritura del buffer*/
+		const int registroUsado = -1;
+		int posicion = -1;
+		int numero;
+		bool ubicado = false;
+		char* buffer = new char[this->tamanioNodo];
+		char* puntero = buffer;
+		
+		/*Variables de interpretacion del nodo*/
+		Header headerNodo;
+		SetClaves* set;
+		
+		nodoNuevo->actualizarEspacioLibre(this);
+		
+		//TODO Usar ComuDatos para buscar en el archivo de espacio libre.
+		//Implementar en la capa fisica alguna clase que permita hacer esto mismo.
+		
+		/*Buscar una posicion en el archivo a partir del archivo de nodos liberados
+		 * (buscar el ultimo agregado a la lista)*/
+		this->archivoLiberados->posicionarse(0);
+		while( (!this->archivoLiberados->fin()) && (!ubicado) ){
+			
+			this->archivoLiberados->leer(&numero);
+			this->cantLecturasControl++;
+			if(numero==-1)
+				ubicado = true;
+			else
+				posicion = numero;	
+		}
 
-/*--------------------------------------------------------------------------------------------*/
-ArchivoIndice::ArchivoIndice(int tamNodo,string nombreArchivo){
-	
-	this->tamanioNodo = tamNodo;
-	
-	/*Abre el archivo indice*/
-	this->archivoIndex = new ArchivoRegistros(nombreArchivo,tamNodo);
-    	
-	/*Abrir el archivo de nodos liberados - Archivo de Registros de Int*/
-	this->archivoLiberados = new ArchivoRegistros(nombreArchivo + ".lbds",sizeof(int));
-	
-	/*Si el archivo de indice esta vacio creo una raiz hoja sin claves*/
-	if(this->archivoIndex->fin())
-    		escribirRaizVacia();
-    		
-    this->cantEscrituras = 1; /*Debido a la escritura de la raiz vacia*/
-    this->cantLecturas = 0;
-    this->cantEscriturasControl = 0;
-    this->cantLecturasControl = 0;	
-}
-/*--------------------------------------------------------------------------------------------*/
-int ArchivoIndice::getTamanioNodo(){
-	return this->tamanioNodo;	
-}
+		
+		if(posicion!=-1){ /*Si se encontro un nodo liberado*/
+			/*Posicionarse en el numeroRegistro*/
+			this->archivoIndex->posicionarse(posicion);
+			
+			/*Grabar un -1 en esa posicion indicando que ese registro liberados dejo de existir*/	
+			if(numero==-1){
+				/*grabar dos posiciones antes*/
+				this->archivoLiberados->posicionarse(archivoLiberados->posicion()-2);
+				this->archivoLiberados->escribir(&registroUsado); /*Escribir un -1*/
+				this->cantEscriturasControl++;
+			}
+			else{
+				/*grabar una posicion antes*/
+				this->archivoLiberados->posicionarse(archivoLiberados->posicion()-1);
+				this->archivoLiberados->escribir(&registroUsado); /*Escribir un -1*/
+				this->cantEscriturasControl++;
+			}
+		
+		} /*fin if(posicion!=-1) */
+		else{
+			this->archivoIndex->posicionarseFin(); /* Si no hay ninguno libre me posicion al final*/
+			posicion = this->archivoIndex->posicion();
+			}
+		/*Copiar el header al buffer*/
+		headerNodo.nivel = nodoNuevo->getNivel();  
+		headerNodo.hijoIzq = nodoNuevo->getHijoIzq();
+		headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
+		
+		memcpy(puntero,&headerNodo,sizeof(Header));
+		puntero += sizeof(Header);
+		
+		/*Obtener la lista de claves*/
+		lista = nodoNuevo->obtenerClaves();
+		
+		/*Recorrer la lista de claves copiando cada clave al buffer*/
+		if(nodoNuevo->getNivel()==0){
+			lista->primero();
+			while(!lista->fin()){
+				copiarClaveHoja((Clave*)lista->obtenerDato(),puntero);			
+				lista->siguiente();	
+			}
+		}
+		else{
+			lista->primero();
+			while(!lista->fin()){
+				copiarClaveNoHoja((Clave*)lista->obtenerDato(),puntero);			
+				lista->siguiente();	
+			}
+		}
+		
+		/*Grabar el buffer en el archivo*/ 
+		this->archivoIndex->escribir(buffer);
+		this->cantEscrituras++;
+		 
+		/*Setear en el nodo la posicion donde se grabo el nodo*/
+		nodoNuevo->setPosicionEnArchivo(posicion);
+		
+		delete[] buffer;
+		
+	}
+
+
+
 /*--------------------------------------------------------------------------------------------*/
 int ArchivoIndice::getTamanioHeader(){
 	return sizeof(Header);	
@@ -70,161 +274,9 @@ int ArchivoIndice::getCantEscriturasControl(){
 	return this->cantEscriturasControl;
 }
 /*--------------------------------------------------------------------------------------------*/
-void ArchivoIndice::leer(int numeroRegistro, Nodo* nodoLeido){
-	
-	/*Variables de Lectura del buffer*/
-	
-	char* buffer = new char[this->tamanioNodo];
-	char* puntero = buffer;
-	char* punteroFinal;
-	Header headerNodo;
-	
-	/*Variables de interpretacion del nodo*/
-	Clave* claveNueva;
-	ListaClaves* lista = new ListaClaves();
-	
-	/*Posicionarse en el numeroRegistro*/
-	this->archivoIndex->posicionarse(numeroRegistro);
-	
-	/*Leer el bloque de 512 bytes y dejarlo apuntado a un char*/
-	try{
-		this->archivoIndex->leer(buffer);
-	}
-	catch(string s){
-		delete[] buffer;
-		delete lista;
-		throw string("Bloque de Archivo Indice Inexistente");	
-	}
-	this->cantLecturas++;
-	
-	/*Castear el header*/
-	memcpy(&headerNodo,puntero,sizeof(Header));
-	puntero += sizeof(Header);
-	
-	/*Setear el espacio libre, si es hoja y el HijoIzq*/
-	nodoLeido->setNivel(headerNodo.nivel);
-	nodoLeido->setEspacioLibre(headerNodo.espacioLibre); 
-	nodoLeido->setHijoIzq(headerNodo.hijoIzq);
-	
-	/*Recorrer el buffer desde donde quedo hasta que supere
-	 * el espacio libre casteando a de a pedazos de a una clave*/
-	 /*Apunto al final de los datos validos para saber cuando parar de leer*/
-	 punteroFinal = buffer + (tamanioNodo - headerNodo.espacioLibre);
-	
-	if(nodoLeido->getNivel()==0){
-		while(puntero < punteroFinal){	
-			/*leer la clave*/	
-			claveNueva = leerClaveHoja(puntero);
-			/*Agregarla a la lista*/	
-			lista->agregar(claveNueva);
-		}	
-	}
-	else{
-		while(puntero < punteroFinal){	
-			/*leer la clave*/	
-			claveNueva = leerClaveNoHoja(puntero);
-			/*Agregarla a la lista*/	
-			lista->agregar(claveNueva);
-		}
-	}
-	/*libero el buffer*/
-	delete[] buffer;
-	
-	/*Agregar la listaClaves al nodo*/
-	nodoLeido->setClaves(lista);
-	/*Setear la posicion del nodo en el archivo*/
-	nodoLeido->setPosicionEnArchivo(numeroRegistro);
-}
-/*--------------------------------------------------------------------------------------------*/
-void ArchivoIndice::grabarNuevoNodo(Nodo* nodoNuevo){
-	
-	/*Variables de escritura del buffer*/
-	const int registroUsado = -1;
-	int posicion = -1;
-	int numero;
-	bool ubicado = false;
-	char* buffer = new char[this->tamanioNodo];
-	char* puntero = buffer;
-	
-	/*Variables de interpretacion del nodo*/
-	Header headerNodo;
-	ListaClaves* lista;
-	
-	nodoNuevo->actualizarEspacioLibre(this);
-	/*Buscar una posicion en el archivo a partir del archivo de nodos liberados
-	 * (buscar el ultimo agregado a la lista)*/
-	this->archivoLiberados->posicionarse(0);
-	while( (!this->archivoLiberados->fin()) && (!ubicado) ){
-		
-		this->archivoLiberados->leer(&numero);
-		this->cantLecturasControl++;
-		if(numero==-1)
-			ubicado = true;
-		else
-			posicion = numero;	
-	}
 
-	
-	if(posicion!=-1){ /*Si se encontro un nodo liberado*/
-		/*Posicionarse en el numeroRegistro*/
-		this->archivoIndex->posicionarse(posicion);
-		
-		/*Grabar un -1 en esa posicion indicando que ese registro liberados dejo de existir*/	
-		if(numero==-1){
-			/*grabar dos posiciones antes*/
-			this->archivoLiberados->posicionarse(archivoLiberados->posicion()-2);
-			this->archivoLiberados->escribir(&registroUsado); /*Escribir un -1*/
-			this->cantEscriturasControl++;
-		}
-		else{
-			/*grabar una posicion antes*/
-			this->archivoLiberados->posicionarse(archivoLiberados->posicion()-1);
-			this->archivoLiberados->escribir(&registroUsado); /*Escribir un -1*/
-			this->cantEscriturasControl++;
-		}
-	
-	} /*fin if(posicion!=-1) */
-	else{
-		this->archivoIndex->posicionarseFin(); /* Si no hay ninguno libre me posicion al final*/
-		posicion = this->archivoIndex->posicion();
-		}
-	/*Copiar el header al buffer*/
-	headerNodo.nivel = nodoNuevo->getNivel();  
-	headerNodo.hijoIzq = nodoNuevo->getHijoIzq();
-	headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
-	
-	memcpy(puntero,&headerNodo,sizeof(Header));
-	puntero += sizeof(Header);
-	
-	/*Obtener la lista de claves*/
-	lista = nodoNuevo->obtenerClaves();
-	
-	/*Recorrer la lista de claves copiando cada clave al buffer*/
-	if(nodoNuevo->getNivel()==0){
-		lista->primero();
-		while(!lista->fin()){
-			copiarClaveHoja((Clave*)lista->obtenerDato(),puntero);			
-			lista->siguiente();	
-		}
-	}
-	else{
-		lista->primero();
-		while(!lista->fin()){
-			copiarClaveNoHoja((Clave*)lista->obtenerDato(),puntero);			
-			lista->siguiente();	
-		}
-	}
-	
-	/*Grabar el buffer en el archivo*/ 
-	this->archivoIndex->escribir(buffer);
-	this->cantEscrituras++;
-	 
-	/*Setear en el nodo la posicion donde se grabo el nodo*/
-	nodoNuevo->setPosicionEnArchivo(posicion);
-	
-	delete[] buffer;
-	
-}
+/*--------------------------------------------------------------------------------------------*/
+
 /*--------------------------------------------------------------------------------------------*/
 void ArchivoIndice::eliminarNodo(int posicion){
 /*Setear en el archivo de nodos liberados la posicion al final*/
@@ -325,14 +377,6 @@ void ArchivoIndice::exportar(ostream &archivoTexto,int posicion){
 	delete nodo;
 	
 }
-/*--------------------------------------------------------------------------------------------*/
-ArchivoIndice::~ArchivoIndice(){
-	
-	delete this->archivoIndex;
-	delete this->archivoLiberados;
-}
-
-
 
 /******************************************************************************/
 /* Clase Archivo de Indice Secundario (Nombre o marca) */

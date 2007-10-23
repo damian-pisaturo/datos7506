@@ -18,12 +18,11 @@
 ///////////////////////////////////////////////////////////////////////////
 #include "Nodo.h"
 
-
 ///////////////////////////////////////////////////////////////////////////
 // Clase
-//------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 // Nombre: Nodo (Abstracta)
-//////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 
 	///////////////////////////////////////////////////////////////////////
     // Constructores/Destructor
@@ -72,9 +71,9 @@
 	void Nodo::actualizarEspacioLibre(Clave* clave, bool insercion)
 	{
 		if (insercion)
-			this->espacioLibre = this->espacioLibre - clave->getTamanioEnDisco();
+			this->setEspacioLibre(this->getEspacioLibre() - clave->getTamanioEnDisco());
 		else
-		   	this->espacioLibre = this->espacioLibre + clave->getTamanioEnDisco();
+		   	this->setEspacioLibre(this->getEspacioLibre() + clave->getTamanioEnDisco());
 	}
 
 	void Nodo::actualizarEspacioLibre(SetClaves* claves, bool insercion)
@@ -86,9 +85,9 @@
 		}
 		
 		if (insercion)
-			this->espacioLibre = this->espacioLibre - suma;
+			this->setEspacioLibre(this->getEspacioLibre() - suma);
 		else
-		   	this->espacioLibre = this->espacioLibre + suma;
+			this->setEspacioLibre(this->getEspacioLibre() + suma);
 	}
 	
 	/*

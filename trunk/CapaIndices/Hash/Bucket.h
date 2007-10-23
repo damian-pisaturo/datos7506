@@ -1,52 +1,80 @@
+///////////////////////////////////////////////////////////////////////////
+//	Archivo   : Bucket.h
+//  Namespace : CapaIndice 
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Cabeceras e interfaz de las clase Bucket.
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;	
+//		- Rodriguez, Maria Laura.
+///////////////////////////////////////////////////////////////////////////
+
 #ifndef BUCKET_H_
 #define BUCKET_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../Common/BloqueIndice.h"
 #include "RegistroV.h"
 
-class Bucket
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: Bucket (Permite el manejo de buckets en memoria)
+//////////////////////////////////////////////////////////////////////////
+
+class Bucket : public BloqueIndice
 {
-private:
-	char* datos;
-	int tamanio;
-	char* registro;
-	int espacioLibre;
-	int tamDispersion;
-	int cantRegs;
+	private:
+	//////////////////////////////////////////////////////////////////////
+	// Atributos
+	//////////////////////////////////////////////////////////////////////
+		char* datos;
+		//unsigned int tamanio; TODO El tamanio del bucket vendra en el ArchivoIndiceHash.
+		char* registro;
+		unsigned int tamDispersion;
+		unsigned int cantRegs;
 	
-public:
-	Bucket(int tamanioBucket);
-	virtual ~Bucket();
+	public:
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		Bucket(ArchivoIndice* indiceHash, unsigned int referencia);
+		virtual ~Bucket();
 	
-	/*
-	 * Lee un bucket del archivo desde el offset y carga sus datos en la clase.
-	 */
-	void leer(int offset);
+	///////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+
+		/*
+		 * Busca un registro por su clave dentro del bucket. Si existe lo carga en el 
+		 * atributo registro y devuelve true; de lo contrario devuelve false.
+		 */ 
+		bool buscarRegistro(Clave* clave);
 	
-	/*
-	 * Escribe en disco los datos del bucket.
-	 */ 
-	void escribir(int offset);
-	 
-	/*
-	 * Busca un registro por su clave dentro del bucket. Si existe lo carga en el 
-	 * atributo registro y devuelve true; de lo contrario devuelve false.
-	 */ 
-	bool buscarRegistro(char* clave, int tamanioClave);
+	private:
+	///////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	///////////////////////////////////////////////////////////////////////
 	
-private:
+		/*
+		 * Busca un registro de clave de longitud variable en el bucket.
+		 */
+		bool buscarRegClaveV(Clave* clave);
 	
-	/*
-	 * Busca un registro de clave de longitud variable en el bucket.
-	 */
-	bool buscarRegClaveV(char* clave, int tamanioClave);
-	
-	/*
-	 * Busca un registro de clave de longitud fija en el bucket.
-	 */
-	bool buscarRegClaveF(char* clave, int tamanioClave);
+		/*
+		 * Busca un registro de clave de longitud fija en el bucket.
+		 */
+		bool buscarRegClaveF(Clave* clave);
 };
 
 #endif /*BUCKET_H_*/

@@ -19,7 +19,7 @@
 #ifndef NODO_H_
 #define NODO_H_
 
-#include "Clave.h"
+#include "BloqueIndice.h"
 #include "SetClaves.h"
 #include "Codigo.h"
 
@@ -28,7 +28,7 @@
 //------------------------------------------------------------------------
 // Nombre: Nodo (Abstracta)
 //////////////////////////////////////////////////////////////////////////
-class Nodo
+class Nodo : public BloqueIndice
 {
 	private:
     //////////////////////////////////////////////////////////////////////
@@ -54,7 +54,6 @@ class Nodo
 		
 		unsigned int refNodo;
 		unsigned int nivel;
-		unsigned int espacioLibre;
 		unsigned int posicionEnArchivo;
 		SetClaves* claves;
 	
@@ -70,7 +69,7 @@ class Nodo
 		Nodo(unsigned int refNodo, unsigned int nivel);
 		
 		/*Lee el archivo y crea ese nodo*/
-		//Nodo(unsigned int referencia);
+		Nodo(ArchivoIndice* archivo, unsigned int referencia);
 		
 		/*Destructor*/
 		virtual ~Nodo();
@@ -147,12 +146,7 @@ class Nodo
 		{	
 			if (this->claves) delete this->claves;
 			this->claves = set;
-		}
-		
-		void setEspacioLibre(unsigned int cant)
-		{
-			this->espacioLibre = cant;
-		}
+		}		
 		
 		void setPosicionEnArchivo(unsigned int posicion)
 		{
@@ -173,11 +167,6 @@ class Nodo
 		unsigned int getPosicionEnArchivo()
 		{
 			return this->posicionEnArchivo;
-		}
-		
-		unsigned int getEspacioLibre()
-		{
-			return this->espacioLibre;
 		}
 		
 		SetClaves* getClaves()
