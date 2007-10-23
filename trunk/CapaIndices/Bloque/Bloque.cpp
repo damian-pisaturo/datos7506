@@ -59,13 +59,13 @@ int Bloque::altaRegistro(char *registro){
  **/
 int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 	bool registroBorrado = false;
-	int offsetToReg = 0;
+	int offsetToReg = 4;
 	int i = 1 ;
-	int j = 0;
+	//int j = 0;
 	int longReg;
 	int longCampo;
-	int campoInt;
-	string registro;
+	float campoNumerico;
+	char *registro;
 	int offsetToProxCampo = 0;
 	//Se usa para levantar la longitud del atributo variable del registro
 	char *longAtributo = new char [3];
@@ -77,7 +77,7 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 	list <string>::iterator it;
 	string regAtribute;
 	size_t posOfDelim;
-	string campo;
+	char *campo;
 	string tipo;
 	string pk;
 	//Obtengo la cantidad de registros dentro del bloque
@@ -86,80 +86,117 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 	cantRegs[2] = '\0';
 	cantRegistros = atoi(cantRegs);
 	
-	//Mientras no itero sobre la cantidad total de registros o no borré el registro busco la clave primaria
-	while( (i<cantRegistros + 1) || (!registroBorrado) ){
-	//obtengo la longitud del registro;
-	longRegistro[0] = datos [4 + offsetToReg];
-	longRegistro[1] = datos [4 + offsetToReg + 1];
-	longRegistro[2] = '\0';
-	longReg = atoi(longRegistro);
-	//La próxima iteración se levantará la longitud del registro siguiente
-	offsetToReg = longReg;
-	registro = getRegistro(longReg,offsetToReg);
-
-	//Itero la lista de atributos del registro
-	   for(it = listaParam.begin(); it != listaParam.end(); ++it){
-		   regAtribute = *it;
-		   posOfDelim = regAtribute.find(";");
-		   //Obtengo el tipo de atributo del registro
-		   tipo = regAtribute.substr(0,posOfDelim);
-		   //Obtengo el indicador de clave primaria
-		   pk = regAtribute.substr(posOfDelim+1);
-		  
-		   //Levanto el registro i
-		   //TODO: Agregar más tipos si hace falta
-		   
-		   if(tipo == "string"){
-		   		longAtributo[0] = registro[offsetToProxCampo];
-		   		longAtributo[1] = registro[offsetToProxCampo + 1];
-		   		longAtributo[2] = '\0';
-		   		longCampo = atoi(longAtributo);
-		   		
-		   		campo = getRegisterAtribute(registro,offsetToProxCampo,longCampo);
-		   		
-		   		//Seteo el nuevo offset del próximo campo para la siguiente iteración
-		   		offsetToProxCampo = longCampo;
-		   }
-		   else if(tipo == "int"){
-			   for(j;j<4;j++)
-			   	campo[j] = registro[offsetToProxCampo + j];
+	//Mientras no itero sobre la cantidad total de registros y no borré el registro busco la clave primaria
+	while( (i<cantRegistros + 1) && (!registroBorrado) ){
+	
+		//obtengo la longitud del registro;
+		longRegistro[0] = datos [offsetToReg];
+		longRegistro[1] = datos [offsetToReg + 1];
+		longRegistro[2] = '\0';
+		longReg = atoi(longRegistro);
+		registro = new char[longReg];
+		//Omito la longitud del registro
+		offsetToReg += 2;
+		registro = getRegistro(longReg,offsetToReg);
+		
+		//La próxima iteración se levantará la longitud del registro siguiente
+		offsetToReg += longReg;
+	
+		//Itero la lista de atributos del registro
+		   for(it = listaParam.begin(); it != listaParam.end(); ++it){
+			   regAtribute = *it;
+			   posOfDelim = regAtribute.find(";");
+			   //Obtengo el tipo de atributo del registro
+			   tipo = regAtribute.substr(0,posOfDelim);
+			   //Obtengo el indicador de clave primaria
+			   pk = regAtribute.substr(posOfDelim+1);
 			  
-			   campo[4] = '\0';
-			   campoInt = atoi(campo.c_str());
-		   }
-		   else if(tipo == "shortInt"){}
-		   else if(tipo == "double"){}
-		   else if (tipo == "char"){}
-		   
-		   if(pk == "true"){
+			   //Levanto el registro i
+			   //TODO: Agregar más tipos si hace falta
+			   
 			   if(tipo == "string"){
+			   		//obtengo la longitud del campo variable
+				   	longAtributo[0] = registro[offsetToProxCampo];
+			   		longAtributo[1] = registro[offsetToProxCampo + 1];
+			   		longAtributo[2] = '\0';
+			   		longCampo = atoi(longAtributo);
+			   		offsetToProxCampo += 2;
+			   		//Si es pk, me preocupo por obtener el campo en si
+			   		if(pk == "true"){
+			   			campo = getRegisterAtribute(registro,offsetToProxCampo,longCampo);
+			   			//TODO: casteo la clave a string, y comparo si es el reg buscado
+			   			//si es, llamo a organizar bloque
+			   			//registroBorrado=true
+			   		}
+			   		
+			   		//Seteo el nuevo offset del próximo campo para la siguiente iteración
+			   		offsetToProxCampo += longCampo;
+			   }
+			   else if(tipo == "int"){
+				   
+				   if(pk == "true"){
+					   campo = new char[5];
+					   
+					   memcpy(campo,&registro[offsetToProxCampo],4);
+					   campo[4] = '\0';		   		
+					   campoNumerico = atoi(campo);
+					   //TODO: comparo si es el reg buscado
+					   //si es, llamo a organizar bloque
+					   //registroBorrado=true
+					   delete[]campo;
+				   	}
+				   offsetToProxCampo += 4;
+			   }
+			   else if(tipo == "shortInt"){
+				   if(pk == "true"){
+					   campo = new char[3];
+					   memcpy(campo,&registro[offsetToProxCampo],2);
+   					   campo[2] = '\0';		   		
+   					   campoNumerico = atoi(campo);
+   					   //TODO: comparo si es el reg buscado
+   					   //si es, llamo a organizar bloque
+   					   //registroBorrado=true
+   					   delete[]campo;
+					   
+				   }
+				   offsetToProxCampo += 2;
 				   
 			   }
-			   else if(tipo == "int")
-			   //Obtengo el offset del registro dentro del bloque
-			   
-			   //Reorganizo el bloque pisando el registro a borrar
-			  // organizarBloque(offsetToRegDelete,longReg);
-			   return OK;
-		   }
-		   /*else{
-			   if(tipo == "string"){
-				   //obtener la longitud del registro y sumarla al offset
-				   longAtributo[0] = 
+			   else if(tipo == "float"){
+				   if(pk == "true"){
+					   campo = new char[5];
+   					   memcpy(campo,&registro[offsetToProxCampo],4);
+  					   campo[4] = '\0';		   		
+  					   campoNumerico = atof(campo);
+  					   //TODO: comparo si es el reg buscado
+  					   //si es, llamo a organizar bloque
+  					   //registroBorrado=true
+  					   delete[]campo;
+				   					   
+   				   }
+   				   offsetToProxCampo += 4;
+				   
 			   }
-			   else if (tipo == "int")
-				   offsetToPk += 4;
-			   else if(tipo == "unsigned short")
-				   offsetToPk += 2;
-			   //TODO: agregar los tipos y tamaños que faltan
-		  }*/
-	   } 
+			   else if (tipo == "char"){
+				   if(pk == "true"){
+					   campo = new char[1];
+					   campo[0] = registro[offsetToProxCampo];
+					   //TODO: comparo si es el reg buscado
+ 					   //si es, llamo a organizar bloque
+ 					   //registroBorrado=true
+					   delete[]campo;
+					   
+				   }
+			   }
+			   
+		   } 
 	}
 	return OK;
 }
 
 int Bloque::modificarRegistro(list <string>listaParam,int longReg){
-	
+
+	return 0;
 }
 
 bool Bloque::verificarEspacioDisponible(int longReg,int offsetEspLibre){
@@ -174,27 +211,18 @@ bool Bloque::verificarEspacioDisponible(int longReg,int offsetEspLibre){
 
 void Bloque::insertarRegistro(char *registro, int nuevoOffsetEspLibre){}
 
-string Bloque::getRegistro(int longReg,int offsetToReg){
-	string registro;
-	int i = 2;
-	//offsetToReg apunta al primer byte del registro, donde los dos primeros bytes
-	//indican la longitud del mismo
-	// Acá supongo que longReg tiene incluido sus dos bytes. 
-	for(i;i<longReg;i++)
-		// Los 4 corresponden al offset A espacio libre dentro del bloque y cantidad de registros
-		// i arranca de 2, asi omito los 2 bytes que indican la longitud del mismo y retorno los datos directamente
-		registro[i-2] = datos[4 + offsetToReg + i];
+char* Bloque::getRegistro(int longReg,int offsetToReg){
+	char *registro = new char [longReg];
 	
+	memcpy(registro,&datos[offsetToReg],longReg);
 	return registro;
 	
 }
 
-string Bloque::getRegisterAtribute(string registro,int offsetCampo,int longCampo){
-	string campo;
-	int i;
+char* Bloque::getRegisterAtribute(string registro,int offsetCampo,int longCampo){
+	char *campo = new char[longCampo + 1];
 	
-	for(i = offsetCampo;i<offsetCampo + longCampo;i++)
-		//Corrimiento de 2, omitiendo el largo del campo
-		campo[0] = registro[i + 2];
+	memcpy(campo,&registro[offsetCampo],longCampo);
+	campo[longCampo] = '\0';
 	return campo;
 }
