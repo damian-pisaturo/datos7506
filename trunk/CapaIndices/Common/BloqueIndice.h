@@ -20,7 +20,7 @@
 #define BLOQUEINDICE_H_
 
 #include "Clave.h"
-#include "ArchivoIndice.h"
+//#include "ArchivoIndice.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
