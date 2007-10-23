@@ -69,7 +69,7 @@ class Nodo : public BloqueIndice
 		Nodo(unsigned int refNodo, unsigned int nivel);
 		
 		/*Lee el archivo y crea ese nodo*/
-		Nodo(ArchivoIndice* archivo, unsigned int referencia);
+		//Nodo(ArchivoIndice* archivo, unsigned int referencia);
 		
 		/*Destructor*/
 		virtual ~Nodo();
@@ -137,6 +137,16 @@ class Nodo : public BloqueIndice
 			this->refNodo = refNodo;
 		}
 		
+		void setHijoIzq(unsigned hijoIzq)
+		{ 
+			this->refNodo = hijoIzq;
+		}
+		
+		void setHnoDer(unsigned hnoDer)
+		{ 
+			this->refNodo = hnoDer;
+		}
+		
 		void setNivel(unsigned int nivel)
 		{
 			this->nivel = nivel;
@@ -154,22 +164,32 @@ class Nodo : public BloqueIndice
 		}		
 		
 		/*Getters*/
-		unsigned int getRefNodo()
+		unsigned int getRefNodo() const
 		{
 			return this->refNodo;
 		}
 		
-		unsigned int getNivel()
+		unsigned getHijoIzq() const
+		{ 
+			return this->refNodo;
+		}
+		
+		unsigned getHnoDer() const
+		{ 
+			return this->refNodo;
+		}
+		
+		unsigned int getNivel() const
 		{
 			return this->nivel;
 		}
 		
-		unsigned int getPosicionEnArchivo()
+		unsigned int getPosicionEnArchivo() const
 		{
 			return this->posicionEnArchivo;
 		}
 		
-		SetClaves* getClaves()
+		SetClaves* getClaves() const
 		{
 			return this->claves;
 		}
