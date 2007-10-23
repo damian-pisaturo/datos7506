@@ -71,7 +71,7 @@
 		
 		/*No hay espacio libre suficiente para insertar la clave...*/
 		}else{			
-			Nodo* nuevoNodo = new NodoBp(this->getRefNodo(),this->getNivel());
+			Nodo* nuevoNodo = new NodoBp(this->getHnoDer(), this->getNivel());
 			
 			/*Condicion para overflow. Devuelve la cantidad de claves que
 			 * deben quedar en el nodo que va a dividirse:
@@ -90,8 +90,8 @@
 			/* Actualizar el espacio libre en el nodo que acaba de producirse
 			 * split.
 			 */
-			this->actualizarEspacioLibre(setNuevo,false);
-			this->actualizarEspacioLibre(clave,true);
+			this->actualizarEspacioLibre(setNuevo, false);
+			this->actualizarEspacioLibre(clave, true);
       					   
 			//TODO URGENTE VER EL TEMITA DEL ACCESO A DISCOOO !
 			/*Lo grabo en el archivo*/   
@@ -105,12 +105,12 @@
 			SetClaves::iterator iter = nuevoNodo->getClaves()->begin();
 			clave = *iter;
 			nuevoNodo->getClaves()->erase(iter); //Lo saco para que no se borre cuando borre de memoria al nodo
-			clave->setReferencia(nuevoNodo->getPosicionEnArchivo());
+			clave->setHijoDer(nuevoNodo->getPosicionEnArchivo());
 			
 			/*Se actualiza el hermano derecho de este nodo. hijoIzq contiene
 			 * una referencia al hermano derecho si el nodo es hoja.
 			 */
-			this->setRefNodo(nuevoNodo->getPosicionEnArchivo());
+			this->setHnoDer(nuevoNodo->getPosicionEnArchivo());
 			
 			/*Borrar de memoria el nuevo nodo creado*/
 			delete nuevoNodo;
@@ -135,7 +135,7 @@
 		
 		/*Si hay espacio suficiente para la nueva clave ...*/ 
 		if (this->getEspacioLibre() > clave->getTamanioEnDisco()){
-			this->actualizarEspacioLibre(clave,true);
+			this->actualizarEspacioLibre(clave, true);
 			codigo = Codigo::MODIFICADO;
 		
 		/*No hay espacio libre suficiente para insertar la clave...*/
@@ -152,24 +152,23 @@
 			nuevoNodo->setClaves(setNuevo);
 			
 			/*se le quita la lista proveniente de la division this*/
-			this->actualizarEspacioLibre(setNuevo,false);
+			this->actualizarEspacioLibre(setNuevo, false);
 			/*correccion debido a que la division de listas se hace luego de 
 			 *efectuada la insercion
 			 */
-			this->actualizarEspacioLibre(clave,true);
+			this->actualizarEspacioLibre(clave, true);
 			
-			/*El quitar quita de la lista y devuelve un puntero a la clave quitada 
-			 * para que se devuelva al salir*/
-			SetClaves::iterator iter = this->getClaves()->begin();
+			SetClaves::iterator iter = nuevoNodo->getClaves()->begin();
 			clave = *iter;
+			nuevoNodo->getClaves()->erase(iter); //Lo saco para que no se borre cuando borre de memoria al nodo
 			
-			/*El hijo izq del nuevo nodo es la referencia de la clave promovida.*/
-			 nuevoNodo->setRefNodo(clave->getReferencia());
+			/*El hijo izq del nuevo nodo es el hijo derecho de la clave promovida.*/
+			 nuevoNodo->setHijoIzq(clave->getHijoDer());
 			 
 			 /*Lo grabo en el archivo*/
 			 //TODO SUPERMERCADO DISCO.
 			 //archivoIndice->grabarNuevoNodo(nuevoNodo);
-			 clave->setReferencia(nuevoNodo->getPosicionEnArchivo());                 
+			 clave->setHijoDer(nuevoNodo->getPosicionEnArchivo());                 
 			 
 			 /*Borrar de memoria el nuevo nodo creado*/
 			 delete nuevoNodo;
@@ -182,23 +181,36 @@
 		return codigo;
 	}  
 	
-	void NodoBp::eliminarClave(/*ArchivoIndice* archivo,*/Clave* clave, char* codigo)
-	{
-		SetClaves* set = this->getClaves();
+	
+	
+	void NodoBp::eliminarClave(Clave* clave, char* codigo) {
 		
-		set->erase(clave);
-		this->actualizarEspacioLibre(clave,false);		
-		/*
-		if (this->espacioLibre > (this->condicionMinima(archivo))){
-	   		if (this->getNivel() == 0)                               
-	      		*codigo = Codigo::UNDERFLOW_HOJA;
-	   		else
-	   			*codigo = Codigo::UNDERFLOW;
-	 	}else
-	 		*codigo = Codigo::MODIFICADO;	
-	 */
-	 	
+		SetClaves* set = this->getClaves();
+		SetClaves::iterator iter = set->find(clave);
+		
+		if (iter != set->end()) { //Se encontró la clave
+			//Se libera la memoria utilizada por la clave
+			delete *iter;
+			//Se elimina el puntero a la clave que estaba dentro del conjunto
+			set->erase(iter);
+			//Se actualiza el espacio libre del nodo
+			this->actualizarEspacioLibre(clave, false);
+			
+			/*
+			if (this->espacioLibre > this->condicionMinima(archivo)){
+		   		if (this->getNivel() == 0)                               
+	      			*codigo = Codigo::UNDERFLOW_HOJA;
+	   			else
+	   				*codigo = Codigo::UNDERFLOW;
+		 	}else
+		 		*codigo = Codigo::MODIFICADO;
+		 	*/
+		}
+		
+		*codigo = Codigo::NO_MODIFICADO;
+		
 	}
+
 	
 	Nodo* NodoBp::siguiente(/*ArchivoIndice* archivo,*/Clave* clave)
 	{

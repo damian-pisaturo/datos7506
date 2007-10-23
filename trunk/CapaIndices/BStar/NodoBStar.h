@@ -13,6 +13,7 @@ class NodoBStar : public Nodo {
 		void insertarClave(Clave* &clave, char* codigo);
 		void eliminarClave(Clave* clave, char* codigo);
 		Nodo* siguiente(Clave* clave);
+		bool puedeCeder(unsigned bytesRequeridos, bool izquierda);
 		
 };
 

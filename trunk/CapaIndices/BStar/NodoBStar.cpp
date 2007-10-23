@@ -3,6 +3,7 @@
 
 void NodoBStar::insertarClave(Clave* &clave, char* codigo) {
 	
+	
 	char cod = Codigo::NO_MODIFICADO;
 			
 	//Insercion ordenada de la clave en el conjunto
@@ -10,12 +11,16 @@ void NodoBStar::insertarClave(Clave* &clave, char* codigo) {
 	
 	//Si hay espacio suficiente para la nueva clave ...
 	if (this->getEspacioLibre() > clave->getTamanioEnDisco()){
-		this->actualizarEspacioLibre(clave,true);
+		this->actualizarEspacioLibre(clave, true);
 		cod = Codigo::MODIFICADO;
 	
+		//TODO Escribir a disco
+	    //Sobreescribe el nodo, actualizando las modificaciones
+	    //archivoIndice->sobreescribirNodo(this);
 	//No hay espacio libre suficiente para insertar la clave...
 	}else{
-		
+		//TODO 97.98% seguro de que vuela esto que esta comentado.
+	/*	
 		//TODO Ver el temita del hijo izquierdo.
 		//El hijo izquierdo tendria que ser el hijo dereche de la clave promocionada.
 		Nodo* nuevoNodo = new NodoBStar(this->getRefNodo(), this->getNivel());
@@ -63,18 +68,15 @@ void NodoBStar::insertarClave(Clave* &clave, char* codigo) {
 		 
 		 //Se borra de memoria el nuevo nodo creado
 		 delete nuevoNodo;
-		 
+		 */
 		 cod = Codigo::OVERFLOW;
+		 
 	}               
-	//TODO Y.... CRUZAAA EL DISCOOOOOOOOO!
-    //Sobreescribe el nodo, actualizando las modificaciones
-    //archivoIndice-> sobreescribirNodo(this);
-	
+
 	*codigo = cod;
-	
 }
 
-
+//Siempre eliminara de hojas, se encarga el arbol de que el dato a eliminar este en ella.
 void NodoBStar::eliminarClave(Clave* clave, char* codigo) {
 	
 	SetClaves* set = this->getClaves();
@@ -97,6 +99,23 @@ void NodoBStar::eliminarClave(Clave* clave, char* codigo) {
 	}
 	
 	*codigo = Codigo::NO_MODIFICADO;
+}
+
+
+bool NodoBStar::puedeCeder(unsigned bytesRequeridos, bool izquierda){
+	
+	unsigned sumaBytesRequeridos = 0;
+	unsigned sumaBytesRestantes = 0;
+	
+	if (izquierda){
+		SetClaves::iterator iter;
+		for (iter = this->getClaves()->begin(); (iter != this->getClaves()->end()) && (sumaBytesRequeridos < bytesRequeridos); ++iter){
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+		}
+	//	for (iter)
+	}
+	
+	return true; //TODO lo puse para que compile
 	
 }
 
