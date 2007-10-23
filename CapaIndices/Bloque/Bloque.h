@@ -40,12 +40,12 @@ private:
 	 * Retorna un registro a partir del offset del mismo dentro del bloque
 	 * y la longitud del registro
 	 * */
-	string getRegistro(int longReg, int offsetToReg);	
+	char* getRegistro(int longReg, int offsetToReg);	
 	
 	/**
 	 * Retorna un campo específico del registro
 	 * */
-	string getRegisterAtribute(string registro,int offsetCampo,int longCampo);
+	char* getRegisterAtribute(string registro,int offsetCampo,int longCampo);
 
 public:
 	Bloque(int num,int tam);
