@@ -99,8 +99,6 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 		offsetToReg += 2;
 		registro = getRegistro(longReg,offsetToReg);
 		
-		//La próxima iteración se levantará la longitud del registro siguiente
-		offsetToReg += longReg;
 	
 		//Itero la lista de atributos del registro
 		   for(it = listaParam.begin(); it != listaParam.end(); ++it){
@@ -127,6 +125,13 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 			   			//TODO: casteo la clave a string, y comparo si es el reg buscado
 			   			//si es, llamo a organizar bloque
 			   			//registroBorrado=true
+			   			if(strcmp((char*)clavePrimaria,campo) == 0)
+			   			{
+			   				organizarBloque(offsetToReg,longReg);
+			   				registroBorrado = true;
+			   				
+			   			}
+			   			
 			   		}
 			   		
 			   		//Seteo el nuevo offset del próximo campo para la siguiente iteración
@@ -143,6 +148,10 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 					   //TODO: comparo si es el reg buscado
 					   //si es, llamo a organizar bloque
 					   //registroBorrado=true
+					   if(campoNumerico == *((int*)clavePrimaria)){
+						   organizarBloque(offsetToReg,longReg);
+						   registroBorrado = true;
+					   }
 					   delete[]campo;
 				   	}
 				   offsetToProxCampo += 4;
@@ -153,9 +162,11 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 					   memcpy(campo,&registro[offsetToProxCampo],2);
    					   campo[2] = '\0';		   		
    					   campoNumerico = atoi(campo);
-   					   //TODO: comparo si es el reg buscado
-   					   //si es, llamo a organizar bloque
-   					   //registroBorrado=true
+   					   
+	   					if(campoNumerico == *((short int*)clavePrimaria)){
+	   						organizarBloque(offsetToReg,longReg);
+	   						registroBorrado = true;
+	   				    }
    					   delete[]campo;
 					   
 				   }
@@ -168,9 +179,10 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
    					   memcpy(campo,&registro[offsetToProxCampo],4);
   					   campo[4] = '\0';		   		
   					   campoNumerico = atof(campo);
-  					   //TODO: comparo si es el reg buscado
-  					   //si es, llamo a organizar bloque
-  					   //registroBorrado=true
+  					   if(campoNumerico == *((float*)clavePrimaria)){
+  						   organizarBloque(offsetToReg,longReg);
+  						   registroBorrado = true;
+  					   }
   					   delete[]campo;
 				   					   
    				   }
@@ -181,15 +193,19 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 				   if(pk == "true"){
 					   campo = new char[1];
 					   campo[0] = registro[offsetToProxCampo];
-					   //TODO: comparo si es el reg buscado
- 					   //si es, llamo a organizar bloque
- 					   //registroBorrado=true
+					   if(campo[0] == ((char*)clavePrimaria)[0]){
+						   organizarBloque(offsetToReg,longReg);
+						   registroBorrado = true;
+					   }
+					   
 					   delete[]campo;
 					   
 				   }
 			   }
 			   
 		   } 
+		//La próxima iteración se levantará la longitud del registro siguiente
+		offsetToReg += longReg;
 	}
 	return OK;
 }
