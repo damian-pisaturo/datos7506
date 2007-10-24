@@ -21,23 +21,30 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-
+	Bucket(ArchivoIndice *indiceHash, unsigned int tamDispersion)
+	{
+		this->registros = NULL;
+		this->datos = new char[indiceHash->getTamanioBloque()];
+		this->tamDispersion = tamDispersion;
+		this->cantRegs      = 0;
+		this->vacio         = true;
+		
+	}
+	
 	Bucket::Bucket(ArchivoIndice* indiceHash, unsigned int referencia)
 	{
-		/*
-		tamanio = tamanioBucket;
-		datos = new char[tamanio];
+		datos = new char[indiceHash->getTamanioBloque()]
 		registro = NULL;
-		*/
-		registro = NULL;
-		indiceHash->leer(referencia, this)
+		indiceHash->leer(referencia, this);
 	}
 
 	Bucket::~Bucket()
 	{
-		delete[] datos;
+		if (datos)
+			delete[] datos;
+		
 		if (registro)
-			delete[]registro;
+			delete[] registro;
 	}
 	
 
@@ -57,41 +64,6 @@
 			return buscarRegClaveF(clave,tamanioClave);
 	}
 
-	/*
-void Bucket::leer(int offset)
-{
-	// TODO: pedir a la capa fisica que levante tamanio desde offset y lo asigne a datos.
-	
-	// Obtengo el espacio libre.
-	char * auxEspLibre = new char[5];
-	memcpy(auxEspLibre,datos,4);
-	auxEspLibre[4] = '\0';
-	espacioLibre = atoi(auxEspLibre);
-	delete[] auxEspLibre;
-
-	//Obtengo el tamaño de dispersión.
-	char* auxTD = new char[2];
-	memcpy(auxTD,&datos[4],1);
-	auxTD[1]='\0';
-	tamDispersion = atoi(auxTD); 
-	delete[] auxTD;
-	
-	//Obtengo la cantidad de registros.
-	char* auxCRegs = new char[2];
-	memcpy(auxCRegs,&datos[5],1);
-	auxCRegs[1] = '\0';
-	cantRegs = atoi(auxCRegs);
-	delete[] auxCRegs;
-	
-	
-}
-
-void Bucket::escribir(int offset)
-{
-	// TODO: pedir a la capa fisica q escriba datos a partir de offset en el archivo.
-}
-*/
-
 
 	//TODO Como el Hash desconoce el tipo de dato que esta siendo almacenado
 	//en el y trata todo como char, es imposible usar la clase Clave para manejar
@@ -106,7 +78,7 @@ void Bucket::escribir(int offset)
 		short int longReg;
 		RegistroV* reg;
 				
-		for (int i = 1; (i <= cantRegs)& notFound; i++)
+		for (int i = 1; (i <= cantRegs)&& notFound; i++)
 		{
 			/*
 			 * TODO: definir bien la estructura del bloque. Supongo que los primeros 4 bytes 

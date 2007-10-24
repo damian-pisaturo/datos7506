@@ -16,7 +16,6 @@
 //		- Pisaturo, Damian;	
 //		- Rodriguez, Maria Laura.
 ///////////////////////////////////////////////////////////////////////////
-
 #ifndef BUCKET_H_
 #define BUCKET_H_
 
@@ -41,20 +40,27 @@ class Bucket : public BloqueIndice
 		char* datos;
 		//unsigned int tamanio; TODO El tamanio del bucket vendra en el ArchivoIndiceHash.
 		char* registro;
-		unsigned int tamDispersion;
-		unsigned int cantRegs;
+		unsigned bool vacio; //Indica si el bloque contiene al menos un registro.
+		unsigned short numBucket; //Indica el numero de bucket dentro del archivo.
+		unsigned short tamDispersion;
+		unsigned short cantRegs;
 	
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		Bucket(ArchivoIndice* indiceHash, unsigned int referencia);
+		/*Crea un Bucket vacio*/
+		Bucket(ArchivoIndice *indiceHash, unsigned short tamDispersion);
+		
+		/*Crea un Bucket con los datos del bloque cuya 
+		 * referencia en el archivo es la pasada por parametro.
+		 */
+		Bucket(ArchivoIndice* indiceHash, unsigned short referencia);
 		virtual ~Bucket();
 	
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////
-
 		/*
 		 * Busca un registro por su clave dentro del bucket. Si existe lo carga en el 
 		 * atributo registro y devuelve true; de lo contrario devuelve false.
