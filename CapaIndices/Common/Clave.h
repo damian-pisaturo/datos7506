@@ -40,8 +40,9 @@ class Clave
 		//regRegistro
 		/*En claves primarias: offset al registro del archivo de datos (indice griego).
 		  En claves secundarias: offset a una lista con claves primarias (indice romano).
+		  Su valor es -1 en nodos internos de arboles B+.
 		*/
-		unsigned int refRegistro;
+		int refRegistro;
 
 		//hijoDer
 		/*Referencia al nodo derecho del arbol (Claves mayores a la clave actual).*/
@@ -61,12 +62,15 @@ class Clave
 		//El valor 0 hace referencia al nodo Raíz, pero ningún nodo puede tener como hijo
 		//al nodo raíz, por lo tanto utilizar este valor no presenta inconvenientes.
 		unsigned int tamanio;
+		
+		
+		
 
 	public:
 	///////////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////////
-		Clave() : refRegistro(0), hijoDer(0), valor(NULL), tamanio(0) {}
+		Clave() : refRegistro(-1), hijoDer(0), valor(NULL), tamanio(0) {}
 
 		virtual ~Clave() {}
 
@@ -102,12 +106,12 @@ class Clave
 		//tipo de dato que usa internamente.
 		virtual unsigned int getTamanioValor() const = 0;
 		
-		unsigned int getReferencia() const
+		int getReferencia() const
 		{
 			return refRegistro;
 		}
 
-		void setReferencia(unsigned int referencia)
+		void setReferencia(int referencia)
 		{
 			this->refRegistro = referencia;
 		}
@@ -155,7 +159,7 @@ class ClaveEntera: public Clave
 	///////////////////////////////////////////////////////////////////////////
 	// Constructores/Destructor
 	///////////////////////////////////////////////////////////////////////////
- 		ClaveEntera(int clave, unsigned int referencia = 0,
+ 		ClaveEntera(int clave, int referencia =  -1,
                                 unsigned int hijoDer = 0);
 
 		virtual ~ClaveEntera();
