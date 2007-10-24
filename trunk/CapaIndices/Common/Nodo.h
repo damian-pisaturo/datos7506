@@ -55,9 +55,8 @@ class Nodo : public BloqueIndice
 		unsigned int refNodo;
 		unsigned int nivel;
 		unsigned int posicionEnArchivo;
-		SetClaves* claves;
 		unsigned int condicionMinima;
-		
+		SetClaves* claves;		
 	
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -126,7 +125,7 @@ class Nodo : public BloqueIndice
 		 * Devuelve la clave mas cercana a la claveBuscada dentro de la lista
 		 * de claves contenidas en el nodo (o la misma si se encuentra presente).
 		 */ 
-		Clave* buscar(Clave* claveBuscada);
+		Clave* buscar(Clave* claveBuscada) const;
 			
 		//bool vacio(ArchivoIndice* archivo);
 		
@@ -163,7 +162,12 @@ class Nodo : public BloqueIndice
 		void setPosicionEnArchivo(unsigned int posicion)
 		{
 			this->posicionEnArchivo = posicion;	
-		}		
+		}
+		
+		void setCondicionMinima(unsigned int condMin)
+		{
+			this->condicionMinima = condMin;	
+		}
 		
 		/*Getters*/
 		unsigned int getRefNodo() const
@@ -195,6 +199,12 @@ class Nodo : public BloqueIndice
 		{
 			return this->claves;
 		}
+		
+		unsigned int getCondicionMinima() const
+		{
+			return this->condicionMinima;	
+		}
+		
 }; //Fin clase Nodo.
 
 #endif /*NODO_H_*/

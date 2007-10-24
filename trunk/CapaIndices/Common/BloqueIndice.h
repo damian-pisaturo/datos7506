@@ -37,10 +37,14 @@ class BloqueIndice
 		unsigned int espacioLibre;
 		
 	public:
+		BloqueIndice() {}
+		
+		~BloqueIndice() {}
+		
 		///////////////////////////////////////////////////////////////////////////
 		// Getter/Setter
 		///////////////////////////////////////////////////////////////////////////		
-		unsigned int getEspacioLibre()
+		unsigned int getEspacioLibre() const
 		{
 			return espacioLibre;
 		}
@@ -50,4 +54,5 @@ class BloqueIndice
 			this->espacioLibre = espacio;
 		}
 };
+
 #endif /*BLOQUEINDICE_H_*/
