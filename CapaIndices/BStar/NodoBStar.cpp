@@ -91,7 +91,7 @@ void NodoBStar::eliminarClave(Clave* clave, char* codigo) {
 		this->actualizarEspacioLibre(clave, false);
 		
 		
-		if (this->espacioLibre > this->condicionMinima)
+		if (this->getEspacioLibre() > this->getCondicionMinima())
 	   		*codigo = Codigo::UNDERFLOW;
 	 	else
 	 		*codigo = Codigo::MODIFICADO;
@@ -110,6 +110,8 @@ unsigned NodoBStar::getTamanioEnDisco() const {
 	tamanio += this->getTamanioEnDiscoSetClaves();
 	
 	if (this->getNivel() != 0) tamanio += Tamanios::TAMANIO_REFERENCIA;
+	
+	return tamanio;
 	
 } 
 
@@ -132,24 +134,23 @@ unsigned NodoBStar::getTamanioEnDiscoSetClaves() const {
 unsigned NodoBStar::puedeCeder(unsigned bytesRequeridos, bool izquierda) const {
 	
 	unsigned sumaBytesRequeridos = 0;
-	SetClaves::iterator iter;
 	
 	if (izquierda){
-		for (iter = this->getClaves()->begin();
+		for (SetClaves::iterator iter = this->getClaves()->begin();
 			(iter != this->getClaves()->end()) && (sumaBytesRequeridos < bytesRequeridos);
 			++iter){
 			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
 		}
 	}
 	else{ //if (derecha)
-		for (iter = this->getClaves()->rbegin();
+		for (SetClaves::reverse_iterator iter = this->getClaves()->rbegin();
 			(iter != this->getClaves()->rend()) && (sumaBytesRequeridos < bytesRequeridos);
 			++iter){
 			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
 		}	
 	}
 	
-	if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->condicionMinima )
+	if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getCondicionMinima() )
 		return sumaBytesRequeridos;
 	else return 0;
 	
@@ -188,16 +189,20 @@ Nodo* NodoBStar::siguiente(Clave* clave) {
 SetClaves* NodoBStar::ceder(unsigned bytesRequeridos, bool izquierda) {
 	
 	unsigned sumaBytesRequeridos = 0;
-	SetClaves::iterator iter;
+	
 	SetClaves* set = new SetClaves();
 	
 	if (izquierda){
 		
-		for (iter = this->getClaves()->begin(); (iter != this->getClaves()->end()) && (sumaBytesRequeridos < bytesRequeridos); ++iter){
+		SetClaves::iterator iter;
+		for (iter = this->getClaves()->begin();
+			(iter != this->getClaves()->end()) && (sumaBytesRequeridos < bytesRequeridos);
+			++iter){
 			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
 			set->insert(*iter);
 		}
-		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->condicionMinima ) {
+		
+		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getCondicionMinima() ) {
 			this->getClaves()->erase(this->getClaves()->begin(), iter);
 			return set;
 		}
@@ -205,11 +210,20 @@ SetClaves* NodoBStar::ceder(unsigned bytesRequeridos, bool izquierda) {
 	}
 	else{ //if (derecha)
 		
-		for (iter = this->getClaves()->rbegin(); (iter != this->getClaves()->rend()) && (sumaBytesRequeridos < bytesRequeridos); ++iter){
+		SetClaves::iterator iter;
+		for (iter = (--(this->getClaves()->end()));
+			(iter != this->getClaves()->begin()) && (sumaBytesRequeridos < bytesRequeridos);
+			--iter){
 			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
 			set->insert(*iter);
 		}
-		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->condicionMinima ) {
+		
+		if ( (iter == this->getClaves()->begin()) && (sumaBytesRequeridos < bytesRequeridos) ) {
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			set->insert(*iter);
+		}
+		
+		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getCondicionMinima() ) {
 			this->getClaves()->erase(iter, this->getClaves()->end());
 			return set;
 		}
@@ -228,3 +242,33 @@ void NodoBStar::recibir(SetClaves* set){
 	}
 	set->clear();
 }
+
+
+unsigned NodoBStar::obtenerBytesRequeridos() const {
+	
+	//TODO Implementar obtenerBytesRequeridos!!
+	return 0;
+	
+}
+
+bool NodoBStar::esPadre(const NodoBStar* hijo, Clave* &clave) const {
+	
+	clave = this->buscar(hijo->obtenerPrimeraClave());
+	
+	if ( (clave) && (clave->getHijoDer() == hijo->getPosicionEnArchivo()) )
+		return true;
+	
+	return false;
+	
+}
+		
+
+Clave* NodoBStar::obtenerPrimeraClave() const {
+	
+	if (this->getClaves()->empty()) return NULL;
+	
+	return *(this->getClaves()->begin());
+	
+}
+		
+		

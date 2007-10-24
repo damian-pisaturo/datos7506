@@ -9,6 +9,6 @@ class Tamanios {
 		const static char TAMANIO_ESPACIO_LIBRE		= sizeof(unsigned short);
 		const static char TAMANIO_LONGITUD_CADENA	= sizeof(unsigned char);
 	
-}
+};
 
 #endif /*TAMANIOS_*/

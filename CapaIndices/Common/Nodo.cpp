@@ -114,12 +114,9 @@
 	}
 	*/
 
-	Clave* Nodo::buscar(Clave* claveBuscada)
+	Clave* Nodo::buscar(Clave* claveBuscada) const
 	{
-		SetClaves* set = this->getClaves();
-		Clave* devolver = set->findClave(claveBuscada);
-		
-		return devolver;
+		return this->getClaves()->findClave(claveBuscada);
 	}
 
 	/*
