@@ -1,75 +1,96 @@
 #include "Bloque.h"
 
+bool buscarRegistro(list <string>listaParam,void *clavePrimaria,char* registro){
 
-Bloque::Bloque(int num,int tam)
-{
+	return true;
+}
+
+Bloque::Bloque(int num,int tam){
 	numero = num;
 	tamanio = tam;
 	//contendrá offset a espacio libre, cantidad de registros, y datos.-
 	datos = new char[tamanio];
 }
 
-Bloque::~Bloque()
-{
+Bloque::~Bloque(){
 	delete [] datos;
 }
 
+/**
+ * Este metodo levanta una longitud de caracteres a partir de datos[offset]
+ */
+char* Bloque::getSubstring(int longitud, int offset){
+	char* cadena = new char[longitud+1];
+	memcpy(cadena,&datos[offset],longitud);
+	cadena[longitud] = '\0';
+	
+	return cadena;
+}
+
+/**
+ * Este metodo reorganiza el bloque luego de una baja.
+ */
 void Bloque::organizarBloque(int offsetToReg,int longReg){
 	
 	char* datosAux = new char[tamanio];
-	char * espLibreAux = new char[3];
+	char * espLibreAux;
+	char* cantRegsAux;
 	short espLibre;
+	short cantRegs;
 	
-	memcpy(espLibreAux,datos,2);
-	espLibreAux[2] = '\0';
+	//Levanta el espacio libre en el bloque.
+	espLibreAux = getSubstring(2,0);
 	espLibre = atoi(espLibreAux);
 	
-	espLibre += longReg;
+	// Levanta la cantidad de registros del bloque.
+	cantRegsAux = getSubstring(2,2); 
+	cantRegs = atoi(cantRegsAux);
 	
-	
+	// Hago una copia del bloque omitiendo el bloque borrado.
 	memcpy(datosAux,datos,offsetToReg);
 	memcpy(&datosAux[offsetToReg],&datos[offsetToReg+longReg],tamanio-offsetToReg-longReg);
-	memcpy(datosAux,(char*)espLibre,2);
+	
+	//Actualizo los valores de espacio libre y cantidad de registros.
+	espLibre += longReg;
+	cantRegs -= 1;
+	memcpy(datosAux,&espLibre,2);
+	memcpy(&datosAux[2],&cantRegs,2);
+	
+	//Actualizo datos.
 	delete[] datos;
 	datos = datosAux;
 	
-	
+	delete[] espLibreAux;
+	delete[] cantRegsAux;	
 }
+
 /*
  * Inserta un nuevo registro dentro del bloque
- * Retorna OK (0) si la inserción fue exitosa, o FAIL (1) en caso contrario
+ * Retorna true si la inserción fue exitosa, o false en caso contrario
  **/
-int Bloque::altaRegistro(char *registro){
-	int offsetEspLibre;
+bool Bloque::altaRegistro(char *registro){
+	unsigned short offsetEspLibre;
 	unsigned short longReg;
-	char *auxEspLibre = new char [5]; //Reservo 4 bytes para obtener el espacio libre
+	char *auxEspLibre; 
 	char *auxLongReg = new char[3];
 	
-	
-	memcpy(auxLongReg,registro,2); //Obtengo la longitud del registro
-	auxLongReg[3]= '\0';
+	//Obtengo la longitud del registro
+	memcpy(auxLongReg,registro,2); 
+	auxLongReg[2]= '\0';
 	longReg = atoi(auxLongReg);
  	
 	//Obtengo el offset al espacio libre
-	memcpy(auxEspLibre,datos,4);
-	//TODO: Ver lo del '\0'
-	auxEspLibre[5]= '\0';
+	auxEspLibre = getSubstring(2,0);
 	offsetEspLibre = atoi(auxEspLibre);
 	
 	//Si el registro tiene espacio dentro del bloque realizo la inserción
 	if(verificarEspacioDisponible(longReg,offsetEspLibre)){
-		
-		//Actualizo el offset al espacio libre, suponiendo que longReg incluye la longitud completa del registro
-		//inclusive los 2 bytes que indican la longitud.
-		offsetEspLibre = offsetEspLibre + longReg; 
-		insertarRegistro(registro,offsetEspLibre);
-		delete []auxEspLibre;
-		delete []auxLongReg;
-		return OK;	
+		insertarRegistro(registro,offsetEspLibre,longReg); 
+		return true;	
 	}
 	delete []auxEspLibre;
 	delete []auxLongReg;
-	return FAIL;
+	return false;
 }
 	
 /*
@@ -78,8 +99,6 @@ int Bloque::altaRegistro(char *registro){
 int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 	bool registroBorrado = false;
 	int offsetToReg = 4;
-	int i = 1 ;
-	//int j = 0;
 	int longReg;
 	int longCampo;
 	float campoNumerico;
@@ -104,6 +123,7 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 	cantRegs[2] = '\0';
 	cantRegistros = atoi(cantRegs);
 	
+	int i = 1 ;
 	//Mientras no itero sobre la cantidad total de registros y no borré el registro busco la clave primaria
 	while( (i<cantRegistros + 1) && (!registroBorrado) ){
 	
@@ -126,9 +146,6 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 			   tipo = regAtribute.substr(0,posOfDelim);
 			   //Obtengo el indicador de clave primaria
 			   pk = regAtribute.substr(posOfDelim+1);
-			  
-			   //Levanto el registro i
-			   //TODO: Agregar más tipos si hace falta
 			   
 			   if(tipo == "string"){
 			   		//obtengo la longitud del campo variable
@@ -140,16 +157,12 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 			   		//Si es pk, me preocupo por obtener el campo en si
 			   		if(pk == "true"){
 			   			campo = getRegisterAtribute(registro,offsetToProxCampo,longCampo);
-			   			//TODO: casteo la clave a string, y comparo si es el reg buscado
-			   			//si es, llamo a organizar bloque
-			   			//registroBorrado=true
+			   		
 			   			if(strcmp((char*)clavePrimaria,campo) == 0)
 			   			{
 			   				organizarBloque(offsetToReg,longReg);
-			   				registroBorrado = true;
-			   				
+			   				registroBorrado = true;		
 			   			}
-			   			
 			   		}
 			   		
 			   		//Seteo el nuevo offset del próximo campo para la siguiente iteración
@@ -163,9 +176,7 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 					   memcpy(campo,&registro[offsetToProxCampo],4);
 					   campo[4] = '\0';		   		
 					   campoNumerico = atoi(campo);
-					   //TODO: comparo si es el reg buscado
-					   //si es, llamo a organizar bloque
-					   //registroBorrado=true
+					 
 					   if(campoNumerico == *((int*)clavePrimaria)){
 						   organizarBloque(offsetToReg,longReg);
 						   registroBorrado = true;
@@ -185,11 +196,9 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 	   						organizarBloque(offsetToReg,longReg);
 	   						registroBorrado = true;
 	   				    }
-   					   delete[]campo;
-					   
+   					   delete[]campo;  
 				   }
 				   offsetToProxCampo += 2;
-				   
 			   }
 			   else if(tipo == "float"){
 				   if(pk == "true"){
@@ -202,10 +211,8 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
   						   registroBorrado = true;
   					   }
   					   delete[]campo;
-				   					   
    				   }
    				   offsetToProxCampo += 4;
-				   
 			   }
 			   else if (tipo == "char"){
 				   if(pk == "true"){
@@ -215,12 +222,10 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 						   organizarBloque(offsetToReg,longReg);
 						   registroBorrado = true;
 					   }
-					   
 					   delete[]campo;
 					   
 				   }
 			   }
-			   
 			   else if(tipo == "fecha"){
 				   //TODO: Completar la fecha
 			   }
@@ -229,11 +234,20 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 		//La próxima iteración se levantará la longitud del registro siguiente
 		offsetToReg += longReg;
 	}
-	return OK;
+	if (!registroBorrado)
+		return false;
+	return true;
 }
 
-int Bloque::modificarRegistro(list <string>listaParam,int longReg){
+int Bloque::modificarRegistro(list <string>listaParam,unsigned short longReg, char* registro){
 
+	//unsigned short espLibre;
+	//char* auxEspLibre;
+	
+	//bajaRegistro()
+	
+	
+		
 	return 0;
 }
 
@@ -247,7 +261,16 @@ bool Bloque::verificarEspacioDisponible(int longReg,int offsetEspLibre){
 		return true;
 }
 
-void Bloque::insertarRegistro(char *registro, int nuevoOffsetEspLibre){}
+void Bloque::insertarRegistro(char *registro, unsigned short offsetEspLibre,unsigned short longReg){
+	// Se hace longReg + 2 porque esa longitud no incluye los 2 bytes que se usan para guardar la longitud
+	// del registro.
+	memcpy(&datos[offsetEspLibre],registro,longReg + 2);
+	
+	// Actualizo el offset al espacio libre.
+	offsetEspLibre += (longReg + 2);
+	memcpy(datos,&offsetEspLibre,2);
+	
+}
 
 char* Bloque::getRegistro(int longReg,int offsetToReg){
 	char *registro = new char [longReg];

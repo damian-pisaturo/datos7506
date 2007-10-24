@@ -34,7 +34,7 @@ private:
 	/*
 	 * Inserta un registro dentro del bloque, actualizando el offset a espacio libre
 	 **/
-	void insertarRegistro(char *registro,int nuevoOffsetEspLibre);
+	void insertarRegistro(char *registro,unsigned short nuevoOffsetEspLibre,unsigned short longitudRegistro);
 	
 	/*
 	 * Retorna un registro a partir del offset del mismo dentro del bloque
@@ -47,6 +47,10 @@ private:
 	 * */
 	char* getRegisterAtribute(string registro,int offsetCampo,int longCampo);
 
+	/**
+	 * Devuelve longitud bytes desde datos[offset]
+	 */
+	char* getSubstring(int longitud, int offset);
 public:
 	Bloque(int num,int tam);
 	virtual ~Bloque();
@@ -54,7 +58,7 @@ public:
 	/*
 	 * Inserta un nuevo registro dentro del bloque
 	 **/
-	int altaRegistro(char *registro);
+	bool altaRegistro(char *registro);
 	
 	/*
 	 * Elimina un registro del bloque, reorganizando el espacio libre
@@ -64,7 +68,9 @@ public:
 	/*
 	 * Modifica el contenido de un registro 
 	 **/
-	int modificarRegistro(list <string>listaParam,int longReg);
+	int modificarRegistro(list <string>listaParam,unsigned short longReg, char* registro);
+	
+	bool buscarRegistro(list <string>listaParam,void *clavePrimaria,char* registro);
 	
 	
 };
