@@ -56,6 +56,8 @@ class Nodo : public BloqueIndice
 		unsigned int nivel;
 		unsigned int posicionEnArchivo;
 		SetClaves* claves;
+		unsigned int condicionMinima;
+		
 	
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -63,10 +65,10 @@ class Nodo : public BloqueIndice
 	///////////////////////////////////////////////////////////////////////
 		
 		/*Crea un nuevo nodo para insertarle una Clave*/
-		Nodo(unsigned int refNodo, unsigned int nivel, Clave* clave);
+		Nodo(unsigned int refNodo, unsigned int nivel, Clave* clave, unsigned int condicionMinima);
 		
 		/*Crea el nodo sin setear ninguna clave*/
-		Nodo(unsigned int refNodo, unsigned int nivel);
+		Nodo(unsigned int refNodo, unsigned int nivel, unsigned int condicionMinima);
 		
 		/*Lee el archivo y crea ese nodo*/
 		//Nodo(ArchivoIndice* archivo, unsigned int referencia);

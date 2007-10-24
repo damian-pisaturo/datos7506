@@ -19,6 +19,7 @@
 #ifndef BLOQUEINDICE_H_
 #define BLOQUEINDICE_H_
 
+#include "Tamanios.h"
 #include "Clave.h"
 //#include "ArchivoIndice.h"
 

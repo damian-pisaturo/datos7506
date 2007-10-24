@@ -27,23 +27,26 @@
 	///////////////////////////////////////////////////////////////////////
     // Constructores/Destructor
 	///////////////////////////////////////////////////////////////////////
-	Nodo::Nodo(unsigned int refNodo, unsigned int nivel, Clave* clave)
+	Nodo::Nodo(unsigned int refNodo, unsigned int nivel, Clave* clave, unsigned int condicionMinima)
 	{
 		this->refNodo = refNodo;
 		this->nivel   = nivel;
+		this->condicionMinima = condicionMinima;
 		//this->espacioLibre = archivo->getTamanioNodo()- archivo->getTamanioHeader();
 		
 		/*Agrega la clave a la lista de claves del nodo*/
 		this->claves = new SetClaves();
 		this->claves->insert(clave);
 		
+		
 		this->actualizarEspacioLibre(clave,true);
 	}
 
-	Nodo::Nodo(unsigned int refNodo, unsigned int nivel)
+	Nodo::Nodo(unsigned int refNodo, unsigned int nivel, unsigned int condicionMinima)
 	{
 		this->refNodo = refNodo;
 	    this->nivel = nivel;
+	    this->condicionMinima = condicionMinima;
 	    //this->espacioLibre = archivo->getTamanioNodo()- archivo->getTamanioHeader();
 	    
 	    /*Agrega la clave a la lista de claves del nodo*/

@@ -90,32 +90,74 @@ void NodoBStar::eliminarClave(Clave* clave, char* codigo) {
 		//Se actualiza el espacio libre del nodo
 		this->actualizarEspacioLibre(clave, false);
 		
-		/*
-		if (this->espacioLibre > this->condicionMinima(archivo))
+		
+		if (this->espacioLibre > this->condicionMinima)
 	   		*codigo = Codigo::UNDERFLOW;
 	 	else
 	 		*codigo = Codigo::MODIFICADO;
-	 	*/
+	 	
 	}
 	
 	*codigo = Codigo::NO_MODIFICADO;
 }
 
+unsigned NodoBStar::getTamanioEnDisco() const {
+	
+	//El tamanio se inicializa con los bytes ocupados por el atributo de
+	//espacio libre y por el de nivel.
+	unsigned tamanio = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_NIVEL;
 
-bool NodoBStar::puedeCeder(unsigned bytesRequeridos, bool izquierda){
+	tamanio += this->getTamanioEnDiscoSetClaves();
 	
-	unsigned sumaBytesRequeridos = 0;
-	unsigned sumaBytesRestantes = 0;
+	if (this->getNivel() != 0) tamanio += Tamanios::TAMANIO_REFERENCIA;
 	
-	if (izquierda){
-		SetClaves::iterator iter;
-		for (iter = this->getClaves()->begin(); (iter != this->getClaves()->end()) && (sumaBytesRequeridos < bytesRequeridos); ++iter){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
-		}
-	//	for (iter)
+} 
+
+
+unsigned NodoBStar::getTamanioEnDiscoSetClaves() const {
+	
+	//Calcula el tamanio que ocupa el conjunto de claves dentro del nodo
+	unsigned tamanio = 0;
+	
+	SetClaves::iterator iter;
+	for (iter = this->getClaves()->begin(); iter != this->getClaves()->end(); ++iter){
+		tamanio += (*iter)->getTamanioEnDisco();
 	}
 	
-	return true; //TODO lo puse para que compile
+	return tamanio;
+	
+} 
+
+
+unsigned NodoBStar::puedeCeder(unsigned bytesRequeridos, bool izquierda) const {
+	
+	unsigned sumaBytesRequeridos = 0;
+	SetClaves::iterator iter;
+	
+	if (izquierda){
+		for (iter = this->getClaves()->begin();
+			(iter != this->getClaves()->end()) && (sumaBytesRequeridos < bytesRequeridos);
+			++iter){
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+		}
+	}
+	else{ //if (derecha)
+		for (iter = this->getClaves()->rbegin();
+			(iter != this->getClaves()->rend()) && (sumaBytesRequeridos < bytesRequeridos);
+			++iter){
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+		}	
+	}
+	
+	if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->condicionMinima )
+		return sumaBytesRequeridos;
+	else return 0;
+	
+}
+
+bool NodoBStar::puedeRecibir(unsigned bytesPropuestos) const {
+	
+	return (this->getEspacioLibre() > bytesPropuestos);
 	
 }
 
@@ -140,4 +182,49 @@ Nodo* NodoBStar::siguiente(Clave* clave) {
 	
 	return nodo;
 	
+}
+
+//Si puede ceder devuelve un conjunto con las claves a ceder, sino devuelve NULL.
+SetClaves* NodoBStar::ceder(unsigned bytesRequeridos, bool izquierda) {
+	
+	unsigned sumaBytesRequeridos = 0;
+	SetClaves::iterator iter;
+	SetClaves* set = new SetClaves();
+	
+	if (izquierda){
+		
+		for (iter = this->getClaves()->begin(); (iter != this->getClaves()->end()) && (sumaBytesRequeridos < bytesRequeridos); ++iter){
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			set->insert(*iter);
+		}
+		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->condicionMinima ) {
+			this->getClaves()->erase(this->getClaves()->begin(), iter);
+			return set;
+		}
+		
+	}
+	else{ //if (derecha)
+		
+		for (iter = this->getClaves()->rbegin(); (iter != this->getClaves()->rend()) && (sumaBytesRequeridos < bytesRequeridos); ++iter){
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			set->insert(*iter);
+		}
+		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->condicionMinima ) {
+			this->getClaves()->erase(iter, this->getClaves()->end());
+			return set;
+		}
+	}
+	
+	set->clear();
+	delete set;
+	
+	return NULL;
+	
+}
+
+void NodoBStar::recibir(SetClaves* set){
+	for(SetClaves::iterator iter = set->begin(); iter != set->end(); ++iter){
+		this->getClaves()->insert(*iter);
+	}
+	set->clear();
 }
