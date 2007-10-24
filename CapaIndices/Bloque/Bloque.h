@@ -1,13 +1,16 @@
 #ifndef BLOQUE_H_
 #define BLOQUE_H_
  
-#define OK 0;
-#define FAIL 1;
+#define OK 				0
+#define NO_ENCONTRADO 	1
+#define OVERFLOW		2
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <list>
+
+
 
 using namespace std;
 
@@ -68,9 +71,9 @@ public:
 	/*
 	 * Modifica el contenido de un registro 
 	 **/
-	int modificarRegistro(list <string>listaParam,unsigned short longReg, char* registro);
+	int modificarRegistro(const list<string>& listaParam, unsigned short longReg, char* registro);
 	
-	bool buscarRegistro(list <string>listaParam,void *clavePrimaria,char* registro);
+	bool buscarRegistro(const list<string>& listaParam, void *clavePrimaria, unsigned short* offsetReg);
 	
 	
 };
