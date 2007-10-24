@@ -1,8 +1,8 @@
 #ifndef CODIGO_H_
 #define CODIGO_H_
 
-class Codigo {
-	
+class Codigo
+{	
 	public:
 		const static char NO_MODIFICADO = 0;
 		const static char UNDERFLOW = 1;
