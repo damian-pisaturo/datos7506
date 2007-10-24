@@ -109,7 +109,7 @@
 	///////////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////////	
-	void ArchivoIndiceArbol::leerBloque(int numeroRegistro, Bloque* bloqueLeido)
+	void ArchivoIndiceArbol::leerBloque(int numeroRegistro, BloqueIndice* bloqueLeido)
 	{
 		Nodo* nodoLeido = (Nodo*) bloqueLeido;
 		
@@ -176,7 +176,7 @@
 		nodoLeido->setPosicionEnArchivo(numeroRegistro);
 	}
 	
-	void ArchivoIndiceArbol::escribirBloque(Bloque* bloqueNuevo)
+	void ArchivoIndiceArbol::escribirBloque(BloqueIndice* bloqueNuevo)
 	{
 		Nodo* nodoNuevo = (Nodo*) bloqueNuevo;
 		
@@ -272,7 +272,7 @@
 		
 	}
 	
-	void ArchivoIndiceArbol::sobreescribirBloque(Bloque* bloqueModif)
+	void ArchivoIndiceArbol::sobreescribirBloque(BloqueIndice* bloqueModif)
 	{	
 		Nodo* nodoModif = (Nodo*) nodoModif;
 		Header headerNodo;
@@ -396,7 +396,7 @@ class ArchivoIndiceHash : ArchivoIndice
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////
-		void ArchivoIndiceHash::leerBloque(unsigned int numeroBloque, Bloque* bloqueLeido)
+		void ArchivoIndiceHash::leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido)
 		{
 			Bucket* bucketLeido = (Bucket*) bloqueLeido;
 			
@@ -422,12 +422,12 @@ class ArchivoIndiceHash : ArchivoIndice
 			delete[] auxCRegs;
 		}
 		
-		void ArchivoIndiceHash::escribirBloque(Bloque* nuevoBloque)
+		void ArchivoIndiceHash::escribirBloque(BloqueIndice* nuevoBloque)
 		{
 			// TODO: pedir a la capa fisica q escriba datos a partir de offset en el archivo.
 		}
 		
-		void ArchivoIndiceHash::sobreEscribirBloque(Bloque* bloqueModif)
+		void ArchivoIndiceHash::sobreEscribirBloque(BloqueIndice* bloqueModif)
 		{
 			//TODO: Sobre-escribir datos del bloque usando el ComuDatos
 			//para acceder a la capa fisica.

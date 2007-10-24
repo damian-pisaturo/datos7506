@@ -61,18 +61,18 @@ class ArchivoIndice
 		 * dependiendo del tipo de bloque (nodo arbol B+, nodo B*, bucket de hash).
 		 * Utiliza ComuDatos para comunicarse con la Capa Fisica.
 		 */
-		virtual void leerBloque(int numeroBloque, Bloque* bloqueLeido) = 0;
+		virtual void leerBloque(int numeroBloque, BloqueIndice* bloqueLeido) = 0;
 
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y escribir
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
 		 */
-		virtual void escribirBloque(Bloque* bloqueNuevo) = 0;
+		virtual void escribirBloque(BloqueIndice* bloqueNuevo) = 0;
 		
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y
 		 * sobre-escribir el bloque modificado en el disco
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
 		 */
-		virtual void sobreEscribirBloque(Bloque* bloqueModif) = 0;
+		virtual void sobreEscribirBloque(BloqueIndice* bloqueModif) = 0;
 		
 		/* Devuelve una instancia de un pipe de comunicacion entre
 		 * la clase actual y el ejecutable cuyo nombre es pasado
@@ -165,10 +165,10 @@ class ArchivoIndiceArbol : public ArchivoIndice
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////////	
 		
-		virtual void leerBloque(unsigned int numeroBloque, Bloque* bloqueLeido);
-		virtual void escribirBloque(Bloque* bloqueNuevo);		
+		virtual void leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido);
+		virtual void escribirBloque(BloqueIndice* bloqueNuevo);		
 		/*Permite modificar la informacion de un nodo -> inclusive la raiz si posicion = 0*/
-		virtual void sobreEscribirBloque(Bloque* bloqueModif);
+		virtual void sobreEscribirBloque(BloqueIndice* bloqueModif);
 		
 		/*Agrega una referencia en el archivo de nodos liberados al
 		 * nodo que se quiere eliminar*/
@@ -221,17 +221,17 @@ class ArchivoIndiceHash : public ArchivoIndice
 		/*Lee el bucket cuya referencia en el archivo es numeroBloque y llena
 		 * una estructura Bucket con su informacion para ser consultada.
 		 */
-		virtual void leerBloque(unsigned int numeroBloque, Bloque* bloqueLeido);
+		virtual void leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido);
 		
 		/* Busca el primer bucket libre en el archivo y escribe el nuevo bucket
 		 * en el. Si no encuentra ninguno, appendea al final del archivo.
 		 */
-		virtual void escribirBloque(Bloque* bloqueNuevo);
+		virtual void escribirBloque(BloqueIndice* bloqueNuevo);
 		
 		/* Busca el primer bucket libre en el archivo y escribe el nuevo bucket
 		 * en el. Si no encuentra ninguno, appendea al final del archivo.
 		 */
-		virtual void sobreEscribirBloque(Bloque* bloqueNuevo);
+		virtual void sobreEscribirBloque(BloqueIndice* bloqueNuevo);
 	
 	///////////////////////////////////////////////////////////////////////
 	// Getter/Setter
