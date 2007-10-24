@@ -31,11 +31,31 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor
 	///////////////////////////////////////////////////////////////////////
-	ArchivoIndice::ArchivoIndice(string nombreArchivo, unsigned int tamanioBloque)
-	{
-		this->nombreArchivo = nombreArchivo;
+	ArchivoIndice::ArchivoIndice(string nombreArchivo, unsigned int tamanioBloque, t_indice tipoIndice)
+	{		
 		this->tamanioBloque = tamanioBloque;
+		this->tipoIndice    = tipoIndice;
+		
+		switch(tipoIndice){
+		case ARBOL_BP:
+			this->nombreArchivo = nombreArchivo + ".plus";
+			break;
+		case ARBOL_BS:
+			this->nombreArchivo = nombreArchivo + ".star";
+			break;
+		case HASH:
+			this->nombreArchivo = nombreArchivo + ".hash";
+			break;
+		default:
+			this->nombreArchivo = nombreArchivo;
+			break;
+		}		
 	}
+	
+	ComuDatos* ArchivoIndice::instanciarPipe(string nombreEjecutable)
+	{
+		return new ComuDatos(nombreEjecutables);
+	}			
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -48,12 +68,13 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor
 	///////////////////////////////////////////////////////////////////////
-	ArchivoIndiceArbol::ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo):
-		ArchivoIndice(nombreArchivo, tamNodo)
+	ArchivoIndiceArbol::ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo, ):
+		ArchivoIndice(nombreArchivo, tamNodo, tipoIndice)
 	{ 
 		//TODO Usar ComuDato para escribir la raiz vacia si el 
-		//archivo de indice esta vacio.	
+		//archivo de indice esta vacio.
 		
+		this->nombreArchivoEL = nombreArchivo + ".nfo";
 		/*
 		//Si el archivo de indice esta vacio creo una raiz hoja sin claves
 		if(this->archivoIndex->fin())
@@ -65,7 +86,7 @@
 	// Metodos privados
 	///////////////////////////////////////////////////////////////////////	
 	void ArchivoIndiceArbol::escribirRaizVacia()
-	{	
+	{
 		char* buffer = new char[this->getTamanioBloque()];
 		char* puntero = buffer;
 		Header headerNodo;
@@ -163,8 +184,8 @@
 		const int registroUsado = -1;
 		int posicion = -1;
 		int numero;
-		bool ubicado = false;
-		char* buffer = new char[this->tamanioNodo];
+		bool ubicado  = false;
+		char* buffer  = new char[this->tamanioNodo];
 		char* puntero = buffer;
 		
 		/*Variables de interpretacion del nodo*/
@@ -250,301 +271,344 @@
 		delete[] buffer;
 		
 	}
-
-
-
-/*--------------------------------------------------------------------------------------------*/
-int ArchivoIndice::getTamanioHeader(){
-	return sizeof(Header);	
-}
-/*--------------------------------------------------------------------------------------------*/
-int ArchivoIndice::getCantLecturas(){
-	return this->cantLecturas;
-}
-/*--------------------------------------------------------------------------------------------*/
-int ArchivoIndice::getCantEscrituras(){
-	return this->cantEscrituras;
-}
-/*--------------------------------------------------------------------------------------------*/
-int ArchivoIndice::getCantLecturasControl(){
-	return this->cantLecturasControl;
-}
-/*--------------------------------------------------------------------------------------------*/
-int ArchivoIndice::getCantEscriturasControl(){
-	return this->cantEscriturasControl;
-}
-/*--------------------------------------------------------------------------------------------*/
-
-/*--------------------------------------------------------------------------------------------*/
-
-/*--------------------------------------------------------------------------------------------*/
-void ArchivoIndice::eliminarNodo(int posicion){
-/*Setear en el archivo de nodos liberados la posicion al final*/
-
-	bool ubicado = false;
-	int numero=0;
 	
-	/*Buscar el fin del archivo o un -1 para sobreescribir*/
-	this->archivoLiberados->posicionarse(0);
-	while( (!this->archivoLiberados->fin()) && (!ubicado) ){	
-		this->archivoLiberados->leer(&numero);
-		this->cantLecturasControl++;
-		if(numero==-1)
-			ubicado = true;
-	}
-	
-	if(numero==-1){
-		/*grabar una posicion antes (sobre el -1 encontrado)*/
-		this->archivoLiberados->posicionarse(archivoLiberados->posicion()-1);
-		this->archivoLiberados->escribir(&posicion); /*Escribir un -1*/
-		this->cantEscriturasControl++;
-	}
-	else{
-		/*grabar en esta posicion (se llego al fin sin ningun -1)*/
-		this->archivoLiberados->escribir(&posicion);
-		this->cantEscriturasControl++;
-	}
-}
-/*--------------------------------------------------------------------------------------------*/
-void ArchivoIndice::sobreescribirNodo(Nodo* nodoModif){
-	
-	Header headerNodo;
-	char* buffer = new char[this->tamanioNodo];
-	char* puntero = buffer;
-	ListaClaves* lista;
-	
-	/*Actualizar el espacio libre*/
-	nodoModif->actualizarEspacioLibre(this);
-	
-	/*Copiar el header al buffer*/
-	headerNodo.nivel = nodoModif->getNivel();  
-	headerNodo.hijoIzq = nodoModif->getHijoIzq();
-	headerNodo.espacioLibre = nodoModif->getEspacioLibre();
-	
-	memcpy(buffer,&headerNodo,sizeof(Header));
-	puntero += sizeof(Header);
-	
-	/*Obtener la lista de claves*/
-	lista = nodoModif->obtenerClaves();
-	
-	/*Recorrer la lista de claves copiando cada clave al buffer*/
-	if(nodoModif->getNivel()==0){
-		lista->primero();
-		while(!lista->fin()){
-			copiarClaveHoja((Clave*)lista->obtenerDato(),puntero);			
-			lista->siguiente();	
-		}
-	}
-	else{
-		lista->primero();
-		while(!lista->fin()){
-			copiarClaveNoHoja((Clave*)lista->obtenerDato(),puntero);			
-			lista->siguiente();	
-		}
-	}
+	void ArchivoIndiceArbol::sobreescribirBloque(Bloque* bloqueModif)
+	{	
+		Nodo* nodoModif = (Nodo*) nodoModif;
+		Header headerNodo;
+		char* buffer = new char[this->tamanioNodo];
+		char* puntero = buffer;
+		SetClaves* set;
 		
-	/*Grabar el buffer en el archivo*/
-	this->archivoIndex->posicionarse(nodoModif->obtenerPosicionEnArchivo()); 
-	this->archivoIndex->escribir(buffer);
-	this->cantEscrituras++;
-	
-	delete[] buffer;
-	
-}
-/*--------------------------------------------------------------------------------------------*/
-void ArchivoIndice::exportar(ostream &archivoTexto,int posicion){
-	
-	ListaClaves* listaClaves;
-	Clave* claveLeer;
-	/*Leo el nodo*/
-	
-	Nodo* nodo = new Nodo(this,posicion);
-
-	/*Imprime el header del nodo*/	
-	archivoTexto<<"Pos. de Archivo: "<<posicion<<endl;
-	listaClaves = nodo->obtenerClaves();
-	archivoTexto<<"Hijo Izquierdo: "<<nodo->getHijoIzq()<<endl;
-	archivoTexto<<"Nivel: "<<nodo->getNivel()<<endl;
-	
-	/*Recorro la lista de claves*/
-	listaClaves->primero();
-	while(!listaClaves->fin()){
-		claveLeer = static_cast<Clave*>(listaClaves->obtenerDato());
-		claveLeer->imprimir(archivoTexto);
-		listaClaves->siguiente();	
-	}
-	archivoTexto<<endl;
-	delete nodo;
-	
-}
-
-/******************************************************************************/
-/* Clase Archivo de Indice Secundario (Nombre o marca) */
-/*-----------------------------------------------------*/
-
-/*Constructor del hijo llama al constructor del padre*/
-ArchivoIndiceSecundario::ArchivoIndiceSecundario(int tamNodo,string nombreArchivo,int tamanioBloqueLista):ArchivoIndice(tamNodo,nombreArchivo){
-		 
-		this->tamanioArray = tamanioBloqueLista/sizeof(int);
-		/*Abre el archivo de lista de claves*/ 
-		this->archivoLista = new ArchivoRegistros(nombreArchivo + ".list",tamanioBloqueLista);
-		this->cantLecturasLista = 0;
-		this->cantEscriturasLista = 0;
-}
-/*--------------------------------------------------------------------------------------------*/
-void ArchivoIndiceSecundario::sobreEscribirListaClavesP(int posicion, Lista* listaClaves){
-	
-	/*Variables*/
-	int arrayRef[this->tamanioArray]; 
-	int arrayAnt[this->tamanioArray];
-	int i = 0;
-	int parciales = 0;
-	bool fin = false;
-	bool haySiguiente;
-	int posicionSiguiente = posicion;
-	
-	/*Alamceno la cantidad de claves*/
-	int totales = listaClaves->getCantidadNodos();
-	 
-	listaClaves->primero();
-	while(!fin){
-			/*Se posiciona en el primer registro de la lista a sobreescribir*/
-			this->archivoLista->posicionarse(posicionSiguiente);
-			
-			while( (i<tamanioArray-2) && (!listaClaves->fin()) ){
-				i++;
-				parciales++;
-				arrayRef[i] = *((int*)listaClaves->obtenerDato());
-				listaClaves->siguiente();
+		/*Actualizar el espacio libre*/
+		nodoModif->actualizarEspacioLibre(this);
+		
+		/*Copiar el header al buffer*/
+		headerNodo.nivel = nodoModif->getNivel();  
+		headerNodo.hijoIzq = nodoModif->getHijoIzq();
+		headerNodo.espacioLibre = nodoModif->getEspacioLibre();
+		
+		memcpy(buffer,&headerNodo,sizeof(Header));
+		puntero += sizeof(Header);
+		
+		/*Obtener la lista de claves*/
+		lista = nodoModif->obtenerClaves();
+		
+		/*Recorrer la lista de claves copiando cada clave al buffer*/
+		if(nodoModif->getNivel()==0){
+			lista->primero();
+			while(!lista->fin()){
+				copiarClaveHoja((Clave*)lista->obtenerDato(),puntero);			
+				lista->siguiente();	
 			}
-			/*Almaceno la cantidad de claves de la lista*/		
-			arrayRef[0] = i;
+		}else{
+			lista->primero();
+			while(!lista->fin()){
+				copiarClaveNoHoja((Clave*)lista->obtenerDato(),puntero);			
+				lista->siguiente();	
+			}
+		}
 			
-			/*Chequeo si tengo que seguir escribiendo en otro bloque*/
-			if(parciales<totales){
+		/*Grabar el buffer en el archivo*/
+		this->archivoIndex->posicionarse(nodoModif->obtenerPosicionEnArchivo()); 
+		this->archivoIndex->escribir(buffer);
+		this->cantEscrituras++;
+		
+		delete[] buffer;	
+	}
+
+	void ArchivoIndiceArbol::eliminarNodo(unsigned int posicion)
+	{
+		/*Setear en el archivo de nodos liberados la posicion al final*/	
+		bool ubicado = false;
+		int numero   = 0;
+		
+		//TODO Usar ComuDato para recorrer el archivo de espacio liberado.
+		/*Buscar el fin del archivo o un -1 para sobreescribir*/
+		this->archivoLiberados->posicionarse(0);
+		while( (!this->archivoLiberados->fin()) && (!ubicado) ){	
+			this->archivoLiberados->leer(&numero);
+			this->cantLecturasControl++;
+			if(numero==-1)
+				ubicado = true;
+		}
+		
+		if(numero == -1){
+			/*grabar una posicion antes (sobre el -1 encontrado)*/
+			this->archivoLiberados->posicionarse(archivoLiberados->posicion()-1);
+			this->archivoLiberados->escribir(&posicion); /*Escribir un -1*/
+			this->cantEscriturasControl++;
+		}
+		else{
+			/*grabar en esta posicion (se llego al fin sin ningun -1)*/
+			this->archivoLiberados->escribir(&posicion);
+			this->cantEscriturasControl++;
+		}
+	}
+	
+	void ArchivoIndice::exportar(ostream &archivoTexto,int posicion)
+	{	
+		SetClaves* listaClaves;
+		Clave* claveLeer;
+		/*Leo el nodo*/
+		
+		Nodo* nodo = new Nodo(this,posicion);
+	
+		/*Imprime el header del nodo*/	
+		archivoTexto<<"Pos. de Archivo: "<<posicion<<endl;
+		listaClaves = nodo->obtenerClaves();
+		archivoTexto<<"Hijo Izquierdo: "<<nodo->getHijoIzq()<<endl;
+		archivoTexto<<"Nivel: "<<nodo->getNivel()<<endl;
+		
+		/*Recorro la lista de claves*/
+		listaClaves->primero();
+		while(!listaClaves->fin()){
+			claveLeer = static_cast<Clave*>(listaClaves->obtenerDato());
+			claveLeer->imprimir(archivoTexto);
+			listaClaves->siguiente();	
+		}
+		
+		archivoTexto<<endl;
+		delete nodo;
+	
+	}
+	
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndiceHash
+//			(Abstracta. Clase que sirve de abstraccion de la capa 
+//			fisica para los indices de dispersion de la capa de indices).
+///////////////////////////////////////////////////////////////////////////
+class ArchivoIndiceHash : ArchivoIndice
+{
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoIndiceHash::ArchivoIndiceHash(unsigned int tamBucket, string nombreArchivo, t_indice tipoIndice):
+			ArchivoIndice(nombreArchivo, tamNodo, tipoIndice)
+		{
+			this->nombreArchivoTabla = nombreArchivo + ".tbl";
+		}
+		
+		ArchivoIndiceHash::~ArchivoIndiceHash() { };
+	
+	///////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+		void ArchivoIndiceHash::leerBloque(unsigned int numeroBloque, Bloque* bloqueLeido)
+		{
+			Bucket* bucketLeido = (Bucket*) bloqueLeido;
+			
+			// Obtengo el espacio libre.
+			char * auxEspLibre = new char[5];
+			memcpy(auxEspLibre,datos,4);
+			auxEspLibre[4] = '\0';
+			espacioLibre = atoi(auxEspLibre);
+			delete[] auxEspLibre;
+
+			//Obtengo el tamaño de dispersión.
+			char* auxTD = new char[2];
+			memcpy(auxTD,&datos[4],1);
+			auxTD[1]='\0';
+			tamDispersion = atoi(auxTD); 
+			delete[] auxTD;
+			
+			//Obtengo la cantidad de registros.
+			char* auxCRegs = new char[2];
+			memcpy(auxCRegs,&datos[5],1);
+			auxCRegs[1] = '\0';
+			cantRegs = atoi(auxCRegs);
+			delete[] auxCRegs;
+		}
+		
+		void ArchivoIndiceHash::escribirBloque(Bloque* nuevoBloque)
+		{
+			// TODO: pedir a la capa fisica q escriba datos a partir de offset en el archivo.
+		}
+		
+		void ArchivoIndiceHash::sobreEscribirBloque(Bloque* bloqueModif)
+		{
+			//TODO: Sobre-escribir datos del bloque usando el ComuDatos
+			//para acceder a la capa fisica.
+		}
+};
+
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndiceSecundario
+//			(Abstracta. Clase que sirve de abstraccion de la capa 
+//			fisica para los indices secundarios de la capa de indices).
+///////////////////////////////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////////////////////////
+	// Constructor
+	//////////////////////////////////////////////////////////////////////
+	ArchivoIndiceSecundario::ArchivoIndiceSecundario(unsigned int tamNodo, string nombreArchivo, unsigned int tamanioBloqueLista, t_indice tipoIndice):
+		ArchivoIndice(tamNodo, nombreArchivo, tipoIndice)
+	{			 
+			this->tamanioArray = tamanioBloqueLista/sizeof(int); 
+			this->nombreArchivoLista = nombreArchivo + ".list";
+	}
+	
+	ArchivoIndiceSecundario::~ArchivoIndiceSecundario(){ }
+	
+	//////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	//////////////////////////////////////////////////////////////////////
+	void ArchivoIndiceSecundario::sobreEscribirListaClavesP(unsigned int posicion, SetClaves* setClaves)
+	{	
+		/*Variables*/
+		int arrayRef[this->tamanioArray]; 
+		int arrayAnt[this->tamanioArray];
+		int i = 0;
+		int parciales = 0;
+		bool fin = false;
+		bool haySiguiente;
+		int posicionSiguiente = posicion;
+		
+		/*Alamceno la cantidad de claves*/
+		int totales = listaClaves->getCantidadNodos();
+		 
+		listaClaves->primero();
+		while(!fin){
+				/*Se posiciona en el primer registro de la lista a sobreescribir*/
+				this->archivoLista->posicionarse(posicionSiguiente);
 				
-				/*Obtener la proxima posicion donde leer en el archivo, si es que
-				 * hay definida una*/
-				if(!this->archivoLista->fin()){
-					this->archivoLista->leer(arrayAnt);
-					this->cantLecturasLista++;
-					this->archivoLista->posicionarse(archivoLista->posicion()-1);
-					if(arrayAnt[tamanioArray-1]!=-1)
-						haySiguiente = true;
+				while( (i<tamanioArray-2) && (!listaClaves->fin()) ){
+					i++;
+					parciales++;
+					arrayRef[i] = *((int*)listaClaves->obtenerDato());
+					listaClaves->siguiente();
+				}
+				/*Almaceno la cantidad de claves de la lista*/		
+				arrayRef[0] = i;
+				
+				/*Chequeo si tengo que seguir escribiendo en otro bloque*/
+				if(parciales<totales){
+					
+					/*Obtener la proxima posicion donde leer en el archivo, si es que
+					 * hay definida una*/
+					if(!this->archivoLista->fin()){
+						this->archivoLista->leer(arrayAnt);
+						this->cantLecturasLista++;
+						this->archivoLista->posicionarse(archivoLista->posicion()-1);
+						if(arrayAnt[tamanioArray-1]!=-1)
+							haySiguiente = true;
+						else
+							haySiguiente = false;
+					}
 					else
 						haySiguiente = false;
-				}
-				else
-					haySiguiente = false;
+						
+					if(haySiguiente)
+						/*Caso en el que ya esta definido donde debe seguir la lista*/
+						posicionSiguiente = arrayAnt[tamanioArray-1];
 					
-				if(haySiguiente)
-					/*Caso en el que ya esta definido donde debe seguir la lista*/
-					posicionSiguiente = arrayAnt[tamanioArray-1];
-				
+					else{
+						/*Si no hay otro bloque definido sigo al final del archivo*/
+						int posBck = this->archivoLista->posicion();
+						this->archivoLista->posicionarseFin();
+						posicionSiguiente = this->archivoLista->posicion();
+						this->archivoLista->posicionarse(posBck); 			
+					}								
+				}		
 				else{
-					/*Si no hay otro bloque definido sigo al final del archivo*/
-					int posBck = this->archivoLista->posicion();
-					this->archivoLista->posicionarseFin();
-					posicionSiguiente = this->archivoLista->posicion();
-					this->archivoLista->posicionarse(posBck); 			
-				}								
-			}		
-			else{
-				/*Almaceno que no hay mas bloques de la lista*/
-				posicionSiguiente = -1; 
-				fin = true;
-			}
-			/*Almaceno el bloque donde se va a continuar escribiendo*/
-			arrayRef[tamanioArray-1] = posicionSiguiente;
-			/*Escribo el bloque en el archivo*/
-			this->archivoLista->escribir(arrayRef);
-			this->cantEscriturasLista++;
-			/*Se posiciona en el proximo registro donde escribir lo que falta de lista*/
-			i = 0;	
-	}
-	
-	
-}
-/*--------------------------------------------------------------------------------------------*/
-Lista* ArchivoIndiceSecundario::obtenerLstClavesP(int posicion){
-	
-	/*Variables*/
-	Lista* listaClaves = new Lista;
-	int arrayRef[this->tamanioArray];
-	int cantClaves;
-	bool fin = false;
-	
-	/*Se posiciona al final del archivo*/
-	this->archivoLista->posicionarse(posicion);
-	
-	while(!fin){
-		
-		/*Obtengo la cantidad de claves*/
-		this->archivoLista->leer(arrayRef);
-		this->cantLecturasLista++;
-		cantClaves = arrayRef[0];
-			
-		for(int i=0;i<cantClaves;i++)
-			listaClaves->agregar(new int(arrayRef[i+1]));
-		
-		if(arrayRef[tamanioArray-1]!=-1)
-			archivoLista->posicionarse(arrayRef[tamanioArray-1]);
-		else
-			fin = true;
-		
-	}
-	
-	return listaClaves;
-}
-/*--------------------------------------------------------------------------------------------*/
-int ArchivoIndiceSecundario::grabarNuevaLstClavesP(Lista* listaClaves){
-
-	/*Variables*/
-	int arrayRef[this->tamanioArray]; 
-	int i = 0;
-	int parciales = 0;
-	bool fin = false;
-	
-	/*Me posiciono al final del archivo*/
-	this->archivoLista->posicionarseFin();
-	
-	/*Almaceno la posicion donde se grabo para devolverla*/
-	int posicion = this->archivoLista->posicion();
-	
-	/*Alamceno la cantidad de claves*/
-	int totales = listaClaves->getCantidadNodos();
-	 
-	listaClaves->primero();
-	while(!fin){
-			
-			while( (i<tamanioArray-2) && (!listaClaves->fin()) ){
-				i++;
-				parciales++;
-				arrayRef[i] = *((int*)listaClaves->obtenerDato());
-				listaClaves->siguiente();
-			}
-			/*Almaceno la cantidad de claves de la lista*/		
-			arrayRef[0] = i;
-			
-			/*Chequeo si tengo que seguir escribiendo en otro bloque*/
-			if(parciales<totales){
+					/*Almaceno que no hay mas bloques de la lista*/
+					posicionSiguiente = -1; 
+					fin = true;
+				}
 				/*Almaceno el bloque donde se va a continuar escribiendo*/
-				arrayRef[tamanioArray-1] = this->archivoLista->posicion()+1;	
-			}		
-			else{
-				/*Almaceno que no hay un bloque donde continuar*/
-				arrayRef[tamanioArray-1] = -1; 
-				fin = true;
-			}
-			/*Escribo el bloque en el archivo*/
-			this->archivoLista->escribir(arrayRef);
-			this->cantEscriturasLista++;
-			i = 0;
+				arrayRef[tamanioArray-1] = posicionSiguiente;
+				/*Escribo el bloque en el archivo*/
+				this->archivoLista->escribir(arrayRef);
+				this->cantEscriturasLista++;
+				/*Se posiciona en el proximo registro donde escribir lo que falta de lista*/
+				i = 0;	
+		}	
 	}
 	
-	return posicion;
-}
-/*--------------------------------------------------------------------------------------------*/
+	SetClaves* ArchivoIndiceSecundario::obtenerLstClavesP(unsigned int posicion)
+	{	
+		/*Variables*/
+		Lista* listaClaves = new Lista;
+		int arrayRef[this->tamanioArray];
+		int cantClaves;
+		bool fin = false;
+		
+		/*Se posiciona al final del archivo*/
+		this->archivoLista->posicionarse(posicion);
+		
+		while(!fin){
+			
+			/*Obtengo la cantidad de claves*/
+			this->archivoLista->leer(arrayRef);
+			this->cantLecturasLista++;
+			cantClaves = arrayRef[0];
+				
+			for(int i=0;i<cantClaves;i++)
+				listaClaves->agregar(new int(arrayRef[i+1]));
+			
+			if(arrayRef[tamanioArray-1]!=-1)
+				archivoLista->posicionarse(arrayRef[tamanioArray-1]);
+			else
+				fin = true;			
+		}
+		
+		return listaClaves;
+	}
+
+	int ArchivoIndiceSecundario::grabarNuevaLstClavesP(SetClaves* setClaves)
+	{
+
+		/*Variables*/
+		int arrayRef[this->tamanioArray]; 
+		int i = 0;
+		int parciales = 0;
+		bool fin = false;
+		
+		/*Me posiciono al final del archivo*/
+		this->archivoLista->posicionarseFin();
+		
+		/*Almaceno la posicion donde se grabo para devolverla*/
+		int posicion = this->archivoLista->posicion();
+		
+		/*Alamceno la cantidad de claves*/
+		int totales = listaClaves->getCantidadNodos();
+		 
+		listaClaves->primero();
+		while(!fin){
+				
+				while( (i<tamanioArray-2) && (!listaClaves->fin()) ){
+					i++;
+					parciales++;
+					arrayRef[i] = *((int*)listaClaves->obtenerDato());
+					listaClaves->siguiente();
+				}
+				/*Almaceno la cantidad de claves de la lista*/		
+				arrayRef[0] = i;
+				
+				/*Chequeo si tengo que seguir escribiendo en otro bloque*/
+				if(parciales<totales){
+					/*Almaceno el bloque donde se va a continuar escribiendo*/
+					arrayRef[tamanioArray-1] = this->archivoLista->posicion()+1;	
+				}		
+				else{
+					/*Almaceno que no hay un bloque donde continuar*/
+					arrayRef[tamanioArray-1] = -1; 
+					fin = true;
+				}
+				/*Escribo el bloque en el archivo*/
+				this->archivoLista->escribir(arrayRef);
+				this->cantEscriturasLista++;
+				i = 0;
+		}
+		
+		return posicion;
+	}
+
+	
 void ArchivoIndiceSecundario::exportar(ostream &archivoTexto,int posicion){
 	
 	ListaClaves* listaClaves;
@@ -591,16 +655,4 @@ void ArchivoIndiceSecundario::exportar(ostream &archivoTexto,int posicion){
 	archivoTexto<<"------------------------------"<<endl;
 	delete nodo;
 	
-}
-/*--------------------------------------------------------------------------------------------*/
-int ArchivoIndiceSecundario::getCantEscriturasLista(){
-	return this->cantEscriturasLista;
-}
-/*--------------------------------------------------------------------------------------------*/
-int ArchivoIndiceSecundario::getCantLecturasLista(){
-	return this->cantLecturasLista;
-}
-/*--------------------------------------------------------------------------------------------*/
-ArchivoIndiceSecundario::~ArchivoIndiceSecundario(){
-	delete this->archivoLista;
 }

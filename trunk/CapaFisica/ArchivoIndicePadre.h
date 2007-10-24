@@ -26,6 +26,9 @@ using namespace std;
 
 #include "../ComuDatos/ComuDatos.h"
 #include "BloqueIndice.h"
+#include "../NombreCapas.h"
+
+typedef enum{ARBOL_BP, ARBOL_BS, HASH} t_indice;
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -40,15 +43,15 @@ class ArchivoIndice
 	///////////////////////////////////////////////////////////////////////
 	// Atributos
 	///////////////////////////////////////////////////////////////////////
-		ComuDatos pipe;
 		string nombreArchivo;
 		unsigned int tamanioBloque;
+		const unsigned int tipoIndice;
 		
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		ArchivoIndice(string nombreArchivo, unsigned int tamanioBloque);
+		ArchivoIndice(string nombreArchivo, unsigned int tamanioBloque, t_indice tipoIndice);
 		virtual ~ArchivoIndice() { };
 	
 	///////////////////////////////////////////////////////////////////////
@@ -64,6 +67,19 @@ class ArchivoIndice
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
 		 */
 		virtual void escribirBloque(Bloque* bloqueNuevo) = 0;
+		
+		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y
+		 * sobre-escribir el bloque modificado en el disco
+		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
+		 */
+		virtual void sobreEscribirBloque(Bloque* bloqueModif) = 0;
+		
+		/* Devuelve una instancia de un pipe de comunicacion entre
+		 * la clase actual y el ejecutable cuyo nombre es pasado
+		 * por parametro.
+		 */
+		ComuDatos* instanciarPipe(string nombreEjecutable);
+		
 
 	///////////////////////////////////////////////////////////////////////
 	// Getters/Setters
@@ -87,6 +103,11 @@ class ArchivoIndice
 		{
 			this->nombreArchivo = nombre;
 		}
+		
+		const unsigned int getTipoIndice()
+		{
+			return this->tipoIndice;
+		}
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -98,12 +119,15 @@ class ArchivoIndice
 ///////////////////////////////////////////////////////////////////////////
 class ArchivoIndiceArbol : public ArchivoIndice
 {
+	private:
+		string nombreArchivoEL;
+	
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		/*Si el archivo esta vacio, crea una raiz vacia*/
-		ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo);
+		ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
 		virtual ~ArchivoIndice() { };
 	
 	private:
@@ -143,9 +167,8 @@ class ArchivoIndiceArbol : public ArchivoIndice
 		
 		virtual void leerBloque(unsigned int numeroBloque, Bloque* bloqueLeido);
 		virtual void escribirBloque(Bloque* bloqueNuevo);		
-	
 		/*Permite modificar la informacion de un nodo -> inclusive la raiz si posicion = 0*/
-		virtual void sobreescribirNodo(Nodo* nodoModif);
+		virtual void sobreEscribirBloque(Bloque* bloqueModif);
 		
 		/*Agrega una referencia en el archivo de nodos liberados al
 		 * nodo que se quiere eliminar*/
@@ -157,48 +180,118 @@ class ArchivoIndiceArbol : public ArchivoIndice
 	///////////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////////	
-		static int getTamanioHeader();	
+		static int getTamanioHeader()
+		{
+			return sizeof(Header);
+		}
+		
+		string setNombreArchivoEL()
+		{
+			return nombreArchivoEL;
+		}
+		
+		void setNombreArchivoEL(string nombre)
+		{	
+			this->nombreArchivoEL = nombre;
+		}
 };
 
-/*******************************************************/
-/* Clase Archivo de Indice Secundario                  */
-/*-----------------------------------------------------*/
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndiceHash
+//			(Abstracta. Clase que sirve de abstraccion de la capa 
+//			fisica para los indices de dispersion de la capa de indices).
+///////////////////////////////////////////////////////////////////////////
+class ArchivoIndiceHash : public ArchivoIndice
+{
+	private:
+		string nombreArchivoTabla;
+	
+	public:
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoIndiceHash(unsigned int tamBucket, string nombreArchivo, t_indice tipoIndice);		
+		virtual ~ArchivoIndiceHash() { };
+		
+	///////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+		/*Lee el bucket cuya referencia en el archivo es numeroBloque y llena
+		 * una estructura Bucket con su informacion para ser consultada.
+		 */
+		virtual void leerBloque(unsigned int numeroBloque, Bloque* bloqueLeido);
+		
+		/* Busca el primer bucket libre en el archivo y escribe el nuevo bucket
+		 * en el. Si no encuentra ninguno, appendea al final del archivo.
+		 */
+		virtual void escribirBloque(Bloque* bloqueNuevo);
+		
+		/* Busca el primer bucket libre en el archivo y escribe el nuevo bucket
+		 * en el. Si no encuentra ninguno, appendea al final del archivo.
+		 */
+		virtual void sobreEscribirBloque(Bloque* bloqueNuevo);
+	
+	///////////////////////////////////////////////////////////////////////
+	// Getter/Setter
+	///////////////////////////////////////////////////////////////////////
+		string getNombreArchivoTabla()
+		{
+			return this->nombreArchivoTabla;
+		}
+		
+		void setNombreArchivoTable(string nombre)
+		{
+			return this->nombreArchivoTabla;
+		}		
+};
 
-class ArchivoIndiceSecundario: public ArchivoIndiceArbol{
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndiceSecundario
+//			(Abstracta. Clase que sirve de abstraccion de la capa 
+//			fisica para los indices secundarios de la capa de indices).
+///////////////////////////////////////////////////////////////////////////
+class ArchivoIndiceSecundario: public ArchivoIndiceArbol
+{	
+	private:		
+		unsigned int tamanioArray;
+		string nombreArchivoLista;
+		
+	public:
+	//////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	//////////////////////////////////////////////////////////////////////
+		ArchivoIndiceSecundario(int tamNodo, string nombreArchivo, unsigned int tamanioBloqueLista, t_indice tipoIndice);
+		virtual ~ArchivoIndiceSecundario();
+
+	//////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	//////////////////////////////////////////////////////////////////////
+
+		/*POST: Devuelve una lista de claves primaras de la posicion dada.
+		 * RECORDAR: Borrar la lista una vez utilizada*/
+		SetClaves* obtenerLstClavesP(unsigned int posicion);
+		
+		/*POST: SobreEscribe con listaClaves la lista que se encuentra en la posicion dada
+		 * para actualizarla una vez insertada una nueva referencia en la lista*/
+		void sobreEscribirListaClavesP(unsigned int posicion, SetClaves* setClaves);
+		
+		/*POST: Graba una nueva lista de claves primarias en el archivo, devolviendo la posicion
+		 * donde se grabo, 
+		 * $$$: Recordar que el valor que sale de aca se tiene que grabar
+		 * en el NODO, estoy hay que hacerlo antes de insertar en el arbol*/ 
+		unsigned int grabarNuevaLstClavesP(SetClaves* setClaves);		
 	
-private:		
-	ArchivoRegistros* archivoLista; //TODO Esto ya no es necesario. Debiera llamarse al ComuDatos.
-	int tamanioArray;
-	
-public:
-	 
-	/*Constructor*/
-	ArchivoIndiceSecundario(int tamNodo,string nombreArchivo,int tamanioBloqueLista);
-  	
-	/*POST: Devuelve una lista de claves primaras de la posicion dada.
-	 * RECORDAR: Borrar la lista una vez utilizada*/
-	Lista* obtenerLstClavesP(int posicion);
-	
-	/*POST: SobreEscribe con listaClaves la lista que se encuentra en la posicion dada
-	 * para actualizarla una vez insertada una nueva referencia en la lista*/
-	void sobreEscribirListaClavesP(int posicion, Lista* listaClaves);
-	
-	/*POST: Graba una nueva lista de claves primarias en el archivo, devolviendo la posicion
-	 * donde se grabo, 
-	 * $$$: Recordar que el valor que sale de aca se tiene que grabar
-	 * en el NODO, estoy hay que hacerlo antes de insertar en el arbol*/ 
-	int grabarNuevaLstClavesP(Lista* listaClaves);
-	
-	virtual ~ArchivoIndiceSecundario();
-	
-	int getCantEscriturasLista();
-	int getCantLecturasLista();
-	Clave* leerClaveNoHoja(char* &buffer){return NULL;};
-	Clave* leerClaveHoja(char* &buffer){return NULL;};
-	void copiarClave(Clave* clave,char* &puntero){};
-	void copiarClaveHoja(Clave* clave,char* &puntero){};
-	/*Redefino el exportar para que tb imprima la lista de claves primarias*/
-	void exportar(ostream &archivoTexto,int posicion);
+		Clave* leerClaveNoHoja(char* &buffer, t_indice tipoIndice){return NULL;};
+		Clave* leerClaveHoja(char* &buffer, t_indice tipoIndice){return NULL;};
+		void copiarClave(Clave* clave, char* &puntero){};
+		void copiarClaveHoja(Clave* clave, char* &puntero){};
+		
+		/*Redefino el exportar para que tb imprima la lista de claves primarias*/
+		void exportar(ostream &archivoTexto,int posicion);		
 };
 
 #endif /*ARCHIVOINDICEPADRE_H_*/
