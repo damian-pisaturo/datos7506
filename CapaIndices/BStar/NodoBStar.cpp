@@ -1,11 +1,38 @@
 #include "NodoBStar.h"
 
+NodoBStar::NodoBStar(unsigned int refNodo, unsigned char nivel, unsigned short tamanio)
+		 : Nodo(refNodo, nivel, tamanio) {
+	
+	if (nivel = 0) //Nodo hoja (le descuento el tamaño que ocupa la referencia al hijo izq)
+		this->setTamanioMinimo(2*(tamanio-this->getTamanioHeader()-Tamanios::TAMANIO_REFERENCIA)/3);
+	else //Nodo interno
+		this->setTamanioMinimo(2*(tamanio-this->getTamanioHeader())/3);
+	
+}
+
+
+NodoBStar::NodoBStar(unsigned int refNodo, unsigned char nivel, Clave* clave, unsigned short tamanio)
+		  : Nodo(refNodo, nivel, clave, tamanio) {
+	
+	if (nivel = 0) //Nodo hoja (le descuento el tamaño que ocupa la referencia al hijo izq)
+		this->setTamanioMinimo(2*(tamanio-this->getTamanioHeader()-Tamanios::TAMANIO_REFERENCIA)/3);
+	else //Nodo interno
+		this->setTamanioMinimo(2*(tamanio-this->getTamanioHeader())/3);
+	
+}
+
 
 void NodoBStar::insertarClave(Clave* &clave, char* codigo) {
 	
 	
 	char cod = Codigo::NO_MODIFICADO;
-			
+	
+	//Se verifica si la clave está en el conjunto
+	if (this->getClaves()->find(clave) != this->getClaves()->end()) {
+		*codigo = cod;
+		return;
+	}
+	
 	//Insercion ordenada de la clave en el conjunto
 	this->getClaves()->insert(clave);
 	
@@ -17,60 +44,8 @@ void NodoBStar::insertarClave(Clave* &clave, char* codigo) {
 		//TODO Escribir a disco
 	    //Sobreescribe el nodo, actualizando las modificaciones
 	    //archivoIndice->sobreescribirNodo(this);
-	//No hay espacio libre suficiente para insertar la clave...
-	}else{
-		//TODO 97.98% seguro de que vuela esto que esta comentado.
-	/*	
-		//TODO Ver el temita del hijo izquierdo.
-		//El hijo izquierdo tendria que ser el hijo dereche de la clave promocionada.
-		Nodo* nuevoNodo = new NodoBStar(this->getRefNodo(), this->getNivel());
-		
-		//Condicion para overflow, devuelve la cantidad de claves que 
-		//deben quedar en el nodo que se va a dividir
-		//o sea la mitad y si el numero es impar la parte mas chica
-		
-		//splitBStar() devuelve un vector de nuevos conjuntos (ya creados)
-		//con las claves mayores (cada uno 2/3 lleno)
-		//TODO Reemplazar "10" por el tamanio en bytes minimo
-		//de claves en un nodo (condicion de underflow).
-		VectorConjuntos* vecConj = this->getClaves()->splitBStar(10);
-        
-		SetClaves* setNuevo = (*vecConj)[0];
-		
-		//Se le settea el conjunto de claves proveniente de la division al nuevoNodo
-		nuevoNodo->setClaves(setNuevo);
-		
-		//Se actualiza el espacio libre
-		this->actualizarEspacioLibre(setNuevo, false);
-		//Corrección debido a que la division de conjuntos se hace luego de 
-		//efectuada la insercion
-		this->actualizarEspacioLibre(clave, true);
-		
-		//TODO URGENTE VER EL TEMITA DEL ACCESO A DISCOOO !
-		//Lo grabo en el archivo  
-		//archivoIndice->grabarNuevoNodo(nuevoNodo);
-		
-		//Obtengo la primer clave del conjunto del nuevo nodo
-		//La quito del conjunto, asi no se borra cuando borro el nodo
-		//OBSERVACION: El nodo ya fue grabado, y despues de esto se destruye
-		//(no se pierde info)
-		SetClaves::iterator iter = nuevoNodo->getClaves()->begin();
-		clave = *iter;
-		nuevoNodo->getClaves()->erase(iter);
-		
-		//El hijo izquierdo del nuevo nodo es el hijo derecho de la clave promovida
-		 nuevoNodo->setHijoIzq(clave->getHijoDer());
-		 
-		 //Lo grabo en el archivo
-		 //TODO SUPERMERCADO DISCO.
-		 //archivoIndice->grabarNuevoNodo(nuevoNodo);
-		 clave->setHijoDer(nuevoNodo->getPosicionEnArchivo());                
-		 
-		 //Se borra de memoria el nuevo nodo creado
-		 delete nuevoNodo;
-		 */
-		 cod = Codigo::OVERFLOW;
-		 
+	}else{ //No hay espacio libre suficiente para insertar la clave...
+		 cod = Codigo::OVERFLOW;	 
 	}               
 
 	*codigo = cod;
@@ -91,7 +66,7 @@ void NodoBStar::eliminarClave(Clave* clave, char* codigo) {
 		this->actualizarEspacioLibre(clave, false);
 		
 		
-		if (this->getEspacioLibre() > this->getCondicionMinima())
+		if (this->getEspacioLibre() > this->getTamanioMinimo())
 	   		*codigo = Codigo::UNDERFLOW;
 	 	else
 	 		*codigo = Codigo::MODIFICADO;
@@ -113,53 +88,6 @@ unsigned NodoBStar::getTamanioEnDisco() const {
 	
 	return tamanio;
 	
-} 
-
-
-unsigned NodoBStar::getTamanioEnDiscoSetClaves() const {
-	
-	//Calcula el tamanio que ocupa el conjunto de claves dentro del nodo
-	unsigned tamanio = 0;
-	
-	SetClaves::iterator iter;
-	for (iter = this->getClaves()->begin(); iter != this->getClaves()->end(); ++iter){
-		tamanio += (*iter)->getTamanioEnDisco();
-	}
-	
-	return tamanio;
-	
-} 
-
-
-unsigned NodoBStar::puedeCeder(unsigned bytesRequeridos, bool izquierda) const {
-	
-	unsigned sumaBytesRequeridos = 0;
-	
-	if (izquierda){
-		for (SetClaves::iterator iter = this->getClaves()->begin();
-			(iter != this->getClaves()->end()) && (sumaBytesRequeridos < bytesRequeridos);
-			++iter){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
-		}
-	}
-	else{ //if (derecha)
-		for (SetClaves::reverse_iterator iter = this->getClaves()->rbegin();
-			(iter != this->getClaves()->rend()) && (sumaBytesRequeridos < bytesRequeridos);
-			++iter){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
-		}	
-	}
-	
-	if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getCondicionMinima() )
-		return sumaBytesRequeridos;
-	else return 0;
-	
-}
-
-bool NodoBStar::puedeRecibir(unsigned bytesPropuestos) const {
-	
-	return (this->getEspacioLibre() > bytesPropuestos);
-	
 }
 
 
@@ -174,101 +102,14 @@ Nodo* NodoBStar::siguiente(Clave* clave) {
 	if (claveResultante == NULL) {
 		//Cargar un nuevo nodo en memoria a partir del hijo izquierdo
 		//de este nodo.
-		//archivo->cargarNodo(nodo, this->refNodo);
+		//nodo = new NodoBStar(archivo, this->getHijoIzq());
 	} else {
 		//Cargar un nuevo nodo en memoria a partir del hijo derecho
 		//de claveResultante.
-		//archivo->cargarNodo(nodo, claveResultante->getHijoDer());
+		//nodo = new NodoBStar(archivo, claveResultante->getHijoDer());
 	}
 	
 	return nodo;
 	
 }
 
-//Si puede ceder devuelve un conjunto con las claves a ceder, sino devuelve NULL.
-SetClaves* NodoBStar::ceder(unsigned bytesRequeridos, bool izquierda) {
-	
-	unsigned sumaBytesRequeridos = 0;
-	
-	SetClaves* set = new SetClaves();
-	
-	if (izquierda){
-		
-		SetClaves::iterator iter;
-		for (iter = this->getClaves()->begin();
-			(iter != this->getClaves()->end()) && (sumaBytesRequeridos < bytesRequeridos);
-			++iter){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
-			set->insert(*iter);
-		}
-		
-		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getCondicionMinima() ) {
-			this->getClaves()->erase(this->getClaves()->begin(), iter);
-			return set;
-		}
-		
-	}
-	else{ //if (derecha)
-		
-		SetClaves::iterator iter;
-		for (iter = (--(this->getClaves()->end()));
-			(iter != this->getClaves()->begin()) && (sumaBytesRequeridos < bytesRequeridos);
-			--iter){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
-			set->insert(*iter);
-		}
-		
-		if ( (iter == this->getClaves()->begin()) && (sumaBytesRequeridos < bytesRequeridos) ) {
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
-			set->insert(*iter);
-		}
-		
-		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getCondicionMinima() ) {
-			this->getClaves()->erase(iter, this->getClaves()->end());
-			return set;
-		}
-	}
-	
-	set->clear();
-	delete set;
-	
-	return NULL;
-	
-}
-
-void NodoBStar::recibir(SetClaves* set){
-	for(SetClaves::iterator iter = set->begin(); iter != set->end(); ++iter){
-		this->getClaves()->insert(*iter);
-	}
-	set->clear();
-}
-
-
-unsigned NodoBStar::obtenerBytesRequeridos() const {
-	
-	//TODO Implementar obtenerBytesRequeridos!!
-	return 0;
-	
-}
-
-bool NodoBStar::esPadre(const NodoBStar* hijo, Clave* &clave) const {
-	
-	clave = this->buscar(hijo->obtenerPrimeraClave());
-	
-	if ( (clave) && (clave->getHijoDer() == hijo->getPosicionEnArchivo()) )
-		return true;
-	
-	return false;
-	
-}
-		
-
-Clave* NodoBStar::obtenerPrimeraClave() const {
-	
-	if (this->getClaves()->empty()) return NULL;
-	
-	return *(this->getClaves()->begin());
-	
-}
-		
-		

@@ -22,6 +22,7 @@
 #include "BloqueIndice.h"
 #include "SetClaves.h"
 #include "Codigo.h"
+#include "Clave.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -53,9 +54,10 @@ class Nodo : public BloqueIndice
 		 */	
 		
 		unsigned int refNodo;
-		unsigned int nivel;
+		unsigned char nivel;
 		unsigned int posicionEnArchivo;
-		unsigned int condicionMinima;
+		unsigned short tamanio;
+		unsigned short tamanioMinimo;
 		SetClaves* claves;		
 	
 	public:
@@ -64,10 +66,10 @@ class Nodo : public BloqueIndice
 	///////////////////////////////////////////////////////////////////////
 		
 		/*Crea un nuevo nodo para insertarle una Clave*/
-		Nodo(unsigned int refNodo, unsigned int nivel, Clave* clave, unsigned int condicionMinima);
+		Nodo(unsigned int refNodo, unsigned char nivel, Clave* clave, unsigned short tamanio);
 		
 		/*Crea el nodo sin setear ninguna clave*/
-		Nodo(unsigned int refNodo, unsigned int nivel, unsigned int condicionMinima);
+		Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio);
 		
 		/*Lee el archivo y crea ese nodo*/
 		//Nodo(ArchivoIndice* archivo, unsigned int referencia);
@@ -129,6 +131,35 @@ class Nodo : public BloqueIndice
 			
 		//bool vacio(ArchivoIndice* archivo);
 		
+		bool operator == (const Nodo &nodo) const {
+			return (this->getPosicionEnArchivo() == nodo.getPosicionEnArchivo());
+		}
+		
+		unsigned getTamanioEnDiscoSetClaves() const;
+		
+		//Método que verifica si un nodo puede ceder 'bytesRequeridos' a otro nodo.
+		//Si 'izquierda' es true, indica que el nodo debe ceder al hermano hizquierdo,
+		//en caso contrario, debe ceder al hermano derecho.
+		//Si puede ceder, devuelve la cantidad de bytes a ceder ( >= bytesRequeridos),
+		//sino devuelve 0;
+		unsigned puedeCeder(unsigned bytesRequeridos, bool izquierda = true) const;
+		
+		bool puedeRecibir(unsigned bytesPropuestos) const;
+		
+		unsigned obtenerBytesRequeridos() const;
+				
+		SetClaves* ceder(unsigned bytesRequeridos, bool izquierda);
+		
+		void recibir(SetClaves* set);
+		
+		bool esPadre(const Nodo* hijo, Clave* &clave) const;
+		
+		//Retorna un puntero la primera clave o NULL si el nodo no tiene claves.
+		Clave* obtenerPrimeraClave() const;
+		
+		//Retorna un puntero la última clave o NULL si el nodo no tiene claves.
+		Clave* obtenerUltimaClave() const;
+		
 	///////////////////////////////////////////////////////////////////////////
 	// Getters/Setters
 	///////////////////////////////////////////////////////////////////////////
@@ -148,7 +179,7 @@ class Nodo : public BloqueIndice
 			this->refNodo = hnoDer;
 		}
 		
-		void setNivel(unsigned int nivel)
+		void setNivel(unsigned char nivel)
 		{
 			this->nivel = nivel;
 		}
@@ -164,9 +195,9 @@ class Nodo : public BloqueIndice
 			this->posicionEnArchivo = posicion;	
 		}
 		
-		void setCondicionMinima(unsigned int condMin)
+		void setTamanio(unsigned short tamanio)
 		{
-			this->condicionMinima = condMin;	
+			this->tamanio = tamanio;	
 		}
 		
 		/*Getters*/
@@ -185,7 +216,7 @@ class Nodo : public BloqueIndice
 			return this->refNodo;
 		}
 		
-		unsigned int getNivel() const
+		unsigned char getNivel() const
 		{
 			return this->nivel;
 		}
@@ -200,9 +231,25 @@ class Nodo : public BloqueIndice
 			return this->claves;
 		}
 		
-		unsigned int getCondicionMinima() const
+		static unsigned char getTamanioHeader()
 		{
-			return this->condicionMinima;	
+			return (Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_NIVEL + Tamanios::TAMANIO_REFERENCIA);
+		}
+		
+		unsigned short getTamanio() const
+		{
+			return this->tamanio;
+		}
+		
+		virtual unsigned short getTamanioMinimo() const 
+		{
+			return this->tamanioMinimo;
+		}
+		
+	protected:
+		void setTamanioMinimo(unsigned short tamMin)
+		{
+			this->tamanioMinimo = tamMin;			
 		}
 		
 }; //Fin clase Nodo.

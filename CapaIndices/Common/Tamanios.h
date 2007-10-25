@@ -4,10 +4,10 @@
 class Tamanios {
 	
 	public:
-		const static char TAMANIO_REFERENCIA		= sizeof(unsigned int);
-		const static char TAMANIO_NIVEL				= sizeof(unsigned char);
-		const static char TAMANIO_ESPACIO_LIBRE		= sizeof(unsigned short);
-		const static char TAMANIO_LONGITUD_CADENA	= sizeof(unsigned char);
+		static const unsigned char TAMANIO_REFERENCIA		= sizeof(unsigned int);
+		static const unsigned char TAMANIO_NIVEL			= sizeof(unsigned char);
+		static const unsigned char TAMANIO_ESPACIO_LIBRE	= sizeof(unsigned short);
+		static const unsigned char TAMANIO_LONGITUD_CADENA	= sizeof(unsigned char);
 	
 };
 
