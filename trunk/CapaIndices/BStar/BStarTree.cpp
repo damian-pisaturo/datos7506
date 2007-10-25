@@ -1,11 +1,14 @@
 #include "BStarTree.h"
 
-BStarTree::BStarTree() {
-	
+BStarTree::BStarTree(unsigned tamanioNodo) {
+	this->tamanioNodo = tamanioNodo;
+	this->tamanioRaiz = 4*(tamanioNodo - NodoBStar::getTamanioHeader())/3;
+	this->tamanioRaiz += NodoBStar::getTamanioHeader();
+	this->nodoRaiz = NULL;
 }
 
 BStarTree::~BStarTree() {
-	
+	if (this->nodoRaiz) delete nodoRaiz;
 }
 
 
@@ -31,6 +34,20 @@ void BStarTree::insertarInterno(Clave* clave) {
 
 
 void BStarTree::eliminarInterno(Clave* clave) {
+	
+	
+	
+}
+
+
+Clave* BStarTree::buscar(Clave* clave) const {
+	
+	return NULL;
+	
+}
+
+		
+void BStarTree::modificar(Clave* clave) {
 	
 	
 	
@@ -109,30 +126,37 @@ NodoBStar* BStarTree::buscarPadre(NodoBStar* padre, NodoBStar* hijo) const {
 	
 	NodoBStar *auxNodo = NULL, *nuevoNodo = NULL;
 	Clave* claveOrientadora = NULL;
+
+	if ( (!padre) || (!hijo) || (*hijo == *(this->nodoRaiz)) ) return NULL;
 	
-	//TODO Solucionar el tema de que cuando retorna la funcion, el puntero queda apuntando a basura
-	
-	if (padre->esPadre(hijo, claveOrientadora)) return padre;
-	
-    else {
+	if (padre->esPadre(hijo, claveOrientadora)) {
+		
+		//auxNodo = new NodoBStar(archivo, padre->getPosicionEnArchivo());
+		
+	} else {
+		
     	if (claveOrientadora == NULL) {
     		//nuevoNodo = new NodoBStar(archivo, padre->getHijoizq());
-    		auxNodo = buscarPadre(nuevoNodo, hijo);
     	} else {
     		//nuevoNodo = new NodoBStar(archivo, claveOrientadora->getHijoDer());
-    		auxNodo = buscarPadre(nuevoNodo, hijo);
     	}
     	
-		return auxNodo;
+    	auxNodo = buscarPadre(nuevoNodo, hijo);
+    	
+    	delete nuevoNodo;
+    	
     }
+	
+	return auxNodo;
 	
 }
 
 
 NodoBStar* BStarTree::buscarLugar(Clave* clave) const {
 	
-	//Se supone que el nodo raíz ya se encuentra cargado en memoria.
+	if (!clave) return NULL;
 	
+	//Se supone que el nodo raíz ya se encuentra cargado en memoria.
 	return buscarLugarRecursivo(this->nodoRaiz, clave);
 	
 }
@@ -140,82 +164,40 @@ NodoBStar* BStarTree::buscarLugar(Clave* clave) const {
 
 NodoBStar* BStarTree::buscarLugarRecursivo(NodoBStar* nodo, Clave* clave) const {
 	
+	NodoBStar *nuevoNodo = NULL, *auxNodo = NULL;
+	
 	Clave* claveResultante = nodo->buscar(clave);
-	NodoBStar* nuevoNodo = NULL;
-	
-	//TODO Solucionar el tema de que cuando retorna la funcion, el puntero queda apuntando a basura
-	
-	if (claveResultante == NULL) {
-		if (nodo->getHijoIzq() == 0) //Nodo hoja
-			return nodo;
-		else {
-			//nuevoNodo = new NodoBStar(archivo, nodo->getHijoIzq());
-			return buscarLugarRecursivo(nuevoNodo, clave);
-		}
-	} else {
-		if (claveResultante->getHijoDer() == 0) //Nodo hoja
-			return nodo;
-		else {
-			//nuevoNodo = new NodoBStar(archivo, claveResultante->getHijoDer());
-			return buscarLugarRecursivo(nuevoNodo, clave);
-		}
-	}
-
-}
-
-
-NodoBStar* BStarTree::buscarMenorMayores(NodoBStar* nodo) const {
-	
-	/*
-	int result;
-    tN_ABd auxnodo;
-
-    AB_MoverCte(tree,IZQ,&result);
-    if(result==0){
-    	Buscar_menor_mayores(tree,narbol);
-        AB_MoverCte(tree,PAD,&result); //no tira error
-    }else{
-    	AB_ElemCte(*tree,&auxnodo);
-        AB_ModifCte(tree,narbol);
-    	*narbol=auxnodo;
-        AB_MoverCte(tree,DER,&result);
-        //si tiene hijo derecho
-        if(result==0){
-        	AB_MoverCte(tree,PAD,&result); //no tira error
-            Eliminar(tree);
-        }else Post_Orden(tree);
-    }
-    */
-    
-	return NULL;
-	
-}
 		
-
-NodoBStar* BStarTree::buscarMayorMenores(NodoBStar* nodo) const {
+	if (claveResultante == NULL) {
+		
+		if (nodo->getHijoIzq() == 0) { //Nodo hoja
+			//auxNodo = new NodoBStar(archivo, nodo->getPosicionEnArchivo());
+		} else {
+			//nuevoNodo = new NodoBStar(archivo, nodo->getHijoIzq());
+			auxNodo = buscarLugarRecursivo(nuevoNodo, clave);
+			delete nuevoNodo;
+		}
+		
+	} else {
+		
+		if (claveResultante->getHijoDer() == 0) {//Nodo hoja
+			//auxNodo = new NodoBStar(archivo, nodo->getPosicionEnArchivo());
+		} else {
+			//nuevoNodo = new NodoBStar(archivo, claveResultante->getHijoDer());
+			auxNodo = buscarLugarRecursivo(nuevoNodo, clave);
+			delete nuevoNodo;
+		}
+		
+	}
 	
-	/*
-	int result;
-    tN_ABd auxnodo;
+	return auxNodo;
 
-    AB_MoverCte(tree,DER,&result);
-    if(result==0){
-    	Buscar_mayor_menores(tree,narbol);
-        AB_MoverCte(tree,PAD,&result); //no tira error
-    }else{
-    	AB_ElemCte(*tree,&auxnodo);
-        AB_ModifCte(tree,narbol);
-    	*narbol=auxnodo;
-        AB_MoverCte(tree,IZQ,&result);
-        //si tiene hijo izquierdo
-        if(result==0){
-        	AB_MoverCte(tree,PAD,&result); //no tira error
-            Eliminar(tree);
-        }else Post_Orden(tree);
-    }
-    */
+}
+
+//Se supone que el nodo que recibe no es hoja.
+NodoBStar* BStarTree::buscarMenorMayores(NodoBStar* nodo, Clave* clave) const {
 	
-	return NULL;
+	return this->buscarLugarRecursivo(nodo, clave);
 	
 }
 

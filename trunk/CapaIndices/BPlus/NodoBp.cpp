@@ -29,11 +29,17 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructores/Destructores
 	//////////////////////////////////////////////////////////////////////
-	NodoBp::NodoBp(unsigned int refNodo, unsigned int nivel) : Nodo(refNodo, nivel)
-	{}	
+	NodoBp::NodoBp(unsigned int refNodo, unsigned char nivel, unsigned short tamanio)
+					: Nodo(refNodo, nivel, tamanio)
+	{
+		this->setTamanioMinimo((tamanio-this->getTamanioHeader())/2);		
+	}	
 			
-	NodoBp::NodoBp(unsigned int refNodo, unsigned int nivel,Clave* clave) : Nodo(refNodo, nivel, clave)
-	{} 
+	NodoBp::NodoBp(unsigned int refNodo, unsigned char nivel, Clave* clave,
+			unsigned short tamanio) : Nodo(refNodo, nivel, clave, tamanio)
+	{
+		this->setTamanioMinimo((tamanio-this->getTamanioHeader())/2);
+	} 
 	
 	/*
 	NodoBp(unsigned int referencia) : Nodo(referencia)
@@ -71,7 +77,7 @@
 		
 		/*No hay espacio libre suficiente para insertar la clave...*/
 		}else{			
-			Nodo* nuevoNodo = new NodoBp(this->getHnoDer(), this->getNivel());
+			Nodo* nuevoNodo = new NodoBp(this->getHnoDer(), this->getNivel(), this->getTamanio());
 			
 			/*Condicion para overflow. Devuelve la cantidad de claves que
 			 * deben quedar en el nodo que va a dividirse:
@@ -141,7 +147,7 @@
 		/*No hay espacio libre suficiente para insertar la clave...*/
 		}else{
 			
-			Nodo* nuevoNodo = new NodoBp(this->getRefNodo(),this->getNivel());
+			Nodo* nuevoNodo = new NodoBp(this->getRefNodo(), this->getNivel(), this->getTamanio());
 			
 			/*Condicion para overflow, devuelve la cantidad de claves que 
 			 * deben quedar en el nodo que se va a dividir
@@ -214,24 +220,18 @@
 	
 	Nodo* NodoBp::siguiente(/*ArchivoIndice* archivo,*/Clave* clave)
 	{
-		/*buscar() debe devolver la misma clave que la buscada, si se
-		 * encuentra ya en la lista, o la menor mas proxima.
-		 * Si la clave a buscar es menor que la menor de la lista, el
-		 * nodo a moverse es el hijo izquierdo de la menor de las claves y
-		 * buscar() devuelve NULL.
-		 */
-		Clave* cercana = this->getClaves()->findClave(clave);
+		Nodo* nodo;
+		Clave* claveResultante = this->getClaves()->findClave(clave);
 		
-		/*reveer el obtener Referencia de las claves*/
-		Nodo* nodoEnMemoria;
+		if (claveResultante == NULL) {
+			//Cargar un nuevo nodo en memoria a partir del hijo izquierdo
+			//de este nodo.
+			//nodo = new NodoBp(archivo, this->getHijoIzq());
+		} else {
+			//Cargar un nuevo nodo en memoria a partir del hijo derecho
+			//de claveResultante.
+			//nodo = new NodoBp(archivo, claveResultante->getHijoDer());
+		}
 		
-	//	if (!cercana)
-			/*Caso de que la clave cercana sea el hijo izquierdo de la menor
-			 * de las claves dentro del nodo (hijo mas a la izquierda)
-	         */
-	//		nodoEnMemoria = new NodoBp(/*archivo,*/this->getRefNodo());
-	//	else
-	//		nodoEnMemoria = new NodoBp(/*archivo,*/cercana->getReferencia());
-		
-		return nodoEnMemoria;
+		return nodo;
 	}

@@ -41,10 +41,11 @@ class NodoBp: public Nodo
 	//////////////////////////////////////////////////////////////////////
 		
 		/*Crea el nodo sin setear ningun atributo*/
-		NodoBp(unsigned int refNodo, unsigned int nivel);
+		NodoBp(unsigned int refNodo, unsigned char nivel, unsigned short tamanio);
 			
 		/*Crea un nuevo nodo para insertarle una Clave*/
-		NodoBp(unsigned int refNodo, unsigned int nivel, Clave* clave);
+		NodoBp(unsigned int refNodo, unsigned char nivel, Clave* clave,
+			   unsigned short tamanio);
 			
 		/*Lee el archivo y crea ese nodo*/
 		//NodoBp(unsigned int referencia);

@@ -6,7 +6,8 @@
 class BStarTree {
 	
 	public:
-		BStarTree();
+		//Constructor que recibe el tamaño de los nodos (en bytes)
+		BStarTree(unsigned tamanioNodo);
 		
 		virtual ~BStarTree();
 		
@@ -14,12 +15,20 @@ class BStarTree {
 		
 		void eliminar(Clave* clave);
 		
+		Clave* buscar(Clave* clave) const;
+		
+		void modificar(Clave* clave);
+		
 		
 	private:
 		//Atributos
 		
 		NodoBStar* nodoRaiz;
-		unsigned short maxTamRaiz; //Tamanio máximo (en bytes) de la raíz
+		//Para administrar la raíz, se utiliza el modelo en el cual la misma
+		//posee el espacio suficiente para que a la hora de dividirse,
+		//genere dos nodos 2/3 llenos.
+		unsigned short tamanioRaiz; //Tamanio máximo (en bytes) de la raíz
+		unsigned short tamanioNodo; //Tamanio máximo (en bytes) de un nodo
 		
 		
 		//Métodos
@@ -44,16 +53,17 @@ class BStarTree {
 		//Busca el padre del nodo pasado por parámetro
 		NodoBStar* buscarPadre(NodoBStar* padre, NodoBStar* hijo) const;
 		
-		//Busca el nodo en el que se debe insertar una clave.
-		//Devuelve un puntero al nodo donde se debe insertar la clave,
-		//o NULL si la clave ya se encuentra en el árbol.
+		//Busca el nodo en el que se debe insertar/eliminar una clave.
+		//Devuelve un puntero al nodo donde se debe insertar/eliminar la clave.
 		NodoBStar* buscarLugar(Clave* clave) const;
 		
 		NodoBStar* buscarLugarRecursivo(NodoBStar* nodo, Clave* clave) const;
 		
-		NodoBStar* buscarMenorMayores(NodoBStar* nodo) const;
-		
-		NodoBStar* buscarMayorMenores(NodoBStar* nodo) const;
+		//Se supone que el nodo que recibe no es hoja. Este nodo debe ser el nodo
+		//que contiene a la clave que recibe como segundo parámetro.
+		//Retorna un nodo cuya primera clave es la menor de las claves mayores a
+		//la clave recibida por parámetro.
+		NodoBStar* buscarMenorMayores(NodoBStar* nodo, Clave* clave) const;
 		
 };
 

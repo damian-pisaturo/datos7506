@@ -34,7 +34,7 @@ class BloqueIndice
 		///////////////////////////////////////////////////////////////////////////
 		// Atributo
 		///////////////////////////////////////////////////////////////////////////
-		unsigned int espacioLibre;
+		unsigned short espacioLibre;
 		
 	public:
 		BloqueIndice() {}
@@ -44,12 +44,12 @@ class BloqueIndice
 		///////////////////////////////////////////////////////////////////////////
 		// Getter/Setter
 		///////////////////////////////////////////////////////////////////////////		
-		unsigned int getEspacioLibre() const
+		unsigned short getEspacioLibre() const
 		{
 			return espacioLibre;
 		}
 		
-		void setEspacioLibre(unsigned int espacio)
+		void setEspacioLibre(unsigned short espacio)
 		{
 			this->espacioLibre = espacio;
 		}
