@@ -24,9 +24,12 @@
 #include <iostream>
 using namespace std;
 
+#include "../CapaIndices/Common/BloqueIndice.h"
+#include "../CapaIndices/Common/Tamanios.h"
+#include "../CapaIndices/Common/SetClaves.h"
+#include "../CapaIndices/Common/Nodo.h"
 #include "../ComuDatos/ComuDatos.h"
-#include "BloqueIndice.h"
-#include "../NombreCapas.h"
+#include "../Common/NombresCapas.h"
 
 typedef enum{ARBOL_BP, ARBOL_BS, HASH} t_indice;
 
@@ -45,7 +48,7 @@ class ArchivoIndice
 	///////////////////////////////////////////////////////////////////////
 		string nombreArchivo;
 		unsigned int tamanioBloque;
-		const unsigned int tipoIndice;
+		unsigned int tIndice;
 		
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -106,7 +109,7 @@ class ArchivoIndice
 		
 		const unsigned int getTipoIndice()
 		{
-			return this->tipoIndice;
+			return this->tIndice;
 		}
 };
 
@@ -128,7 +131,7 @@ class ArchivoIndiceArbol : public ArchivoIndice
 	///////////////////////////////////////////////////////////////////////
 		/*Si el archivo esta vacio, crea una raiz vacia*/
 		ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
-		virtual ~ArchivoIndice() { };
+		virtual ~ArchivoIndiceArbol() { };
 	
 	private:
 	///////////////////////////////////////////////////////////////////////
@@ -213,7 +216,7 @@ class ArchivoIndiceHash : public ArchivoIndice
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		ArchivoIndiceHash(unsigned int tamBucket, string nombreArchivo, t_indice tipoIndice);		
-		virtual ~ArchivoIndiceHash() { };
+		virtual ~ArchivoIndiceHash();
 		
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
@@ -243,7 +246,7 @@ class ArchivoIndiceHash : public ArchivoIndice
 		
 		void setNombreArchivoTable(string nombre)
 		{
-			return this->nombreArchivoTabla;
+			this->nombreArchivoTabla = nombre;
 		}		
 };
 

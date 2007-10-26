@@ -24,6 +24,8 @@
 #include <string.h>
 #include "../Common/BloqueIndice.h"
 #include "RegistroV.h"
+#include "../../CapaFisica/ArchivoIndicePadre.h"
+#include "../../CapaFisica/ArchivoIndice.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -33,54 +35,49 @@
 
 class Bucket : public BloqueIndice
 {
-	private:
+private:
 	//////////////////////////////////////////////////////////////////////
 	// Atributos
 	//////////////////////////////////////////////////////////////////////
-		char* datos;
-		//unsigned int tamanio; TODO El tamanio del bucket vendra en el ArchivoIndiceHash.
-		char* registro;
-		unsigned bool vacio; //Indica si el bloque contiene al menos un registro.
-		unsigned short numBucket; //Indica el numero de bucket dentro del archivo.
-		unsigned short tamDispersion;
-		unsigned short cantRegs;
+	char* datos;
+	unsigned int tamanio; //TODO El tamanio del bucket vendra en el ArchivoIndiceHash.
+	char* registro;
+	bool vacio; //Indica si el bloque contiene al menos un registro.
+	unsigned short numBucket; //Indica el numero de bucket dentro del archivo.
+	unsigned short tamDispersion;
+	unsigned short cantRegs;
+	unsigned short espLibre;
+	ArchivoIndiceHash *archivo;
 	
-	public:
-	///////////////////////////////////////////////////////////////////////
-	// Constructor/Destructor
-	///////////////////////////////////////////////////////////////////////
-		/*Crea un Bucket vacio*/
-		Bucket(ArchivoIndice *indiceHash, unsigned short tamDispersion);
+public:
+///////////////////////////////////////////////////////////////////////
+// Constructor/Destructor
+///////////////////////////////////////////////////////////////////////
+
+	/*Crea un Bucket vacio*/
+	Bucket(ArchivoIndice *indiceHash, unsigned short tamDispersion);
 		
-		/*Crea un Bucket con los datos del bloque cuya 
-		 * referencia en el archivo es la pasada por parametro.
-		 */
-		Bucket(ArchivoIndice* indiceHash, unsigned short referencia);
-		virtual ~Bucket();
+	/*Crea un Bucket con los datos del bloque cuya 
+	 * referencia en el archivo es la pasada por parametro.
+	 */
+	Bucket(ArchivoIndice* indiceHash, unsigned int referencia);
+	virtual ~Bucket();
 	
-	///////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	///////////////////////////////////////////////////////////////////////
-		/*
-		 * Busca un registro por su clave dentro del bucket. Si existe lo carga en el 
-		 * atributo registro y devuelve true; de lo contrario devuelve false.
-		 */ 
-		bool buscarRegistro(Clave* clave);
+///////////////////////////////////////////////////////////////////////
+// Metodos publicos
+///////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Busca un registro por su clave dentro del bucket. Si existe lo carga en el 
+	 * atributo registro y devuelve true; de lo contrario devuelve false.
+	 */ 
+	bool buscarRegistro(Clave* clave);
+	char* getDatos();
+private:
+///////////////////////////////////////////////////////////////////////
+// Metodos privadosgetDatos()
+///////////////////////////////////////////////////////////////////////
 	
-	private:
-	///////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	///////////////////////////////////////////////////////////////////////
-	
-		/*
-		 * Busca un registro de clave de longitud variable en el bucket.
-		 */
-		bool buscarRegClaveV(Clave* clave);
-	
-		/*
-		 * Busca un registro de clave de longitud fija en el bucket.
-		 */
-		bool buscarRegClaveF(Clave* clave);
 };
 
 #endif /*BUCKET_H_*/

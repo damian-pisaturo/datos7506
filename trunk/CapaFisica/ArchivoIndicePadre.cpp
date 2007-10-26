@@ -34,7 +34,7 @@
 	ArchivoIndice::ArchivoIndice(string nombreArchivo, unsigned int tamanioBloque, t_indice tipoIndice)
 	{		
 		this->tamanioBloque = tamanioBloque;
-		this->tipoIndice    = tipoIndice;
+		this->tIndice    = (unsigned int)tipoIndice;
 		
 		switch(tipoIndice){
 		case ARBOL_BP:
@@ -54,7 +54,7 @@
 	
 	ComuDatos* ArchivoIndice::instanciarPipe(string nombreEjecutable)
 	{
-		return new ComuDatos(nombreEjecutables);
+		return new ComuDatos(nombreEjecutable);
 	}			
 
 ///////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor
 	///////////////////////////////////////////////////////////////////////
-	ArchivoIndiceArbol::ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo, ):
+	ArchivoIndiceArbol::ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
 		ArchivoIndice(nombreArchivo, tamNodo, tipoIndice)
 	{ 
 		//TODO Usar ComuDato para escribir la raiz vacia si el 
@@ -109,12 +109,12 @@
 	///////////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////////	
-	void ArchivoIndiceArbol::leerBloque(int numeroRegistro, BloqueIndice* bloqueLeido)
+	void ArchivoIndiceArbol::leerBloque(unsigned int numeroRegistro, BloqueIndice* bloqueLeido)
 	{
 		Nodo* nodoLeido = (Nodo*) bloqueLeido;
 		
 		/*Variables de Lectura del buffer*/		
-		char* buffer = new char[this->getTamanioNodo()];
+		char* buffer = new char[this->getTamanioBloque()];
 		char* puntero = buffer;
 		char* punteroFinal;
 		Header headerNodo;
@@ -125,10 +125,10 @@
 		
 		/*Posicionarse en el numeroRegistro*/
 		//TODO Usar ComuDato.
-		this->archivoIndex->posicionarse(numeroRegistro);
-		
-		/*Leer el bloque de 512 bytes y dejarlo apuntado a un char*/
-		try{
+	//	this->archivoIndex->posicionarse(numeroRegistro);
+	/*	
+		Leer el bloque de 512 bytes y dejarlo apuntado a un char*/
+/*		try{
 			this->archivoIndex->leer(buffer);
 		}
 		catch(string s){
@@ -136,7 +136,7 @@
 			delete lista;
 			throw string("Bloque de Archivo Indice Inexistente");	
 		}
-		
+		*/
 		/*Castear el header*/
 		memcpy(&headerNodo,puntero,sizeof(Header));
 		puntero += sizeof(Header);
@@ -149,7 +149,7 @@
 		/*Recorrer el buffer desde donde quedo hasta que supere
 		 * el espacio libre casteando a de a pedazos de a una clave*/
 		 /*Apunto al final de los datos validos para saber cuando parar de leer*/
-		 punteroFinal = buffer + (tamanioNodo - headerNodo.espacioLibre);
+		 punteroFinal = buffer + (getTamanioBloque() - headerNodo.espacioLibre);
 		
 		if(nodoLeido->getNivel() == 0){
 			while(puntero < punteroFinal){	
@@ -185,7 +185,7 @@
 		int posicion = -1;
 		int numero;
 		bool ubicado  = false;
-		char* buffer  = new char[this->tamanioNodo];
+		char* buffer  = new char[this->getTamanioBloque()];
 		char* puntero = buffer;
 		
 		/*Variables de interpretacion del nodo*/
@@ -380,18 +380,18 @@
 //			(Abstracta. Clase que sirve de abstraccion de la capa 
 //			fisica para los indices de dispersion de la capa de indices).
 ///////////////////////////////////////////////////////////////////////////
-class ArchivoIndiceHash : ArchivoIndice
-{
+
+
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		ArchivoIndiceHash::ArchivoIndiceHash(unsigned int tamBucket, string nombreArchivo, t_indice tipoIndice):
-			ArchivoIndice(nombreArchivo, tamNodo, tipoIndice)
+			ArchivoIndice(nombreArchivo, tamBucket, tipoIndice)
 		{
 			this->nombreArchivoTabla = nombreArchivo + ".tbl";
 		}
 		
-		ArchivoIndiceHash::~ArchivoIndiceHash() { };
+		ArchivoIndiceHash::~ArchivoIndiceHash() { }
 	
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
@@ -404,7 +404,7 @@ class ArchivoIndiceHash : ArchivoIndice
 			char * auxEspLibre = new char[5];
 			memcpy(auxEspLibre,datos,4);
 			auxEspLibre[4] = '\0';
-			espacioLibre = atoi(auxEspLibre);
+			unsigned short espacioLibre = atoi(auxEspLibre);
 			delete[] auxEspLibre;
 
 			//Obtengo el tamaño de dispersión.
@@ -432,7 +432,6 @@ class ArchivoIndiceHash : ArchivoIndice
 			//TODO: Sobre-escribir datos del bloque usando el ComuDatos
 			//para acceder a la capa fisica.
 		}
-};
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
