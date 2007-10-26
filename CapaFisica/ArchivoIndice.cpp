@@ -30,69 +30,50 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-	ArchivoIndiceEnteroGriego::ArchivoIndiceEnteroGriego(int tamNodo, string nombreArchivo):
-		ArchivoIndiceArbol(tamNodo, nombreArchivo){ }
+	ArchivoIndiceEnteroGriego::ArchivoIndiceEnteroGriego(int tamNodo, string nombreArchivo, t_indice tipoIndice):
+		ArchivoIndiceArbol(tamNodo, nombreArchivo, tipoIndice){ }
 	
 	//////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	//////////////////////////////////////////////////////////////////////
-	void ArchivoIndiceEnteroGriego::copiarClaveHoja(Clave* clave, char* &puntero)
-	{	
-		ClaveEntera* claveEntera = static_cast<ClaveEntera*>(clave);
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////	
+		Clave* ArchivoIndiceEnteroGriego::leerClaveHoja(char* &buffer)
+		{
+			int valor;
+			unsigned int refRegistro;
 		
-		/*Copio el valor*/
-		memcpy(puntero, claveEntera->getValor(), sizeof(int));
-		puntero += sizeof(int);
+			//Se interpreta el valor entero de la clave.
+			memcpy(&valor, buffer, sizeof(int));
+			buffer+=sizeof(int);
+			
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 		
-		/*Copio la refRegistro*/
-		unsigned int referencia = claveEntera->obtenerReferencia();
-		memcpy(puntero,&referencia,sizeof(int));
-		puntero += sizeof(int);
-	}
-	
-	void ArchivoIndiceEnteroGriego::copiarClaveNoHoja(Clave* clave, char* &puntero)
-	{
-		this->copiarClaveHoja(clave,puntero);
-	}
-
-	Clave* ArchivoIndiceEnteroGriego::leerClaveHoja(char* &buffer)
-	{
-		int* codigo;
-		int* refRegistro;
+			//Crear la clave
+			return new ClaveEntera(valor, refRegistro);	
+		}
 		
-		/*Interpreto el codigo*/
-		codigo = (int*)buffer;
-		buffer += sizeof(int);		
-		
-		/*Interpreto la refRegistro*/	
-		refRegistro = (int*)buffer;
-		buffer += sizeof(int);
-		
-		/*Crear la clave*/
-		return new ClaveEntera(*codigo,*refRegistro);	
-	}
-	
-	Clave* ArchivoIndiceEnteroGriego::leerClaveNoHoja(char* &buffer)
-	{
-		int* codigo;
-		int* refRegistro;
-		unsigned int* hijoDer;
-		
-		/*Interpreto el codigo*/
-		codigo = (int*)buffer;
-		buffer += sizeof(int);		
-		
-		/*Interpreto la refRegistro*/	
-		refRegistro = (int*)buffer;
-		buffer += sizeof(int);
-		
-		/*Interpreto la refRegistro*/	
-		hijoDer = (int*)buffer;
-		buffer += sizeof(int);
-		
-		/*Crear la clave*/
-		return new ClaveEntera(*codigo,*refRegistro, *hijoDer);
-	}
+		Clave* ArchivoIndiceEnteroGriego::leerClaveNoHoja(char* &buffer)
+		{
+			int valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
+			
+			//Se interpreta el valor entero de la clave.
+			memcpy(&valor, buffer, sizeof(int));
+			buffer+=sizeof(int);
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			//Se interpreta la referencia al hijo derecho de la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
+			
+			//Crear la clave
+			return new ClaveEntera(valor, refRegistro, hijoDer);
+		}
 	
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -104,84 +85,50 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceEnteroRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista):
-			ArchivoIndiceSecundario(tamNodo, nombreArchivo, tamanioBloqueLista)
+		ArchivoIndiceEnteroRomano::ArchivoIndiceEnteroRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice):
+			ArchivoIndiceSecundario(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
 		{ }
 	
 	//////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	//////////////////////////////////////////////////////////////////////
-		void ArchivoIndiceEnteroRomano::copiarClaveNoHoja(Clave* clave, char* &puntero)
-		{			
-			ClaveEntera* claveEntera = static_cast<ClaveEntera*>(clave);
-			
-			//Obtencion del valor entero
-			int valor = *((int*)claveEntera->getValor());
-			
-			//Copia del entero al buffer
-			memcpy(puntero, &valor, sizeof(int));
-			puntero += sizeof(int);
-		
-			//Copia de la referencia al hijo derecho
-			unsigned int hijoDer = claveEntera->getHijoDerecho();
-			memcpy(puntero,&hijoDer,sizeof(unsigned int));
-			puntero += sizeof(int);
-			
-			//Si la referencia es -1, se trata de un nodo B+ y
-			//no debe persistirse en disco.
-			if (claveEntera->getReferencia() != -1 ){
-				//Copia de la referencia a la lista.
-				int referencia = claveEntera->obtenerReferencia();
-				memcpy(puntero,&referencia,sizeof(int));
-				puntero += sizeof(int);
-			}
-		}
-		
-		void ArchivoIndiceEnteroRomano::copiarClaveHoja(Clave* clave, char* &puntero)
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////		
+		Clave* ArchivoIndiceEnteroRomano::leerClaveHoja(char* &buffer)
 		{
-			//En este caso la claveHoja no tiene refRegistro
-			
-			ClaveEntera* claveEntera = static_cast<ClaveEntera*>(clave);
-						
-			//Obtencion del valor entero.
-			int valor = *((int*)claveEntera->getValor());
-			
-			//Copia del entero al buffer.
-			memcpy(puntero, &valor, sizeof(int));
-			puntero += sizeof(int);
+			int valor;
+			unsigned int refRegistro;
 		
-			//Copia de la referencia a la lista de 
-			//claves primarias.
-			unsigned int referencia = claveEntera->getReferencia();
-			memcpy(puntero, &referencia, sizeof(int));
-			puntero += sizeof(int);
+			//Se interpreta el valor entero de la clave.
+			memcpy(&valor, buffer, sizeof(int));
+			buffer += sizeof(int);
+			
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+		
+			//Crear la clave
+			return new ClaveEntera(valor, refRegistro);	
 		}
 		
 		Clave* ArchivoIndiceEnteroRomano::leerClaveNoHoja(char* &buffer)
 		{
-			int* valor;
-			int* refRegistro;
-			unsigned int* refListaPrim;
+			int valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
 			
-			//Interpreto el nombre
-			valor = (int*) buffer;
-			buffer += sizeof(int);		
-			
-			//Interpreto la refListaPrim
-			refListaPrim = (int*)buffer;
+			//Se interpreta el valor entero de la clave.
+			memcpy(&valor, buffer, sizeof(int));
 			buffer += sizeof(int);
 			
-			//Interpreto la refRegistro	
-			refRegistro = (int*)buffer;
-			buffer += sizeof(int);
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
 			
-			//Crear y devolver la clave
-			return new ClaveEntera(*valor, *refListaPrim, *refRegistro);				
-		}
-		
-		Clave* ArchivoIndiceEnteroRomano::leerClaveHoja(char* &buffer)
-		{
-			return this->leerClaveNoHoja(buffer);
+			//Se interpreta la referencia al hijo derecho de la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
+			
+			//Crear la clave
+			return new ClaveEntera(valor, refRegistro, hijoDer);
 		}
 		
 ///////////////////////////////////////////////////////////////////////////
@@ -194,80 +141,50 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceBooleanGriego(unsigned int tamNodo, string nombreArchivo):
-			ArchivoIndiceArbol(tamNodo, nombreArchivo)
+		ArchivoIndiceBooleanGriego::ArchivoIndiceBooleanGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
+			ArchivoIndiceArbol(tamNodo, nombreArchivo, tipoIndice)
 		{ }
 		
 	//////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	//////////////////////////////////////////////////////////////////////
-		void ArchivoIndiceBooleanGriego::copiarClaveHoja(Clave* clave, char* &puntero)
-		{	
-			ClaveBoolean* claveBoolean = static_cast<ClaveBoolean*>(clave);
-			
-			/*Copia del valor booleano*/
-			memcpy(puntero, claveEntera->getValor(), sizeof(bool));
-			puntero += sizeof(bool);
-			
-			/*Copio la refRegistro*/
-			unsigned int referencia = claveEntera->obtenerReferencia();
-			memcpy(puntero,&referencia, sizeof(int));
-			puntero += sizeof(int);
-		}
-		
-		void ArchivoIndiceBooleanGriego::copiarClaveNoHoja(Clave* clave, char* &puntero)
-		{
-			ClaveBoolean* claveBoolean = static_cast<ClaveBoolean*>(clave);
-			
-			//Copia del valor booleano
-			memcpy(puntero, claveEntera->getValor(), sizeof(bool));
-			puntero += sizeof(bool);
-			
-			//Copia la refRegistro
-			int referencia = claveEntera->obtenerReferencia();
-			if (referencia != -1){
-				memcpy(puntero, &referencia, sizeof(unsigned int));
-				puntero += sizeof(int);
-			}
-		}
-		
-		Clave* ArchivoIndiceBooleanGriego::leerClaveNoHoja(char* &buffer)
-		{
-			bool* codigo;
-			int* refRegistro;
-			unsigned int* hijoDer;
-			
-			//Interpreto el codigo
-			codigo = (bool*)buffer;
-			buffer += sizeof(int);		
-			
-			//Interpreto la refRegistro	
-			refRegistro = (int*)buffer;
-			buffer += sizeof(int);
-			
-			//Interpreto la referencia al hijo derecho
-			hijoDer = (unsigned int*)buffer;
-			buffer += sizeof(unsigned int);
-			
-			//Crear la clave
-			return new ClaveBoolean(*codigo,*refRegistro, *hijoDer);
-		}
-		
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////			
 		Clave* ArchivoIndiceBooleanGriego::leerClaveHoja(char* &buffer)
 		{
-			bool* codigo;
-			unsigned int* refRegistro;
+			bool valor;
+			unsigned int refRegistro;
+		
+			//Se interpreta el valor boolean de la clave.
+			memcpy(&valor, buffer, sizeof(bool));
+			buffer += sizeof(bool);
 			
-			//Interpreto el codigo
-			codigo = (bool*)buffer;
-			buffer += sizeof(bool);		
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+		
+			//Crear la clave
+			return new ClaveEntera(valor, refRegistro);	
+		}
 			
-			//Interpreto la refRegistro	
-			refRegistro = (int*)buffer;
-			buffer += sizeof(int);
+		Clave* ArchivoIndiceBooleanGriego::leerClaveNoHoja(char* &buffer)
+		{
+			bool valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
+			
+			//Se interpreta el valor booleano de la clave.
+			memcpy(&valor, buffer, sizeof(bool));
+			buffer += sizeof(bool);
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			//Se interpreta la referencia al hijo derecho de la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
 			
 			//Crear la clave
-			return new ClaveBoolean(*codigo, *refRegistro);	
+			return new ClaveBoolean(valor, refRegistro, hijoDer);
 		}
 
 ///////////////////////////////////////////////////////////////////////////
@@ -280,82 +197,50 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceCharGriego(unsigned int tamNodo, string nombreArchivo):
-			ArchivoIndiceArbol(tamNodo, nombreArchivo)
+		ArchivoIndiceCharGriego::ArchivoIndiceCharGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
+			ArchivoIndiceArbol(tamNodo, nombreArchivo, tipoIndice)
 		{ }
 		
 	//////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	//////////////////////////////////////////////////////////////////////
-		void ArchivoIndiceCharGriego::copiarClaveHoja(Clave* clave, char* &puntero)
-		{	
-			ClaveChar* claveChar = static_cast<ClaveChar*>(clave);
-			
-			//Copia del valor char
-			memcpy(puntero, claveChar->getValor(), sizeof(char));
-			puntero += sizeof(char);
-			
-			//Copia de la referencia al registro
-			int referencia = claveChar->obtenerReferencia();
-			memcpy(puntero,&referencia, sizeof(int));
-			puntero += sizeof(int);
-		}
-		
-		void ArchivoIndiceCharGriego::copiarClaveNoHoja(Clave* clave, char* &puntero)
-		{
-			ClaveChar* claveChar = static_cast<ClaveChar*>(clave);
-			
-			//Copia del valor char
-			memcpy(puntero, claveChar->getValor(), sizeof(bool));
-			puntero += sizeof(bool);
-			
-			//Copia la refRegistro
-			int referencia = claveChar->obtenerReferencia();
-			
-			if (referencia != -1){
-				//El nodo no pertenece a un arbol B+.
-				memcpy(puntero, &referencia, sizeof(int));
-				puntero += sizeof(int);
-			}
-		}
-		
-		Clave* ArchivoIndiceCharGriego::leerClaveNoHoja(char* &buffer)
-		{
-			char* codigo;
-			int* refRegistro;
-			unsigned int* hijoDer;
-			
-			//Interpreto el codigo
-			codigo  = (char*)buffer;
-			buffer += sizeof(int);		
-			
-			//Interpreto la refRegistro	
-			refRegistro = (int*)buffer;
-			buffer     += sizeof(int);
-			
-			//Interpreto la referencia al hijo derecho
-			hijoDer = (unsigned int*)buffer;
-			buffer += sizeof(unsigned int);
-			
-			//Crear la clave
-			return new ClaveChar(*codigo,*refRegistro, *hijoDer);
-		}
-		
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////		
 		Clave* ArchivoIndiceCharGriego::leerClaveHoja(char* &buffer)
 		{
-			char* codigo;
-			int* refRegistro;
+			char valor;
+			unsigned int refRegistro;
+		
+			//Se interpreta el valor boolean de la clave.
+			memcpy(&valor, buffer, sizeof(char));
+			buffer += sizeof(char);
 			
-			//Interpreto el codigo
-			codigo = (char*)buffer;
-			buffer += sizeof(char);		
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+		
+			//Crear la clave
+			return new ClaveChar(valor, refRegistro);	
+		}
+				
+		Clave* ArchivoIndiceCharGriego::leerClaveNoHoja(char* &buffer)
+		{
+			char valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
 			
-			//Interpreto la refRegistro	
-			refRegistro = (int*)buffer;
-			buffer += sizeof(int);
+			//Se interpreta el valor de tipo char de la clave.
+			memcpy(&valor, buffer, sizeof(char));
+			buffer += sizeof(char);
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			//Se interpreta la referencia al hijo derecho de la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
 			
 			//Crear la clave
-			return new ClaveChar(*codigo, *refRegistro);	
+			return new ClaveChar(valor, refRegistro, hijoDer);
 		}
 	
 ///////////////////////////////////////////////////////////////////////////
@@ -368,264 +253,542 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceCharRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista):
-			ArchivoIndiceSecundario(tamNodo, nombreArchivo, tamanioBloqueLista)
+		ArchivoIndiceCharRomano::ArchivoIndiceCharRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice):
+			ArchivoIndiceSecundario(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
 		{ }
 		
 	//////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	//////////////////////////////////////////////////////////////////////
-		void ArchivoIndiceCharRomano::copiarClaveNoHoja(Clave* clave, char* &puntero)
-		{			
-			ClaveChar* claveEntera = static_cast<ClaveChar*>(clave);
-			
-			//Obtencion del valor tipo char
-			char valor = *((char*)claveEntera->getValor());
-			
-			//Copia del char al buffer
-			memcpy(puntero, &valor, sizeof(char));
-			puntero += sizeof(char);
-		
-			//Copia de la referencia al hijo derecho
-			unsigned int hijoDer = claveEntera->getHijoDerecho();
-			memcpy(puntero,&hijoDer,sizeof(unsigned int));
-			puntero += sizeof(int);
-			
-			//Si la referencia es -1, se trata de un nodo B+ y
-			//no debe persistirse en disco.
-			if (claveEntera->getReferencia() != -1 ){
-				//Copia de la referencia a la lista.
-				int referencia = claveEntera->obtenerReferencia();
-				memcpy(puntero,&referencia,sizeof(int));
-				puntero += sizeof(int);
-			}
-		}
-			
-		void ArchivoIndiceCharRomano::copiarClaveHoja(Clave* clave, char* &puntero)
-		{			
-			ClaveChar* claveEntera = static_cast<ClaveChar*>(clave);
-						
-			//Obtencion del valor tipo char.
-			char valor = *((char*)claveEntera->getValor());
-			
-			//Copia del entero al buffer.
-			memcpy(puntero, &valor, sizeof(char));
-			puntero += sizeof(cjar);
-		
-			//Copia de la referencia a la lista de 
-			//claves primarias.
-			int referencia = claveEntera->getReferencia();
-			memcpy(puntero, &referencia, sizeof(int));
-			puntero += sizeof(int);
-		}
-			
-		Clave* ArchivoIndiceCharRomano::leerClaveNoHoja(char* &buffer)
-		{
-			char* valor;
-			int* refRegistro;
-			unsigned int* refListaPrim;
-			
-			/*Interpreto el nombre*/
-			valor = (char) buffer;
-			buffer += sizeof(char);		
-			
-			/*Interpreto la refListaPrim*/
-			refListaPrim = (int*)buffer;
-			buffer += sizeof(int);
-			
-			/*Interpreto la refRegistro*/	
-			refRegistro = (int*)buffer;
-			buffer += sizeof(int);
-			
-			/*Crear y devolver la clave*/			
-			return new ClaveChar(*valor, *refListaPrim,*refRegistro);
-		}
-		
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////	
 		Clave* ArchivoIndiceCharRomano::leerClaveHoja(char* &buffer)
 		{
-			char* valor;
-			int* refRegistro;
-			unsigned int* refListaPrim;
+			char valor;
+			unsigned int refRegistro;
+		
+			//Se interpreta el valor boolean de la clave.
+			memcpy(&valor, buffer, sizeof(char));
+			buffer += sizeof(char);
 			
-			/*Interpreto el nombre*/
-			valor = (char) buffer;
-			buffer += sizeof(char);		
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+		
+			//Crear la clave
+			return new ClaveChar(valor, refRegistro);	
+		}
+						
+		Clave* ArchivoIndiceCharRomano::leerClaveNoHoja(char* &buffer)
+		{
+			char valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
 			
-			/*Interpreto la refListaPrim*/
-			refListaPrim = (int*)buffer;
-			buffer += sizeof(int);
+			//Se interpreta el valor de tipo char de la clave.
+			memcpy(&valor, buffer, sizeof(char));
+			buffer += sizeof(char);
 			
-			/*Crear y devolver la clave*/			
-			return new ClaveChar(*valor, *refListaPrim);		
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			//Se interpreta la referencia al hijo derecho de la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
+			
+			//Crear la clave
+			return new ClaveChar(valor, refRegistro, hijoDer);
+		}
+	
+//////////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: Nombre: ArchivoIndiceShortGriego
+//		   (Implementa archivo de indices primarios de clave de tipo short).
+//////////////////////////////////////////////////////////////////////////////	
+					
+	//////////////////////////////////////////////////////////////////////
+	// Constructor
+	//////////////////////////////////////////////////////////////////////
+		ArchivoIndiceShortGriego::ArchivoIndiceShortGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
+			ArchivoIndiceArbol(tamNodo, nombreArchivo, tipoIndice)
+		{ }
+				
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////	
+		Clave* ArchivoIndiceShortGriego::leerClaveHoja(char* &buffer)
+		{
+			short valor;
+			unsigned int refRegistro;
+		
+			//Se interpreta el valor short de la clave.
+			memcpy(&valor, buffer, sizeof(short));
+			buffer += sizeof(short);
+			
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+		
+			//Crear la clave
+			return new ClaveShort(valor, refRegistro);	
+		}
+						
+		Clave* ArchivoIndiceShortGriego::leerClaveNoHoja(char* &buffer)
+		{
+			short valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
+			
+			//Se interpreta el valor short de la clave.
+			memcpy(&valor, buffer, sizeof(short));
+			buffer += sizeof(short);
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			//Se interpreta la referencia al hijo derecho de la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
+			
+			//Crear la clave
+			return new ClaveShort(valor, refRegistro, hijoDer);
+		}
+				
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndiceShortRomano
+//		   (Implementa archivo de indices secundarios de clave de tipo short).
+///////////////////////////////////////////////////////////////////////////
+		
+	//////////////////////////////////////////////////////////////////////
+	// Constructor
+	//////////////////////////////////////////////////////////////////////
+		ArchivoIndiceShortRomano::ArchivoIndiceShortRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice):
+			ArchivoIndiceSecundario(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
+		{ }
+		
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////	
+		Clave* ArchivoIndiceShortRomano::leerClaveHoja(char* &buffer)
+		{
+			short valor;
+			unsigned int refRegistro;
+		
+			//Se interpreta el valor short de la clave.
+			memcpy(&valor, buffer, sizeof(short));
+			buffer += sizeof(short);
+			
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+		
+			//Crear la clave
+			return new ClaveShort(valor, refRegistro);	
+		}
+						
+		Clave* ArchivoIndiceShortRomano::leerClaveNoHoja(char* &buffer)
+		{
+			short valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
+			
+			//Se interpreta el valor short de la clave.
+			memcpy(&valor, buffer, sizeof(short));
+			buffer += sizeof(short);
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			//Se interpreta la referencia al hijo derecho de la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
+			
+			//Crear clave
+			return new ClaveShort(valor, refRegistro, hijoDer);
+		}
+
+//////////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndiceRealRomano
+//		   (Implementa archivo de indices secundarios de clave de tipo float).
+//////////////////////////////////////////////////////////////////////////////
+							
+	//////////////////////////////////////////////////////////////////////
+	// Constructor
+	//////////////////////////////////////////////////////////////////////
+		ArchivoIndiceRealRomano::ArchivoIndiceRealRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice):
+			ArchivoIndiceSecundario(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
+		{ }
+						
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////	
+		Clave* ArchivoIndiceRealRomano::leerClaveHoja(char* &buffer)
+		{
+			float valor;
+			unsigned int refRegistro;
+		
+			//Se interpreta el valor float de la clave.
+			memcpy(&valor, buffer, sizeof(float));
+			buffer += sizeof(float);
+			
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+		
+			//Crear la clave
+			return new ClaveReal(valor, refRegistro);	
+		}
+						
+		Clave* ArchivoIndiceRealRomano::leerClaveNoHoja(char* &buffer)
+		{
+			float valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
+			
+			//Se interpreta el valor float de la clave.
+			memcpy(&valor, buffer, sizeof(float));
+			buffer += sizeof(float);
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			//Se interpreta la referencia al hijo derecho la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
+			
+			//Crear la clave
+			return new ClaveReal(valor, refRegistro, hijoDer);
 		}
 		
-/******************************************************************************/
-/* Clase ArchivoIndiceCadena (Nombre o Marca de Producto) - Indice Secundario */
-/*----------------------------------------------------------------------------*/
-
-
-ArchivoIndiceCadena::ArchivoIndiceCadena(int tamNodo,string nombreArchivo,unsigned int tamanioBloqueLista):ArchivoIndiceSecundario(tamNodo,nombreArchivo,tamanioBloqueLista){
-				
-
-}
-
-/*--------------------------------------------------------------------------------------------*/
-void ArchivoIndiceCadena::copiarClaveNoHoja(Clave* clave,char* &puntero){
-	
-	ClaveCadena* claveNom = static_cast<ClaveCadena*>(clave);
-	
-	/*Copio el nombre*/
-	string nombre = claveNom->getNombre();
-	/*Copio el char* al buffer*/
-	memcpy(puntero,nombre.c_str(),nombre.size()+1);
-	puntero += (nombre.size()+1)*sizeof(char) ;
-	
-	/*Copio la RefListaPrim*/
-	int refLista = claveNom->getRefListaPrim();
-	memcpy(puntero,&refLista,sizeof(int));
-	puntero += sizeof(int);
-
-	/*Copio la refRegistro*/
-	int referencia = claveNom->obtenerReferencia();
-	memcpy(puntero,&referencia,sizeof(int));
-	puntero += sizeof(int);
-	
-
-}
-/*--------------------------------------------------------------------------------------------*/
-void ArchivoIndiceCadena::copiarClaveHoja(Clave* clave,char* &puntero){
-/*En este caso la claveHoja no tiene refRegistro*/
-	
-//	ClaveCadena* claveNom = static_cast<ClaveCadena*>(clave);
-//	
-//	/*Copio el nombre*/
-//	string nombre = claveNom->getNombre();
-//	/*Copio el char* al buffer*/ 
-//	memcpy(puntero,nombre.c_str(),nombre.size()+1);
-//	puntero += (nombre.size()+1)*sizeof(char) ;
-//	
-//	/*Copio la RefListaPrim*/
-//	int refLista = claveNom->getRefListaPrim();
-//	memcpy(puntero,&refLista,sizeof(int));
-//	puntero += sizeof(int);	
-	
-	this->copiarClaveNoHoja(clave,puntero);
-}
-/*--------------------------------------------------------------------------------------------*/
-Clave* ArchivoIndiceCadena::leerClaveNoHoja(char* &buffer){
-	
-	ClaveCadena* claveNueva;
-	string nombre;
-	int* refRegistro;
-	int* refListaPrim;
-	
-	/*Interpreto el nombre*/
-	nombre = buffer;
-	buffer += nombre.size()+1;		
-	
-	/*Interpreto la refListaPrim*/
-	refListaPrim = (int*)buffer;
-	buffer += sizeof(int);
-	
-	/*Interpreto la refRegistro*/	
-	refRegistro = (int*)buffer;
-	buffer += sizeof(int);
-	
-	/*Crear la clave*/
-	claveNueva = new ClaveCadena(nombre,*refListaPrim,*refRegistro);
-	
-	return claveNueva;
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndiceFechaGriego
+//		   (Implementa archivo de indices primarios de clave de tipo fecha).
+///////////////////////////////////////////////////////////////////////////
+							
+	//////////////////////////////////////////////////////////////////////
+	// Constructor
+	//////////////////////////////////////////////////////////////////////
+		ArchivoIndiceFechaGriego::ArchivoIndiceFechaGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
+			ArchivoIndiceArbol(tamNodo, nombreArchivo, tipoIndice)
+		{ }
+						
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////	
+		Clave* ArchivoIndiceFechaGriego::leerClaveHoja(char* &buffer)
+		{
+			ClaveFecha::TFECHA valor;
+			unsigned int refRegistro;
 		
-}
-/*--------------------------------------------------------------------------------------------*/
-Clave* ArchivoIndiceCadena::leerClaveHoja(char* &buffer){
-	
-//	ClaveCadena* claveNueva;
-//	string nombre;
-//	int* refListaPrim;
-//	
-//	/*Interpreto el nombre*/
-//	nombre = buffer;
-//	buffer += nombre.size()+1;		
-//	
-//	/*Interpreto la refListaPrim*/
-//	refListaPrim = (int*)buffer;
-//	buffer += sizeof(int);
-//	
-//	
-//	/*Crear la clave*/
-//	claveNueva = new ClaveCadena(nombre,*refListaPrim);
-//	
-//	return claveNueva;
-
-	return this->leerClaveNoHoja(buffer);
-}
-/********************************************************************************************/
-/* Clase ArchivoIndice Nombre y Marca de Producto (Clave Candidata) - Indice Identificacion */
-/*------------------------------------------------------------------------------------------*/
-
-ArchivoIndiceNomMarc::ArchivoIndiceNomMarc(int tamNodo,string nombreArchivo):ArchivoIndice(tamNodo,nombreArchivo){
+			//Se interpreta el valor short de la clave.
+			memcpy(&valor, buffer, sizeof(ClaveFecha::TFECHA));
+			buffer += sizeof(ClaveFecha::TFECHA);
+			
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 		
-	
-}
+			//Crear la clave
+			return new ClaveFecha(&valor, refRegistro);	
+		}
+						
+		Clave* ArchivoIndiceFechaGriego::leerClaveNoHoja(char* &buffer)
+		{
+			ClaveFecha::TFECHA valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
+			
+			//Se interpreta el valor fecha de la clave.
+			memcpy(&valor, buffer, sizeof(ClaveFecha::TFECHA));
+			buffer += sizeof(ClaveFecha::TFECHA);
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			//Se interpreta la referencia al hijo derecho de la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
+			
+			//Crear la clave
+			return new ClaveFecha(&valor, refRegistro, hijoDer);
+		}
 
-/*--------------------------------------------------------------------------------------------*/
-void ArchivoIndiceNomMarc::copiarClaveHoja(Clave* clave,char* &puntero){
-	
-	ClaveNomMarc* claveNom = static_cast<ClaveNomMarc*>(clave);
-	
-
-	/*Obtengo el nombre y la marca*/
-	ClaveNomMarc::Cadenas nomMarc;
-	nomMarc = *((ClaveNomMarc::Cadenas*)claveNom->getValor());
-	
-	/*Copio el nombre*/
-	/*Copio el char* al buffer*/ 
-	memcpy(puntero,nomMarc.nombre.c_str(),nomMarc.nombre.size()+1);
-	puntero += (nomMarc.nombre.size()+1)*sizeof(char);
-	
-	
-	/*Copio la marca*/
-	/*Copio el char* al buffer*/
-	memcpy(puntero,nomMarc.marca.c_str(),nomMarc.marca.size()+1);
-	puntero += (nomMarc.marca.size()+1)*sizeof(char);
-	
-	/*Copio la refRegistro*/
-	int referencia = claveNom->obtenerReferencia();
-	memcpy(puntero,&referencia,sizeof(int));
-	puntero += sizeof(int);
+//////////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndiceFechaRomano
+//		   (Implementa archivo de indices secundarios de clave de tipo fecha).
+//////////////////////////////////////////////////////////////////////////////
+									
+	//////////////////////////////////////////////////////////////////////
+	// Constructor
+	//////////////////////////////////////////////////////////////////////
+		ArchivoIndiceFechaRomano::ArchivoIndiceFechaRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice):
+			ArchivoIndiceSecundario(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
+		{ }
+								
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////	
+		Clave* ArchivoIndiceFechaRomano::leerClaveHoja(char* &buffer)
+		{
+			ClaveFecha::TFECHA valor;
+			unsigned int refRegistro;
 		
-}
-/*--------------------------------------------------------------------------------------------*/
-void ArchivoIndiceNomMarc::copiarClaveNoHoja(Clave* clave,char* &puntero){
-	this->copiarClaveHoja(clave,puntero);
-}
-/*--------------------------------------------------------------------------------------------*/
-Clave* ArchivoIndiceNomMarc::leerClaveHoja(char* &buffer){
+			//Se interpreta el valor float de la clave.
+			memcpy(&valor, buffer, sizeof(ClaveFecha::TFECHA));
+			buffer += sizeof(ClaveFecha::TFECHA);
+			
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+		
+			//Crear la clave
+			return new ClaveFecha(&valor, refRegistro);	
+		}
+						
+		Clave* ArchivoIndiceFechaRomano::leerClaveNoHoja(char* &buffer)
+		{
+			ClaveFecha::TFECHA valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
+			
+			//Se interpreta el valor fecha de la clave.
+			memcpy(&valor, buffer, sizeof(ClaveFecha::TFECHA));
+			buffer += sizeof(ClaveFecha::TFECHA);
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			//Se interpreta la referencia al hijo derecho de la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
+			
+			//Crear la clave
+			return new ClaveFecha(&valor, refRegistro, hijoDer);
+		}
+
+		
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndiceVariableGriego 
+//		   (Implementa archivo de indices primarios de clave de 
+//			longitud variable).
+///////////////////////////////////////////////////////////////////////////
 	
-	ClaveNomMarc* claveNueva;
-	string nombre;
-	string marca;
-	int* refRegistro;
+	//////////////////////////////////////////////////////////////////////
+	// Constructor
+	//////////////////////////////////////////////////////////////////////
+		ArchivoIndiceVariableGriego::ArchivoIndiceVariableGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
+			ArchivoIndiceArbol(tamNodo, nombreArchivo, tipoIndice)
+		{ }
+						
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////	
+
+		void ArchivoIndiceVariableGriego::copiarClaveHoja(Clave* clave, char* &buffer)
+		{
+			string* valor = (string*) clave->getValor();
+			
+			//Copia del valor variable (char*) de la clave
+			memcpy(buffer, valor->c_str(), clave->getTamanioValor());
+			buffer += clave->getTamanioValor();
+			
+			//Copia de la referencia a registro del archivo de datos. 
+			unsigned int referencia = clave->getReferencia();
+			memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
+		} 
+			
+		void ArchivoIndiceVariableGriego::copiarClaveNoHoja(Clave* clave, char* &buffer)
+		{
+			unsigned int referencia = 0;
+			string* valor = (string*) clave->getValor();
+			
+			//Copia del valor variable (char*) de la clave
+			memcpy(buffer, valor->c_str(), clave->getTamanioValor());
+			buffer += clave->getTamanioValor();
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.			
+				referencia = clave->getReferencia();
+				memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+		}	
+			
+			
+		Clave* ArchivoIndiceVariableGriego::leerClaveHoja(char* &buffer)
+		{
+			string valor;
+			unsigned int refRegistro;
+			
+			//Se interpreta el valor variable de la clave.
+			valor = buffer;
+			buffer += valor.size() + 1;
+
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+		
+			//Crear la clave
+			return new ClaveVariable(valor, refRegistro);	
+		}
+							
+		Clave* ArchivoIndiceVariableGriego::leerClaveNoHoja(char* &buffer)
+		{
+			string valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
+			
+			//Se interpreta el valor variable de la clave.
+			valor = buffer;
+			buffer += valor.size() + 1;
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			//Se interpreta la referencia al hijo derecho de la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
+			
+			//Crear la clave
+			return new ClaveVariable(valor, refRegistro, hijoDer);
+		}
+		
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndiceVariableRomano 
+//		   (Implementa archivo de indices secundarios de clave de 
+//			longitud variable).
+///////////////////////////////////////////////////////////////////////////
 	
-	/*Interpreto el nombre*/
-	nombre = buffer;
-	buffer += nombre.size()+1;	
+	//////////////////////////////////////////////////////////////////////
+	// Constructor
+	//////////////////////////////////////////////////////////////////////
+		ArchivoIndiceVariableRomano::ArchivoIndiceVariableRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice):
+			ArchivoIndiceSecundario(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
+		{ }
+						
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////
+		void ArchivoIndiceVariableRomano::copiarClaveHoja(Clave* clave, char* &buffer)
+		{
+			string* valor = (string*) clave->getValor();
+			
+			//Copia del valor variable (char*) de la clave
+			memcpy(buffer, valor->c_str(), clave->getTamanioValor());
+			buffer += clave->getTamanioValor();
+			
+			//Copia de la referencia a registro del archivo de datos. 
+			unsigned int referencia = clave->getReferencia();
+			memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
+		} 
+			
+		void ArchivoIndiceVariableRomano::copiarClaveNoHoja(Clave* clave, char* &buffer)
+		{
+			unsigned int referencia = 0;
+			string* valor = (string*) clave->getValor();
+			
+			//Copia del valor entero de la clave
+			memcpy(buffer, valor->c_str(), clave->getTamanioValor());
+			buffer += clave->getTamanioValor();
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.			
+				referencia = clave->getReferencia();
+				memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
+			}
+		}	
+			
+		Clave* ArchivoIndiceVariableRomano::leerClaveHoja(char* &buffer)
+		{
+			string valor;
+			unsigned int refRegistro;
+			
+			//Se interpreta el valor variable de la clave.
+			valor = buffer;
+			buffer += valor.size() + 1;
+
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+		
+			//Crear la clave
+			return new ClaveVariable(valor, refRegistro);	
+		}
+							
+		Clave* ArchivoIndiceVariableRomano::leerClaveNoHoja(char* &buffer)
+		{
+			string valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
+			
+			//Se interpreta el valor variable de la clave.
+			valor = buffer;
+			buffer += valor.size() + 1;
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			//Se interpreta la referencia al hijo derecho de la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
+			
+			//Crear la clave
+			return new ClaveVariable(valor, refRegistro, hijoDer);
+		}
+
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoIndiceCompuestoGriego 
+//		   (Implementa archivo de indices primarios de clave compuesta).
+///////////////////////////////////////////////////////////////////////////
 	
-	/*Interpreto la marca*/
-	marca = buffer;
-	buffer += marca.size()+1;
-	
-	/*Interpreto la refRegistro*/	
-	refRegistro = (int*)buffer;
-	buffer += sizeof(int);
-	
-	/*Crear la clave*/
-	claveNueva = new ClaveNomMarc(nombre,marca,*refRegistro);
-	
-	return claveNueva;	
-}
-/*--------------------------------------------------------------------------------------------*/
-Clave* ArchivoIndiceNomMarc::leerClaveNoHoja(char* &buffer){
-	return this->leerClaveHoja(buffer);	
-}
+//TODO Meter todas las claves de una ClaveCompuesta en un char* no seria tarea
+//		rebuscada si se logra que getValor() devuelva, en el caso de las ClaveVariable,
+//		un char* (y no un string*) y, en el caso de ClaveFecha, un struct simple con 
+//		los 3 campos consecutivos: dia, mes, anio (como esta ahora devuelve una estructura 
+//		que contiene, ademas, alguna referencia a la funcion crear() utilizada para 
+//		inicializacion... supongo que puede obviarse, directamente).
+//
+//		Obtener una ClaveCompuesta a partir de un char* es, ya, otra jodita.
+//		Como debieran estar almacenadas en el disco ? Como se de que tipo son, o si son
+//		de longitud variable ? Yo defino como insertarlas en el char* para luego meterlas
+//		a disco, pero en ese proceso, pierdo toda referencia al tipo o la longitud. Para
+//		reconstruir la ClaveCompuesta original necesito esos datos.
+//
+//		Ultima cosilla: "descubri" ("catzo") que, en rigor de verdad, no es necesario 
+//		almacenar las longitudes de las cadenas de las claves variables en disco si 
+//		persistimos el '/0'.
+//		La clase string tiene redefinida la asignacion, al parecer, y pueden hacerse comodas
+//		cosas como:
+//		
+//			char* s;
+//			//Ponele que 's' tenga adentro un monton de zanahorias 
+//			//que acabo de levantar de un archivo: "Gargamel04533"
+//		
+//			string cadena = s;
+//
+//		Y 'cadena' se construye solito con "Gargamel".
+//		Si nos manejamos asi, no habria necesidad de guardar la longitud de para
+//		recuperar el string.
+//
+
