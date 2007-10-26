@@ -7,42 +7,41 @@
  */
 bool Bloque::buscarRegistro(const list<string>& listaParam, void *clavePrimaria, unsigned short *offsetReg){
 	int offsetToReg = 4;
-	int longReg;
+	int offsetToProxCampo = 0;
+/*
 	int longCampo;
 	float campoNumerico;
-	char *registro;
-	int offsetToProxCampo = 0;
 	//Se usa para levantar la longitud del atributo variable del registro
-	char *longAtributo = new char [3];
 	//Se usa para levantar la longitud del registro
-	char *longRegistro = new char [3];
-	//Cantidad de registros dentro del bloque
-	char *cantRegs = new char[3];
-	int cantRegistros;
+*/
+
+	//Obtengo la cantidad de registros dentro del bloque
+	unsigned short cantRegistros;
+	memcpy(&cantRegistros,&datos[2],TAMANIO_LONGITUD);
+	
+	bool encontrado = false;
+		
+	unsigned short longReg;
+	char *registro;
 	list<string>::const_iterator it;
 	string regAtribute;
 	size_t posOfDelim;
-	char *campo;
 	string tipo;
 	string pk;
-	//Obtengo la cantidad de registros dentro del bloque
-	cantRegs[0] = datos[2];
-	cantRegs[1] = datos[3];
-	cantRegs[2] = '\0';
-	cantRegistros = atoi(cantRegs);
-		
-	bool encontrado = false;
-		
+	unsigned short longRegistro;
+	unsigned short longCampo;
+	char *campo;
+
 	int i = 1 ;
 	//Mientras haya mas registros y no lo haya encontrado
 	while( (i<cantRegistros + 1) && (!encontrado) ){
 		
 		//obtengo la longitud del registro;
-		longRegistro = getSubstring(2,offsetToReg);
-		longReg = atoi(longRegistro);
-		registro = new char[longReg];
+		memcpy(&longRegistro,&datos[offsetToReg],TAMANIO_LONGITUD);
+		
 		//Omito la longitud del registro
 		offsetToReg += 2;
+		
 		//Obtengo el registro (sin incluir la longitud del mismo)
 		registro = getRegistro(longReg,offsetToReg);
 	
@@ -50,17 +49,19 @@ bool Bloque::buscarRegistro(const list<string>& listaParam, void *clavePrimaria,
 		for(it = listaParam.begin(); it != listaParam.end(); ++it){
 			   regAtribute = *it;
 			   posOfDelim = regAtribute.find(";");
+	
 			   //Obtengo el tipo de atributo del registro
 			   tipo = regAtribute.substr(0,posOfDelim);
+			   
 			   //Obtengo el indicador de clave primaria
 			   pk = regAtribute.substr(posOfDelim+1);
 			   
 			   if(tipo == "string"){
 				   //obtengo la longitud del campo variable
-				   memcpy(longAtributo,&registro[offsetToProxCampo],2);
-				   longAtributo[2] = '\0';
-				   longCampo = atoi(longAtributo);
+				   memcpy(&longCampo,&registro[offsetToProxCampo],TAMANIO_LONGITUD);
+				   
 				   offsetToProxCampo += 2;
+				   
 				   //Si es pk, me preocupo por obtener el campo en si
 				   if(pk == "true"){
 					   campo = getRegisterAtribute(registro,offsetToProxCampo,longCampo);

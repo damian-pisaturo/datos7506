@@ -10,9 +10,11 @@
 #include <string>
 #include <list>
 
-
+#include "../Common/Tamanios.h"
 
 using namespace std;
+
+#define TAMANIO_LONGITUD	sizeof(unsigned short)
 
 class Bloque
 {
