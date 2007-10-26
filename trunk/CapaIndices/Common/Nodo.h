@@ -137,18 +137,23 @@ class Nodo : public BloqueIndice
 		
 		unsigned getTamanioEnDiscoSetClaves() const;
 		
-		//Método que verifica si un nodo puede ceder 'bytesRequeridos' a otro nodo.
-		//Si 'izquierda' es true, indica que el nodo debe ceder al hermano hizquierdo,
+		//TODO modificar comentario
+		//Método que se encarga de ver cuantos bytes deberia ceder realmente el nodo para
+		//poder cumplir con lo que se le pide.
+		//Si 'izquierda' es true, indica que el nodo debe ceder al hermano izquierdo,
 		//en caso contrario, debe ceder al hermano derecho.
-		//Si puede ceder, devuelve la cantidad de bytes a ceder ( >= bytesRequeridos),
-		//sino devuelve 0;
-		unsigned puedeCeder(unsigned bytesRequeridos, bool izquierda = true) const;
+		//Si se le pide ceder mas de los bytes que tiene, devuleve cero. Sino, devuelve los
+		//bytes a ceder.
+		unsigned bytesACeder(unsigned bytesRequeridos, unsigned char &clavesPropuestas, bool izquierda = true) const;
 		
-		bool puedeRecibir(unsigned bytesPropuestos) const;
+		//Como el anterior pero se fija si puede ceder cierta cantidad de claves en vez de bytes.
+		unsigned bytesACeder(unsigned char clavesPropuestas, bool izquierda = true) const;
+		
+		bool puedeRecibir(unsigned bytesEntrantes, unsigned bytesSalientes) const;
 		
 		unsigned obtenerBytesRequeridos() const;
 				
-		SetClaves* ceder(unsigned bytesRequeridos, bool izquierda);
+		SetClaves* ceder(unsigned bytesRequeridos, bool izquierda = true);
 		
 		void recibir(SetClaves* set);
 		

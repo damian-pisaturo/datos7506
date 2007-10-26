@@ -48,7 +48,8 @@ class BStarTree {
 											  NodoBStar* &nodoHnoIzq) const;
 		
 		//Pasa una clave de un hermano izquierdo a otro nodo
-		void pasarClaveIzquierda();
+		void pasarClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
+				   NodoBStar* nodoHnoIzq);
 		
 		//Busca el padre del nodo pasado por parámetro
 		NodoBStar* buscarPadre(NodoBStar* padre, NodoBStar* hijo) const;
@@ -64,6 +65,9 @@ class BStarTree {
 		//Retorna un nodo cuya primera clave es la menor de las claves mayores a
 		//la clave recibida por parámetro.
 		NodoBStar* buscarMenorMayores(NodoBStar* nodo, Clave* clave) const;
+		
+		//Parte dos nodos completos en tres.
+		void split(NodoBStar* nodoTarget, NodoBStar* nodoHnoDer, NodoBStar* nodoPadre);
 		
 };
 

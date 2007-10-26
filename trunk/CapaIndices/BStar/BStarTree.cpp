@@ -14,6 +14,25 @@ BStarTree::~BStarTree() {
 
 void BStarTree::insertar(Clave* clave) {
 	
+	NodoBStar* nodoDestino = buscarLugar(clave);
+	char codigo;
+	
+	nodoDestino->insertarClave(clave, &codigo);
+	
+	//La clave queda insertada independientemente de si hay OVERFLOW o no.
+	if ( codigo == Codigo::OVERFLOW ){
+		NodoBStar* nodoPadre;
+		NodoBStar* nodoHnoDer;
+		NodoBStar* nodoHnoIzq;
+		if ( puedePasarseClaveIzquierda(nodoHnoDer, nodoPadre, nodoDestino) )
+			pasarClaveDerecha(nodoHnoDer, nodoPadre, nodoDestino);
+		else if ( puedePasarseClaveDerecha(nodoHnoIzq, nodoPadre, nodoDestino) )
+			pasarClaveIzquierda(nodoHnoIzq, nodoPadre, nodoDestino);
+		else //TODO No siempre tenemos hermano derecho. Ver que hacemos.
+			split( nodoDestino, nodoHnoDer, nodoPadre );
+		
+	}
+		
 	
 	
 }
@@ -42,6 +61,13 @@ void BStarTree::eliminarInterno(Clave* clave) {
 
 Clave* BStarTree::buscar(Clave* clave) const {
 	
+	NodoBStar* nodo = this->buscarLugar(clave);
+	
+	SetClaves::iterator iter = nodo->getClaves()->find(clave);
+	
+	if (iter != nodo->getClaves()->end())
+		return *iter;
+	
 	return NULL;
 	
 }
@@ -53,18 +79,20 @@ void BStarTree::modificar(Clave* clave) {
 	
 }
 
-
+//TODO Agregar el caso en que se trata de un extremo
 bool BStarTree::puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
 										 NodoBStar* &nodoHnoDer) const {
 	
 	nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
 	
 	unsigned bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
-	unsigned bytesPropuestos = 0;
+	unsigned bytesPropuestosPadre = 0, bytesPropuestosHnoDer = 0;
+	unsigned char clavesPropuestas = 0;
 	
-	if ( (bytesPropuestos = nodoPadre->puedeCeder(bytesRequeridos)) > 0 ) {
+	
+	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas)) > 0 ) {
 		
-		if ( nodoDestino->puedeRecibir(bytesPropuestos) ) {
+		if ( nodoDestino->puedeRecibir(bytesPropuestosPadre, 0) ) {
 			
 			//Se busca dentro del nodo padre la clave cuyo hijo derecho es nodoDestino
 			SetClaves::iterator iterPadre;
@@ -74,14 +102,17 @@ bool BStarTree::puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nod
 				++iterPadre);
 			
 			//Se verifica si nodoDestino tiene hermano derecho
-			if ( (++iterPadre) == nodoPadre->getClaves()->end() ) return false;
+			if ( iterPadre == nodoPadre->getClaves()->end() )
+				iterPadre = nodoPadre->getClaves()->begin();
+			else if ( (++iterPadre) == nodoPadre->getClaves()->end() ) return false;
+			
 			
 			//TODO El constructor debe devolver un nodo a partir de una referencia a disco.
 			//nodoHnoDer = new NodoBStar( (*iterPadre)->getHijoDer() );
 			
-			if ( (bytesPropuestos = nodoHnoDer->puedeCeder(bytesPropuestos)) > 0 ) {
+			if ( (bytesPropuestosHnoDer = nodoHnoDer->bytesACeder(clavesPropuestas)) > 0 ) {
 				
-				if ( nodoPadre->puedeRecibir(bytesPropuestos) ) {
+				if ( nodoPadre->puedeRecibir(bytesPropuestosHnoDer, bytesPropuestosPadre) ) {
 					return true;
 				}
 				
@@ -94,30 +125,75 @@ bool BStarTree::puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nod
 	return false;
 }
 
-void pasarClaveDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer){
+void BStarTree::pasarClaveDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer){
 	
-	SetClaves* set = nodoPadre->ceder( nodoDestino->obtenerBytesRequeridos(), true );
+	SetClaves* set = nodoPadre->ceder( nodoDestino->obtenerBytesRequeridos() );
 	nodoDestino->recibir(set);
 	delete set;
 	
-	set = nodoHnoDer->ceder( nodoPadre->obtenerBytesRequeridos(), true );
+	set = nodoHnoDer->ceder( nodoPadre->obtenerBytesRequeridos() );
 	nodoPadre->recibir(set);
 	delete set;
 	
 }
 
-
+//TODO Agregar el caso en que se trata de un extremo
 bool BStarTree::puedePasarseClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
 										   NodoBStar* &nodoHnoIzq) const {
+	nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
+		
+	unsigned bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
+	unsigned bytesPropuestosPadre = 0, bytesPropuestosHnoIzq = 0;
+	unsigned char clavesPropuestas = 0;
+	
+	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas, false)) > 0 ) {
+		
+		if ( nodoDestino->puedeRecibir(bytesPropuestosPadre, 0) ) {
+			
+			//Se busca dentro del nodo padre la clave cuyo hijo derecho es nodoDestino
+			SetClaves::iterator iterPadre;
+			for(iterPadre = nodoPadre->getClaves()->begin();
+				(iterPadre != nodoPadre->getClaves()->end()) &&
+				((*iterPadre)->getHijoDer() != nodoDestino->getPosicionEnArchivo());
+				++iterPadre);
+			
+			//Se verifica si nodoDestino tiene hermano izquierdo
+			if ( iterPadre == nodoPadre->getClaves()->end() ) return false;
+			else if ( iterPadre == nodoPadre->getClaves()->begin() ) {
+				//TODO El constructor debe devolver un nodo a partir de una referencia a disco.
+				//nodoHnoIzq = new NodoBStar( nodoPadre->getHijoIzq );
+			}
+			else{
+				//nodoHnoIzq = new NodoBStar( (*(--iterPadre))->getHijoDer() );
+			}
+
+
+			if ( (bytesPropuestosHnoIzq = nodoHnoIzq->bytesACeder(clavesPropuestas, false)) > 0 ) {
+				
+				if ( nodoPadre->puedeRecibir(bytesPropuestosHnoIzq, bytesPropuestosPadre) ) {
+					return true;
+				}
+				
+			}
+			
+		}
+		
+	}
 	
 	return false;
 	
 }
 
 
-void BStarTree::pasarClaveIzquierda() {
+void BStarTree::pasarClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq) {
 	
+	SetClaves* set = nodoPadre->ceder( nodoDestino->obtenerBytesRequeridos(), false );
+	nodoDestino->recibir(set);
+	delete set;
 	
+	set = nodoHnoIzq->ceder( nodoPadre->obtenerBytesRequeridos(), false );
+	nodoPadre->recibir(set);
+	delete set;
 	
 }
 
@@ -198,6 +274,10 @@ NodoBStar* BStarTree::buscarLugarRecursivo(NodoBStar* nodo, Clave* clave) const 
 NodoBStar* BStarTree::buscarMenorMayores(NodoBStar* nodo, Clave* clave) const {
 	
 	return this->buscarLugarRecursivo(nodo, clave);
+	
+}
+
+void BStarTree::split(NodoBStar* nodoTarget, NodoBStar* nodoHnoDer, NodoBStar* nodoPadre){
 	
 }
 

@@ -163,15 +163,17 @@
 	} 
 	
 	
-	unsigned Nodo::puedeCeder(unsigned bytesRequeridos, bool izquierda) const {
+	unsigned Nodo::bytesACeder(unsigned bytesRequeridos, unsigned char &clavesPropuestas, bool izquierda) const {
 		
 		unsigned sumaBytesRequeridos = 0;
+		clavesPropuestas = 0;
 		
 		if (izquierda){
 			for (SetClaves::iterator iter = this->getClaves()->begin();
 				(iter != this->getClaves()->end()) && (sumaBytesRequeridos < bytesRequeridos);
 				++iter){
 				sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+				++clavesPropuestas;
 			}
 		}
 		else{ //if (derecha)
@@ -179,19 +181,48 @@
 				(iter != this->getClaves()->rend()) && (sumaBytesRequeridos < bytesRequeridos);
 				++iter){
 				sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+				++clavesPropuestas;
 			}	
 		}
 		
-		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getTamanioMinimo() )
-			return sumaBytesRequeridos;
-		else return 0;
+		if (bytesRequeridos < sumaBytesRequeridos) return 0;
+		else return sumaBytesRequeridos;
 		
 	}
 	
-	
-	bool Nodo::puedeRecibir(unsigned bytesPropuestos) const {
+	unsigned Nodo::bytesACeder(unsigned char clavesPropuestas, bool izquierda) const{
 		
-		return (this->getEspacioLibre() > bytesPropuestos);
+		unsigned sumaBytesRequeridos = 0;
+		unsigned i = 0;
+		
+		if (this->getClaves()->size() < clavesPropuestas) return 0;
+		
+		if (izquierda){
+			for (SetClaves::iterator iter = this->getClaves()->begin();
+				(iter != this->getClaves()->end()) && (i < clavesPropuestas);
+				++iter, ++i){
+				sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			}
+		}
+		else{ //if (derecha)
+			for (SetClaves::reverse_iterator iter = this->getClaves()->rbegin();
+				(iter != this->getClaves()->rend()) && (i < clavesPropuestas);
+				++iter, ++i){
+				sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			}	
+		}
+		
+		return sumaBytesRequeridos;
+
+	}
+
+	bool Nodo::puedeRecibir(unsigned bytesEntrantes, unsigned bytesSalientes) const {
+		if (bytesEntrantes > bytesSalientes){
+			return ( (bytesEntrantes - bytesSalientes) < this->getEspacioLibre() ); 
+		}
+		else{
+			return ( (this->getTamanioEnDiscoSetClaves() + bytesEntrantes - bytesSalientes) > this->getTamanioMinimo() );
+		}
 		
 	}
 	
