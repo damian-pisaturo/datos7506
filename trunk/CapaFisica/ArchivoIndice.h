@@ -23,7 +23,7 @@
 #define ARCHIVOINDICE_H_
 
 #include "ArchivoIndicePadre.h"
-#include "Clave.h"
+#include "../CapaIndices/Common/Clave.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -32,28 +32,23 @@
 //		   (Implementa archivo de indices primarios de clave entera).
 ///////////////////////////////////////////////////////////////////////////
 class ArchivoIndiceEnteroGriego: public ArchivoIndiceArbol
-{	
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-			
-		/*Esta funcion se encarga de interpretar claves enteras
-		 *  y copiarla al buffer de escritura
-		 */
-		void copiarClaveHoja(Clave* clave, char* &puntero);
-		void copiarClaveNoHoja(Clave* clave, char* &puntero);
-		
-		/*Esta funcion se encarga de leer Claves de tipo entera
-		 * de un buffer*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
+{
 	
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////		
-		ArchivoIndiceEnteroGriego(int tamNodo,string nombreArchivo);
+		ArchivoIndiceEnteroGriego(int tamNodo,string nombreArchivo, t_indice tipoIndice);
+		
+	private:
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////
+		
+		/*Interpreta un buffer como una clave de tipo ClaveEntera.*/
+		Clave* leerClaveHoja(char* &buffer);
+		Clave* leerClaveNoHoja(char* &buffer);
+
 	
 }; //Fin clave ArchivoIndiceEnteroGriego
 
@@ -64,28 +59,21 @@ class ArchivoIndiceEnteroGriego: public ArchivoIndiceArbol
 //		   (Implementa archivo de indices secundarios de clave entera).
 ///////////////////////////////////////////////////////////////////////////
 class ArchivoIndiceEnteroRomano: public ArchivoIndiceSecundario
-{	
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-	
-		/*Esta funcion se encarga de interpretar claves enteras
-		 *  y copiarla al buffer de escritura
-		 */
-		void copiarClaveHoja(Clave* clave,char* &puntero);
-		void copiarClaveNoHoja(Clave* clave,char* &puntero);
-		
-		/*Esta funcion se encarga de leer cada tipo de Clave de un buffer*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
-	
+{
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceEnteroRomano(unsigned int tamNodo,string nombreArchivo);
-	
+		ArchivoIndiceEnteroRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice);
+
+	private:
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////
+		/*Interpreta un buffer como una clave de tipo ClaveEntera.*/
+		Clave* leerClaveHoja(char* &buffer);
+		Clave* leerClaveNoHoja(char* &buffer);
+		
 }; //Fin clase ArchivoIndiceEnteroRomano
 
 ///////////////////////////////////////////////////////////////////////////
@@ -99,16 +87,8 @@ class ArchivoIndiceBooleanGriego: public ArchivoIndiceArbol
 	private:
 	//////////////////////////////////////////////////////////////////////
 	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-			
-		/*Esta funcion se encarga de interpretar claves booleanas
-		 *  y copiarla al buffer de escritura
-		 */
-		void copiarClaveHoja(Clave* clave, char* &puntero);
-		void copiarClaveNoHoja(Clave* clave, char* &puntero);
-		
-		/*Esta funcion se encarga de leer Claves de tipo booleanas
-		 * de un buffer*/
+	//////////////////////////////////////////////////////////////////////		
+		/*Interpreta un buffer como una clave de tipo ClaveBoolean.*/
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);
 	
@@ -116,7 +96,7 @@ class ArchivoIndiceBooleanGriego: public ArchivoIndiceArbol
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////		
-		ArchivoIndiceBooleanGriego(int tamNodo,string nombreArchivo);
+		ArchivoIndiceBooleanGriego(unsigned int tamNodo,string nombreArchivo, t_indice tipoIndice);
 	
 }; //Fin clase ArchivoIndiceBooleanGriego
 
@@ -128,27 +108,22 @@ class ArchivoIndiceBooleanGriego: public ArchivoIndiceArbol
 //		   (Implementa archivo de indices primarios de clave de tipo char).
 ///////////////////////////////////////////////////////////////////////////
 class ArchivoIndiceCharGriego: public ArchivoIndiceArbol
-{	
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-	
-		/*Esta funcion se encarga de interpretar claves de tipo char
-		 *  y copiarla al buffer de escritura
-		 */
-		void copiarClaveHoja(Clave* clave,char* &puntero);
-		void copiarClaveNoHoja(Clave* clave,char* &puntero);
-		
-		/*Esta funcion se encarga de leer clave de tipo char de un buffer*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
-	
+{
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceEnteroRomano(int tamNodo,string nombreArchivo);
+		ArchivoIndiceCharGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
+		
+	private:
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////
+		/*Interpreta un buffer como una clave de tipo ClaveBoolean.*/
+		Clave* leerClaveHoja(char* &buffer);
+		Clave* leerClaveNoHoja(char* &buffer);
+	
+
 	
 }; //Fin clase ArchivoIndiceCharGriego
 
@@ -158,29 +133,23 @@ class ArchivoIndiceCharGriego: public ArchivoIndiceArbol
 // Nombre: ArchivoIndiceCharRomano
 //		   (Implementa archivo de indices secundarios de clave de tipo char).
 ///////////////////////////////////////////////////////////////////////////
-class ArchivoIndiceCharRomano: public ArchivoIndiceArbol
-{	
+class ArchivoIndiceCharRomano: public ArchivoIndiceSecundario
+{
+	public:
+	//////////////////////////////////////////////////////////////////////
+	// Constructor
+	//////////////////////////////////////////////////////////////////////
+		ArchivoIndiceCharRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice);
+
 	private:
 	//////////////////////////////////////////////////////////////////////
 	// Metodos privados
 	//////////////////////////////////////////////////////////////////////
 	
-		/*Esta funcion se encarga de interpretar claves de tipo char
-		 *  y copiarla al buffer de escritura
-		 */
-		void copiarClaveHoja(Clave* clave,char* &puntero);
-		void copiarClaveNoHoja(Clave* clave,char* &puntero);
-		
-		/*Esta funcion se encarga de leer clave de tipo char de un buffer*/
+		/*Interpreta un buffer como una clave de tipo ClaveChar.*/
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);
-	
-	public:
-	//////////////////////////////////////////////////////////////////////
-	// Constructor
-	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceEnteroRomano(unsigned int tamNodo,string nombreArchivo);
-	
+		
 }; //Fin clase ArchivoIndiceCharGriego
 
 
@@ -191,28 +160,21 @@ class ArchivoIndiceCharRomano: public ArchivoIndiceArbol
 //		   (Implementa archivo de indices primarios de clave de tipo short).
 ///////////////////////////////////////////////////////////////////////////
 class ArchivoIndiceShortGriego: public ArchivoIndiceArbol
-{	
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-	
-		/*Esta funcion se encarga de interpretar claves de tipo short
-		 *  y copiarla al buffer de escritura
-		 */
-		void copiarClaveHoja(Clave* clave,char* &puntero);
-		void copiarClaveNoHoja(Clave* clave,char* &puntero);
-		
-		/*Esta funcion se encarga de leer clave de tipo short de un buffer*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
-	
+{
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceShortGriego(unsigned int tamNodo, string nombreArchivo);
+		ArchivoIndiceShortGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
 	
+	private:
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////
+		/*Interpreta un buffer como una clave de tipo ClaveShort.*/
+		Clave* leerClaveHoja(char* &buffer);
+		Clave* leerClaveNoHoja(char* &buffer);
+		
 }; //Fin clase ArchivoIndiceShortGriego
 
 
@@ -223,29 +185,23 @@ class ArchivoIndiceShortGriego: public ArchivoIndiceArbol
 //		   (Implementa archivo de indices primarios de clave de tipo short).
 ///////////////////////////////////////////////////////////////////////////
 class ArchivoIndiceShortRomano: public ArchivoIndiceSecundario
-{	
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-	
-		/*Esta funcion se encarga de interpretar claves de tipo char
-		 *  y copiarla al buffer de escritura
-		 */
-		void copiarClaveHoja(Clave* clave,char* &puntero);
-		void copiarClaveNoHoja(Clave* clave,char* &puntero);
-		
-		/*Esta funcion se encarga de leer clave de tipo char de un buffer*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
-	
+{
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceShortRomano(unsigned int tamNodo, string nombreArchivo);
+		ArchivoIndiceShortRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice);
+
+	private:
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////
+		/*Interpreta un buffer como una clave de tipo ClaveShort.*/
+		Clave* leerClaveHoja(char* &buffer);
+		Clave* leerClaveNoHoja(char* &buffer);
 	
-}; //Fin clase ArchivoIndiceShortGriego
+		
+}; //Fin clase ArchivoIndiceShortRomano
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -255,26 +211,20 @@ class ArchivoIndiceShortRomano: public ArchivoIndiceSecundario
 ///////////////////////////////////////////////////////////////////////////
 class ArchivoIndiceRealRomano: public ArchivoIndiceSecundario
 {	
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-	
-		/*Esta funcion se encarga de interpretar claves de tipo float
-		 *  y copiarla al buffer de escritura
-		 */
-		void copiarClaveHoja(Clave* clave,char* &puntero);
-		void copiarClaveNoHoja(Clave* clave,char* &puntero);
-		
-		/*Esta funcion se encarga de leer clave de tipo float de un buffer*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
 	
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceRealRomano(unsigned int tamNodo, string nombreArchivo);
+		ArchivoIndiceRealRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice);
+
+	private:
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////
+		/*Interpreta un buffer como una clave de tipo ClaveReal.*/
+		Clave* leerClaveHoja(char* &buffer);
+		Clave* leerClaveNoHoja(char* &buffer);
 	
 }; //Fin clase ArchivoIndiceRealRomano
 
@@ -286,58 +236,45 @@ class ArchivoIndiceRealRomano: public ArchivoIndiceSecundario
 //		   (Implementa archivo de indices primarios de clave de tipo fecha).
 ///////////////////////////////////////////////////////////////////////////
 class ArchivoIndiceFechaGriego: public ArchivoIndiceArbol
-{	
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-	
-		/*Esta funcion se encarga de interpretar claves de tipo fecha
-		 *  y copiarla al buffer de escritura
-		 */
-		void copiarClaveHoja(Clave* clave,char* &puntero);
-		void copiarClaveNoHoja(Clave* clave,char* &puntero);
-		
-		/*Esta funcion se encarga de leer clave de tipo fecha de un buffer*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
-	
+{
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceFechaGriego(unsigned int tamNodo, string nombreArchivo);
+		ArchivoIndiceFechaGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
 	
+	private:
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////
+		/*Interpreta un buffer como una clave de tipo ClaveFecha.*/
+		Clave* leerClaveHoja(char* &buffer);
+		Clave* leerClaveNoHoja(char* &buffer);	
+		
 }; //Fin clase ArchivoIndiceFechaGriego
 
-///////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
 // Nombre: ArchivoIndiceFechaRomano
 //		   (Implementa archivo de indices secundarios de clave de tipo fecha).
-///////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 class ArchivoIndiceFechaRomano: public ArchivoIndiceSecundario
 {	
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-	
-		/*Esta funcion se encarga de interpretar claves de tipo fecha
-		 *  y copiarla al buffer de escritura
-		 */
-		void copiarClaveHoja(Clave* clave,char* &puntero);
-		void copiarClaveNoHoja(Clave* clave,char* &puntero);
-		
-		/*Esta funcion se encarga de leer clave de tipo fecha de un buffer*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
-	
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceFechaRomano(unsigned int tamNodo, string nombreArchivo);
+		ArchivoIndiceFechaRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice);
+	
+	private:
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////		
+		/*Interpreta un buffer como una clave de tipo ClaveFecha.*/
+		Clave* leerClaveHoja(char* &buffer);
+		Clave* leerClaveNoHoja(char* &buffer);
+
 	
 }; //Fin clase ArchivoIndiceFechaRomano
 
@@ -348,20 +285,16 @@ class ArchivoIndiceFechaRomano: public ArchivoIndiceSecundario
 //		   (Implementa archivo de indices primarios de clave de 
 //			longitud variable).
 ///////////////////////////////////////////////////////////////////////////
-class ArchivoIndiceVariableGriego: public ArchivoIndice
+class ArchivoIndiceVariableGriego: public ArchivoIndiceArbol
 {	
 	private:
 	//////////////////////////////////////////////////////////////////////
 	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-	
-		/*Esta funcion se encarga de interpretar claves de longitud
-		 * variable y copiarla al buffer de escritura.
-		 */
-		void copiarClaveHoja(Clave* clave, char* &puntero);
-		void copiarClaveNoHoja(Clave* clave, char* &puntero);
+	//////////////////////////////////////////////////////////////////////		
+		void copiarClaveNoHoja(Clave* clave,char* &buffer);
+		void copiarClaveHoja(Clave* clave,char* &buffer);
 		
-		/*Esta funcion se encarga de leer claves variables de un buffer*/
+		/*Interpreta un buffer como una clave de tipo ClaveVariable.*/
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);
 	
@@ -369,7 +302,7 @@ class ArchivoIndiceVariableGriego: public ArchivoIndice
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceVariableGriego(int tamNodo, string nombreArchivo);	
+		ArchivoIndiceVariableGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);	
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -380,28 +313,23 @@ class ArchivoIndiceVariableGriego: public ArchivoIndice
 //			longitud variable).
 ///////////////////////////////////////////////////////////////////////////
 class ArchivoIndiceVariableRomano: public ArchivoIndiceSecundario
-{	
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-	
-		/*Esta funcion se encarga de interpretar claves de longitud
-		 * variable y copiarla al buffer de escritura.
-		 */
-		void copiarClaveHoja(Clave* clave,char* &puntero);
-		void copiarClaveNoHoja(Clave* clave,char* &puntero);
-		
-		/*Esta funcion se encarga de leer claves variables de un buffer*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
-	
+{
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceVariableRomano(int tamNodo,string nombreArchivo);
+		ArchivoIndiceVariableRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice);
 	
+	private:
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////
+		void copiarClaveNoHoja(Clave* clave,char* &buffer);
+		void copiarClaveHoja(Clave* clave,char* &buffer);
+		
+		/*Interpreta un buffer como una clave de tipo ClaveVariable.*/
+		Clave* leerClaveHoja(char* &buffer);
+		Clave* leerClaveNoHoja(char* &buffer);	
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -416,7 +344,7 @@ class ArchivoIndiceCompuestoGriego: public ArchivoIndice
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceCompuestoGriego(int tamNodo,string nombreArchivo);
+		ArchivoIndiceCompuestoGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
 		
 	private:
 	//////////////////////////////////////////////////////////////////////

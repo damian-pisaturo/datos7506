@@ -148,13 +148,13 @@ class ArchivoIndiceArbol : public ArchivoIndice
 	///////////////////////////////////////////////////////////////////////////
 	// Metodos privados
 	///////////////////////////////////////////////////////////////////////////	
-		/*Esta funcion se encarga de Interpretar cada tipo de clave y copiarla al buffer
+		/*Se encarga de interpretar cada tipo de clave y copiarla al buffer
 		 * de escritura dependiendo si es un nodo hoja o un nodo no hoja*/
-		virtual void copiarClaveHoja(Clave* clave,char* &puntero) = 0;
+		virtual void copiarClaveHoja(Clave* clave,char* &puntero);
 	
-		virtual void copiarClaveNoHoja(Clave* clave,char* &puntero) = 0;
+		virtual void copiarClaveNoHoja(Clave* clave,char* &puntero);
 	
-		/*Esta funcion se encarga de leer cada tipo de Clave de un buffer
+		/*Se encarga de leer cada tipo de Clave de un buffer
 		 * dependiendo si es un nodo hoja o un nodo no hoja*/
 		virtual Clave* leerClaveHoja(char* &buffer) = 0;
 		
@@ -175,7 +175,7 @@ class ArchivoIndiceArbol : public ArchivoIndice
 		
 		/*Agrega una referencia en el archivo de nodos liberados al
 		 * nodo que se quiere eliminar*/
-		virtual void eliminarNodo(int posicion);
+		virtual void eliminarNodo(unsigned int posicion);
 		
 		/*Exportar el archivo de Indice*/
 		void exportar(ostream &archivoTexto,int posicion);
@@ -215,7 +215,7 @@ class ArchivoIndiceHash : public ArchivoIndice
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		ArchivoIndiceHash(unsigned int tamBucket, string nombreArchivo, t_indice tipoIndice);		
+		ArchivoIndiceHash(unsigned int tamBucket, string nombreArchivo);		
 		virtual ~ArchivoIndiceHash();
 		
 	///////////////////////////////////////////////////////////////////////
@@ -231,8 +231,7 @@ class ArchivoIndiceHash : public ArchivoIndice
 		 */
 		virtual void escribirBloque(BloqueIndice* bloqueNuevo);
 		
-		/* Busca el primer bucket libre en el archivo y escribe el nuevo bucket
-		 * en el. Si no encuentra ninguno, appendea al final del archivo.
+		/* Sobreescribe el bloque actual con el bloqueNuevo.
 		 */
 		virtual void sobreEscribirBloque(BloqueIndice* bloqueNuevo);
 	
@@ -288,11 +287,6 @@ class ArchivoIndiceSecundario: public ArchivoIndiceArbol
 		 * en el NODO, estoy hay que hacerlo antes de insertar en el arbol*/ 
 		unsigned int grabarNuevaLstClavesP(SetClaves* setClaves);		
 	
-		Clave* leerClaveNoHoja(char* &buffer, t_indice tipoIndice){return NULL;};
-		Clave* leerClaveHoja(char* &buffer, t_indice tipoIndice){return NULL;};
-		void copiarClave(Clave* clave, char* &puntero){};
-		void copiarClaveHoja(Clave* clave, char* &puntero){};
-		
 		/*Redefino el exportar para que tb imprima la lista de claves primarias*/
 		void exportar(ostream &archivoTexto,int posicion);		
 };

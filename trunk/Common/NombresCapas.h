@@ -1,5 +1,13 @@
 #ifndef NOMBRESCAPAS_H_
 #define NOMBRESCAPAS_H_
+#include <iostream>
+
+using namespace std;
+
+//TODO Quiero que ande esto, CANEJO !
+//		Quiero constantes string en una clase utilitaria para los
+//		nombres de los ejecutables de las capas.
+//		Quiero que Servetto me invite a su fiesta de 15.
 
 class NombreCapas
 {
