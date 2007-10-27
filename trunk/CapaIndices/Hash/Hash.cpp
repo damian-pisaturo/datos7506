@@ -51,28 +51,15 @@ int Hash::aplicarHash(char *clave)
  * con la misma clave, devuelve DUPLICATED, y si no hay lugar en el bucket
  * correspondiente para insertarlo, devuelve FAIL.
  */
-int Hash::insertarRegistro(char* registro,int tamanioClave)
-{
-	char* clave;
-	
-	if (tamanioClave == -1)
-	{
-		RegistroV* reg = new RegistroV(registro,strlen(registro));
-		clave = reg->getClave();
-		delete reg;
-	}
-	else
-	{
-		clave = new char[tamanioClave+1];
-		memcpy(clave,registro,tamanioClave);
-		clave[tamanioClave]='\0';
-	}
+int Hash::insertarRegistro(char* registro, char* clave)
+{	
 	int nroBloque = aplicarHash(clave) % tabla->getTamanio();
+	Bucket * bucket;
 	bucket->leer(tabla->getDireccionBucket(nroBloque));
 	
-	if (bucket->buscarRegistro(clave,tamanioClave))
+	unsigned short aux;
+	if (bucket->buscarRegistro(listaParam, clave, aux)==)
 		return DUPLICATED; // ya existe un registro con esa clave.
-	return (insertarReg(registro));
 }
 
 int main()

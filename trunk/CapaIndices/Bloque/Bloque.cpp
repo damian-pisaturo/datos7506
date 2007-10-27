@@ -52,7 +52,7 @@ Bloque::~Bloque(){
  */
 bool Bloque::buscarRegistro(const list<string>& listaParam, void *clavePrimaria, unsigned short *offsetReg){
 
-	int offsetToReg = 4;
+	int offsetToReg = getOffsetToRegs();
 	int offsetToProxCampo = 0;
 
 	//Obtengo la cantidad de registros dentro del bloque
@@ -191,7 +191,7 @@ void Bloque::organizarBloque(int offsetToReg,int longReg){
 	
 	//Levanta el espacio libre en el bloque.
 	memcpy(&espLibre,datos,Tamanios::TAMANIO_LONGITUD);
-	
+	Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS
 	// Levanta la cantidad de registros del bloque.
 	memcpy(&cantRegs,&datos[2],Tamanios::TAMANIO_LONGITUD);
 	
@@ -238,7 +238,7 @@ bool Bloque::altaRegistro(char *registro){
  **/
 int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 
-	unsigned short offsetToReg = 4;
+	unsigned short offsetToReg = getOffsetToRegs();
 	unsigned short offsetToProxCampo = 0;
 
 	unsigned short longReg;
@@ -258,7 +258,7 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 	//Obtengo la cantidad de registros dentro del bloque
 	memcpy(&cantRegistros,&datos[2],Tamanios::TAMANIO_LONGITUD);
 	
-	int i = 1 ;
+	list <>int i = 1 ;
 	//Mientras no itero sobre la cantidad total de registros y no borré el registro busco la clave primaria
 	while( (i<cantRegistros + 1) && (!registroBorrado) ){
 	
@@ -414,4 +414,12 @@ char* Bloque::getRegisterAtribute(string registro,int offsetCampo,int longCampo)
 	memcpy(campo,&registro[offsetCampo],longCampo);
 	campo[longCampo] = '\0';
 	return campo;
+}
+
+/**
+ * Retorna el offset al primer registro del bloque.
+ */
+unsigned short Bloque::getOffsetToRegs()
+{
+	return (Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 }

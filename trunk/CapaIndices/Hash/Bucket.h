@@ -42,7 +42,6 @@ private:
 	char* datos;
 	unsigned int tamanio; //TODO El tamanio del bucket vendra en el ArchivoIndiceHash.
 	char* registro;
-	bool vacio; //Indica si el bloque contiene al menos un registro.
 	unsigned short numBucket; //Indica el numero de bucket dentro del archivo.
 	unsigned short tamDispersion;
 	unsigned short cantRegs;
@@ -62,6 +61,15 @@ public:
 	 */
 	Bucket(ArchivoIndice* indiceHash, unsigned int referencia);
 	virtual ~Bucket();
+
+	int insertar(char* clave, char* registro);
+	int borrar(char * clave);
+	Bucket* splitBucket();
+	int redistribuirClaves(Bucket &bucket);
+	
+	unsigned short getOffsetToRegs();
+	
+	
 	
 ///////////////////////////////////////////////////////////////////////
 // Metodos publicos

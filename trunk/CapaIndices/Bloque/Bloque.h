@@ -73,6 +73,8 @@ public:
 	 **/
 	int modificarRegistro(const list<string>& listaParam, unsigned short longReg, char* registro);
 	
+	virtual unsigned short getOffsetToRegs();
+	
 };
 
 #endif /*BLOQUE_H_*/
