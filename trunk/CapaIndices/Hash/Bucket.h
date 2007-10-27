@@ -26,6 +26,7 @@
 #include "RegistroV.h"
 #include "../../CapaFisica/ArchivoIndicePadre.h"
 #include "../../CapaFisica/ArchivoIndice.h"
+#include "../Bloque/Bloque.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -33,7 +34,7 @@
 // Nombre: Bucket (Permite el manejo de buckets en memoria)
 //////////////////////////////////////////////////////////////////////////
 
-class Bucket : public BloqueIndice
+class Bucket : public BloqueIndice , Bloque 
 {
 private:
 	//////////////////////////////////////////////////////////////////////
@@ -67,12 +68,18 @@ public:
 // Metodos publicos
 ///////////////////////////////////////////////////////////////////////
 
+	
 	/*
 	 * Busca un registro por su clave dentro del bucket. Si existe lo carga en el 
 	 * atributo registro y devuelve true; de lo contrario devuelve false.
 	 */ 
 	bool buscarRegistro(Clave* clave);
+	
 	char* getDatos();
+	void setEspLibre(unsigned short eLibre);
+	void setTamDispersion(unsigned short tDisp);
+	void setCantRegs(unsigned short cRegs);
+	
 private:
 ///////////////////////////////////////////////////////////////////////
 // Metodos privadosgetDatos()

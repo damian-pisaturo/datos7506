@@ -24,7 +24,7 @@
 /* 
  * Este constructor inicializa un bucket nuevo
  */
-Bucket::Bucket(ArchivoIndice *indiceHash, unsigned short tamDispersion)
+Bucket::Bucket(ArchivoIndice *indiceHash, unsigned short tamDispersion): Bloque()
 {
 	this->archivo 		= (ArchivoIndiceHash*) indiceHash;
 	this->registro 		= NULL;
@@ -37,7 +37,7 @@ Bucket::Bucket(ArchivoIndice *indiceHash, unsigned short tamDispersion)
 	this->espLibre		= 6; 
 	this->vacio         = true;
 	
-	
+
 	//TODO: ver q pasa con this->numBucket;
 }
 
@@ -161,3 +161,23 @@ char* Bucket::getDatos()
 {
 	return datos;
 }
+
+void Bucket::setEspLibre(unsigned short eLibre)
+{
+	espLibre = eLibre;
+}
+
+void Bucket::setCantRegs(unsigned short cRegs)
+{
+	cantRegs = cRegs;
+}
+
+void Bucket::setTamDispersion(unsigned short tDisp)
+{
+	tamDispersion = tDisp;
+}
+
+
+
+
+

@@ -14,8 +14,6 @@
 
 using namespace std;
 
-#define TAMANIO_LONGITUD	sizeof(unsigned short)
-
 class Bloque
 {
 private:
@@ -23,6 +21,12 @@ private:
 	int tamanio;
 	char *datos;
 	
+public:
+	Bloque();
+	Bloque(int num,int tam);
+	virtual ~Bloque();
+	
+private:
 	//Métodos privados
 	
 	/*
@@ -51,15 +55,10 @@ private:
 	 * Retorna un campo específico del registro
 	 * */
 	char* getRegisterAtribute(string registro,int offsetCampo,int longCampo);
-
-	/**
-	 * Devuelve longitud bytes desde datos[offset]
-	 */
-	char* getSubstring(int longitud, int offset);
-public:
-	Bloque(int num,int tam);
-	virtual ~Bloque();
 	
+	bool buscarRegistro(const list<string>& listaParam, void *clavePrimaria, unsigned short* offsetReg);
+
+public:
 	/*
 	 * Inserta un nuevo registro dentro del bloque
 	 **/
@@ -69,14 +68,10 @@ public:
 	 * Elimina un registro del bloque, reorganizando el espacio libre
 	 **/
 	int bajaRegistro(list <string>listaParam,void *clavePrimaria);
-	
 	/*
 	 * Modifica el contenido de un registro 
 	 **/
 	int modificarRegistro(const list<string>& listaParam, unsigned short longReg, char* registro);
-	
-	bool buscarRegistro(const list<string>& listaParam, void *clavePrimaria, unsigned short* offsetReg);
-	
 	
 };
 
