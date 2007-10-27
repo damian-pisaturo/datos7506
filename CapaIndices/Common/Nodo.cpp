@@ -229,7 +229,7 @@ bool Nodo::puedeRecibir(unsigned short bytesEntrantes, unsigned short bytesSalie
 
 
 //Si puede ceder devuelve un conjunto con las claves a ceder, sino devuelve NULL.
-SetClaves* Nodo::ceder(unsigned short bytesRequeridos, bool izquierda) {
+SetClaves* Nodo::cederBytes(unsigned short bytesRequeridos, bool izquierda) {
 	
 	unsigned short sumaBytesRequeridos = 0;
 	
@@ -279,6 +279,60 @@ SetClaves* Nodo::ceder(unsigned short bytesRequeridos, bool izquierda) {
 	
 }
 
+
+//Si puede ceder devuelve un conjunto con las claves a ceder, sino devuelve NULL.
+SetClaves* Nodo::cederClaves(unsigned short cantClaves, bool izquierda) {
+	
+	unsigned short i = 0, sumaBytesRequeridos = 0;
+	SetClaves* set = new SetClaves();
+	
+	if (izquierda){
+		
+		SetClaves::iterator iter;
+		for (iter = this->getClaves()->begin();
+			(iter != this->getClaves()->end()) && (i < cantClaves);
+			++iter){
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			set->insert(*iter);
+			++i;
+		}
+		
+		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getTamanioMinimo() ) {
+			this->getClaves()->erase(this->getClaves()->begin(), iter);
+			return set;
+		}
+		
+	}
+	else{ //if (derecha)
+		
+		SetClaves::iterator iter;
+		for (iter = (--(this->getClaves()->end()));
+			(iter != this->getClaves()->begin()) && (i < cantClaves);
+			--iter){
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			set->insert(*iter);
+			++i;
+		}
+		
+		if ( (iter == this->getClaves()->begin()) && (i < cantClaves) ) {
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			set->insert(*iter);
+		}
+		
+		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getTamanioMinimo() ) {
+			this->getClaves()->erase(iter, this->getClaves()->end());
+			return set;
+		}
+	}
+	
+	set->clear();
+	delete set;
+	
+	return NULL;
+	
+}
+
+
 void Nodo::recibir(SetClaves* set){
 	for(SetClaves::iterator iter = set->begin(); iter != set->end(); ++iter){
 		this->getClaves()->insert(*iter);
@@ -298,10 +352,27 @@ unsigned short Nodo::obtenerBytesRequeridos() const {
 }
 
 
-unsigned short Nodo::obtenerBytesSobrantes(unsigned short &cantClaves) const {
+unsigned short Nodo::obtenerBytesSobrantes(unsigned short &cantClaves, bool izquierda) const {
 	
-	//TODO Implementar
-	return 0;
+	unsigned short tamanioEspacioClaves = this->getTamanioEspacioClaves();
+	cantClaves = 0;
+	unsigned short sumaSobrantes = 0;
+	unsigned short tamanioEnDiscoSetClaves = this->getTamanioEnDiscoSetClaves();
+	
+	if (izquierda){
+		for(SetClaves::iterator iter = this->getClaves()->begin(); (tamanioEnDiscoSetClaves - sumaSobrantes) > tamanioEspacioClaves; ++iter){
+			++cantClaves;
+			sumaSobrantes += (*iter)->getTamanioEnDisco();
+		}
+	}
+	else{ //if (derecha)
+		for(SetClaves::reverse_iterator iter = this->getClaves()->rbegin(); (tamanioEnDiscoSetClaves - sumaSobrantes) > tamanioEspacioClaves; ++iter){
+			++cantClaves;
+			sumaSobrantes += (*iter)->getTamanioEnDisco();
+		}
+	}
+	
+	return sumaSobrantes;
 	
 }
 
@@ -332,6 +403,55 @@ Clave* Nodo::obtenerUltimaClave() const {
 	if (this->getClaves()->empty()) return NULL;
 			
 	return *(this->getClaves()->rbegin());
+	
+}
+
+
+bool Nodo::puedeRecibirClaveDesdeIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre) const {
+	
+	//Bytes requeridos por este nodo
+	unsigned short bytesRequeridos = this->obtenerBytesRequeridos();
+	unsigned short bytesPropuestosPadre = 0, bytesPropuestosPorHnoIzq = 0;
+	unsigned char clavesPropuestas = 0;
+	
+	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas)) > 0 )
+		
+		if ( this->puedeRecibir(bytesPropuestosPadre, clavesPropuestas ) )
+			
+			if ( (bytesPropuestosPorHnoIzq = nodoHnoIzq->bytesACeder(clavesPropuestas)) > 0 )
+				
+				if ( nodoPadre->puedeRecibir(bytesPropuestosPorHnoIzq, bytesPropuestosPadre) )
+					return true;
+	
+	return false;
+}
+
+
+bool Nodo::puedeRecibirClaveDesdeDer(Nodo* nodoHnoDer, Nodo* nodoPadre) const {
+	
+	//TODO Corregir
+	unsigned short bytesRequeridos = nodoHnoDer->obtenerBytesRequeridos();
+	unsigned short bytesPropuestosPadre = 0, bytesPropuestosPorMi = 0;
+	unsigned char clavesPropuestas = 0;
+	
+	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas, false)) > 0 ) {
+		
+		//TODO Ver el tema de 'clavesPropuestas', habria que pasarle una variable.
+		if ( nodoHnoDer->puedeRecibir(bytesPropuestosPadre, 0) ) {
+
+			if ( (bytesPropuestosPorMi = this->bytesACeder(clavesPropuestas, false)) > 0 ) {
+				
+				if ( nodoPadre->puedeRecibir(bytesPropuestosPorMi, bytesPropuestosPadre) ) {
+					return true;
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	return false;
 	
 }
 
@@ -390,3 +510,18 @@ bool Nodo::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre) const {
 	return false;
 	
 }
+
+
+void Nodo::merge(Nodo* nodoHno, Clave* clavePadre) {
+	
+	return this->getClaves()->merge(nodoHno->getClaves(), clavePadre, NULL);
+	
+}
+
+
+void Nodo::merge(Nodo* nodoHno1, Nodo* nodoHno2, Clave* clavePadre1, Clave* clavePadre2){
+	
+	return this->getClaves()->merge(nodoHno1->getClaves(), nodoHno2->getClaves(), clavePadre1, clavePadre2);
+	
+}
+

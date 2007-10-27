@@ -45,8 +45,8 @@ void NodoBStar::insertarClave(Clave* &clave, char* codigo) {
 	    //Sobreescribe el nodo, actualizando las modificaciones
 	    //archivoIndice->sobreescribirNodo(this);
 	}else{ //No hay espacio libre suficiente para insertar la clave...
-		 cod = Codigo::OVERFLOW;	 
-	}               
+		 cod = Codigo::OVERFLOW;
+	}
 
 	*codigo = cod;
 }

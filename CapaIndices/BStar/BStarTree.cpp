@@ -22,6 +22,10 @@ void BStarTree::insertar(Clave* clave) {
 	//La clave queda insertada independientemente de si hay OVERFLOW o no.
 	
 	if ( codigo == Codigo::OVERFLOW ){
+		//Puntero a la clave del nodo padre que se encuentra entre nodoDestino y su hermano izq
+		Clave* clavePadreIzq = NULL;
+		//Puntero a la clave del nodo padre que se encuentra entre nodoDestino y su hermano der
+		Clave* clavePadreDer = NULL;
 		NodoBStar* nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
 		NodoBStar *nodoHnoDer = NULL, *nodoHnoIzq = NULL;
 		
@@ -41,31 +45,39 @@ void BStarTree::insertar(Clave* clave) {
 			iterPadre = nodoPadre->getClaves()->begin();
 			//TODO El constructor debe devolver un nodo a partir de una referencia a disco.
 			//nodoHnoDer = new NodoBStar( (*iterPadre)->getHijoDer() );
+			clavePadreDer = *iterPadre;
 		} else if ( (++iterPadre) == nodoPadre->getClaves()->end() ) {
 			//nodoDestino es el hijo derecho de la última clave del nodo
 			//nodoDestino no tiene hermano derecho
 			//TODO El constructor debe devolver un nodo a partir de una referencia a disco.
-			//nodoHnoIzq = new NodoBStar( (*iterPadre)->getHijoDer() );
+			//nodoHnoIzq = new NodoBStar( (*(--(--iterPadre)))->getHijoDer() );
+			clavePadreIzq = *(++iterPadre);
 		} else {
 			if ( iterPadre == nodoPadre->getClaves()->begin() ) {
 				//nodoHnoIzq = new NodoBStar( nodoPadre->getHijoIzq() );
+				clavePadreIzq = *iterPadre;
 			}
 			else{
 				//nodoHnoIzq = new NodoBStar( (*(--iterPadre))->getHijoDer() );
+				clavePadreIzq = *(++iterPadre);
 			}
 			//nodoHnoDer = new NodoBStar( (*iterPadre)->getHijoDer() );
+			clavePadreDer = *iterPadre;
 		}
 		
 		//Fin de la búsqueda de los nodos hermanos de 'nodoDestino'
 		
 		//Se intenta hacer una redistribución de claves con el hermano derecho de 'nodoDestino'.
 		//Si esto no es posible, se intenta hacer una redistribución con el hermano izquierdo.
-		if ( (nodoHnoDer) && (nodoDestino->puedePasarClaveHaciaDer(nodoHnoDer, nodoPadre)) ) 
-			pasarClaveIzquierda(nodoHnoDer, nodoPadre, nodoDestino);
-		else if ( puedePasarseClaveDerecha(nodoHnoIzq, nodoPadre, nodoDestino) )
-			pasarClaveDerecha(nodoHnoIzq, nodoPadre, nodoDestino);
-		else //TODO No siempre tenemos hermano derecho. Ver que hacemos.
-			split( nodoDestino, nodoHnoDer, nodoPadre );
+		if ( (nodoHnoDer) && (nodoHnoDer->puedeRecibirClaveDesdeIzq(nodoDestino, nodoPadre)) ) 
+			this->recibirClaveDesdeIzquierda(nodoHnoDer, nodoPadre, nodoDestino);
+		else if ( (nodoHnoIzq) && (nodoHnoIzq->puedeRecibirClaveDesdeDer(nodoDestino, nodoPadre)) )
+			this->recibirClaveDesdeDerecha(nodoHnoIzq, nodoPadre, nodoDestino);
+		else { //Se realiza el split del nodo con overflow con un sibling completo y
+			//con la clave padre.
+			if (nodoHnoDer) split(nodoDestino, nodoHnoDer, clavePadreDer);
+			else split(nodoDestino, nodoHnoIzq, clavePadreIzq);
+		}
 		
 	}
 		
@@ -161,17 +173,34 @@ bool BStarTree::puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nod
 	return false;
 }
 
-void BStarTree::pasarClaveDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer){
+void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer){
 	
-	SetClaves* set = nodoPadre->ceder( nodoDestino->obtenerBytesRequeridos() );
+	SetClaves* set = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos() );
 	nodoDestino->recibir(set);
 	delete set;
 	
-	set = nodoHnoDer->ceder( nodoPadre->obtenerBytesRequeridos() );
+	set = nodoHnoDer->cederBytes( nodoPadre->obtenerBytesRequeridos() );
 	nodoPadre->recibir(set);
 	delete set;
 	
 }
+
+
+void BStarTree::recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer){
+	
+	unsigned short cantClaves = 0;
+	unsigned short bytesSobrantes = nodoHnoDer->obtenerBytesSobrantes(cantClaves);
+	
+	SetClaves* set = nodoPadre->cederClaves(cantClaves);
+	nodoDestino->recibir(set);
+	delete set;
+	
+	set = nodoHnoDer->cederBytes(bytesSobrantes);
+	nodoPadre->recibir(set);
+	delete set;
+	
+}
+
 
 //TODO Agregar el caso en que se trata de un extremo
 bool BStarTree::puedePasarseClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
@@ -221,13 +250,29 @@ bool BStarTree::puedePasarseClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* &n
 }
 
 
-void BStarTree::pasarClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq) {
+void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq) {
 	
-	SetClaves* set = nodoPadre->ceder( nodoDestino->obtenerBytesRequeridos(), false );
+	SetClaves* set = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos(), false );
 	nodoDestino->recibir(set);
 	delete set;
 	
-	set = nodoHnoIzq->ceder( nodoPadre->obtenerBytesRequeridos(), false );
+	set = nodoHnoIzq->cederBytes( nodoPadre->obtenerBytesRequeridos(), false );
+	nodoPadre->recibir(set);
+	delete set;
+	
+}
+
+
+void BStarTree::recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq){
+	
+	unsigned short cantClaves = 0;
+	unsigned short bytesSobrantes = nodoHnoIzq->obtenerBytesSobrantes(cantClaves);
+	
+	SetClaves* set = nodoPadre->cederClaves(cantClaves);
+	nodoDestino->recibir(set);
+	delete set;
+	
+	set = nodoHnoIzq->cederBytes(bytesSobrantes);
 	nodoPadre->recibir(set);
 	delete set;
 	
@@ -313,7 +358,9 @@ NodoBStar* BStarTree::buscarMenorMayores(NodoBStar* nodo, Clave* clave) const {
 	
 }
 
-void BStarTree::split(NodoBStar* nodoTarget, NodoBStar* nodoHnoDer, NodoBStar* nodoPadre){
+void BStarTree::split(NodoBStar* nodoTarget, NodoBStar* nodoHno, Clave* clavePadre){
+	
+	//TODO Implementar
 	
 }
 
