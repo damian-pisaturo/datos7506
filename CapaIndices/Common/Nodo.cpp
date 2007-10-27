@@ -525,3 +525,25 @@ void Nodo::merge(Nodo* nodoHno1, Nodo* nodoHno2, Clave* clavePadre1, Clave* clav
 	
 }
 
+
+void Nodo::extraerUltimaClave(){
+	SetClaves::iterator iter = this->getClaves()->end();
+	this->getClaves()->erase(*(--iter));
+}
+
+void Nodo::extraerClave(Clave* clave) {
+	
+	this->getClaves()->erase(clave);
+	
+}
+
+
+bool Nodo::tieneOverflow() const{
+	return (this->getTamanioEnDiscoSetClaves() > this->getTamanioEspacioClaves());
+}
+
+
+SetClaves* Nodo::splitB(unsigned short minClaves){
+	return (this->getClaves()->splitBPlus(minClaves));
+}
+

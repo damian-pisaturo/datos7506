@@ -184,6 +184,19 @@ class Nodo : public BloqueIndice
 		//de dos nodos hermanos y con dos claves padre.
 		void merge(Nodo* nodoHno1, Nodo* nodoHno2, Clave* clavePadre1, Clave* clavePadre2);
 		
+		//Saca del setClaves a la ultima clave, sin liberar la memoria.
+		void extraerUltimaClave();
+		
+		//Saca del setClaves la clave recibida por parametro, sin liberar la memoria.
+		void extraerClave(Clave* clave);
+		
+		//Revisa si el nodo tiene overflow o no.
+		bool tieneOverflow() const;
+		
+		//Split que se comporta como el de un arbol B (parte en dos el nodo), donde minClaves es
+		//la cantidad (en bytes) que debe tener cada parte resultante.
+		SetClaves* splitB(unsigned short minClaves);
+		
 	///////////////////////////////////////////////////////////////////////////
 	// Getters/Setters
 	///////////////////////////////////////////////////////////////////////////

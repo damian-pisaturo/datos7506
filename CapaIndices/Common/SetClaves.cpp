@@ -20,7 +20,7 @@ Clave* SetClaves::findClave(Clave* clave) const {
 	
 }
 
-SetClaves* SetClaves::splitBPlus(unsigned minClaves) {
+SetClaves* SetClaves::splitBPlus(unsigned short minClaves) {
 	
 	//minClaves contiene la cantidad minima de claves (en bytes) que debe
 	//contener cada conjunto.
@@ -40,7 +40,7 @@ SetClaves* SetClaves::splitBPlus(unsigned minClaves) {
 	return conjClavesMayores;
 }
 
-VectorConjuntos* SetClaves::splitBStar(unsigned minClaves) {
+VectorConjuntos* SetClaves::splitBStar(unsigned short minClaves) {
 	
 	VectorConjuntos* vectorConj = new VectorConjuntos();
 	SetClaves* nuevoConj;

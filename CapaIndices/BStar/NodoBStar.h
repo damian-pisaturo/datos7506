@@ -24,6 +24,8 @@ class NodoBStar : public Nodo {
 		//Devuelve el espacio (en bytes) destinado para almacenar claves (elementos).
 		//Esta es una redefinición del método de la clase padre.
 		virtual unsigned short getTamanioEspacioClaves() const;
+		
+		VectorConjuntos* split();
 
 };
 
