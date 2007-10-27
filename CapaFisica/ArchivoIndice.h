@@ -23,7 +23,6 @@
 #define ARCHIVOINDICE_H_
 
 #include "ArchivoIndicePadre.h"
-#include "../CapaIndices/Common/Clave.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -38,7 +37,7 @@ class ArchivoIndiceEnteroGriego: public ArchivoIndiceArbol
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////		
-		ArchivoIndiceEnteroGriego(int tamNodo,string nombreArchivo, t_indice tipoIndice);
+		ArchivoIndiceEnteroGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
 		
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -338,13 +337,18 @@ class ArchivoIndiceVariableRomano: public ArchivoIndiceSecundario
 // Nombre: ArchivoIndiceCompuestoGriego 
 //		   (Implementa archivo de indices primarios de clave compuesta).
 ///////////////////////////////////////////////////////////////////////////
-class ArchivoIndiceCompuestoGriego: public ArchivoIndice
+typedef list<string*> ListaTipos;
+
+class ArchivoIndiceCompuestoGriego: public ArchivoIndiceArbol
 {
+	private:
+		ListaTipos* tipos;
+		
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceCompuestoGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
+		ArchivoIndiceCompuestoGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice, ListaTipos* listaTipos);
 		
 	private:
 	//////////////////////////////////////////////////////////////////////

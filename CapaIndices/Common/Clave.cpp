@@ -18,7 +18,6 @@
 //		- Pisaturo, Damian;
 //		- Rodriguez, Maria Laura.
 ///////////////////////////////////////////////////////////////////////////
-
 #include "Clave.h"
 
 ///////////////////////////////////////////////////////////////////////////
@@ -736,17 +735,23 @@
 		
 	}
 	
-	void ClaveVariable::setValor(void* nuevoValor) {
-		
+	void ClaveVariable::setValor(void* nuevoValor) 
+	{		
 		if (this->valor) delete (string*)this->valor;
-		this->valor = nuevoValor;
-		
+		this->valor = nuevoValor;		
 	}
 	
-	unsigned int ClaveVariable::getTamanioValor() const {
-		return (((string*)this->getValor())->size()+1)*sizeof(char);
+	unsigned int ClaveVariable::getTamanioValor() const
+	{
+		return (((string*)this->valor)->size()+1)*sizeof(char);
 	}
-
+	
+	void* ClaveVariable::getValor() const
+	{
+		//TODO getValor() debe devolver un char* en ClaveVariable.s
+		//return ((string*)this->valor)->c_str();
+		return NULL;
+	}
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase

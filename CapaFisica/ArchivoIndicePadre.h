@@ -24,14 +24,15 @@
 #include <iostream>
 using namespace std;
 
-#include "../CapaIndices/Common/BloqueIndice.h"
+#include "../CapaIndices/Common/Nodo.h"
+//#include "../CapaIndices/Hash/Bucket.h"
 #include "../CapaIndices/Common/Tamanios.h"
 #include "../CapaIndices/Common/SetClaves.h"
-#include "../CapaIndices/Common/Nodo.h"
 #include "../ComuDatos/ComuDatos.h"
 #include "../Common/NombresCapas.h"
+#include "../CapaIndices/Common/TipoDatos.h"
 
-typedef enum{ARBOL_BP, ARBOL_BS, HASH} t_indice;
+typedef enum{ARBOL_BP, ARBOL_BS, HASH}t_indice;
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -48,13 +49,13 @@ class ArchivoIndice
 	///////////////////////////////////////////////////////////////////////
 		string nombreArchivo;
 		unsigned int tamanioBloque;
-		unsigned int tIndice;
+		unsigned int tipoIndice;
 		
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		ArchivoIndice(string nombreArchivo, unsigned int tamanioBloque, t_indice tipoIndice);
+		ArchivoIndice(unsigned int tamanioBloque, string nombreArchivo, t_indice tipoIndice);
 		virtual ~ArchivoIndice() { };
 	
 	///////////////////////////////////////////////////////////////////////
@@ -109,7 +110,7 @@ class ArchivoIndice
 		
 		const unsigned int getTipoIndice()
 		{
-			return this->tIndice;
+			return this->tipoIndice;
 		}
 };
 
@@ -131,19 +132,19 @@ class ArchivoIndiceArbol : public ArchivoIndice
 	///////////////////////////////////////////////////////////////////////
 		/*Si el archivo esta vacio, crea una raiz vacia*/
 		ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
-		virtual ~ArchivoIndiceArbol() { };
+		virtual ~ArchivoIndiceArbol();
 	
 	private:
 	///////////////////////////////////////////////////////////////////////
 	// Atributos
 	///////////////////////////////////////////////////////////////////////
 
-	/*Header del Nodo*/
-	struct Header{
-		unsigned int nivel;
-		unsigned int espacioLibre;
-		unsigned int hijoIzq;	
-	}; 
+		/*Header del Nodo*/
+		struct Header{
+			unsigned int nivel;
+			unsigned int espacioLibre;
+			unsigned int hijoIzq;	
+		}; 
 
 	///////////////////////////////////////////////////////////////////////////
 	// Metodos privados
@@ -266,7 +267,7 @@ class ArchivoIndiceSecundario: public ArchivoIndiceArbol
 	//////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceSecundario(int tamNodo, string nombreArchivo, unsigned int tamanioBloqueLista, t_indice tipoIndice);
+		ArchivoIndiceSecundario(unsigned int tamNodo, string nombreArchivo, unsigned int tamanioBloqueLista, t_indice tipoIndice);
 		virtual ~ArchivoIndiceSecundario();
 
 	//////////////////////////////////////////////////////////////////////
@@ -285,7 +286,7 @@ class ArchivoIndiceSecundario: public ArchivoIndiceArbol
 		 * donde se grabo, 
 		 * $$$: Recordar que el valor que sale de aca se tiene que grabar
 		 * en el NODO, estoy hay que hacerlo antes de insertar en el arbol*/ 
-		unsigned int grabarNuevaLstClavesP(SetClaves* setClaves);		
+		unsigned int grabarNuevaLstClavesP(SetClaves* setClaves);
 	
 		/*Redefino el exportar para que tb imprima la lista de claves primarias*/
 		void exportar(ostream &archivoTexto,int posicion);		
