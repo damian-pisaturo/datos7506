@@ -118,7 +118,7 @@ class Clave
 			this->hijoDer = hijoDer;
 		}
 
-		void* getValor() const
+		virtual void* getValor() const
 		{
 			return this->valor;
 		}
@@ -154,7 +154,7 @@ class ClaveEntera: public Clave
 {
 	public:
 	///////////////////////////////////////////////////////////////////////////
-	// Constructores/Destructor
+	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////////
  		ClaveEntera(int clave, unsigned int referencia = 0,
                                 unsigned int hijoDer = 0);
@@ -423,6 +423,9 @@ class ClaveVariable: public Clave
 		//Este método es virtual para que cada clase heredera devuelva el tamaño del
 		//tipo de dato que usa internamente.
 		virtual unsigned int getTamanioValor() const;
+		
+		//Devuelve el char* contenido en el valor string.
+		virtual void* getValor() const;
 
 }; //Fin clase ClaveVariable.
 
@@ -434,28 +437,14 @@ class ClaveVariable: public Clave
 ///////////////////////////////////////////////////////////////////////////
 class ClaveFecha: public Clave
 {
-	private:
-
+	public:
+		
 		typedef struct TFECHA{
-			short anio;
-			char mes;
-			char dia;
-
-			bool crear(short a, char m, char d)
-			{
-				if ((a > 9999) || (m > 12) || (d > 31))
-					return false;
-				else{
-					this->anio = a;
-					this->mes  = m;
-					this->dia  = d;
-				}
-
-				return true;
-			}
+			unsigned short anio;
+			unsigned char mes;
+			unsigned char dia;		
 		}fecha;
 
-	public:
 	/////////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	/////////////////////////////////////////////////////////////////////////

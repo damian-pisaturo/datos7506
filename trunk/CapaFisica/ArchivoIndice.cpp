@@ -715,7 +715,7 @@
 				memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
 			}
 		}	
-			
+	
 		Clave* ArchivoIndiceVariableRomano::leerClaveHoja(char* &buffer)
 		{
 			string valor;
@@ -761,34 +761,106 @@
 // Nombre: ArchivoIndiceCompuestoGriego 
 //		   (Implementa archivo de indices primarios de clave compuesta).
 ///////////////////////////////////////////////////////////////////////////
-	
-//TODO Meter todas las claves de una ClaveCompuesta en un char* no seria tarea
-//		rebuscada si se logra que getValor() devuelva, en el caso de las ClaveVariable,
-//		un char* (y no un string*) y, en el caso de ClaveFecha, un struct simple con 
-//		los 3 campos consecutivos: dia, mes, anio (como esta ahora devuelve una estructura 
-//		que contiene, ademas, alguna referencia a la funcion crear() utilizada para 
-//		inicializacion... supongo que puede obviarse, directamente).
-//
-//		Obtener una ClaveCompuesta a partir de un char* es, ya, otra jodita.
-//		Como debieran estar almacenadas en el disco ? Como se de que tipo son, o si son
-//		de longitud variable ? Yo defino como insertarlas en el char* para luego meterlas
-//		a disco, pero en ese proceso, pierdo toda referencia al tipo o la longitud. Para
-//		reconstruir la ClaveCompuesta original necesito esos datos.
-//
-//		Ultima cosilla: "descubri" ("catzo") que, en rigor de verdad, no es necesario 
-//		almacenar las longitudes de las cadenas de las claves variables en disco si 
-//		persistimos el '/0'.
-//		La clase string tiene redefinida la asignacion, al parecer, y pueden hacerse comodas
-//		cosas como:
-//		
-//			char* s;
-//			//Ponele que 's' tenga adentro un monton de zanahorias 
-//			//que acabo de levantar de un archivo: "Gargamel04533"
-//		
-//			string cadena = s;
-//
-//		Y 'cadena' se construye solito con "Gargamel".
-//		Si nos manejamos asi, no habria necesidad de guardar la longitud de para
-//		recuperar el string.
-//
+
+	//////////////////////////////////////////////////////////////////////
+	// Constructor
+	//////////////////////////////////////////////////////////////////////
+		ArchivoIndiceCompuestoGriego::ArchivoIndiceCompuestoGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice, ListaTipos* listaTipos):
+			ArchivoIndiceArbol(tamNodo, nombreArchivo, tipoIndice)
+		{
+			this->tipos = listaTipos;
+		}
+		
+	//////////////////////////////////////////////////////////////////////
+	// Metodos privados
+	//////////////////////////////////////////////////////////////////////
+		
+		void ArchivoIndiceCompuestoGriego::copiarClaveHoja(Clave* clave, char* &buffer)
+		{
+			ClaveCompuesta* claveCompuesta = static_cast<ClaveCompuesta*>(clave);
+			ListaClaves* listaClaves = claveCompuesta->getListaClaves();
+			Clave* claveAux;
+			
+			for (ListaClaves::const_iterator iterClaves = listaClaves->begin();
+				iterClaves != listaClaves->end(); ++iterClaves) {
+				
+				claveAux = (*iterClaves);
+				//Copia del valor de la clave
+				memcpy(buffer, claveAux->getValor(), claveAux->getTamanioValor());
+				buffer += claveAux->getTamanioValor();
+			}
+			
+			//Copia de la referencia a registro del archivo de datos. 
+			unsigned int referencia = clave->getReferencia();
+			memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
+		}
+			
+		void ArchivoIndiceCompuestoGriego::copiarClaveNoHoja(Clave* clave, char* &buffer)
+		{
+			unsigned int referencia = 0;
+			ClaveCompuesta* claveCompuesta = static_cast<ClaveCompuesta*>(clave);
+			ListaClaves* listaClaves = claveCompuesta->getListaClaves();
+			Clave* claveAux;
+			
+			//Copia de los valores de las claves en el nodo
+			for (ListaClaves::const_iterator iterClaves = listaClaves->begin();
+				iterClaves != listaClaves->end(); ++iterClaves) {
+				
+				claveAux = (*iterClaves);
+				//Copia del valor de la clave
+				memcpy(buffer, claveAux->getValor(), claveAux->getTamanioValor());
+				buffer += claveAux->getTamanioValor();
+			}
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.			
+				referencia = clave->getReferencia();
+				memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			referencia = clave->getHijoDer();
+			memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);			
+		}	
+			
+			
+		Clave* ArchivoIndiceCompuestoGriego::leerClaveHoja(char* &buffer)
+		{
+			string valor;
+			unsigned int refRegistro;
+			
+			//Se interpreta el valor variable de la clave.
+			valor = buffer;
+			buffer += valor.size() + 1;
+
+			//Se interpreta la referencia al registro de datos.
+			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+		
+			//Crear la clave
+			return new ClaveVariable(valor, refRegistro);	
+		}
+							
+		Clave* ArchivoIndiceCompuestoGriego::leerClaveNoHoja(char* &buffer)
+		{
+			string valor;
+			unsigned int refRegistro;		
+			unsigned int hijoDer = 0;
+			
+			//Se interpreta el valor variable de la clave.
+			valor = buffer;
+			buffer += valor.size() + 1;
+			
+			if (this->getTipoIndice() == ARBOL_BS){
+				//Si el arbol es B*, copiar referencia al registro de datos.
+				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+				buffer += Tamanios::TAMANIO_REFERENCIA;
+			}
+			
+			//Se interpreta la referencia al hijo derecho de la clave.
+			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
+			
+			//Crear la clave
+			return new ClaveVariable(valor, refRegistro, hijoDer);
+		}
+
 

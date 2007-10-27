@@ -4,18 +4,18 @@
 
 using namespace std;
 
-//TODO Quiero que ande esto, CANEJO !
-//		Quiero constantes string en una clase utilitaria para los
-//		nombres de los ejecutables de las capas.
-//		Quiero que Servetto me invite a su fiesta de 15.
-
 class NombreCapas
 {
 	public:
-		const static string CapaFisica    = "capaFisica";
-		const static string CapaIndices   = "capaIndices";
-		const static string CapaConsultas = "capaConsultas";
-		const static string CapaMetadata  = "capaMetadata";
+		const static string CAPA_FISICA;
+		const static string CAPA_INDICES;
+		const static string CAPA_CONSULTAS;
+		const static string CAPA_METADATA;
 };
+
+const string NombreCapas::CAPA_FISICA    = "capaFisica";
+const string NombreCapas::CAPA_INDICES   = "capaIndices";
+const string NombreCapas::CAPA_CONSULTAS = "capaConsultas";
+const string NombreCapas::CAPA_METADATA  = "capaMetadata";
 
 #endif /*NOMBRESCAPAS_H_*/

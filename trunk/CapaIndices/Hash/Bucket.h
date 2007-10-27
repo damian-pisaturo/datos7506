@@ -24,7 +24,6 @@
 #include <string.h>
 #include "../Common/BloqueIndice.h"
 #include "RegistroV.h"
-#include "../../CapaFisica/ArchivoIndicePadre.h"
 #include "../../CapaFisica/ArchivoIndice.h"
 #include "../Bloque/Bloque.h"
 
