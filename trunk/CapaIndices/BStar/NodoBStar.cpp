@@ -76,11 +76,11 @@ void NodoBStar::eliminarClave(Clave* clave, char* codigo) {
 	*codigo = Codigo::NO_MODIFICADO;
 }
 
-unsigned NodoBStar::getTamanioEnDisco() const {
+unsigned short NodoBStar::getTamanioEnDisco() const {
 	
 	//El tamanio se inicializa con los bytes ocupados por el atributo de
 	//espacio libre y por el de nivel.
-	unsigned tamanio = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_NIVEL;
+	unsigned short tamanio = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_NIVEL;
 
 	tamanio += this->getTamanioEnDiscoSetClaves();
 	
@@ -111,5 +111,13 @@ Nodo* NodoBStar::siguiente(Clave* clave) {
 	
 	return nodo;
 	
+}
+
+
+//Devuelve el espacio (en bytes) destinado para almacenar claves (elementos)
+unsigned short NodoBStar::getTamanioEspacioClaves() const {
+	if (this->getNivel() == 0) //Nodo hoja ==> Tengo que sumarle el espacio que se le descuenta por la referencia al hijo izq
+		return (this->getTamanio() - this->getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA);
+	else return Nodo::getTamanioEspacioClaves();
 }
 

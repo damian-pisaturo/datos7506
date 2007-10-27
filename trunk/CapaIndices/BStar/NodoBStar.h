@@ -19,7 +19,11 @@ class NodoBStar : public Nodo {
 		
 		Nodo* siguiente(Clave* clave);
 		
-		unsigned getTamanioEnDisco() const;
+		unsigned short getTamanioEnDisco() const;
+		
+		//Devuelve el espacio (en bytes) destinado para almacenar claves (elementos).
+		//Esta es una redefinición del método de la clase padre.
+		virtual unsigned short getTamanioEspacioClaves() const;
 
 };
 
