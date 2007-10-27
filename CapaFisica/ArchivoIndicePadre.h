@@ -22,6 +22,7 @@
 #define ARCHIVOINDICEPADRE_H_
 
 #include <iostream>
+
 using namespace std;
 
 #include "../CapaIndices/Common/Nodo.h"
@@ -31,6 +32,7 @@ using namespace std;
 #include "../ComuDatos/ComuDatos.h"
 #include "../Common/NombresCapas.h"
 #include "../CapaIndices/Common/TipoDatos.h"
+#include "../Common/OperacionesCapas.h"
 
 typedef enum{ARBOL_BP, ARBOL_BS, HASH}t_indice;
 
@@ -140,10 +142,10 @@ class ArchivoIndiceArbol : public ArchivoIndice
 	///////////////////////////////////////////////////////////////////////
 
 		/*Header del Nodo*/
-		struct Header{
-			unsigned int nivel;
-			unsigned int espacioLibre;
-			unsigned int hijoIzq;	
+		struct HeaderNodo{
+			unsigned char nivel;
+			unsigned short espacioLibre;
+			unsigned int refNodo;	
 		}; 
 
 	///////////////////////////////////////////////////////////////////////////

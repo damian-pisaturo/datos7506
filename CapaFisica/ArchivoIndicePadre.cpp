@@ -140,39 +140,31 @@
 		memcpy(puntero, &referencia, Tamanios::TAMANIO_REFERENCIA);
 	}
 			
-	void ArchivoIndiceArbol::leerBloque(unsigned int numeroRegistro, BloqueIndice* bloqueLeido)
-	{
-		//TODO Revisar implementacion
-		/*
-		Nodo* nodoLeido = (Nodo*) bloqueLeido;
-		
-		//Variables de Lectura del buffer
-		char* buffer = new char[this->getTamanioBloque()];
-		char* puntero = buffer;
-		char* punteroFinal;
-		Header headerNodo;
+	void ArchivoIndiceArbol::leerBloque(unsigned int numBloque, BloqueIndice* bloqueLeido)
+	{		
+		Nodo* nodoLeido = static_cast<Nodo*> bloqueLeido;
+		string buffer;
 		
 		//Variables de interpretacion del nodo
+		Header headerNodo;		
 		Clave* claveNueva;
 		SetClaves* set = new SetClaves();
 		
-		//Posicionarse en el numeroRegistro
-		//TODO Usar ComuDato.
-		this->archivoIndex->posicionarse(numeroRegistro);
+		//Instancia del pipe
+		ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+		pipe->agregarParametro(OperacionesCapas::FISICA_LEER, 0);
+		pipe->agregarParametro(this->nombreArchivo, 1);
+		pipe->agregarParametro(numBloque*(this->getTamanioBloque()), 2);
+	
+		//Se lanza el proceso de la capa fisica. 
+		//Se obtiene en buffer el contenido del Nodo solicitado.
+		pipe->lanzar();
+		buffer = pipe->leerString(this->getTamanioBloque());
 		
-		//Leer el bloque de 512 bytes y dejarlo apuntado a un char
-		try{
-			this->archivoIndex->leer(buffer);
-		}
-		catch(string s){
-			delete[] buffer;
-			delete lista;
-			throw string("Bloque de Archivo Indice Inexistente");	
-		}
-		
+		char* data = buffer.data();
 		//Castear el header
-		memcpy(&headerNodo,puntero,sizeof(Header));
-		puntero += sizeof(Header);
+		memcpy(&headerNodo, data, sizeof(Header));
+		data += sizeof(Header);
 		
 		//Setear el espacio libre, si es hoja y el HijoIzq
 		nodoLeido->setNivel(headerNodo.nivel);
@@ -180,72 +172,65 @@
 		nodoLeido->setHijoIzq(headerNodo.hijoIzq);
 		
 		//Recorrer el buffer desde donde quedo hasta que supere
-		 // el espacio libre casteando a de a pedazos de a una clave
-		 //Apunto al final de los datos validos para saber cuando parar de leer
-		 punteroFinal = buffer + (tamanioNodo - headerNodo.espacioLibre);
+		//el espacio libre, interpretando clave por clave.			
+		char* punteroFinal = data + (this->getTamanioBloque() - headerNodo.espacioLibre);
 		
 		if(nodoLeido->getNivel() == 0){
-			while(puntero < punteroFinal){	
-				//leer la clave	
-				claveNueva = leerClaveHoja(puntero);
+			while(data < punteroFinal){	
+				//Leer la clave	
+				claveNueva = leerClaveHoja(data);
 				//Agregarla a la lista	
 				set->insert(claveNueva);
-			}	
+			}	 
 		}else{
-			while(puntero < punteroFinal){	
-				//leer la clave	
-				claveNueva = leerClaveNoHoja(puntero);
+			while(data < punteroFinal){	
+				//Leer la clave	
+				claveNueva = leerClaveNoHoja(data);
 				//Agregarla a la lista	
 				lista->agregar(claveNueva);
 			}
 		}
 		
-		//libero el buffer
-		delete[] buffer;
-		
 		//Agregar el setClaves al nodo
 		nodoLeido->setClaves(set);
 		//Setear la posicion del nodo en el archivo
-		nodoLeido->setPosicionEnArchivo(numeroRegistro);
-		*/
+		nodoLeido->setPosicionEnArchivo(numBloque);	
+		pipe->liberarRecursos();
 	}
 	
 	void ArchivoIndiceArbol::escribirBloque(BloqueIndice* bloqueNuevo)
 	{	
 		//TODO Revisar implementacion
-		/*
+		
 		Nodo* nodoNuevo = (Nodo*) bloqueNuevo;
 		
 		//Variables de escritura del buffer
-		const int registroUsado = -1;
-		int posicion = -1;
-		int numero;
-		bool ubicado  = false;
-		char* buffer  = new char[this->tamanioNodo];
-		char* puntero = buffer;
+		string buffer;
+		char* data = new char[this->getTamanioBloque()];
 		
 		//Variables de interpretacion del nodo
 		Header headerNodo;
 		SetClaves* set;
 		
-		nodoNuevo->actualizarEspacioLibre(this);
+		nodoNuevo->actualizarEspacioLibre(this); //NADIE SABIA.
 		
-		//TODO Usar ComuDatos para buscar en el archivo de espacio libre.
-		//Implementar en la capa fisica alguna clase que permita hacer esto mismo.
+		//Instancia del pipe
+		ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR, 0);
+		pipe->agregarParametro(this->nombreArchivo, 1);
+		pipe->agregarParametro(this->nombreArchivoEL, 2);
+		pipe->agregarParametro(numBloque*(this->getTamanioBloque()), 3);				
 		
+		//Se lanza el proceso de la capa fisica. 
+		//Se obtiene en buffer el contenido del Nodo solicitado.
+		pipe->lanzar();		
+		buffer = pipe->escribir(this->getTamanioBloque());
+		
+		//TODO Buscar en archivo de espacio libre.
 		//Buscar una posicion en el archivo a partir del archivo de nodos liberados
 		 // (buscar el ultimo agregado a la lista)
+		/*
 		this->archivoLiberados->posicionarse(0);
-		while( (!this->archivoLiberados->fin()) && (!ubicado) ){
-			
-			this->archivoLiberados->leer(&numero);
-			this->cantLecturasControl++;
-			if(numero==-1)
-				ubicado = true;
-			else
-				posicion = numero;	
-		}
-
 		
 		if(posicion!=-1){ //Si se encontro un nodo liberado
 			//Posicionarse en el numeroRegistro
@@ -270,31 +255,29 @@
 			this->archivoIndex->posicionarseFin(); // Si no hay ninguno libre me posicion al final
 			posicion = this->archivoIndex->posicion();
 			}
+		*/
+		
 		//Copiar el header al buffer
 		headerNodo.nivel = nodoNuevo->getNivel();  
 		headerNodo.hijoIzq = nodoNuevo->getHijoIzq();
 		headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
 		
-		memcpy(puntero,&headerNodo,sizeof(Header));
-		puntero += sizeof(Header);
+		memcpy(data, &headerNodo, sizeof(Header));
+		data += sizeof(Header);
 		
 		//Obtener la lista de claves
-		lista = nodoNuevo->obtenerClaves();
+		set = nodoNuevo->getClaves();
 		
 		//Recorrer la lista de claves copiando cada clave al buffer
 		if(nodoNuevo->getNivel()==0){
-			lista->primero();
-			while(!lista->fin()){
-				copiarClaveHoja((Clave*)lista->obtenerDato(),puntero);			
-				lista->siguiente();	
-			}
-		}
-		else{
-			lista->primero();
-			while(!lista->fin()){
-				copiarClaveNoHoja((Clave*)lista->obtenerDato(),puntero);			
-				lista->siguiente();	
-			}
+			for(SetClaves::iterator iterClaves = set->begin(); 
+				iterClaves != set->end(); ++iterClaves)
+				copiarClaveHoja((Clave*)(*iter), data);
+			
+		}else{
+			for(SetClaves::iterator iterClaves = set->begin(); 
+				iterClaves != set->end(); ++iterClaves)
+				copiarClaveNoHoja((Clave*)(*iter), data);
 		}
 		
 		//Grabar el buffer en el archivo 

@@ -123,7 +123,7 @@ class Clave
 			this->hijoDer = hijoDer;
 		}
 
-		virtual void* getValor() const
+		virtual const void* getValor() 
 		{
 			return this->valor;
 		}
@@ -552,7 +552,7 @@ class ClaveCompuesta: public Clave
 		//que contiene
 		void eliminarLista();
 		
-		//Método que calcula el tamaño total de todos los valores de las claves de la lista
+		//Método que calcula el tamaño total de todos los valores de las claves de la lista.
 		unsigned int calcularTamanioValoresClaves(const ListaClaves& listaClaves) const;
 
 }; //Fin clase ClaveCompuesta.

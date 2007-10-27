@@ -819,37 +819,148 @@
 				buffer += Tamanios::TAMANIO_REFERENCIA;
 			}
 			
+			//Copia de la referencia al hijo derecho.
 			referencia = clave->getHijoDer();
 			memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);			
-		}	
-			
+		}			
 			
 		Clave* ArchivoIndiceCompuestoGriego::leerClaveHoja(char* &buffer)
 		{
-			string valor;
-			unsigned int refRegistro;
+			ListaClaves listaClaves;
+			string* tipo;
+			unsigned int refRegistro = 0, tamanio = 0;
+			void* valor = NULL;
 			
-			//Se interpreta el valor variable de la clave.
-			valor = buffer;
-			buffer += valor.size() + 1;
-
+			//Copia de los valores de las claves en el nodo				
+			for (ListaTipos::const_iterator iterTipos = this->tipos->begin();
+				iterTipos != this->tipos->end(); ++iterTipos) {			
+					
+					tipo = (*iterTipos);
+					
+					if (tipo == TipoDatos::TIPO_ENTERO){						
+						//Copia del valor de la clave
+						valor = new int;
+						tamanio = sizeof(int);
+						
+						memcpy(valor, buffer, tamanio);
+						listaClaves.insert(new ClaveEntera(*((int*)valor)));
+					
+					}else if (tipo == TipoDatos::TIPO_BOOL){
+						valor = new bool;
+						tamanio = sizeof(bool);
+						
+						memcpy(valor, buffer, tamanio);
+						listaClaves.insert(new ClaveBoolean(*((bool*)valor)));
+					}else if (tipo == TipoDatos::TIPO_CHAR){
+						valor = new char;
+						tamanio = sizeof(char);
+						
+						memcpy(valor, buffer, tamanio);
+						listaClaves.insert(new ClaveChar(*((char*)valor)));
+						
+					}else if (tipo == TipoDatos::TIPO_SHORT){
+						valor = new short;
+						tamanio = sizeof(short);
+						
+						memcpy(valor, buffer, tamanio);
+						listaClaves.insert(new ClaveShort(*((short*)valor)));
+						
+					}else if (tipo == TipoDatos::TIPO_REAL){
+						valor = new float;
+						tamanio = sizeof(float);
+						
+						memcpy(valor, buffer, tamanio);
+						listaClaves.insert(new ClaveReal(*((float*)valor)));
+					}else if (tipo == TipoDatos::TIPO_FECHA){
+						valor = new ClaveFecha::TFECHA;
+						tamanio = sizeof(ClaveFecha::TFECHA);
+						
+						memcpy(valor, buffer, tamanio);
+						listaClaves.insert(new ClaveReal((ClaveFecha::TFECHA*)valor)));
+					}else if (tipo == TipoDatos::TIPO_VARIABLE){
+						valor = new string;
+						valor = buffer;
+						tamanio = ((string*)valor)->size() + 1;
+	
+						listaClaves.insert(new ClaveVariable((string*)valor)));
+					}
+					
+					delete valor;
+					buffer += tamanio;
+				}
+	
 			//Se interpreta la referencia al registro de datos.
 			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 		
 			//Crear la clave
-			return new ClaveVariable(valor, refRegistro);	
+			return new ClaveCompuesta(listaClaves, refRegistro);	
 		}
 							
 		Clave* ArchivoIndiceCompuestoGriego::leerClaveNoHoja(char* &buffer)
 		{
-			string valor;
-			unsigned int refRegistro;		
-			unsigned int hijoDer = 0;
+			ListaClaves listaClaves;
+			string* tipo;
+			unsigned int refRegistro = 0, hijoDer = 0;
+			void* valor = NULL;
 			
-			//Se interpreta el valor variable de la clave.
-			valor = buffer;
-			buffer += valor.size() + 1;
-			
+			//Copia de los valores de las claves en el nodo				
+			for (ListaTipos::const_iterator iterTipos = this->tipos->begin();
+				iterTipos != this->tipos->end(); ++iterTipos) {			
+					
+				tipo = (*iterTipos);
+				
+				if (tipo == TipoDatos::TIPO_ENTERO){						
+					//Copia del valor de la clave
+					valor = new int;
+					tamanio = sizeof(int);
+					
+					memcpy(valor, buffer, tamanio);
+					listaClaves.insert(new ClaveEntera(*((int*)valor)));
+				
+				}else if (tipo == TipoDatos::TIPO_BOOL){
+					valor = new bool;
+					tamanio = sizeof(bool);
+					
+					memcpy(valor, buffer, tamanio);
+					listaClaves.insert(new ClaveBoolean(*((bool*)valor)));
+				}else if (tipo == TipoDatos::TIPO_CHAR){
+					valor = new char;
+					tamanio = sizeof(char);
+					
+					memcpy(valor, buffer, tamanio);
+					listaClaves.insert(new ClaveChar(*((char*)valor)));
+					
+				}else if (tipo == TipoDatos::TIPO_SHORT){
+					valor = new short;
+					tamanio = sizeof(short);
+					
+					memcpy(valor, buffer, tamanio);
+					listaClaves.insert(new ClaveShort(*((short*)valor)));
+					
+				}else if (tipo == TipoDatos::TIPO_REAL){
+					valor = new float;
+					tamanio = sizeof(float);
+					
+					memcpy(valor, buffer, tamanio);
+					listaClaves.insert(new ClaveReal(*((float*)valor)));
+				}else if (tipo == TipoDatos::TIPO_FECHA){
+					valor = new ClaveFecha::TFECHA;
+					tamanio = sizeof(ClaveFecha::TFECHA);
+					
+					memcpy(valor, buffer, tamanio);
+					listaClaves.insert(new ClaveReal((ClaveFecha::TFECHA*)valor)));
+				}else if (tipo == TipoDatos::TIPO_VARIABLE){
+					valor = new string;
+					valor = buffer;
+					tamanio = ((string*)valor)->size() + 1;
+				
+					listaClaves.insert(new ClaveVariable((string*)valor)));
+				}
+					
+				delete valor;
+				buffer += tamanio;
+			}			
+	
 			if (this->getTipoIndice() == ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
@@ -860,7 +971,7 @@
 			memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
 			
 			//Crear la clave
-			return new ClaveVariable(valor, refRegistro, hijoDer);
+			return new ClaveCompuesta(listaClaves, refRegistro);
 		}
 
 
