@@ -1,4 +1,49 @@
+///////////////////////////////////////////////////////////////////////////
+//	Archivo   : Bucket.cpp
+//  Namespace : CapaIndice 
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Implementacion de las clase Bucket.
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;	
+//		- Rodriguez, Maria Laura.
+///////////////////////////////////////////////////////////////////////////
 #include "Bloque.h"
+
+///////////////////////////////////////////////////////////////////////
+// Constructor/Destructor
+///////////////////////////////////////////////////////////////////////
+
+Bloque::Bloque()
+{
+	numero = 0;
+	tamanio = 0;
+	datos = NULL;
+}
+
+/**
+ * Este constructor recibe el número de bloque dentro del archivo, y el tamaño del 
+ * bloque medido en bytes.
+ */
+Bloque::Bloque(int num,int tam){
+	numero = num;
+	tamanio = tam;
+	//contendrá offset a espacio libre, cantidad de registros, y datos.-
+	datos = new char[tamanio];
+}
+
+Bloque::~Bloque(){
+	if (datos)
+		delete [] datos;
+}
 
 /**
  * Este metodo busca un registro en el bloque segun su clavePrimaria. Si lo encuentra
@@ -6,18 +51,13 @@
  * devuelve false.
  */
 bool Bloque::buscarRegistro(const list<string>& listaParam, void *clavePrimaria, unsigned short *offsetReg){
+
 	int offsetToReg = 4;
 	int offsetToProxCampo = 0;
-/*
-	int longCampo;
-	float campoNumerico;
-	//Se usa para levantar la longitud del atributo variable del registro
-	//Se usa para levantar la longitud del registro
-*/
 
 	//Obtengo la cantidad de registros dentro del bloque
 	unsigned short cantRegistros;
-	memcpy(&cantRegistros,&datos[2],TAMANIO_LONGITUD);
+	memcpy(&cantRegistros,&datos[2],Tamanios::TAMANIO_LONGITUD);
 	
 	bool encontrado = false;
 		
@@ -31,13 +71,15 @@ bool Bloque::buscarRegistro(const list<string>& listaParam, void *clavePrimaria,
 	unsigned short longRegistro;
 	unsigned short longCampo;
 	char *campo;
+	float campoNumerico;
+	short int campoShort;
 
 	int i = 1 ;
 	//Mientras haya mas registros y no lo haya encontrado
 	while( (i<cantRegistros + 1) && (!encontrado) ){
 		
 		//obtengo la longitud del registro;
-		memcpy(&longRegistro,&datos[offsetToReg],TAMANIO_LONGITUD);
+		memcpy(&longRegistro,&datos[offsetToReg],Tamanios::TAMANIO_LONGITUD);
 		
 		//Omito la longitud del registro
 		offsetToReg += 2;
@@ -58,7 +100,7 @@ bool Bloque::buscarRegistro(const list<string>& listaParam, void *clavePrimaria,
 			   
 			   if(tipo == "string"){
 				   //obtengo la longitud del campo variable
-				   memcpy(&longCampo,&registro[offsetToProxCampo],TAMANIO_LONGITUD);
+				   memcpy(&longCampo,&registro[offsetToProxCampo],Tamanios::TAMANIO_LONGITUD);
 				   
 				   offsetToProxCampo += 2;
 				   
@@ -78,48 +120,39 @@ bool Bloque::buscarRegistro(const list<string>& listaParam, void *clavePrimaria,
 			   else if(tipo == "int"){
 				   
 				   if(pk == "true"){
-					   campo = new char[5];
-					   
-					   memcpy(campo,&registro[offsetToProxCampo],4);
-					   campo[4] = '\0';		   		
-					   campoNumerico = atoi(campo);
+					   					   
+					   memcpy((int*)&campoNumerico,&registro[offsetToProxCampo],sizeof(int));
 					 
 					   if(campoNumerico == *((int*)clavePrimaria)){
 						   *offsetReg = offsetToReg;
 						   encontrado = true;
 					   }
-					   delete[]campo;
 				   	}
-				   offsetToProxCampo += 4;
+				   offsetToProxCampo += sizeof(int);
 			   }
 			   else if(tipo == "shortInt"){
 				   if(pk == "true"){
-					   campo = new char[3];
-					   memcpy(campo,&registro[offsetToProxCampo],2);
-					   campo[2] = '\0';		   		
-					   campoNumerico = atoi(campo);
-	  					   
-	   					if(campoNumerico == *((short int*)clavePrimaria)){
+					 
+					   memcpy(&campoShort,&registro[offsetToProxCampo],Tamanios::TAMANIO_LONGITUD);
+					 	   
+	   					if(campoShort == *((short int*)clavePrimaria)){
 	   						*offsetReg = offsetToReg;
 	   						encontrado = true;		   				    
-	   					}
-	   					delete[]campo;  
+	   					}  
 				   }
-				   offsetToProxCampo += 2;
+				   offsetToProxCampo += sizeof(short int);
 			   }
 			   else if(tipo == "float"){
 				   if(pk == "true"){
-					   campo = new char[5];
-					   memcpy(campo,&registro[offsetToProxCampo],4);
-					   campo[4] = '\0';		   		
-					   campoNumerico = atof(campo);
+					   
+					   memcpy(&campoNumerico, &registro[offsetToProxCampo], sizeof(float));
+					   
 	  				   if(campoNumerico == *((float*)clavePrimaria)){
 	  					 *offsetReg = offsetToReg;
 	  					 encontrado = true;	  					   
 	  				   }
-	  				   delete[]campo;
 	   			   }
-	   			   offsetToProxCampo += 4;
+	   			   offsetToProxCampo += sizeof(float);
 			   }
 			   else if (tipo == "char"){
 				   if(pk == "true"){
@@ -139,32 +172,12 @@ bool Bloque::buscarRegistro(const list<string>& listaParam, void *clavePrimaria,
 		   } 
 		//La próxima iteración se levantará la longitud del registro siguiente
 		offsetToReg += longReg;
+		delete []registro;
 		}
+		
 		if (!encontrado)
 			return false;
 		return true;
-}
-
-Bloque::Bloque(int num,int tam){
-	numero = num;
-	tamanio = tam;
-	//contendrá offset a espacio libre, cantidad de registros, y datos.-
-	datos = new char[tamanio];
-}
-
-Bloque::~Bloque(){
-	delete [] datos;
-}
-
-/**
- * Este metodo levanta una longitud de caracteres a partir de datos[offset]
- */
-char* Bloque::getSubstring(int longitud, int offset){
-	char* cadena = new char[longitud+1];
-	memcpy(cadena,&datos[offset],longitud);
-	cadena[longitud] = '\0';
-	
-	return cadena;
 }
 
 /**
@@ -173,18 +186,14 @@ char* Bloque::getSubstring(int longitud, int offset){
 void Bloque::organizarBloque(int offsetToReg,int longReg){
 	
 	char* datosAux = new char[tamanio];
-	char * espLibreAux;
-	char* cantRegsAux;
-	short espLibre;
-	short cantRegs;
+	unsigned short espLibre;
+	unsigned short cantRegs;
 	
 	//Levanta el espacio libre en el bloque.
-	espLibreAux = getSubstring(2,0);
-	espLibre = atoi(espLibreAux);
+	memcpy(&espLibre,datos,Tamanios::TAMANIO_LONGITUD);
 	
 	// Levanta la cantidad de registros del bloque.
-	cantRegsAux = getSubstring(2,2); 
-	cantRegs = atoi(cantRegsAux);
+	memcpy(&cantRegs,&datos[2],Tamanios::TAMANIO_LONGITUD);
 	
 	// Hago una copia del bloque omitiendo el bloque borrado.
 	memcpy(datosAux,datos,offsetToReg);
@@ -193,15 +202,12 @@ void Bloque::organizarBloque(int offsetToReg,int longReg){
 	//Actualizo los valores de espacio libre y cantidad de registros.
 	espLibre += longReg;
 	cantRegs -= 1;
-	memcpy(datosAux,&espLibre,2);
-	memcpy(&datosAux[2],&cantRegs,2);
+	memcpy(datosAux,&espLibre,Tamanios::TAMANIO_LONGITUD);
+	memcpy(&datosAux[2],&cantRegs,Tamanios::TAMANIO_LONGITUD);
 	
 	//Actualizo datos.
 	delete[] datos;
-	datos = datosAux;
-	
-	delete[] espLibreAux;
-	delete[] cantRegsAux;	
+	datos = datosAux;	
 }
 
 /*
@@ -211,70 +217,57 @@ void Bloque::organizarBloque(int offsetToReg,int longReg){
 bool Bloque::altaRegistro(char *registro){
 	unsigned short offsetEspLibre;
 	unsigned short longReg;
-	char *auxEspLibre; 
-	char *auxLongReg = new char[3];
 	
 	//Obtengo la longitud del registro
-	memcpy(auxLongReg,registro,2); 
-	auxLongReg[2]= '\0';
-	longReg = atoi(auxLongReg);
+	memcpy(&longReg, registro, Tamanios::TAMANIO_LONGITUD);
  	
 	//Obtengo el offset al espacio libre
-	auxEspLibre = getSubstring(2,0);
-	offsetEspLibre = atoi(auxEspLibre);
+	memcpy(&offsetEspLibre,&datos[0],Tamanios::TAMANIO_LONGITUD);
 	
 	//Si el registro tiene espacio dentro del bloque realizo la inserción
 	if(verificarEspacioDisponible(longReg,offsetEspLibre)){
+		// registro incluye su longitud en los primeros 2 bytes.
 		insertarRegistro(registro,offsetEspLibre,longReg); 
 		return true;	
 	}
-	delete []auxEspLibre;
-	delete []auxLongReg;
 	return false;
 }
 	
 /*
- * 
+ * Da de baja dentro del bloque al registro cuya clave es clavePrimaria.
  **/
 int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
+
+	unsigned short offsetToReg = 4;
+	unsigned short offsetToProxCampo = 0;
+
+	unsigned short longReg;
+	unsigned short cantRegistros;
 	bool registroBorrado = false;
-	int offsetToReg = 4;
-	int longReg;
-	int longCampo;
-	float campoNumerico;
 	char *registro;
-	int offsetToProxCampo = 0;
-	//Se usa para levantar la longitud del atributo variable del registro
-	char *longAtributo = new char [3];
-	//Se usa para levantar la longitud del registro
-	char *longRegistro = new char [3];
-	//Cantidad de registros dentro del bloque
-	char *cantRegs = new char[3];
-	int cantRegistros;
 	list <string>::iterator it;
 	string regAtribute;
 	size_t posOfDelim;
-	char *campo;
 	string tipo;
 	string pk;
+	unsigned short longCampo;
+	char *campo;
+	float campoNumerico;
+	unsigned short campoShort;
+	
 	//Obtengo la cantidad de registros dentro del bloque
-	cantRegs[0] = datos[2];
-	cantRegs[1] = datos[3];
-	cantRegs[2] = '\0';
-	cantRegistros = atoi(cantRegs);
+	memcpy(&cantRegistros,&datos[2],Tamanios::TAMANIO_LONGITUD);
 	
 	int i = 1 ;
 	//Mientras no itero sobre la cantidad total de registros y no borré el registro busco la clave primaria
 	while( (i<cantRegistros + 1) && (!registroBorrado) ){
 	
 		//obtengo la longitud del registro;
-		longRegistro[0] = datos [offsetToReg];
-		longRegistro[1] = datos [offsetToReg + 1];
-		longRegistro[2] = '\0';
-		longReg = atoi(longRegistro);
+		memcpy(&longReg,&datos[offsetToReg],Tamanios::TAMANIO_LONGITUD);
 		registro = new char[longReg];
+		
 		//Omito la longitud del registro
-		offsetToReg += 2;
+		offsetToReg += Tamanios::TAMANIO_LONGITUD;
 		registro = getRegistro(longReg,offsetToReg);
 		
 	
@@ -288,12 +281,9 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 			   pk = regAtribute.substr(posOfDelim+1);
 			   
 			   if(tipo == "string"){
-			   		//obtengo la longitud del campo variable
-				   	longAtributo[0] = registro[offsetToProxCampo];
-			   		longAtributo[1] = registro[offsetToProxCampo + 1];
-			   		longAtributo[2] = '\0';
-			   		longCampo = atoi(longAtributo);
-			   		offsetToProxCampo += 2;
+				   //obtengo la longitud del campo variable
+				   memcpy(&longCampo,&registro[offsetToProxCampo],Tamanios::TAMANIO_LONGITUD);
+				   offsetToProxCampo += Tamanios::TAMANIO_LONGITUD;
 			   		//Si es pk, me preocupo por obtener el campo en si
 			   		if(pk == "true"){
 			   			campo = getRegisterAtribute(registro,offsetToProxCampo,longCampo);
@@ -305,55 +295,41 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 			   			}
 			   			delete[]campo;
 			   		}
-			   		
-			   		//Seteo el nuevo offset del próximo campo para la siguiente iteración
+			   		//Seteo el nuevo offse//	char *campo;t del próximo campo para la siguiente iteración
 			   		offsetToProxCampo += longCampo;
 			   }
 			   else if(tipo == "int"){
 				   
 				   if(pk == "true"){
-					   campo = new char[5];
 					   
-					   memcpy(campo,&registro[offsetToProxCampo],4);
-					   campo[4] = '\0';		   		
-					   campoNumerico = atoi(campo);
+					   memcpy((int*)&campoNumerico,&registro[offsetToProxCampo],sizeof(int));
 					 
 					   if(campoNumerico == *((int*)clavePrimaria)){
 						   organizarBloque(offsetToReg,longReg);
 						   registroBorrado = true;
 					   }
-					   delete[]campo;
 				   	}
-				   offsetToProxCampo += 4;
+				   offsetToProxCampo += sizeof(int);
 			   }
 			   else if(tipo == "shortInt"){
 				   if(pk == "true"){
-					   campo = new char[3];
-					   memcpy(campo,&registro[offsetToProxCampo],2);
-   					   campo[2] = '\0';		   		
-   					   campoNumerico = atoi(campo);
-   					   
-	   					if(campoNumerico == *((short int*)clavePrimaria)){
+					   memcpy(&campoShort,&registro[offsetToProxCampo],sizeof(short int));
+					   if(campoNumerico == *((short int*)clavePrimaria)){
 	   						organizarBloque(offsetToReg,longReg);
 	   						registroBorrado = true;
 	   				    }
-   					   delete[]campo;  
 				   }
-				   offsetToProxCampo += 2;
+				   offsetToProxCampo += sizeof(short int);
 			   }
 			   else if(tipo == "float"){
 				   if(pk == "true"){
-					   campo = new char[5];
-   					   memcpy(campo,&registro[offsetToProxCampo],4);
-  					   campo[4] = '\0';		   		
-  					   campoNumerico = atof(campo);
-  					   if(campoNumerico == *((float*)clavePrimaria)){
+					   memcpy(&campoNumerico,&registro[offsetToProxCampo],sizeof(float));
+					   if(campoNumerico == *((float*)clavePrimaria)){
   						   organizarBloque(offsetToReg,longReg);
   						   registroBorrado = true;
   					   }
-  					   delete[]campo;
    				   }
-   				   offsetToProxCampo += 4;
+   				   offsetToProxCampo += sizeof(float);
 			   }
 			   else if (tipo == "char"){
 				   if(pk == "true"){
@@ -363,17 +339,16 @@ int Bloque::bajaRegistro(list <string>listaParam,void *clavePrimaria){
 						   organizarBloque(offsetToReg,longReg);
 						   registroBorrado = true;
 					   }
-					   delete[]campo;
-					   
+					   delete[]campo;	   
 				   }
 			   }
 			   else if(tipo == "fecha"){
 				   //TODO: Completar la fecha
 			   }
-			   
 		   } 
 		//La próxima iteración se levantará la longitud del registro siguiente
 		offsetToReg += longReg;
+		delete []registro;
 	}
 	if (!registroBorrado)
 		return false;
@@ -390,12 +365,12 @@ int Bloque::modificarRegistro(const list<string>& listaParam, unsigned short lon
 	if (!encontrado)
 		return NO_ENCONTRADO;
 	
-	unsigned short longRegOrig;
 	// Levanto la longitud del registro original.
-	memcpy(&longRegOrig,&datos[offsetReg-2],2);
+	unsigned short longRegOrig;	
+	memcpy(&longRegOrig,&datos[offsetReg-2],Tamanios::TAMANIO_LONGITUD);
 	
 	unsigned short offsetEspLibre;
-	memcpy(&offsetEspLibre,datos,2);
+	memcpy(&offsetEspLibre,datos,Tamanios::TAMANIO_ESPACIO_LIBRE);
 	
 	if ((tamanio-offsetEspLibre + longRegOrig)<longReg )
 		return OVERFLOW;
@@ -414,20 +389,20 @@ bool Bloque::verificarEspacioDisponible(int longReg,int offsetEspLibre){
 		return true;
 }
 
+
 void Bloque::insertarRegistro(char *registro, unsigned short offsetEspLibre,unsigned short longReg){
-	// Se hace longReg + 2 porque esa longitud no incluye los 2 bytes que se usan para guardar la longitud
-	// del registro.
-	memcpy(&datos[offsetEspLibre],registro,longReg + 2);
+	// Se hace longReg + TAMANIO_LONGITUD porque esa longitud no incluye los 2 bytes que se usan para
+	// guardar la longitud del registro.
+	memcpy(&datos[offsetEspLibre],registro,longReg + Tamanios::TAMANIO_LONGITUD);
 	
 	// Actualizo el offset al espacio libre.
-	offsetEspLibre += (longReg + 2);
-	memcpy(datos,&offsetEspLibre,2);
+	offsetEspLibre += (longReg + Tamanios::TAMANIO_LONGITUD);
+	memcpy(datos,&offsetEspLibre,Tamanios::TAMANIO_ESPACIO_LIBRE);
 	
 }
 
 char* Bloque::getRegistro(int longReg,int offsetToReg){
 	char *registro = new char [longReg];
-	
 	memcpy(registro,&datos[offsetToReg],longReg);
 	return registro;
 	
