@@ -41,7 +41,7 @@ void NodoBStar::insertarClave(Clave* &clave, char* codigo) {
 		this->actualizarEspacioLibre(clave, true);
 		cod = Codigo::MODIFICADO;
 	
-		//TODO Escribir a disco
+		//TODO Escribir a disco (por ahora parece que no vamos a escribir aca, lo hacemos desde afuera
 	    //Sobreescribe el nodo, actualizando las modificaciones
 	    //archivoIndice->sobreescribirNodo(this);
 	}else{ //No hay espacio libre suficiente para insertar la clave...
@@ -121,3 +121,7 @@ unsigned short NodoBStar::getTamanioEspacioClaves() const {
 	else return Nodo::getTamanioEspacioClaves();
 }
 
+
+VectorConjuntos* NodoBStar::split(){
+	return this->getClaves()->splitBStar(this->getTamanioMinimo());
+}

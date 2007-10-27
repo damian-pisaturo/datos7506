@@ -30,17 +30,17 @@ class SetClaves : public set<Clave*, Comparador> {
 		//Si la cantidad de claves es impar, este conjunto se queda con la
 		//menor cantidad de claves.
 		//El conjunto devuelto contiene las claves mayores.
-		//Recibe la minima cantidadd de claves (en bytes) que debe tener
+		//Recibe la minima cantidad de claves (en bytes) que debe tener
 		//cada conjunto.
-		SetClaves* splitBPlus(unsigned minClaves);
+		SetClaves* splitBPlus(unsigned short minClaves);
 		
 		//Este metodo divide al conjunto actual en tres 2/3 llenos.
 		//Devuelve un vector con punteros a los otros conjuntos creados.
 		//Los conjuntos devueltos en el vector son los que contiene las 
 		//claves a promocionar.
-		//Recibe la minima cantidadd de claves (en bytes) que debe tener
+		//Recibe la minima cantidad de claves (en bytes) que debe tener
 		//cada conjunto.
-		VectorConjuntos* splitBStar(unsigned minClaves);
+		VectorConjuntos* splitBStar(unsigned short minClaves);
 		
 		//Este metodo fusiona este conjunto con un conjunto hermano
 		//y con una clave padre.

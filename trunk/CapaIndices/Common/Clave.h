@@ -23,8 +23,13 @@
 #include "Tamanios.h"
 #include <iostream>
 #include <list>
+#include <vector>
 
 using namespace std;
+
+class Clave;
+
+typedef vector<Clave*> VectorClaves;
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase

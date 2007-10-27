@@ -33,7 +33,7 @@ class BStarTree {
 		
 		//Métodos
 		
-		void insertarInterno(Clave* clave);
+		void insertarInterno(NodoBStar* &nodoDestino, char* codigo);
 		
 		void eliminarInterno(Clave* clave);
 		
@@ -74,8 +74,8 @@ class BStarTree {
 		//la clave recibida por parámetro.
 		NodoBStar* buscarMenorMayores(NodoBStar* nodo, Clave* clave) const;
 		
-		//Parte dos nodos completos en tres.
-		void split(NodoBStar* nodoTarget, NodoBStar* nodoHnoDer, Clave* clavePadre);
+		//Parte dos nodos completos en tres y devuelve las dos claves promocionadas.
+		VectorClaves* split(NodoBStar* nodoTarget, NodoBStar* nodoHnoDer, Clave* clavePadre);
 		
 };
 

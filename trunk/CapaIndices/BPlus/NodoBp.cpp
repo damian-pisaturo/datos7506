@@ -90,7 +90,7 @@
 			 */
 			//TODO Reemplazar "10" por el tamanio en bytes minimo
 			//de claves en un nodo (condicion de underflow).
-			SetClaves* setNuevo = this->getClaves()->splitBPlus(10);
+			SetClaves* setNuevo = this->getClaves()->splitBPlus((unsigned short)10);
 			nuevoNodo->setClaves(setNuevo);
 			
 			/* Actualizar el espacio libre en el nodo que acaba de producirse
