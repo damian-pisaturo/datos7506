@@ -445,30 +445,26 @@
 		{
 			//TODO Revisar implementacion.
 			
-			/*
-			Bucket* bucketLeido = static_cast<Bucket*> (bloqueLeido);
+			Bucket* bucketLeido = (Bucket*) bloqueLeido;
 						
-			// Obtengo el espacio libre.
-			char * auxEspLibre = new char[5];
-			memcpy(auxEspLibre,datos,4);
-			auxEspLibre[4] = '\0';
-			espacioLibre = atoi(auxEspLibre);
-			delete[] auxEspLibre;
-
-			//Obtengo el tamaño de dispersión.
-			char* auxTD = new char[2];
-			memcpy(auxTD,&datos[4],1);
-			auxTD[1]='\0';
-			tamDispersion = atoi(auxTD); 
-			delete[] auxTD;
+			char* bloqueArchivo;
+			//TODO: Levantar de archivo
 			
-			//Obtengo la cantidad de registros.
-			char* auxCRegs = new char[2];
-			memcpy(auxCRegs,&datos[5],1);
-			auxCRegs[1] = '\0';
-			cantRegs = atoi(auxCRegs);
-			delete[] auxCRegs;
-			*/
+			// Se obtiene el offset a espacio libre.
+			unsigned short espLibre;
+			memcpy(&espLibre,bloqueArchivo,Tamanios::TAMANIO_ESPACIO_LIBRE);
+			bucketLeido->setEspLibre(espLibre);
+			
+			// Se obtiene la cantidad de registros.
+			unsigned short cantRegs;
+			memcpy(&cantRegs,&bloqueArchivo[Tamanios::TAMANIO_ESPACIO_LIBRE],Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+			bucketLeido->setCantRegs(cantRegs);
+			
+			// Se obtiene el tamanio de dispersión del bucket.
+			unsigned short tamDisp;
+			memcpy(&tamDisp,&bloqueArchivo[Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS],Tamanios::TAMANIO_DISPERSION);
+			bucketLeido->setTamDispersion(tamDisp);
+						
 		}
 		
 		void ArchivoIndiceHash::escribirBloque(BloqueIndice* nuevoBloque)

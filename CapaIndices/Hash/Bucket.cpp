@@ -34,7 +34,7 @@ Bucket::Bucket(ArchivoIndice *indiceHash, unsigned short tamDispersion): Bloque(
 	this->cantRegs      = 0;
 	
 	//Los primeros 6 bytes se usan para guardar esplibre, cantRegs y tamDispersion.
-	this->espLibre		= 6; 
+	this->espLibre		= Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION; 
 	this->vacio         = true;
 	
 
@@ -63,7 +63,10 @@ Bucket::Bucket(ArchivoIndice* indiceHash, unsigned int referencia)
 ///////////////////////////////////////////////////////////////////////
 // Metodos publicos
 ///////////////////////////////////////////////////////////////////////
-	
+unsigned short Bucket::getOffsetToRegs()
+{
+	return (Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION);
+}
 /*
 * Este método busca un registro en el bloque, si lo encuentra devuelve true y guarda   
 * el contenido del mismo en el atributo registro; de lo contrario, devuelve false.		
