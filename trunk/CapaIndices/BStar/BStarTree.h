@@ -42,16 +42,22 @@ class BStarTree {
 		
 		//Pasa una clave de un hermano derecho a otro nodo
 		//Se usa en la eliminación de una clave
-		void pasarClaveDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
+		void pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
 							   NodoBStar* nodoHnoDer);
+		
+		void recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
+									  NodoBStar* nodoHnoDer);
 		
 		bool puedePasarseClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
 											  NodoBStar* &nodoHnoIzq) const;
 		
 		//Pasa una clave de un hermano izquierdo a otro nodo
 		//Se usa en la eliminación de una clave
-		void pasarClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
+		void pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
 				   NodoBStar* nodoHnoIzq);
+		
+		void recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
+										NodoBStar* nodoHnoIzq);
 		
 		//Busca el padre del nodo pasado por parámetro
 		NodoBStar* buscarPadre(NodoBStar* padre, NodoBStar* hijo) const;
@@ -69,7 +75,7 @@ class BStarTree {
 		NodoBStar* buscarMenorMayores(NodoBStar* nodo, Clave* clave) const;
 		
 		//Parte dos nodos completos en tres.
-		void split(NodoBStar* nodoTarget, NodoBStar* nodoHnoDer, NodoBStar* nodoPadre);
+		void split(NodoBStar* nodoTarget, NodoBStar* nodoHnoDer, Clave* clavePadre);
 		
 };
 

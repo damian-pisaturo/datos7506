@@ -152,9 +152,11 @@ class Nodo : public BloqueIndice
 		
 		//Devuelve la cantidad de bytes que sobran en un nodo luego de una inserción con overflow.
 		//En 'cantClaves' devuelve la cantidad de claves que representan los bytes sobrantes.
-		unsigned short obtenerBytesSobrantes(unsigned short &cantClaves) const;
+		unsigned short obtenerBytesSobrantes(unsigned short &cantClaves, bool izquierda = true) const;
 				
-		SetClaves* ceder(unsigned short bytesRequeridos, bool izquierda = true);
+		SetClaves* cederBytes(unsigned short bytesRequeridos, bool izquierda = true);
+		
+		SetClaves* cederClaves(unsigned short cantClaves, bool izquierda = true);
 		
 		void recibir(SetClaves* set);
 		
@@ -169,6 +171,18 @@ class Nodo : public BloqueIndice
 		bool puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre) const;
 		
 		bool puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre) const;
+		
+		bool puedeRecibirClaveDesdeIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre) const;
+		
+		bool puedeRecibirClaveDesdeDer(Nodo* nodoHnoDer, Nodo* nodoPadre) const;
+		
+		//Este metodo fusiona el conjunto de claves de este nodo con el conjunto
+		//de un nodo hermano y con una clave padre.
+		void merge(Nodo* nodoHno, Clave* clavePadre);
+		
+		//Este metodo fusiona el conjunto de claves de este nodo con los conjuntos
+		//de dos nodos hermanos y con dos claves padre.
+		void merge(Nodo* nodoHno1, Nodo* nodoHno2, Clave* clavePadre1, Clave* clavePadre2);
 		
 	///////////////////////////////////////////////////////////////////////////
 	// Getters/Setters
