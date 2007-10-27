@@ -1,6 +1,6 @@
 #include "BStarTree.h"
 
-BStarTree::BStarTree(unsigned tamanioNodo) {
+BStarTree::BStarTree(unsigned short tamanioNodo) {
 	this->tamanioNodo = tamanioNodo;
 	this->tamanioRaiz = 4*(tamanioNodo - NodoBStar::getTamanioHeader())/3;
 	this->tamanioRaiz += NodoBStar::getTamanioHeader();
@@ -20,14 +20,50 @@ void BStarTree::insertar(Clave* clave) {
 	nodoDestino->insertarClave(clave, &codigo);
 	
 	//La clave queda insertada independientemente de si hay OVERFLOW o no.
+	
 	if ( codigo == Codigo::OVERFLOW ){
-		NodoBStar* nodoPadre;
-		NodoBStar* nodoHnoDer;
-		NodoBStar* nodoHnoIzq;
-		if ( puedePasarseClaveIzquierda(nodoHnoDer, nodoPadre, nodoDestino) )
-			pasarClaveDerecha(nodoHnoDer, nodoPadre, nodoDestino);
+		NodoBStar* nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
+		NodoBStar *nodoHnoDer = NULL, *nodoHnoIzq = NULL;
+		
+		//Se buscan los hermanos derecho e izquierdo de 'nodoDestino'
+		
+		//Se busca dentro del nodo padre la clave cuyo hijo derecho es nodoDestino
+		SetClaves::iterator iterPadre;
+		for(iterPadre = nodoPadre->getClaves()->begin();
+			(iterPadre != nodoPadre->getClaves()->end()) &&
+			((*iterPadre)->getHijoDer() != nodoDestino->getPosicionEnArchivo());
+			++iterPadre);
+		
+		//Se verifica si nodoDestino tiene hermano derecho y hermano izquierdo
+		if ( iterPadre == nodoPadre->getClaves()->end() ) {
+			//nodoDestino es el hijo izquierdo de nodoPadre
+			//nodoDestino no tiene hermano izquierdo;
+			iterPadre = nodoPadre->getClaves()->begin();
+			//TODO El constructor debe devolver un nodo a partir de una referencia a disco.
+			//nodoHnoDer = new NodoBStar( (*iterPadre)->getHijoDer() );
+		} else if ( (++iterPadre) == nodoPadre->getClaves()->end() ) {
+			//nodoDestino es el hijo derecho de la última clave del nodo
+			//nodoDestino no tiene hermano derecho
+			//TODO El constructor debe devolver un nodo a partir de una referencia a disco.
+			//nodoHnoIzq = new NodoBStar( (*iterPadre)->getHijoDer() );
+		} else {
+			if ( iterPadre == nodoPadre->getClaves()->begin() ) {
+				//nodoHnoIzq = new NodoBStar( nodoPadre->getHijoIzq() );
+			}
+			else{
+				//nodoHnoIzq = new NodoBStar( (*(--iterPadre))->getHijoDer() );
+			}
+			//nodoHnoDer = new NodoBStar( (*iterPadre)->getHijoDer() );
+		}
+		
+		//Fin de la búsqueda de los nodos hermanos de 'nodoDestino'
+		
+		//Se intenta hacer una redistribución de claves con el hermano derecho de 'nodoDestino'.
+		//Si esto no es posible, se intenta hacer una redistribución con el hermano izquierdo.
+		if ( (nodoHnoDer) && (nodoDestino->puedePasarClaveHaciaDer(nodoHnoDer, nodoPadre)) ) 
+			pasarClaveIzquierda(nodoHnoDer, nodoPadre, nodoDestino);
 		else if ( puedePasarseClaveDerecha(nodoHnoIzq, nodoPadre, nodoDestino) )
-			pasarClaveIzquierda(nodoHnoIzq, nodoPadre, nodoDestino);
+			pasarClaveDerecha(nodoHnoIzq, nodoPadre, nodoDestino);
 		else //TODO No siempre tenemos hermano derecho. Ver que hacemos.
 			split( nodoDestino, nodoHnoDer, nodoPadre );
 		
@@ -85,8 +121,8 @@ bool BStarTree::puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nod
 	
 	nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
 	
-	unsigned bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
-	unsigned bytesPropuestosPadre = 0, bytesPropuestosHnoDer = 0;
+	unsigned short bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
+	unsigned short bytesPropuestosPadre = 0, bytesPropuestosHnoDer = 0;
 	unsigned char clavesPropuestas = 0;
 	
 	
@@ -142,8 +178,8 @@ bool BStarTree::puedePasarseClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* &n
 										   NodoBStar* &nodoHnoIzq) const {
 	nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
 		
-	unsigned bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
-	unsigned bytesPropuestosPadre = 0, bytesPropuestosHnoIzq = 0;
+	unsigned short bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
+	unsigned short bytesPropuestosPadre = 0, bytesPropuestosHnoIzq = 0;
 	unsigned char clavesPropuestas = 0;
 	
 	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas, false)) > 0 ) {

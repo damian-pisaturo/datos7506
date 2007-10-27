@@ -112,10 +112,6 @@ class Nodo : public BloqueIndice
 		void actualizarEspacioLibre(SetClaves* claves, bool insercion); 
 		void actualizarEspacioLibre(Clave* clave, bool insercion);
 		//void actualizarEspacioLibre(ArchivoIndice* archivo); TODO Esta comentado porque recibe un Archivo (comunicacion con la capa fisica a traves del pipe)
-				
-		//TODO condicionMinima() calcula el tamanio minimo que puede estar
-		//ocupado en un nodo, pero usa el Archivo. Reveer eso.
-		//int condicionMinima(ArchivoIndice* archivo);
 			
 		/*reemplazarClave()
 		 * Reemplaza la claveVieja del Nodo actual con una copia de 
@@ -135,25 +131,30 @@ class Nodo : public BloqueIndice
 			return (this->getPosicionEnArchivo() == nodo.getPosicionEnArchivo());
 		}
 		
-		unsigned getTamanioEnDiscoSetClaves() const;
+		//Calcula el tamanio que ocupa el conjunto de claves dentro del nodo
+		unsigned short getTamanioEnDiscoSetClaves() const;
 		
-		//TODO modificar comentario
 		//Método que se encarga de ver cuantos bytes deberia ceder realmente el nodo para
-		//poder cumplir con lo que se le pide.
+		//poder cumplir con los 'bytesRequeridos'.
 		//Si 'izquierda' es true, indica que el nodo debe ceder al hermano izquierdo,
 		//en caso contrario, debe ceder al hermano derecho.
 		//Si se le pide ceder mas de los bytes que tiene, devuleve cero. Sino, devuelve los
 		//bytes a ceder.
-		unsigned bytesACeder(unsigned bytesRequeridos, unsigned char &clavesPropuestas, bool izquierda = true) const;
+		unsigned short bytesACeder(unsigned short bytesRequeridos, unsigned char &clavesPropuestas,
+								   bool izquierda = true) const;
 		
 		//Como el anterior pero se fija si puede ceder cierta cantidad de claves en vez de bytes.
-		unsigned bytesACeder(unsigned char clavesPropuestas, bool izquierda = true) const;
+		unsigned short bytesACeder(unsigned char clavesPropuestas, bool izquierda = true) const;
 		
-		bool puedeRecibir(unsigned bytesEntrantes, unsigned bytesSalientes) const;
+		bool puedeRecibir(unsigned short bytesEntrantes, unsigned short bytesSalientes) const;
 		
-		unsigned obtenerBytesRequeridos() const;
+		unsigned short obtenerBytesRequeridos() const;
+		
+		//Devuelve la cantidad de bytes que sobran en un nodo luego de una inserción con overflow.
+		//En 'cantClaves' devuelve la cantidad de claves que representan los bytes sobrantes.
+		unsigned short obtenerBytesSobrantes(unsigned short &cantClaves) const;
 				
-		SetClaves* ceder(unsigned bytesRequeridos, bool izquierda = true);
+		SetClaves* ceder(unsigned short bytesRequeridos, bool izquierda = true);
 		
 		void recibir(SetClaves* set);
 		
@@ -164,6 +165,10 @@ class Nodo : public BloqueIndice
 		
 		//Retorna un puntero la última clave o NULL si el nodo no tiene claves.
 		Clave* obtenerUltimaClave() const;
+		
+		bool puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre) const;
+		
+		bool puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre) const;
 		
 	///////////////////////////////////////////////////////////////////////////
 	// Getters/Setters
@@ -249,6 +254,12 @@ class Nodo : public BloqueIndice
 		virtual unsigned short getTamanioMinimo() const 
 		{
 			return this->tamanioMinimo;
+		}
+		
+		//Devuelve el espacio (en bytes) destinado para almacenar claves (elementos)
+		virtual unsigned short getTamanioEspacioClaves() const
+		{
+			return (this->getTamanio() - this->getTamanioHeader());
 		}
 		
 	protected:

@@ -7,7 +7,7 @@ class BStarTree {
 	
 	public:
 		//Constructor que recibe el tamaño de los nodos (en bytes)
-		BStarTree(unsigned tamanioNodo);
+		BStarTree(unsigned short tamanioNodo);
 		
 		virtual ~BStarTree();
 		
@@ -41,6 +41,7 @@ class BStarTree {
 									  NodoBStar* &nodoHnoDer) const;
 		
 		//Pasa una clave de un hermano derecho a otro nodo
+		//Se usa en la eliminación de una clave
 		void pasarClaveDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
 							   NodoBStar* nodoHnoDer);
 		
@@ -48,6 +49,7 @@ class BStarTree {
 											  NodoBStar* &nodoHnoIzq) const;
 		
 		//Pasa una clave de un hermano izquierdo a otro nodo
+		//Se usa en la eliminación de una clave
 		void pasarClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
 				   NodoBStar* nodoHnoIzq);
 		
