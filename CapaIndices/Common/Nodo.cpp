@@ -461,14 +461,13 @@ bool Nodo::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre) const {
 	//Bytes requeridos por el hermano izquierdo
 	unsigned short bytesRequeridos = nodoHnoIzq->obtenerBytesRequeridos();
 	unsigned short bytesPropuestosPadre = 0, bytesPropuestosPorMi = 0;
-	unsigned char clavesPropuestas = 0;
+	unsigned char clavesPropuestasPadre = 0, clavesPropuestasHno = 0;
 	
-	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas)) > 0 ) {
+	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestasPadre)) > 0 ) {
 		
-		//TODO Ver el tema de 'clavesPropuestas', habria que pasarle una variable.
-		if ( nodoHnoIzq->puedeRecibir(bytesPropuestosPadre, 0) ) {
+		if ( nodoHnoIzq->puedeRecibir(bytesPropuestosPadre, clavesPropuestasHno) ) {
 			
-			if ( (bytesPropuestosPorMi = this->bytesACeder(clavesPropuestas)) > 0 ) {
+			if ( (bytesPropuestosPorMi = this->bytesACeder(clavesPropuestasPadre)) > 0 ) {
 				
 				if ( nodoPadre->puedeRecibir(bytesPropuestosPorMi, bytesPropuestosPadre) ) {
 					return true;
@@ -488,14 +487,13 @@ bool Nodo::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre) const {
 	
 	unsigned short bytesRequeridos = nodoHnoDer->obtenerBytesRequeridos();
 	unsigned short bytesPropuestosPadre = 0, bytesPropuestosPorMi = 0;
-	unsigned char clavesPropuestas = 0;
+	unsigned char clavesPropuestasPadre = 0, clavesPropuestasHno = 0;
 	
-	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas, false)) > 0 ) {
+	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestasPadre, false)) > 0 ) {
 		
-		//TODO Ver el tema de 'clavesPropuestas', habria que pasarle una variable.
-		if ( nodoHnoDer->puedeRecibir(bytesPropuestosPadre, 0) ) {
+		if ( nodoHnoDer->puedeRecibir(bytesPropuestosPadre, clavesPropuestasHno) ) {
 
-			if ( (bytesPropuestosPorMi = this->bytesACeder(clavesPropuestas, false)) > 0 ) {
+			if ( (bytesPropuestosPorMi = this->bytesACeder(clavesPropuestasPadre, false)) > 0 ) {
 				
 				if ( nodoPadre->puedeRecibir(bytesPropuestosPorMi, bytesPropuestosPadre) ) {
 					return true;
