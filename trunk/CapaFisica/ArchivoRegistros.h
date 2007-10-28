@@ -9,11 +9,13 @@ class ArchivoRegistros{
 	
 public:
 	fstream  archivo;  // referencia al archivo
-    int tamanioRegistro;    // tamaño en bytes del registro
+    unsigned int tamanioRegistro;    // tamaño en bytes del registro
 
 
 public:
 
+unsigned int getTamanioRegistro();	
+	
 /*
   pre : ninguna.
   post: abre el archivo, si no existe lo crea.
@@ -21,7 +23,11 @@ public:
   nombre : nombre físico del archivo, path incluido.
   tamanioRegistro : tamanio en bytes de los registros del archivo.
 */
-ArchivoRegistros(string nombre,int tamanioRegistro);
+ArchivoRegistros(string nombre,unsigned int tamanioRegistro);
+
+ArchivoRegistros(string nombre);
+
+
 
 /*----------------------------------------------------------------------------*/
 /*
@@ -68,7 +74,7 @@ long int posicion();
   
   posicion : número de registro (0..n)
 */
-void posicionarse(long int posicion);
+void posicionarse(unsigned int posicion);
 /*----------------------------------------------------------------------------*/
 /*
   post: Se posiciona al final del archivo.

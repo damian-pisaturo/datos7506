@@ -6,7 +6,7 @@ using namespace std;
 /* Implementación de Metodos */
 /*---------------------------*/
 
-ArchivoRegistros::ArchivoRegistros(string nombre,int tamanioRegistro){
+ArchivoRegistros::ArchivoRegistros(string nombre){
 
   /* abre el archivo en modo lectura - escritura binario*/  
   this->archivo.open(nombre.c_str(),
@@ -34,8 +34,46 @@ ArchivoRegistros::ArchivoRegistros(string nombre,int tamanioRegistro){
   }
 
   /* almacena el tamaño de los registros */
-  this->tamanioRegistro = tamanioRegistro;         
+  
+	unsigned short tamReg;
+	fread(&tamReg,sizeof(unsigned short),1,fptr);
+	this->tamanioRegistro = tamReg;         
 }
+
+ArchivoRegistros::ArchivoRegistros(string nombre, unsigned int tamanioRegistro){
+
+  /* abre el archivo en modo lectura - escritura binario*/  
+  this->archivo.open(nombre.c_str(),
+                                ios::in |ios::out |ios::binary);
+                                         
+  /* determina si tuvo éxito la apertura del archivo */
+  if (!this->archivo.is_open()) {
+
+    /* limpia los flags de control de estado del archivo */
+    this->archivo.clear();
+  
+    /* crea el archivo */    
+    this->archivo.open(nombre.c_str(),
+                                  ios::out | ios::binary);      
+    this->archivo.close();
+    
+    /* reabre el archivo para lectura - escritura binario */
+    this->archivo.open(nombre.c_str(),ios::in|ios::out|ios::binary);
+
+    /* verifica que haya podido crear el archivo */                                  
+    if (! this->archivo.is_open())
+    
+      /* arroja una excepción */
+      throw string("El archivo no pudo ser abierto");   
+  }
+
+  /* almacena el tamaño de los registros */
+  	
+  	bool primerBool = true;
+  	this->archivo.write(primerBool,sizeof(bool));
+	this->tamanioRegistro = tamanioRegistro;         
+}
+
 
 /*----------------------------------------------------------------------------*/
 ArchivoRegistros::~ArchivoRegistros(){
@@ -122,7 +160,7 @@ long int ArchivoRegistros::posicion(){
 }
 
 /*----------------------------------------------------------------------------*/
-void ArchivoRegistros::posicionarse(long int posicion) {
+void ArchivoRegistros::posicionarse(unsigned int posicion) {
 
   /* verifica que el archivo esté abierto */
   if (this->archivo.is_open()) {
@@ -143,4 +181,8 @@ void ArchivoRegistros::posicionarse(long int posicion) {
 /*----------------------------------------------------------------------------*/
 void ArchivoRegistros::posicionarseFin(){
 	this->archivo.seekg(0,ios_base::end);
+}
+
+unsigned int ArchivoRegistros::getTamanioRegistro(){
+	return this->tamanioRegistro;
 }
