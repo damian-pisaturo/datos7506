@@ -37,7 +37,7 @@ class ArchivoIndiceEnteroGriego: public ArchivoIndiceArbol
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////		
-		ArchivoIndiceEnteroGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
+		ArchivoIndiceEnteroGriego(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
 		
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ class ArchivoIndiceEnteroRomano: public ArchivoIndiceSecundario
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceEnteroRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice);
+		ArchivoIndiceEnteroRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
 
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ class ArchivoIndiceBooleanGriego: public ArchivoIndiceArbol
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////		
-		ArchivoIndiceBooleanGriego(unsigned int tamNodo,string nombreArchivo, t_indice tipoIndice);
+		ArchivoIndiceBooleanGriego(unsigned int tamNodo,string nombreArchivo, unsigned char tipoIndice);
 	
 }; //Fin clase ArchivoIndiceBooleanGriego
 
@@ -112,7 +112,7 @@ class ArchivoIndiceCharGriego: public ArchivoIndiceArbol
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceCharGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
+		ArchivoIndiceCharGriego(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
 		
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ class ArchivoIndiceCharRomano: public ArchivoIndiceSecundario
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceCharRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice);
+		ArchivoIndiceCharRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
 
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ class ArchivoIndiceShortGriego: public ArchivoIndiceArbol
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceShortGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
+		ArchivoIndiceShortGriego(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
 	
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -189,7 +189,7 @@ class ArchivoIndiceShortRomano: public ArchivoIndiceSecundario
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceShortRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice);
+		ArchivoIndiceShortRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
 
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -215,7 +215,7 @@ class ArchivoIndiceRealRomano: public ArchivoIndiceSecundario
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceRealRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice);
+		ArchivoIndiceRealRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
 
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -240,7 +240,7 @@ class ArchivoIndiceFechaGriego: public ArchivoIndiceArbol
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceFechaGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
+		ArchivoIndiceFechaGriego(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
 	
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -264,7 +264,7 @@ class ArchivoIndiceFechaRomano: public ArchivoIndiceSecundario
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceFechaRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice);
+		ArchivoIndiceFechaRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
 	
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -301,7 +301,7 @@ class ArchivoIndiceVariableGriego: public ArchivoIndiceArbol
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceVariableGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);	
+		ArchivoIndiceVariableGriego(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);	
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -317,7 +317,7 @@ class ArchivoIndiceVariableRomano: public ArchivoIndiceSecundario
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceVariableRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice);
+		ArchivoIndiceVariableRomano(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
 	
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -348,7 +348,7 @@ class ArchivoIndiceCompuestoGriego: public ArchivoIndiceArbol
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceCompuestoGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice, ListaTipos* listaTipos);
+		ArchivoIndiceCompuestoGriego(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice, ListaTipos* listaTipos);
 		
 	private:
 	//////////////////////////////////////////////////////////////////////

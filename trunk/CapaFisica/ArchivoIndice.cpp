@@ -30,7 +30,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-	ArchivoIndiceEnteroGriego::ArchivoIndiceEnteroGriego(int tamNodo, string nombreArchivo, t_indice tipoIndice):
+	ArchivoIndiceEnteroGriego::ArchivoIndiceEnteroGriego(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
 		ArchivoIndiceArbol(tamNodo, nombreArchivo, tipoIndice){ }
 	
 	//////////////////////////////////////////////////////////////////////
@@ -837,52 +837,52 @@
 					
 					tipo = (*iterTipos);
 					
-					if (tipo == TipoDatos::TIPO_ENTERO){						
+					if ((*tipo) == TipoDatos::TIPO_ENTERO){						
 						//Copia del valor de la clave
 						valor = new int;
 						tamanio = sizeof(int);
 						
 						memcpy(valor, buffer, tamanio);
-						listaClaves.insert(new ClaveEntera(*((int*)valor)));
+						listaClaves.push_back(new ClaveEntera(*((int*)valor)));
 					
-					}else if (tipo == TipoDatos::TIPO_BOOL){
+					}else if ((*tipo) == TipoDatos::TIPO_BOOL){
 						valor = new bool;
 						tamanio = sizeof(bool);
 						
 						memcpy(valor, buffer, tamanio);
-						listaClaves.insert(new ClaveBoolean(*((bool*)valor)));
-					}else if (tipo == TipoDatos::TIPO_CHAR){
+						listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
+					}else if ((*tipo) == TipoDatos::TIPO_CHAR){
 						valor = new char;
 						tamanio = sizeof(char);
 						
 						memcpy(valor, buffer, tamanio);
-						listaClaves.insert(new ClaveChar(*((char*)valor)));
+						listaClaves.push_back(new ClaveChar(*((char*)valor)));
 						
-					}else if (tipo == TipoDatos::TIPO_SHORT){
+					}else if ((*tipo) == TipoDatos::TIPO_SHORT){
 						valor = new short;
 						tamanio = sizeof(short);
 						
 						memcpy(valor, buffer, tamanio);
-						listaClaves.insert(new ClaveShort(*((short*)valor)));
+						listaClaves.push_back(new ClaveShort(*((short*)valor)));
 						
-					}else if (tipo == TipoDatos::TIPO_REAL){
+					}else if ((*tipo) == TipoDatos::TIPO_REAL){
 						valor = new float;
 						tamanio = sizeof(float);
 						
 						memcpy(valor, buffer, tamanio);
-						listaClaves.insert(new ClaveReal(*((float*)valor)));
-					}else if (tipo == TipoDatos::TIPO_FECHA){
+						listaClaves.push_back(new ClaveReal(*((float*)valor)));
+					}else if ((*tipo) == TipoDatos::TIPO_FECHA){
 						valor = new ClaveFecha::TFECHA;
 						tamanio = sizeof(ClaveFecha::TFECHA);
 						
 						memcpy(valor, buffer, tamanio);
-						listaClaves.insert(new ClaveReal((ClaveFecha::TFECHA*)valor)));
-					}else if (tipo == TipoDatos::TIPO_VARIABLE){
+						listaClaves.push_back(new ClaveFecha((ClaveFecha::TFECHA*)valor));
+					}else if ((*tipo) == TipoDatos::TIPO_VARIABLE){
 						valor = new string;
 						valor = buffer;
 						tamanio = ((string*)valor)->size() + 1;
 	
-						listaClaves.insert(new ClaveVariable((string*)valor)));
+						listaClaves.push_back(new ClaveVariable(*((string*)valor)));
 					}
 					
 					delete valor;
@@ -900,7 +900,7 @@
 		{
 			ListaClaves listaClaves;
 			string* tipo;
-			unsigned int refRegistro = 0, hijoDer = 0;
+			unsigned int refRegistro = 0, hijoDer = 0, tamanio = 0;
 			void* valor = NULL;
 			
 			//Copia de los valores de las claves en el nodo				
@@ -909,52 +909,52 @@
 					
 				tipo = (*iterTipos);
 				
-				if (tipo == TipoDatos::TIPO_ENTERO){						
+				if (*tipo == TipoDatos::TIPO_ENTERO){						
 					//Copia del valor de la clave
 					valor = new int;
 					tamanio = sizeof(int);
 					
 					memcpy(valor, buffer, tamanio);
-					listaClaves.insert(new ClaveEntera(*((int*)valor)));
+					listaClaves.push_back(new ClaveEntera(*((int*)valor)));
 				
-				}else if (tipo == TipoDatos::TIPO_BOOL){
+				}else if (*tipo == TipoDatos::TIPO_BOOL){
 					valor = new bool;
 					tamanio = sizeof(bool);
 					
 					memcpy(valor, buffer, tamanio);
-					listaClaves.insert(new ClaveBoolean(*((bool*)valor)));
-				}else if (tipo == TipoDatos::TIPO_CHAR){
+					listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
+				}else if (*tipo == TipoDatos::TIPO_CHAR){
 					valor = new char;
 					tamanio = sizeof(char);
 					
 					memcpy(valor, buffer, tamanio);
-					listaClaves.insert(new ClaveChar(*((char*)valor)));
+					listaClaves.push_back(new ClaveChar(*((char*)valor)));
 					
-				}else if (tipo == TipoDatos::TIPO_SHORT){
+				}else if (*tipo == TipoDatos::TIPO_SHORT){
 					valor = new short;
 					tamanio = sizeof(short);
 					
 					memcpy(valor, buffer, tamanio);
-					listaClaves.insert(new ClaveShort(*((short*)valor)));
+					listaClaves.push_back(new ClaveShort(*((short*)valor)));
 					
-				}else if (tipo == TipoDatos::TIPO_REAL){
+				}else if (*tipo == TipoDatos::TIPO_REAL){
 					valor = new float;
 					tamanio = sizeof(float);
 					
 					memcpy(valor, buffer, tamanio);
-					listaClaves.insert(new ClaveReal(*((float*)valor)));
-				}else if (tipo == TipoDatos::TIPO_FECHA){
+					listaClaves.push_back(new ClaveReal(*((float*)valor)));
+				}else if (*tipo == TipoDatos::TIPO_FECHA){
 					valor = new ClaveFecha::TFECHA;
 					tamanio = sizeof(ClaveFecha::TFECHA);
 					
 					memcpy(valor, buffer, tamanio);
-					listaClaves.insert(new ClaveReal((ClaveFecha::TFECHA*)valor)));
-				}else if (tipo == TipoDatos::TIPO_VARIABLE){
+					listaClaves.push_back(new ClaveFecha((ClaveFecha::TFECHA*)valor));
+				}else if (*tipo == TipoDatos::TIPO_VARIABLE){
 					valor = new string;
 					valor = buffer;
 					tamanio = ((string*)valor)->size() + 1;
 				
-					listaClaves.insert(new ClaveVariable((string*)valor)));
+					listaClaves.push_back(new ClaveVariable(*((string*)valor)));
 				}
 					
 				delete valor;

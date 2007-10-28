@@ -23,8 +23,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 #include "../CapaIndices/Common/Nodo.h"
 //#include "../CapaIndices/Hash/Bucket.h"
 #include "../CapaIndices/Common/Tamanios.h"
@@ -34,7 +32,16 @@ using namespace std;
 #include "../CapaIndices/Common/TipoDatos.h"
 #include "../Common/OperacionesCapas.h"
 
-typedef enum{ARBOL_BP, ARBOL_BS, HASH}t_indice;
+
+using namespace std;
+
+class TipoIndices
+{
+	public:
+		static const unsigned char ARBOL_BS = 0;
+		static const unsigned char ARBOL_BP = 1;
+		static const unsigned char HASH     = 2;	
+};
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -57,7 +64,7 @@ class ArchivoIndice
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		ArchivoIndice(unsigned int tamanioBloque, string nombreArchivo, t_indice tipoIndice);
+		ArchivoIndice(unsigned int tamanioBloque, string nombreArchivo, unsigned char tipoIndice);
 		virtual ~ArchivoIndice() { };
 	
 	///////////////////////////////////////////////////////////////////////
@@ -67,18 +74,18 @@ class ArchivoIndice
 		 * dependiendo del tipo de bloque (nodo arbol B+, nodo B*, bucket de hash).
 		 * Utiliza ComuDatos para comunicarse con la Capa Fisica.
 		 */
-		virtual void leerBloque(int numeroBloque, BloqueIndice* bloqueLeido) = 0;
+		virtual int leerBloque(int numeroBloque, BloqueIndice* bloqueLeido) = 0;
 
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y escribir
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
 		 */
-		virtual void escribirBloque(BloqueIndice* bloqueNuevo) = 0;
+		virtual int escribirBloque(BloqueIndice* bloqueNuevo) = 0;
 		
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y
 		 * sobre-escribir el bloque modificado en el disco
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
 		 */
-		virtual void sobreEscribirBloque(BloqueIndice* bloqueModif) = 0;
+		virtual int sobreEscribirBloque(BloqueIndice* bloqueModif) = 0;
 		
 		/* Devuelve una instancia de un pipe de comunicacion entre
 		 * la clase actual y el ejecutable cuyo nombre es pasado
@@ -133,7 +140,7 @@ class ArchivoIndiceArbol : public ArchivoIndice
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		/*Si el archivo esta vacio, crea una raiz vacia*/
-		ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice);
+		ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
 		virtual ~ArchivoIndiceArbol();
 	
 	private:
@@ -171,14 +178,15 @@ class ArchivoIndiceArbol : public ArchivoIndice
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////////	
 		
-		virtual void leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido);
-		virtual void escribirBloque(BloqueIndice* bloqueNuevo);		
+		virtual int leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido) = 0;
+		
+		virtual int escribirBloque(BloqueIndice* bloqueNuevo);		
 		/*Permite modificar la informacion de un nodo -> inclusive la raiz si posicion = 0*/
-		virtual void sobreEscribirBloque(BloqueIndice* bloqueModif);
+		virtual int sobreEscribirBloque(BloqueIndice* bloqueModif);
 		
 		/*Agrega una referencia en el archivo de nodos liberados al
 		 * nodo que se quiere eliminar*/
-		virtual void eliminarNodo(unsigned int posicion);
+		virtual int eliminarNodo(unsigned int posicion);
 		
 		/*Exportar el archivo de Indice*/
 		void exportar(ostream &archivoTexto,int posicion);
@@ -188,7 +196,7 @@ class ArchivoIndiceArbol : public ArchivoIndice
 	///////////////////////////////////////////////////////////////////////////	
 		static int getTamanioHeader()
 		{
-			return sizeof(Header);
+			return sizeof(HeaderNodo);
 		}
 		
 		string setNombreArchivoEL()
@@ -227,16 +235,16 @@ class ArchivoIndiceHash : public ArchivoIndice
 		/*Lee el bucket cuya referencia en el archivo es numeroBloque y llena
 		 * una estructura Bucket con su informacion para ser consultada.
 		 */
-		virtual void leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido);
+		virtual int leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido);
 		
 		/* Busca el primer bucket libre en el archivo y escribe el nuevo bucket
 		 * en el. Si no encuentra ninguno, appendea al final del archivo.
 		 */
-		virtual void escribirBloque(BloqueIndice* bloqueNuevo);
+		virtual int escribirBloque(BloqueIndice* bloqueNuevo);
 		
 		/* Sobreescribe el bloque actual con el bloqueNuevo.
 		 */
-		virtual void sobreEscribirBloque(BloqueIndice* bloqueNuevo);
+		virtual int sobreEscribirBloque(BloqueIndice* bloqueNuevo);
 	
 	///////////////////////////////////////////////////////////////////////
 	// Getter/Setter
@@ -269,7 +277,7 @@ class ArchivoIndiceSecundario: public ArchivoIndiceArbol
 	//////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	//////////////////////////////////////////////////////////////////////
-		ArchivoIndiceSecundario(unsigned int tamNodo, string nombreArchivo, unsigned int tamanioBloqueLista, t_indice tipoIndice);
+		ArchivoIndiceSecundario(unsigned int tamNodo, string nombreArchivo, unsigned int tamanioBloqueLista, unsigned char tipoIndice);
 		virtual ~ArchivoIndiceSecundario();
 
 	//////////////////////////////////////////////////////////////////////
