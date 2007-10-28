@@ -25,19 +25,13 @@ void BStarTree::insertar(Clave* clave) {
 		
 
 }
-	
-
-void BStarTree::eliminar(Clave* clave) {
-	
-	
-	
-}
 
 
 void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 	
 	if (*codigo == Codigo::MODIFICADO){
 		//TODO actualizar en disco el nodo modificado.
+		//archivoIndice->sobreescribirNodo(nodoDestino);
 	}
 	else if ( *codigo == Codigo::OVERFLOW ){
 		//Puntero a la clave del nodo padre que se encuentra entre nodoDestino y su hermano izq
@@ -55,7 +49,7 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 			NodoBStar* nuevoNodoDerecho = new NodoBStar(clavePromocionada->getHijoDer(), nodoDestino->getNivel(), nodoDestino->getTamanio());
 			nuevoNodoDerecho->setClaves(setClavesDerecho);
 			clavePromocionada->setHijoDer(nuevoNodoDerecho->getPosicionEnArchivo());
-			NodoBStar* nuevaRaiz = new NodoBStar(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1, this->tamanioRaiz);
+			//NodoBStar* nuevaRaiz = new NodoBStar(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1, this->tamanioRaiz);
 			//TODO escritura especial de la raiz
 			*codigo = Codigo::MODIFICADO;
 		}
@@ -134,9 +128,123 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 }
 
 
-void BStarTree::eliminarInterno(Clave* clave) {
+void BStarTree::eliminar(Clave* clave) {
 	
+	NodoBStar* nodoTarget = buscarLugar(clave);
+	Clave* claveBuscada = nodoTarget->buscar(clave);
 	
+	char codigo;
+	
+	if ( (claveBuscada) && (*claveBuscada == *clave) ){
+		if (nodoTarget->getNivel() != 0){ //Nodo interno
+			NodoBStar* nodoMenorDeLosMayores = this->buscarMenorMayores(nodoTarget, clave);
+			Clave* claveMenorDeLasMayores = nodoMenorDeLosMayores->obtenerPrimeraClave();
+			claveMenorDeLasMayores->setHijoDer(claveBuscada->getHijoDer());
+			nodoTarget->eliminarClave(claveBuscada, &codigo);
+			nodoTarget->insertarClave(claveMenorDeLasMayores, &codigo);
+			//this->eliminarInterno(nodoMenorDeLosMayores, clave, &codigo);
+			nodoTarget = nodoMenorDeLosMayores;
+			claveBuscada = claveMenorDeLasMayores;
+		}
+		//else eliminarInterno(nodoTarget, clave, &codigo);
+		nodoTarget->eliminarClave(claveBuscada, &codigo);
+		
+		if (codigo == Codigo::MODIFICADO) {
+			//TODO actualizar en disco el nodo modificado.
+			//archivoIndice->sobreescribirNodo(nodoDestino);
+		} else if (codigo == Codigo::UNDERFLOW) {
+			
+			//Puntero a la clave del nodo padre que se encuentra entre nodoDestino y su hermano izq
+			Clave* clavePadreIzq = NULL;
+			//Puntero a la clave del nodo padre que se encuentra entre nodoDestino y su hermano der
+			Clave* clavePadreDer = NULL;
+			NodoBStar* nodoPadre = this->buscarPadre(this->nodoRaiz, nodoTarget);
+			NodoBStar *nodoHnoDer = NULL, *nodoHnoIzq = NULL;
+			
+			if (!nodoPadre)	codigo = Codigo::MODIFICADO;
+			else{
+			
+				//Se buscan los hermanos derecho e izquierdo de 'nodoTarget'
+				
+				//Se busca dentro del nodo padre la clave cuyo hijo derecho es nodoTarget
+				SetClaves::iterator iterPadre;
+				for(iterPadre = nodoPadre->getClaves()->begin();
+					(iterPadre != nodoPadre->getClaves()->end()) &&
+					((*iterPadre)->getHijoDer() != nodoTarget->getPosicionEnArchivo());
+					++iterPadre);
+				
+				//Se verifica si nodoTarget tiene hermano derecho y hermano izquierdo
+				if ( iterPadre == nodoPadre->getClaves()->end() ) {
+					//nodoTarget es el hijo izquierdo de nodoPadre
+					//nodoTarget no tiene hermano izquierdo;
+					iterPadre = nodoPadre->getClaves()->begin();
+					//TODO El constructor debe devolver un nodo a partir de una referencia a disco.
+					//nodoHnoDer = new NodoBStar( (*iterPadre)->getHijoDer() );
+					clavePadreDer = *iterPadre;
+				} else if ( (++iterPadre) == nodoPadre->getClaves()->end() ) {
+					//nodoTarget es el hijo derecho de la última clave del nodo
+					//nodoTarget no tiene hermano derecho
+					//TODO El constructor debe devolver un nodo a partir de una referencia a disco.
+					//nodoHnoIzq = new NodoBStar( (*(--(--iterPadre)))->getHijoDer() );
+					clavePadreIzq = *(++iterPadre);
+				} else {
+					if ( iterPadre == nodoPadre->getClaves()->begin() ) {
+						//nodoHnoIzq = new NodoBStar( nodoPadre->getHijoIzq() );
+						clavePadreIzq = *iterPadre;
+					}
+					else{
+						//nodoHnoIzq = new NodoBStar( (*(--iterPadre))->getHijoDer() );
+						clavePadreIzq = *(++iterPadre);
+					}
+					//nodoHnoDer = new NodoBStar( (*iterPadre)->getHijoDer() );
+					clavePadreDer = *iterPadre;
+				}
+				
+				//Fin de la búsqueda de los nodos hermanos de 'nodoTarget'
+				
+				//Se intenta hacer una redistribución de claves con el hermano derecho de 'nodoTarget'.
+				//Si esto no es posible, se intenta hacer una redistribución con el hermano izquierdo.
+				//Si se tratara de un extremo se mira el hermano del hermano.
+				if ( (nodoHnoDer) && (nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre)) ) 
+					this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer);
+				else if ( (nodoHnoIzq) && (nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre)) )
+					this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq);
+				else if ( (nodoHnoDer) && (!nodoHnoIzq) ){
+					//TODO ACA ESTAMOS. TENEMOS QUE VER LOS CASOS EXTREMOS.
+				}
+				else { //Se realiza el split del nodo con overflow con un sibling completo y
+					//con la clave padre.
+					VectorClaves* vectorClaves;
+					if (nodoHnoDer) {
+						vectorClaves = split(nodoHnoDer, nodoTarget, clavePadreDer);
+						nodoPadre->extraerClave(clavePadreDer);
+					} else {
+						vectorClaves = split(nodoTarget, nodoHnoIzq, clavePadreIzq);
+						nodoPadre->extraerClave(clavePadreIzq);
+					}
+					
+					nodoPadre->insertarClave((*vectorClaves)[0], &codigo);
+					nodoPadre->insertarClave((*vectorClaves)[1], &codigo);
+					
+		
+					if (!nodoPadre->tieneOverflow()) codigo = Codigo::MODIFICADO;
+					
+					if (nodoHnoDer) delete nodoHnoDer;
+					if (nodoHnoIzq) delete nodoHnoIzq;
+					
+				//	insertarInterno(nodoPadre, codigo);
+				}
+			}
+		}
+		
+	}
+	
+}
+
+
+void BStarTree::eliminarInterno(NodoBStar* nodoTarget, Clave* clave, char* codigo) {
+
+
 	
 }
 
@@ -207,15 +315,24 @@ bool BStarTree::puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nod
 	return false;
 }
 
-void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer){
+void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer){
 	
-	SetClaves* set = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos() );
-	nodoDestino->recibir(set);
-	delete set;
+	SetClaves* setDescenso = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos() );
+	unsigned short cantClaves = setDescenso->size();
+	SetClaves* setAscenso = nodoHnoDer->cederBytes(cantClaves);
 	
-	set = nodoHnoDer->cederBytes( nodoPadre->obtenerBytesRequeridos() );
-	nodoPadre->recibir(set);
-	delete set;
+	for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
+		(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());
+		++iterDescenso, ++iterAscenso ){
+		(*iterAscenso)->setHijoDer((*iterDescenso)->getHijoDer());
+		(*iterDescenso)->setHijoDer(0);
+	}
+	
+	nodoDestino->recibir(setDescenso);
+	nodoPadre->recibir(setAscenso);
+	
+	delete setDescenso;
+	delete setAscenso; 
 	
 }
 
@@ -225,13 +342,21 @@ void BStarTree::recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodo
 	unsigned short cantClaves = 0;
 	unsigned short bytesSobrantes = nodoHnoDer->obtenerBytesSobrantes(cantClaves);
 	
-	SetClaves* set = nodoPadre->cederClaves(cantClaves);
-	nodoDestino->recibir(set);
-	delete set;
+	SetClaves* setDescenso = nodoPadre->cederClaves(cantClaves);
+	SetClaves* setAscenso = nodoHnoDer->cederBytes(bytesSobrantes);
 	
-	set = nodoHnoDer->cederBytes(bytesSobrantes);
-	nodoPadre->recibir(set);
-	delete set;
+	for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
+		(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());
+		++iterDescenso, ++iterAscenso ){
+		(*iterAscenso)->setHijoDer((*iterDescenso)->getHijoDer());
+		(*iterDescenso)->setHijoDer(0);
+	}
+	
+	nodoDestino->recibir(setDescenso);
+	nodoPadre->recibir(setAscenso);
+	
+	delete setDescenso;
+	delete setAscenso;
 	
 }
 
@@ -284,15 +409,24 @@ bool BStarTree::puedePasarseClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* &n
 }
 
 
-void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq) {
+void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq) {
 	
-	SetClaves* set = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos(), false );
-	nodoDestino->recibir(set);
-	delete set;
+	SetClaves* setDescenso = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos(), false );
+	unsigned short cantClaves = setDescenso->size();
+	SetClaves* setAscenso = nodoHnoIzq->cederClaves(cantClaves, false);
 	
-	set = nodoHnoIzq->cederBytes( nodoPadre->obtenerBytesRequeridos(), false );
-	nodoPadre->recibir(set);
-	delete set;
+	for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
+		(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());
+		++iterDescenso, ++iterAscenso ){
+		(*iterAscenso)->setHijoDer((*iterDescenso)->getHijoDer());
+		(*iterDescenso)->setHijoDer(0);
+	}
+	
+	nodoDestino->recibir(setDescenso);
+	nodoPadre->recibir(setAscenso);
+	
+	delete setDescenso;
+	delete setAscenso;
 	
 }
 
@@ -302,13 +436,21 @@ void BStarTree::recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* no
 	unsigned short cantClaves = 0;
 	unsigned short bytesSobrantes = nodoHnoIzq->obtenerBytesSobrantes(cantClaves);
 	
-	SetClaves* set = nodoPadre->cederClaves(cantClaves);
-	nodoDestino->recibir(set);
-	delete set;
+	SetClaves* setDescenso = nodoPadre->cederClaves(cantClaves);
+	SetClaves* setAscenso = nodoHnoIzq->cederBytes(bytesSobrantes);
 	
-	set = nodoHnoIzq->cederBytes(bytesSobrantes);
-	nodoPadre->recibir(set);
-	delete set;
+	for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
+		(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());
+		++iterDescenso, ++iterAscenso ){
+		(*iterAscenso)->setHijoDer((*iterDescenso)->getHijoDer());
+		(*iterDescenso)->setHijoDer(0);
+	}
+	
+	nodoDestino->recibir(setDescenso);
+	nodoPadre->recibir(setAscenso);
+	
+	delete setDescenso;
+	delete setAscenso;
 	
 }
 

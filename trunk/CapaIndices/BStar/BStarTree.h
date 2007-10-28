@@ -35,14 +35,14 @@ class BStarTree {
 		
 		void insertarInterno(NodoBStar* &nodoDestino, char* codigo);
 		
-		void eliminarInterno(Clave* clave);
+		void eliminarInterno(NodoBStar* nodoTarget, Clave* clave, char* codigo);
 		
 		bool puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
 									  NodoBStar* &nodoHnoDer) const;
 		
 		//Pasa una clave de un hermano derecho a otro nodo
 		//Se usa en la eliminación de una clave
-		void pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
+		void pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
 							   NodoBStar* nodoHnoDer);
 		
 		void recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
@@ -53,7 +53,7 @@ class BStarTree {
 		
 		//Pasa una clave de un hermano izquierdo a otro nodo
 		//Se usa en la eliminación de una clave
-		void pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
+		void pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
 				   NodoBStar* nodoHnoIzq);
 		
 		void recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre,

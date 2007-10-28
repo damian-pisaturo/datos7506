@@ -72,7 +72,7 @@ class Nodo : public BloqueIndice
 		Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio);
 		
 		/*Lee el archivo y crea ese nodo*/
-		Nodo(ArchivoIndice* archivo, unsigned int referencia);
+//		Nodo(ArchivoIndice* archivo, unsigned int referencia);
 		
 		/*Destructor*/
 		virtual ~Nodo();
@@ -172,7 +172,7 @@ class Nodo : public BloqueIndice
 		
 		bool puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre) const;
 		
-		bool puedeRecibirClaveDesdeIzqYAvecesNoPeroQuizaPuedaNoSeSabeBienFijatePuedeQueRetorneNullDependeMasOMenosDeLoQuePorAhiInterpretaEsteMetodoChimPum(Nodo* nodoHnoIzq, Nodo* nodoPadre) const;
+		bool puedeRecibirClaveDesdeIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre) const;
 		
 		bool puedeRecibirClaveDesdeDer(Nodo* nodoHnoDer, Nodo* nodoPadre) const;
 		
