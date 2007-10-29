@@ -77,6 +77,15 @@ class BStarTree {
 		//Parte dos nodos completos en tres y devuelve las dos claves promocionadas.
 		VectorClaves* split(NodoBStar* nodoTarget, NodoBStar* nodoHnoDer, Clave* clavePadre);
 		
+		//Este método concatena un nodo con underflow con un nodo hermano y con una clave del nodo
+		//padre. Esto sucede cuando el árbol sólo tiene dos niveles y el nodo raíz sólo tiene una clave.
+		void merge(NodoBStar* nodoTarget, NodoBStar* nodoHno, Clave* clavePadre);
+		
+		//Este método concatena un nodo con underflow con dos nodos hermanos y con dos claves del nodo
+		//padre. Realiza el split internamente y devuelve la clave a promocionar.
+		Clave* merge(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
+					Clave* clavePadre1, Clave* clavePadre2);
+		
 };
 
 #endif /*BSTARTREE_H_*/

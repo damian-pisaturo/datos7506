@@ -117,7 +117,7 @@ class Nodo : public BloqueIndice
 		 * Reemplaza la claveVieja del Nodo actual con una copia de 
 		 * la clave nueva. Devuelve Codigo::MODIFICADO en codigo.
 		 */
-		//Clave* reemplazarClave(Clave* claveVieja, Clave* claveNueva, char* codigo);
+		bool reemplazarClave(Clave* claveVieja, Clave* claveNueva, char* codigo);
 	
 		/*buscar()
 		 * Devuelve la clave mas cercana a la claveBuscada dentro de la lista
@@ -125,7 +125,9 @@ class Nodo : public BloqueIndice
 		 */ 
 		Clave* buscar(Clave* claveBuscada) const;
 			
-		//bool vacio(ArchivoIndice* archivo);
+		bool vacio() const {
+			return this->getClaves()->empty();
+		}
 		
 		bool operator == (const Nodo &nodo) const {
 			return (this->getPosicionEnArchivo() == nodo.getPosicionEnArchivo());
@@ -192,6 +194,8 @@ class Nodo : public BloqueIndice
 		
 		//Revisa si el nodo tiene overflow o no.
 		bool tieneOverflow() const;
+		
+		bool tieneUnderflow() const;
 		
 		//Split que se comporta como el de un arbol B (parte en dos el nodo), donde minClaves es
 		//la cantidad (en bytes) que debe tener cada parte resultante.

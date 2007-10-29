@@ -123,7 +123,7 @@ class Clave
 			this->hijoDer = hijoDer;
 		}
 
-		virtual const void* getValor() 
+		virtual void* getValor() const
 		{
 			return this->valor;
 		}
