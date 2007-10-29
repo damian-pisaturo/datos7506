@@ -95,57 +95,26 @@ void Nodo::actualizarEspacioLibre(SetClaves* claves, bool insercion)
 		this->setEspacioLibre(this->getEspacioLibre() + suma);
 }
 
-/*
-bool Nodo::puedeDonar(ArchivoIndice* archivo)
-{
-	bool devolver = true;
-	
-	if(this->espacioLibre >= condicionMinima(archivo))     
-   		devolver = false;
-	
-	return devolver;     
-}
-*/
-
-/*
-unsigned int Nodo::condicionMinima(ArchivoIndice* archivo)
-{
-	unsigned int tamanioReal = archivo->getTamanioNodo() - archivo->getTamanioHeader();
-	
-	return  (tamanioReal / 2);   
-}
-*/
 
 Clave* Nodo::buscar(Clave* claveBuscada) const
 {
 	return this->getClaves()->findClave(claveBuscada);
 }
 
-/*
-bool vacio(ArchivoIndice* archivo)
-{
-	bool vacio = false;
-	
-	if((this->espacioLibre) == (archivo->getTamanioNodo() - archivo->getTamanioHeader()))
-		vacio = true;
-	
-	return vacio;
-}
-*/
 
-/*
-Clave* Nodo::reemplazarClave(Clave* claveVieja, Clave* claveNueva, char* codigo)
+bool Nodo::reemplazarClave(Clave* claveVieja, Clave* claveNueva, char* codigo)
 {		
-	this->claves->findClave(claveVieja);
-	Clave* copia = claveNueva->copiar();
-	Clave* reemplazada = (Clave*)this->claves->reemplazar(copia);
-	*codigo = Codigo::MODIFICADO;
+	Clave* claveBuscada = this->buscar(claveVieja);
 	
-    delete reemplazada;
+	if ((!claveBuscada) || (!(*claveBuscada == *claveVieja))) return false;
+	
+	this->eliminarClave(claveVieja, codigo);
+	
+	this->insertarClave(claveNueva, codigo);
     
-	return copia;
+	return true;
 }
-*/
+
 
 
 unsigned short Nodo::getTamanioEnDiscoSetClaves() const {
@@ -414,14 +383,11 @@ bool Nodo::puedeRecibirClaveDesdeIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre) const {
 	unsigned short bytesPropuestosPadre = 0, bytesPropuestosPorHnoIzq = 0;
 	unsigned char clavesPropuestas = 0;
 	
-	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas)) > 0 )
-		
-		if ( this->puedeRecibir(bytesPropuestosPadre, clavesPropuestas ) )
-			
-			if ( (bytesPropuestosPorHnoIzq = nodoHnoIzq->bytesACeder(clavesPropuestas)) > 0 )
-				
-				if ( nodoPadre->puedeRecibir(bytesPropuestosPorHnoIzq, bytesPropuestosPadre) )
-					return true;
+	if (  ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas, false)) > 0 )
+		&& ( this->puedeRecibir(bytesPropuestosPadre, 0) )
+		&& ( (bytesPropuestosPorHnoIzq = nodoHnoIzq->bytesACeder(clavesPropuestas, false)) > 0 )
+		&& ( nodoPadre->puedeRecibir(bytesPropuestosPorHnoIzq, bytesPropuestosPadre) ) )
+			return true;
 	
 	return false;
 }
@@ -429,27 +395,15 @@ bool Nodo::puedeRecibirClaveDesdeIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre) const {
 
 bool Nodo::puedeRecibirClaveDesdeDer(Nodo* nodoHnoDer, Nodo* nodoPadre) const {
 	
-	//TODO Corregir
-	unsigned short bytesRequeridos = nodoHnoDer->obtenerBytesRequeridos();
-	unsigned short bytesPropuestosPadre = 0, bytesPropuestosPorMi = 0;
+	unsigned short bytesRequeridos = this->obtenerBytesRequeridos();
+	unsigned short bytesPropuestosPadre = 0, bytesPropuestosPorHnoDer = 0;
 	unsigned char clavesPropuestas = 0;
 	
-	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas, false)) > 0 ) {
-		
-		//TODO Ver el tema de 'clavesPropuestas', habria que pasarle una variable.
-		if ( nodoHnoDer->puedeRecibir(bytesPropuestosPadre, 0) ) {
-
-			if ( (bytesPropuestosPorMi = this->bytesACeder(clavesPropuestas, false)) > 0 ) {
-				
-				if ( nodoPadre->puedeRecibir(bytesPropuestosPorMi, bytesPropuestosPadre) ) {
-					return true;
-				}
-				
-			}
-			
-		}
-		
-	}
+	if ( ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas)) > 0 )
+		&& ( this->puedeRecibir(bytesPropuestosPadre, 0) )
+		&& ( (bytesPropuestosPorHnoDer = nodoHnoDer->bytesACeder(clavesPropuestas)) > 0 )
+		&& ( nodoPadre->puedeRecibir(bytesPropuestosPorHnoDer, bytesPropuestosPadre) ) )
+			return true;	
 	
 	return false;
 	
@@ -461,23 +415,13 @@ bool Nodo::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre) const {
 	//Bytes requeridos por el hermano izquierdo
 	unsigned short bytesRequeridos = nodoHnoIzq->obtenerBytesRequeridos();
 	unsigned short bytesPropuestosPadre = 0, bytesPropuestosPorMi = 0;
-	unsigned char clavesPropuestasPadre = 0, clavesPropuestasHno = 0;
+	unsigned char clavesPropuestas = 0;
 	
-	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestasPadre)) > 0 ) {
-		
-		if ( nodoHnoIzq->puedeRecibir(bytesPropuestosPadre, clavesPropuestasHno) ) {
-			
-			if ( (bytesPropuestosPorMi = this->bytesACeder(clavesPropuestasPadre)) > 0 ) {
-				
-				if ( nodoPadre->puedeRecibir(bytesPropuestosPorMi, bytesPropuestosPadre) ) {
-					return true;
-				}
-				
-			}
-			
-		}
-		
-	}
+	if ( ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas)) > 0 )
+		&& ( nodoHnoIzq->puedeRecibir(bytesPropuestosPadre, 0) )
+		&& ( (bytesPropuestosPorMi = this->bytesACeder(clavesPropuestas)) > 0 )
+		&& ( nodoPadre->puedeRecibir(bytesPropuestosPorMi, bytesPropuestosPadre) ) )
+			return true;
 	
 	return false;
 }
@@ -485,25 +429,16 @@ bool Nodo::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre) const {
 
 bool Nodo::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre) const {
 	
+	//Bytes requeridos por el hermano derecho
 	unsigned short bytesRequeridos = nodoHnoDer->obtenerBytesRequeridos();
 	unsigned short bytesPropuestosPadre = 0, bytesPropuestosPorMi = 0;
-	unsigned char clavesPropuestasPadre = 0, clavesPropuestasHno = 0;
+	unsigned char clavesPropuestas = 0;
 	
-	if ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestasPadre, false)) > 0 ) {
-		
-		if ( nodoHnoDer->puedeRecibir(bytesPropuestosPadre, clavesPropuestasHno) ) {
-
-			if ( (bytesPropuestosPorMi = this->bytesACeder(clavesPropuestasPadre, false)) > 0 ) {
-				
-				if ( nodoPadre->puedeRecibir(bytesPropuestosPorMi, bytesPropuestosPadre) ) {
-					return true;
-				}
-				
-			}
-			
-		}
-		
-	}
+	if ( ( (bytesPropuestosPadre = nodoPadre->bytesACeder(bytesRequeridos, clavesPropuestas, false)) > 0 )
+		&& ( nodoHnoDer->puedeRecibir(bytesPropuestosPadre, 0) )
+		&& ( (bytesPropuestosPorMi = this->bytesACeder(clavesPropuestas, false)) > 0 )
+		&& ( nodoPadre->puedeRecibir(bytesPropuestosPorMi, bytesPropuestosPadre) ) )
+			return true;
 	
 	return false;
 	
@@ -517,14 +452,14 @@ void Nodo::merge(Nodo* nodoHno, Clave* clavePadre) {
 }
 
 
-void Nodo::merge(Nodo* nodoHno1, Nodo* nodoHno2, Clave* clavePadre1, Clave* clavePadre2){
+void Nodo::merge(Nodo* nodoHno1, Nodo* nodoHno2, Clave* clavePadre1, Clave* clavePadre2) {
 	
 	return this->getClaves()->merge(nodoHno1->getClaves(), nodoHno2->getClaves(), clavePadre1, clavePadre2);
 	
 }
 
 
-void Nodo::extraerUltimaClave(){
+void Nodo::extraerUltimaClave() {
 	SetClaves::iterator iter = this->getClaves()->end();
 	this->getClaves()->erase(*(--iter));
 }
@@ -536,12 +471,17 @@ void Nodo::extraerClave(Clave* clave) {
 }
 
 
-bool Nodo::tieneOverflow() const{
+bool Nodo::tieneOverflow() const {
 	return (this->getTamanioEnDiscoSetClaves() > this->getTamanioEspacioClaves());
 }
 
 
-SetClaves* Nodo::splitB(unsigned short minClaves){
+bool Nodo::tieneUnderflow() const {
+	return (this->getTamanioEnDiscoSetClaves() < this->getTamanioMinimo());
+}
+
+
+SetClaves* Nodo::splitB(unsigned short minClaves) {
 	return (this->getClaves()->splitBPlus(minClaves));
 }
 
