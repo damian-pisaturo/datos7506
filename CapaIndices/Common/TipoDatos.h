@@ -7,20 +7,19 @@ using namespace std;
 class TipoDatos
 {
 	public:
-		const static string TIPO_ENTERO;
-		const static string TIPO_SHORT;
-		const static string TIPO_CHAR;
-		const static string TIPO_BOOL;
-		const static string TIPO_REAL;
-		const static string TIPO_VARIABLE;
-		const static string TIPO_FECHA;
+		// Indican los distintos tipos de datos que soporta el framework.
+		const static int TIPO_ENTERO = 0;
+		const static int TIPO_SHORT = 1;
+		const static int TIPO_CHAR = 2;
+		const static int TIPO_BOOL = 3;
+		const static int TIPO_FLOAT = 4;
+		const static int TIPO_FECHA = 5;
+		const static int TIPO_STRING = 6;
+		
+		// Las constantes a continuación se usan para saber si los
+		// registros son de longitud variable o fija.
+		const static int TIPO_VARIABLE = 7;
+		const static int TIPO_FIJO = 8;
 };
-
-const string TipoDatos::TIPO_ENTERO   = "tipoEntero";
-const string TipoDatos::TIPO_SHORT    = "tipoShort";
-const string TipoDatos::TIPO_CHAR     = "tipoChar";
-const string TipoDatos::TIPO_REAL     = "tipoReal";
-const string TipoDatos::TIPO_VARIABLE = "tipoVariable";
-const string TipoDatos::TIPO_FECHA    = "tipoFecha";
 
 #endif /*TIPODATOS_H_*/
