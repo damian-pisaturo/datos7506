@@ -1,7 +1,8 @@
 #include "Hash.h"
 
-Hash::Hash()
+Hash::Hash(ArchivoIndiceHash *archivo)
 {
+	//TODO:: Agregar nodo con tam de dsipersión a la lista de parámetros
 }
 
 Hash::~Hash()
@@ -50,16 +51,37 @@ int Hash::aplicarHash(char *clave)
  * Si el registro se puede insertar devuelve OK; si ya existe un registro
  * con la misma clave, devuelve DUPLICATED, y si no hay lugar en el bucket
  * correspondiente para insertarlo, devuelve FAIL.
+ * Si el registro es variable "registro" contendrá la long del mismo en sus primeros 2 bytes
  */
 int Hash::insertarRegistro(char* registro, char* clave)
 {	
-	int nroBloque = aplicarHash(clave) % tabla->getTamanio();
-	Bucket * bucket;
-	bucket->leer(tabla->getDireccionBucket(nroBloque));
+	// Se aplica la función de hash para saber en que bucket se debe insertar.
+	int nroBucket = aplicarHash(clave) % tabla->getTamanio();
 	
+	// Se obtiene el bucket donde hay que insertar el registro.
+	Bucket * bucket = new Bucket(archivo,tabla->getDireccionBucket(nroBucket));
+	
+	// Se busca si el registro ya existe.
 	unsigned short aux;
-	if (bucket->buscarRegistro(listaParam, clave, aux)==)
-		return DUPLICATED; // ya existe un registro con esa clave.
+	if (bucket->buscarRegistro(listaParam, (void*)clave, &aux))
+		// ya existe un registro con esa clave.
+		return DUPLICATED; 
+	
+	// Se obtiene la longitud del registro independientemente de si es variable o fija.
+	unsigned short longReg = bucket->getTamanioRegistros(listaParam,registro);
+	
+	if (bucket->verificarEspacioDisponible(longReg,bucket->getEspacioLibre()))
+	{
+		bucket->altaRegistro(listaParam,registro);
+	}
+	else
+	// Si el registro no entra en el bucket hay que crear un nuevo bucket.
+	{
+		//Bucket * nuevoBucket = new Bucket(tabla->getTamanio(),archivo);
+		
+	}
+	return 0;
+	
 }
 
 int main()

@@ -24,41 +24,33 @@
 /* 
  * Este constructor inicializa un bucket nuevo
  */
-Bucket::Bucket(ArchivoIndice *indiceHash, unsigned short tamDispersion): Bloque()
+Bucket::Bucket( unsigned short tamDispersion,ArchivoIndice *indiceHash): Bloque()
 {
-	this->archivo 		= (ArchivoIndiceHash*) indiceHash;
-	this->registro 		= NULL;
 	this->tamanio		= indiceHash->getTamanioBloque();
 	this->datos = new char[this->tamanio];
 	this->tamDispersion = tamDispersion;
 	this->cantRegs      = 0;
-	
 	//Los primeros 6 bytes se usan para guardar esplibre, cantRegs y tamDispersion.
-	this->espLibre		= Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION; 
-	this->vacio         = true;
-	
+	this->setEspacioLibre(Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION); 
 
 	//TODO: ver q pasa con this->numBucket;
 }
 
 /**
- * Este constructur inicia un bloque preexistente levantandolo desde el archivo.
+ * Este constructor inicia un bloque preexistente levantandolo desde el archivo.
  */
-Bucket::Bucket(ArchivoIndice* indiceHash, unsigned int referencia)
+Bucket::Bucket(ArchivoIndice* indiceHash, unsigned int nroBucket)
 {
 	this->tamanio = indiceHash->getTamanioBloque();
 	this->datos = new char[tamanio];
-	this->registro = NULL;
-	indiceHash->leerBloque(referencia, this);
+	indiceHash->leerBloque(nroBucket, this);
 }
 	Bucket::~Bucket()
 {
 	if (datos)
 		delete[] datos;
-	if (registro)
-		delete[] registro;
 }
-	
+
 
 ///////////////////////////////////////////////////////////////////////
 // Metodos publicos
@@ -165,11 +157,6 @@ char* Bucket::getDatos()
 	return datos;
 }
 
-void Bucket::setEspLibre(unsigned short eLibre)
-{
-	espLibre = eLibre;
-}
-
 void Bucket::setCantRegs(unsigned short cRegs)
 {
 	cantRegs = cRegs;
@@ -179,6 +166,8 @@ void Bucket::setTamDispersion(unsigned short tDisp)
 {
 	tamDispersion = tDisp;
 }
+
+
 
 
 

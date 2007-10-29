@@ -11,6 +11,7 @@
 #include <list>
 
 #include "../Common/Tamanios.h"
+#include "../Common/TipoDatos.h"
 
 using namespace std;
 
@@ -35,12 +36,6 @@ private:
 	
 	void organizarBloque(int offsetToReg,int longReg);
 	/*
-	 * Verifica que el registro a insertar tiene espacio dentro del bloque
-	 * Retorna "true" en caso de que haya espacio y "false" en caso contrario
-	 **/
-	bool verificarEspacioDisponible(int longReg,int offsetEspLibre);
-	
-	/*
 	 * Inserta un registro dentro del bloque, actualizando el offset a espacio libre
 	 **/
 	void insertarRegistro(char *registro,unsigned short nuevoOffsetEspLibre,unsigned short longitudRegistro);
@@ -55,25 +50,36 @@ private:
 	 * Retorna un campo específico del registro
 	 * */
 	char* getRegisterAtribute(string registro,int offsetCampo,int longCampo);
-	
-	bool buscarRegistro(const list<string>& listaParam, void *clavePrimaria, unsigned short* offsetReg);
 
+	
 public:
+	bool buscarRegistro(const list<string>& listaParam, void *clavePrimaria, unsigned short* offsetReg);
 	/*
 	 * Inserta un nuevo registro dentro del bloque
 	 **/
-	bool altaRegistro(char *registro);
+	bool altaRegistro(const list<string>& listaParam, char *registro);
 	
 	/*
 	 * Elimina un registro del bloque, reorganizando el espacio libre
 	 **/
-	int bajaRegistro(list <string>listaParam,void *clavePrimaria);
+	int bajaRegistro(const list <string>listaParam,void *clavePrimaria);
 	/*
-	 * Modifica el contenido de un registro 
+	 * Modifica el contenido de un registro.
 	 **/
 	int modificarRegistro(const list<string>& listaParam, unsigned short longReg, char* registro);
 	
 	virtual unsigned short getOffsetToRegs();
+	/*
+	 * Verifica que el registro a insertar tiene espacio dentro del bloque
+	 * Retorna "true" en caso de que haya espacio y "false" en caso contrario
+	 **/
+	bool verificarEspacioDisponible(int longReg,int offsetEspLibre);
+	
+	/*
+	 * Devuelve la longitud del registro, ya sea de longitud fija o varaible.
+	 **/
+	unsigned short getTamanioRegistros(const list<string>& listaParam,char *registro);
+	
 	
 };
 
