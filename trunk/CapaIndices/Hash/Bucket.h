@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../Common/BloqueIndice.h"
-#include "RegistroV.h"
 #include "../../CapaFisica/ArchivoIndice.h"
 #include "../Bloque/Bloque.h"
 
@@ -36,15 +35,18 @@
 class Bucket : public BloqueIndice , public Bloque 
 {
 private:
-	//////////////////////////////////////////////////////////////////////
-	// Atributos
-	//////////////////////////////////////////////////////////////////////
-	char* datos;
-	unsigned int tamanio; //TODO El tamanio del bucket vendra en el ArchivoIndiceHash.
-	unsigned short numBucket; //Indica el numero de bucket dentro del archivo.
+//////////////////////////////////////////////////////////////////////
+// Atributos
+//////////////////////////////////////////////////////////////////////
+	// TODO Los datos estan en bloque.
+	//TODO El tamanio del bucket vendra en el ArchivoIndiceHash, ademas lo tiene la clase bloque.
+	// El num de bucket esta en el bloque.
 	unsigned short tamDispersion;
 	unsigned short cantRegs;
-	unsigned short espLibre;
+	
+///////////////////////////////////////////////////////////////////////
+// Metodos privados
+///////////////////////////////////////////////////////////////////////
 	
 public:
 ///////////////////////////////////////////////////////////////////////
@@ -52,35 +54,27 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 	/*Crea un Bucket vacio*/
-	Bucket(unsigned short tamDispersion, ArchivoIndice *indiceHash);
-		
+	Bucket(unsigned short numBucket,unsigned short tamDispersion, ArchivoIndice *indiceHash);
+	
 	/*Crea un Bucket con los datos del bloque cuya 
 	 * referencia en el archivo es la pasada por parametro.
 	 */
 	Bucket(ArchivoIndice* indiceHash, unsigned int referencia);
 	virtual ~Bucket();
 
-	int insertar(char* clave, char* registro);
-	int borrar(char * clave);
-	Bucket* splitBucket();
-	int redistribuirClaves(Bucket &bucket);
-	
-	unsigned short getOffsetToRegs();
-	
 	
 	
 ///////////////////////////////////////////////////////////////////////
 // Metodos publicos
 ///////////////////////////////////////////////////////////////////////
 	
-	char* getDatos();
+	int insertar(char* clave, char* registro);
+	int borrar(char * clave);
+	Bucket* splitBucket();
+	int redistribuirClaves(Bucket &bucket);	
+	unsigned short getOffsetToRegs();
 	void setTamDispersion(unsigned short tDisp);
 	void setCantRegs(unsigned short cRegs);
-	
-private:
-///////////////////////////////////////////////////////////////////////
-// Metodos privadosgetDatos()
-///////////////////////////////////////////////////////////////////////
 	
 };
 

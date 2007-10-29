@@ -4,7 +4,13 @@
 #include <list>
 #include <string>
 
+typedef struct _nodoLista{
+	int tipo;
+	string pk;
+}nodoLista;
+
 using namespace std;
+
 class RegisterInfo
 {
 
@@ -21,14 +27,14 @@ private:
 	 * <Variable || Fijo>;<long>(solo si es fijo)?
 	 * 
 	 * */
-	list <string> parameterList;
+	list <nodoLista> parameterList;
 	int longReg;
 
 public:
 	RegisterInfo();
 	virtual ~RegisterInfo();
 	void setParameterList();
-	list <string> getParameterList();
+	list <nodoLista> getParameterList();
 	void setLongitudRegistro(int longitud);
 	int getLongitudRegistro();
 };

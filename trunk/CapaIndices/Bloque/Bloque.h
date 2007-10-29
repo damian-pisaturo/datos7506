@@ -12,29 +12,27 @@
 
 #include "../Common/Tamanios.h"
 #include "../Common/TipoDatos.h"
+#include "../RegisterInfo/RegisterInfo.h"
 
 using namespace std;
 
 class Bloque
 {
-private:
+private:	
+	////////////////////////////////////////////////////////////////
+	// Atributos
+	////////////////////////////////////////////////////////////////
 	int numero;
-	int tamanio;
+	unsigned int tamanio;
 	char *datos;
 	
-public:
-	Bloque();
-	Bloque(int num,int tam);
-	virtual ~Bloque();
-	
-private:
 	//Métodos privados
 	
-	/*
+	/*CapaIndices/Bloque/Bloque.cpp 
 	 * Organiza el bloque a partir de una modificación dentro del mismo
 	 **/
 	
-	void organizarBloque(int offsetToReg,int longReg);
+	void organizarBloque(int offsettamDispersionToReg,int longReg);
 	/*
 	 * Inserta un registro dentro del bloque, actualizando el offset a espacio libre
 	 **/
@@ -53,20 +51,30 @@ private:
 
 	
 public:
-	bool buscarRegistro(const list<string>& listaParam, void *clavePrimaria, unsigned short* offsetReg);
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+	Bloque();
+	Bloque(int num,int tam);
+	virtual ~Bloque();
+	
+	///////////////////////////////////////////////////////////////////////
+	// Métodos públicos
+	///////////////////////////////////////////////////////////////////////
+	bool buscarRegistro(const list<nodoLista>& listaParam, void *clavePrimaria, unsigned short* offsetReg);
 	/*
 	 * Inserta un nuevo registro dentro del bloque
 	 **/
-	bool altaRegistro(const list<string>& listaParam, char *registro);
+	bool altaRegistro(const list<nodoLista>& listaParam, char *registro);
 	
 	/*
 	 * Elimina un registro del bloque, reorganizando el espacio libre
 	 **/
-	int bajaRegistro(const list <string>listaParam,void *clavePrimaria);
+	int bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria);
 	/*
 	 * Modifica el contenido de un registro.
 	 **/
-	int modificarRegistro(const list<string>& listaParam, unsigned short longReg, char* registro);
+	int modificarRegistro(const list<nodoLista>& listaParam, unsigned short longReg,void* clavePrimaria, char* registro);
 	
 	virtual unsigned short getOffsetToRegs();
 	/*
@@ -78,8 +86,15 @@ public:
 	/*
 	 * Devuelve la longitud del registro, ya sea de longitud fija o varaible.
 	 **/
-	unsigned short getTamanioRegistros(const list<string>& listaParam,char *registro);
+	unsigned short getTamanioRegistros(const list<nodoLista>& listaParam,char *registro);
 	
+	unsigned int getTamanioBloque();
+	
+	void setTamanioBloque(unsigned int tam);
+	
+	char * getDatos();
+	
+	void setDatos(char* d);
 	
 };
 
