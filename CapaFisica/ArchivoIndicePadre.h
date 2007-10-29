@@ -79,6 +79,7 @@ class ArchivoIndice
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y escribir
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
 		 */
+		//TODO: Nicoooo!!! NDevolver el numero de bloque donde lo escribis!!!
 		virtual int escribirBloque(BloqueIndice* bloqueNuevo) = 0;
 		
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y
@@ -143,7 +144,7 @@ class ArchivoIndiceArbol : public ArchivoIndice
 		ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
 		virtual ~ArchivoIndiceArbol();
 	
-	private:
+	private:unsigned short
 	///////////////////////////////////////////////////////////////////////
 	// Atributos
 	///////////////////////////////////////////////////////////////////////

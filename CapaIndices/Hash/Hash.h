@@ -40,7 +40,7 @@ class Hash
 	// Atributos
 	//////////////////////////////////////////////////////////////////////
 		Tabla *tabla;
-		ArchivoIndiceHash* indiceHash;
+		ArchivoIndiceHash* archivo;
 		list<string> listaParam;
 	
 	public:
@@ -60,7 +60,7 @@ class Hash
 		 * con la misma clave, devuelve DUPLICATED, y si no hay lugar en el bucket
 		 * correspondiente para insertarlo, devuelve FAIL.
 		 */
-		int insertarRegistro(char* registro,int tamanioClave);
+		int insertarRegistro(char* registro,char* clave);
 		int eliminarRegistro(char* clave);
 	
 	private:

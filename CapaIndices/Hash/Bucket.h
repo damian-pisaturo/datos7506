@@ -33,7 +33,7 @@
 // Nombre: Bucket (Permite el manejo de buckets en memoria)
 //////////////////////////////////////////////////////////////////////////
 
-class Bucket : public BloqueIndice , Bloque 
+class Bucket : public BloqueIndice , public Bloque 
 {
 private:
 	//////////////////////////////////////////////////////////////////////
@@ -41,12 +41,10 @@ private:
 	//////////////////////////////////////////////////////////////////////
 	char* datos;
 	unsigned int tamanio; //TODO El tamanio del bucket vendra en el ArchivoIndiceHash.
-	char* registro;
 	unsigned short numBucket; //Indica el numero de bucket dentro del archivo.
 	unsigned short tamDispersion;
 	unsigned short cantRegs;
 	unsigned short espLibre;
-	ArchivoIndiceHash *archivo;
 	
 public:
 ///////////////////////////////////////////////////////////////////////
@@ -54,7 +52,7 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 	/*Crea un Bucket vacio*/
-	Bucket(ArchivoIndice *indiceHash, unsigned short tamDispersion);
+	Bucket(unsigned short tamDispersion, ArchivoIndice *indiceHash);
 		
 	/*Crea un Bucket con los datos del bloque cuya 
 	 * referencia en el archivo es la pasada por parametro.
@@ -74,16 +72,8 @@ public:
 ///////////////////////////////////////////////////////////////////////
 // Metodos publicos
 ///////////////////////////////////////////////////////////////////////
-
-	
-	/*
-	 * Busca un registro por su clave dentro del bucket. Si existe lo carga en el 
-	 * atributo registro y devuelve true; de lo contrario devuelve false.
-	 */ 
-	bool buscarRegistro(Clave* clave);
 	
 	char* getDatos();
-	void setEspLibre(unsigned short eLibre);
 	void setTamDispersion(unsigned short tDisp);
 	void setCantRegs(unsigned short cRegs);
 	
