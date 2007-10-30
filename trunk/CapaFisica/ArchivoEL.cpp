@@ -1,0 +1,132 @@
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Implementacion clases ArchivoEL, ArchivoELFijo y
+//		ArchivoELVariable. 
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;
+//		- Rodriguez, Maria Laura.
+//////////////////////////////////////////////////////////////////////////
+
+#include "ArchivoEL.h"
+
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoEL 
+//		   (Clase que define el comportamiento del manejo de
+//			los archivos de control de espacio libre).
+///////////////////////////////////////////////////////////////////////////
+	
+	///////////////////////////////////////////////////////////////////////	
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoEL::ArchivoEL(string nombre, unsigned short tamBloque) :
+			ArchivoBase(nombre, tamBloque)
+		{ }
+		
+		ArchivoEL::~ArchivoEL(){ }
+		
+	///////////////////////////////////////////////////////////////////////
+	//	Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+		char ArchivoEL::agregarRegistro(void* registro)
+		{					
+			this->posicionarseFin();
+			
+			return (this->escribir(registro));	
+		}
+		
+		char ArchivoEL::modificarRegistro(void* registro, unsigned short numRegistro)
+		{
+			char resultado = CodArchivo::OK;
+			
+			resultado = this->posicionarse(numRegistro);
+			if (resultado == CodArchivo::OK)
+				resultado = this->escribir(registro);
+			
+			return resultado;
+		}
+
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoELFijo
+//		   (Clase que permite manejar archivos de control de espacio
+//			libre cuya definicion fisica consiste en un atributo booleano
+//			indicando si el bloque se encuentra o no libre para su uso).
+///////////////////////////////////////////////////////////////////////////
+		
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoELFijo::ArchivoELFijo(string nombre) :
+			ArchivoEL(nombre, sizeof(bool))
+		{ }
+		
+		ArchivoELFijo::~ArchivoELFijo() { }
+	
+	///////////////////////////////////////////////////////////////////////
+	//	Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+		short ArchivoELFijo::buscarBloqueLibre()
+		{
+			bool libre = false;
+			short numBloque = -1;
+			
+			while((!libre) && (!this->fin())){
+				this->posicionarse(++numBloque);
+				this->leer(&libre);
+			}
+			
+			if (this->fin())
+				numBloque = CodArchivo::BLOQUES_OCUPADOS;
+			
+			return numBloque;		
+		}
+
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoELVariable
+//		   (Clase que permite manejar archivos de control de espacio
+//			libre cuya definicion fisica consiste en dos atributos
+//			unsigned short: uno para el numero de bloque y otro indicando
+//			su espacio libre).
+///////////////////////////////////////////////////////////////////////////
+		
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoELVariable::ArchivoELVariable(string nombre) :
+			ArchivoEL(nombre, sizeof(unsigned short))
+		{ }
+		
+		ArchivoELVariable::~ArchivoELVariable() { }
+	
+	///////////////////////////////////////////////////////////////////////
+	//	Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+		short ArchivoELVariable::buscarEspacioLibre(unsigned short espacioRequerido)
+		{
+			unsigned short espacioLibre = 0;
+			short numBloque = -1;
+					
+			while((espacioLibre <= espacioRequerido) && 
+					(!this->fin())){
+				this->posicionarse(++numBloque);
+				this->leer(&espacioLibre);
+			}
+			
+			if (this->fin())
+				numBloque = CodArchivo::BLOQUES_OCUPADOS;
+			
+			return numBloque;		
+		}

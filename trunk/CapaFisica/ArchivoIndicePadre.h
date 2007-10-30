@@ -35,6 +35,14 @@
 
 using namespace std;
 
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: TipoIndices
+//			(Clase utilitaria con constantes que designan tipos
+//			de indices utilizados).
+///////////////////////////////////////////////////////////////////////////
+
 class TipoIndices
 {
 	public:

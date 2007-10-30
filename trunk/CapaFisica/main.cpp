@@ -1,3 +1,19 @@
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Funcion principal de la Capa Fisica.
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;
+//		- Rodriguez, Maria Laura.
+///////////////////////////////////////////////////////////////////////////
+
 #include "ArchivoRegistros.h"
 #include "../ComuDatos/ComuDatos.h"
 #include <iostream>
@@ -23,9 +39,9 @@ int main(int argc, char**argv){
 			
 			int lugarDondeGuardar=false;
 			
-			ArchivoRegistros miArchivoRegistros = new ArchivoRegistros(nombreArchivo);
+			ArchivoBase miArchivoRegistros = new ArchivoRegistros(nombreArchivo);
 			
-			ArchivoRegistros miArchivoEL = new ArchivoRegistros(nombreArchivoEL,1);
+			ArchivoBase miArchivoEL = new ArchivoRegistros(nombreArchivoEL,1);
 			
 			while(lugarDondeguardar != true)
 			miArchivoEL.leer(&lugarDondeGuardar);

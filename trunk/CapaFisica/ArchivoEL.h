@@ -1,0 +1,111 @@
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Cabeceras e interfaz de las clases ArchivoEL, ArchivoELFijo y
+//		ArchivoELVariable. 
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;
+//		- Rodriguez, Maria Laura.
+///////////////////////////////////////////////////////////////////////////
+#ifndef ARCHIVOEL_H_
+#define ARCHIVOEL_H_
+
+#include "ArchivoBase.h"
+
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoEL 
+//		   (Clase que define el comportamiento del manejo de
+//			los archivos de control de espacio libre).
+///////////////////////////////////////////////////////////////////////////
+
+class ArchivoEL : public ArchivoBase
+{
+	public:
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoEL(string nombre, unsigned short tamBloque);
+		virtual ~ArchivoEL();
+	
+	///////////////////////////////////////////////////////////////////////
+	//	Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+		/*Añade un nuevo registro de datos de control
+		 * al final del archivo de espacio libre.
+		 */
+		virtual char agregarRegistro(void* registro);
+		
+		/* Modifica el registro cuyo numero dentro del 
+		 * archivo es numReg por el contenido de 'registro'
+		 */
+		virtual char modificarRegistro(void* registro, unsigned short numRegistro);
+		
+};
+
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoELFijo
+//		   (Clase que permite manejar archivos de control de espacio
+//			libre cuya definicion fisica consiste en un atributo booleano
+//			indicando si el bloque se encuentra o no libre para su uso).
+///////////////////////////////////////////////////////////////////////////
+
+class ArchivoELFijo : public ArchivoEL
+{
+	public:
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoELFijo(string nombre);
+		virtual ~ArchivoELFijo();
+	
+	///////////////////////////////////////////////////////////////////////
+	//	Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+		/*Busca en el archivo de control el primer bloque en condicion
+		 * de libre y devuelve su numero dentro del archivo. Si ningun
+		 * bloque se encuentra libre, devuelve CodArchivo::BLOQUES_OCUPADOS.
+		 */
+		short buscarBloqueLibre();	
+};
+
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoELVariable
+//		   (Clase que permite manejar archivos de control de espacio
+//			libre cuya definicion fisica consiste en un atributo
+//			unsigned short indicando espacio libre en el bloque).
+///////////////////////////////////////////////////////////////////////////
+
+class ArchivoELVariable : public ArchivoEL
+{
+	public:
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoELVariable(string nombre);
+		virtual ~ArchivoELVariable();
+	
+	///////////////////////////////////////////////////////////////////////
+	//	Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+		/*Busca en el archivo de control el primer bloque que contenga
+		 * un numero de bytes libres mayor a espacioRequerido y devuelve 
+		 * su posicion dentro del archivo. Si ningun bloque cumple con el 
+		 * requisito, devuelve CodArchivo::BLOQUES_OCUPADOS.
+		 */
+		short buscarEspacioLibre(unsigned short espacioRequerido);	
+};
+
+#endif /*ARCHIVOEL_H_*/
