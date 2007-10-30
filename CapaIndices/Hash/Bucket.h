@@ -19,12 +19,14 @@
 #ifndef BUCKET_H_
 #define BUCKET_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "../Common/BloqueIndice.h"
 #include "../../CapaFisica/ArchivoIndice.h"
 #include "../Bloque/Bloque.h"
+
+class ArchivoIndice;
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -43,6 +45,8 @@ private:
 	// El num de bucket esta en el bloque.
 	unsigned short tamDispersion;
 	unsigned short cantRegs;
+	unsigned short espLibre;
+	//ArchivoIndiceHash *archivo;
 	
 ///////////////////////////////////////////////////////////////////////
 // Metodos privados
@@ -67,13 +71,13 @@ public:
 ///////////////////////////////////////////////////////////////////////
 // Metodos publicos
 ///////////////////////////////////////////////////////////////////////
+	
 	int insertar(char* clave, char* registro);
 	int borrar(char * clave);
 	Bucket* splitBucket();
 	int redistribuirClaves(Bucket &bucket);	
 	unsigned short getOffsetToRegs();
-	void setTamDispersion(unsigned short tDisp);
-	unsigned short getTamDispersion();
+	unsigned short setTamDispersion(unsigned short tDisp);
 	void setCantRegs(unsigned short cRegs);
 	
 };
