@@ -144,168 +144,164 @@ void BStarTree::eliminar(Clave* clave) {
 	if ( (claveBuscada) && (*claveBuscada == *clave) ){
 		if (nodoTarget->getNivel() != 0){ //Nodo interno
 			NodoBStar* nodoMenorDeLosMayores = this->buscarMenorMayores(nodoTarget, clave);
-			Clave* claveMenorDeLasMayores = nodoMenorDeLosMayores->obtenerPrimeraClave();
+			Clave* claveMenorDeLasMayores = nodoMenorDeLosMayores->obtenerPrimeraClave()->copiar();
 			claveMenorDeLasMayores->setHijoDer(claveBuscada->getHijoDer());
 			nodoTarget->eliminarClave(claveBuscada, &codigo);
-			//TODO Ver si hay que hacer una copia de la clave, ya que al eliminarla del nodo hoja
-			//probablemente se libere la memoria de la misma.
 			nodoTarget->insertarClave(claveMenorDeLasMayores, &codigo);
-			
-			this->eliminarInterno(nodoMenorDeLosMayores, claveMenorDeLasMayores, &codigo);
-			
+			//TODO Actualizar 'nodoTarget' en disco
+			nodoMenorDeLosMayores->eliminarClave(claveMenorDeLasMayores, &codigo);
+			this->eliminarInterno(nodoMenorDeLosMayores, &codigo); //resuelve underflow
 			delete nodoMenorDeLosMayores;
 		}
-		else eliminarInterno(nodoTarget, claveBuscada, &codigo); //NodoTarget es un nodo hoja
-		
-		if (codigo == Codigo::MODIFICADO) {
-			//TODO actualizar en disco el nodo modificado.
-			//archivoIndice->sobreescribirNodo(nodoTarget);
-		} else if (codigo == Codigo::UNDERFLOW) {
-			
-			//Puntero a la clave del nodo padre que se encuentra entre nodoTarget y su hermano izq
-			Clave* clavePadreIzq = NULL;
-			//Puntero a la clave del nodo padre que se encuentra entre nodoTarget y su hermano der
-			Clave* clavePadreDer = NULL;
-			NodoBStar *nodoPadre = this->buscarPadre(this->nodoRaiz, nodoTarget);
-			NodoBStar *nodoHnoDer = NULL, *nodoHnoIzq = NULL, *nodoHnoHno = NULL;
-			//'nodoHnoHno' se utiliza para apuntar al hno siguiente al hermano derecho de 'nodoTarget'
-			//o para apuntar al hermano anterior al hermano izquierdo de 'nodoTarget'
-			
-			if (!nodoPadre) //nodoTarget es el nodo raíz
-				codigo = Codigo::MODIFICADO;
-			else{
-			
-				//Se buscan los hermanos derecho e izquierdo de 'nodoTarget'
-				
-				//Se busca dentro del nodo padre la clave cuyo hijo derecho es nodoTarget
-				SetClaves::iterator iterPadre;
-				for(iterPadre = nodoPadre->getClaves()->begin();
-					(iterPadre != nodoPadre->getClaves()->end()) &&
-					((*iterPadre)->getHijoDer() != nodoTarget->getPosicionEnArchivo());
-					++iterPadre);
-				
-				//Se verifica si nodoTarget tiene hermano derecho y hermano izquierdo
-				if ( iterPadre == nodoPadre->getClaves()->end() ) {
-					//nodoTarget es el hijo izquierdo de nodoPadre
-					//nodoTarget no tiene hermano izquierdo;
-					//Se tendrían que cargar el hno derecho y el hno siguiente al hno derecho
-					iterPadre = nodoPadre->getClaves()->begin();
-					//TODO El constructor debe devolver un nodo a partir de una referencia a disco.
-					//nodoHnoDer = new NodoBStar( (*iterPadre)->getHijoDer() );
-					clavePadreDer = *iterPadre;
-					if ((++iterPadre) != nodoPadre->getClaves()->end()) {
-						//nodoHnoHno = new NodoBStar( (*iterPadre)->getHijoDer() );
-						clavePadreIzq = *iterPadre;
-					}
-				} else if ( (++iterPadre) == nodoPadre->getClaves()->end() ) {
-					//nodoTarget es el hijo derecho de la última clave del nodo
-					//nodoTarget no tiene hermano derecho
-					if ( (--iterPadre) == nodoPadre->getClaves()->begin() ) {
-						//nodoHnoIzq = new NodoBStar( nodoPadre->getHijoIzq() );
-						clavePadreIzq = *iterPadre;
-					}
-					else{
-						//nodoHnoIzq = new NodoBStar( (*(--iterPadre))->getHijoDer() );
-						clavePadreIzq = *(++iterPadre);
-						if ((--iterPadre) == nodoPadre->getClaves()->begin()) {
-							//nodoHnoHno = new NodoBStar( nodoPadre->getHijoIzq() );
-							clavePadreDer = *iterPadre;
-						} else {
-							//nodoHnoHno = new NodoBStar( (*(--iterPadre))->getHijoDer() );
-							clavePadreDer = *(++iterPadre);
-						}
-					}	
-				} else {
-					--iterPadre; //Lo decremento xq se incrementó en el 'else if' anterior
-					if ( iterPadre == nodoPadre->getClaves()->begin() ) {
-						//nodoHnoIzq = new NodoBStar( nodoPadre->getHijoIzq() );
-						clavePadreIzq = *iterPadre;
-					}
-					else{
-						//nodoHnoIzq = new NodoBStar( (*(--iterPadre))->getHijoDer() );
-						clavePadreIzq = *(++iterPadre);
-					}
-					//nodoHnoDer = new NodoBStar( (*iterPadre)->getHijoDer() );
-					clavePadreDer = *iterPadre;
-				}
-				
-				//Fin de la búsqueda de los nodos hermanos de 'nodoTarget'
-				
-				//Se intenta hacer una redistribución de claves con el hermano derecho de 'nodoTarget'.
-				//Si esto no es posible, se intenta hacer una redistribución con el hermano izquierdo.
-				//Si se tratara de un extremo se mira el hermano del hermano.
-				if (nodoHnoDer) {
-					if (nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre))
-						this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer);
-					else if (!nodoHnoIzq) {
-						//'nodoHnoHno' debe cederle a 'nodoHnoDer' y luego 'nodoHnoDer' debe cederle a 'nodoTarget'
-						if (nodoHnoHno->puedePasarClaveHaciaIzq(nodoHnoDer, nodoPadre)) {
-							this->pasarClaveHaciaIzquierda(nodoHnoDer, nodoPadre, nodoHnoHno);
-							if (nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre))
-								this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer);
-						}
-					}
-				} else if (nodoHnoIzq) {
-					if (nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre))
-						this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq);
-					else { //'nodoTarget' no tiene hermano derecho
-						//'nodoHnoHno' debe cederle a 'nodoHnoIzq' y luego 'nodoHnoIzq' debe cederle a 'nodoTarget'
-						if (nodoHnoHno->puedePasarClaveHaciaDer(nodoHnoIzq, nodoPadre)) {
-							this->pasarClaveHaciaDerecha(nodoHnoIzq, nodoPadre, nodoHnoHno);
-							if (nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre))
-								this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq);
-						}
-					}
-				} else { //Se realiza la concatenación de 'nodoTarget' con dos nodos hermanos y dos claves
-					//del nodo padre. Luego se realiza un split, generándose dos nodos y una clave a promocionar
-					//hacia el nodo padre.
-					
-					Clave* clavePromocionada = NULL;
-					
-					if (*nodoPadre == *(this->nodoRaiz)) { //Caso en que la raíz tiene sólo dos hijos y 'nodoTarget'
-														//es uno de ellos
-						if ((nodoHnoDer)&&(!nodoHnoIzq)&&(!nodoHnoHno)) this->merge(nodoTarget, nodoHnoDer, clavePadreDer);
-						else if ((nodoHnoIzq)&&(!nodoHnoDer)&&(!nodoHnoHno))this->merge(nodoTarget, nodoHnoIzq, clavePadreIzq);
-					} else {
-					
-						if ((nodoHnoIzq) && (nodoHnoDer))
-							clavePromocionada = this->merge(nodoTarget, nodoHnoIzq, nodoHnoDer, clavePadreIzq, clavePadreDer);
-						else if (!(nodoHnoIzq))
-							if (nodoHnoHno)
-								clavePromocionada = this->merge(nodoTarget, nodoHnoDer, nodoHnoHno, clavePadreDer, clavePadreIzq);
-						else if (nodoHnoHno)
-							clavePromocionada = this->merge(nodoTarget, nodoHnoIzq, nodoHnoHno, clavePadreIzq, clavePadreDer);
-						
-						nodoPadre->extraerClave(clavePadreIzq);
-						nodoPadre->extraerClave(clavePadreDer);
-						nodoPadre->insertarClave(clavePromocionada, &codigo);
-						//TODO Chequear posible OF/UF en el nodo padre
-						//if (!nodoPadre->tieneUnderflow()) codigo = Codigo::MODIFICADO;
-						
-					}
-					
-					if (nodoHnoDer) delete nodoHnoDer;
-					if (nodoHnoIzq) delete nodoHnoIzq;
-					if (nodoHnoHno) delete nodoHnoHno;
-					
-				}
-			}
-			
-			delete nodoPadre;
+		else { //NodoTarget es un nodo hoja
+			nodoTarget->eliminarClave(claveBuscada, &codigo);
+			this->eliminarInterno(nodoTarget, &codigo); //resuelve underflow
 		}
-		
-		delete claveBuscada;
-		
 	}
 	
 	delete nodoTarget;
 	
 }
 
+//TODO Revisar el eliminar!!!
+void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
 
-void BStarTree::eliminarInterno(NodoBStar* nodoTarget, Clave* clave, char* codigo) {
-
-	//TODO Implementar
+	if (*codigo == Codigo::MODIFICADO) {
+		//TODO actualizar en disco el nodo modificado.
+		//archivoIndice->sobreescribirNodo(nodoTarget);
+	} else if (*codigo == Codigo::UNDERFLOW) {
+		
+		//Puntero a la clave del nodo padre que se encuentra entre nodoTarget y su hermano izq
+		Clave* clavePadreIzq = NULL;
+		//Puntero a la clave del nodo padre que se encuentra entre nodoTarget y su hermano der
+		Clave* clavePadreDer = NULL;
+		NodoBStar *nodoPadre = this->buscarPadre(this->nodoRaiz, nodoTarget);
+		NodoBStar *nodoHnoDer = NULL, *nodoHnoIzq = NULL, *nodoHnoHno = NULL;
+		//'nodoHnoHno' se utiliza para apuntar al hno siguiente al hermano derecho de 'nodoTarget'
+		//o para apuntar al hermano anterior al hermano izquierdo de 'nodoTarget'
+		
+		if (!nodoPadre) //nodoTarget es el nodo raíz
+			*codigo = Codigo::MODIFICADO;
+		else{
+		
+			//Se buscan los hermanos derecho e izquierdo de 'nodoTarget'
+			
+			//Se busca dentro del nodo padre la clave cuyo hijo derecho es nodoTarget
+			SetClaves::iterator iterPadre;
+			for(iterPadre = nodoPadre->getClaves()->begin();
+				(iterPadre != nodoPadre->getClaves()->end()) &&
+				((*iterPadre)->getHijoDer() != nodoTarget->getPosicionEnArchivo());
+				++iterPadre);
+			
+			//Se verifica si nodoTarget tiene hermano derecho y hermano izquierdo
+			if ( iterPadre == nodoPadre->getClaves()->end() ) {
+				//nodoTarget es el hijo izquierdo de nodoPadre
+				//nodoTarget no tiene hermano izquierdo;
+				//Se tendrían que cargar el hno derecho y el hno siguiente al hno derecho
+				iterPadre = nodoPadre->getClaves()->begin();
+				//TODO El constructor debe devolver un nodo a partir de una referencia a disco.
+				//nodoHnoDer = new NodoBStar( (*iterPadre)->getHijoDer() );
+				clavePadreDer = *iterPadre;
+				if ((++iterPadre) != nodoPadre->getClaves()->end()) {
+					//nodoHnoHno = new NodoBStar( (*iterPadre)->getHijoDer() );
+					clavePadreIzq = *iterPadre;
+				}
+			} else if ( (++iterPadre) == nodoPadre->getClaves()->end() ) {
+				//nodoTarget es el hijo derecho de la última clave del nodo
+				//nodoTarget no tiene hermano derecho
+				if ( (--iterPadre) == nodoPadre->getClaves()->begin() ) {
+					//nodoHnoIzq = new NodoBStar( nodoPadre->getHijoIzq() );
+					clavePadreIzq = *iterPadre;
+				}
+				else{
+					//nodoHnoIzq = new NodoBStar( (*(--iterPadre))->getHijoDer() );
+					clavePadreIzq = *(++iterPadre);
+					if ((--iterPadre) == nodoPadre->getClaves()->begin()) {
+						//nodoHnoHno = new NodoBStar( nodoPadre->getHijoIzq() );
+						clavePadreDer = *iterPadre;
+					} else {
+						//nodoHnoHno = new NodoBStar( (*(--iterPadre))->getHijoDer() );
+						clavePadreDer = *(++iterPadre);
+					}
+				}	
+			} else {
+				--iterPadre; //Lo decremento xq se incrementó en el 'else if' anterior
+				if ( iterPadre == nodoPadre->getClaves()->begin() ) {
+					//nodoHnoIzq = new NodoBStar( nodoPadre->getHijoIzq() );
+					clavePadreIzq = *iterPadre;
+				}
+				else{
+					//nodoHnoIzq = new NodoBStar( (*(--iterPadre))->getHijoDer() );
+					clavePadreIzq = *(++iterPadre);
+				}
+				//nodoHnoDer = new NodoBStar( (*iterPadre)->getHijoDer() );
+				clavePadreDer = *iterPadre;
+			}
+			
+			//Fin de la búsqueda de los nodos hermanos de 'nodoTarget'
+			
+			//Se intenta hacer una redistribución de claves con el hermano derecho de 'nodoTarget'.
+			//Si esto no es posible, se intenta hacer una redistribución con el hermano izquierdo.
+			//Si se tratara de un extremo se mira el hermano del hermano.
+			if (nodoHnoDer) {
+				if (nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre))
+					this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer);
+				else if (!nodoHnoIzq) {
+					//'nodoHnoHno' debe cederle a 'nodoHnoDer' y luego 'nodoHnoDer' debe cederle a 'nodoTarget'
+					if (nodoHnoHno->puedePasarClaveHaciaIzq(nodoHnoDer, nodoPadre)) {
+						this->pasarClaveHaciaIzquierda(nodoHnoDer, nodoPadre, nodoHnoHno);
+						if (nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre))
+							this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer);
+					}
+				}
+			} else if (nodoHnoIzq) {
+				if (nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre))
+					this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq);
+				else { //'nodoTarget' no tiene hermano derecho
+					//'nodoHnoHno' debe cederle a 'nodoHnoIzq' y luego 'nodoHnoIzq' debe cederle a 'nodoTarget'
+					if (nodoHnoHno->puedePasarClaveHaciaDer(nodoHnoIzq, nodoPadre)) {
+						this->pasarClaveHaciaDerecha(nodoHnoIzq, nodoPadre, nodoHnoHno);
+						if (nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre))
+							this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq);
+					}
+				}
+			} else { //Se realiza la concatenación de 'nodoTarget' con dos nodos hermanos y dos claves
+				//del nodo padre. Luego se realiza un split, generándose dos nodos y una clave a promocionar
+				//hacia el nodo padre.
+				
+				Clave* clavePromocionada = NULL;
+				
+				if (*nodoPadre == *(this->nodoRaiz)) { //Caso en que la raíz tiene sólo dos hijos y 'nodoTarget'
+													//es uno de ellos
+					if ((nodoHnoDer)&&(!nodoHnoIzq)&&(!nodoHnoHno)) this->merge(nodoTarget, nodoHnoDer, clavePadreDer);
+					else if ((nodoHnoIzq)&&(!nodoHnoDer)&&(!nodoHnoHno))this->merge(nodoTarget, nodoHnoIzq, clavePadreIzq);
+				} else {
+				
+					if ((nodoHnoIzq) && (nodoHnoDer))
+						clavePromocionada = this->merge(nodoTarget, nodoHnoIzq, nodoHnoDer, clavePadreIzq, clavePadreDer);
+					else if (!(nodoHnoIzq))
+						if (nodoHnoHno)
+							clavePromocionada = this->merge(nodoTarget, nodoHnoDer, nodoHnoHno, clavePadreDer, clavePadreIzq);
+					else if (nodoHnoHno)
+						clavePromocionada = this->merge(nodoTarget, nodoHnoIzq, nodoHnoHno, clavePadreIzq, clavePadreDer);
+					
+					nodoPadre->extraerClave(clavePadreIzq);
+					nodoPadre->extraerClave(clavePadreDer);
+					nodoPadre->insertarClave(clavePromocionada, codigo);
+					//TODO Chequear posible OF/UF en el nodo padre
+					//if (!nodoPadre->tieneUnderflow()) codigo = Codigo::MODIFICADO;
+					
+				}
+				
+				if (nodoHnoDer) delete nodoHnoDer;
+				if (nodoHnoIzq) delete nodoHnoIzq;
+				if (nodoHnoHno) delete nodoHnoHno;
+				
+			}
+		}
+		
+		delete nodoPadre;
+	}
 	
 }
 
@@ -326,7 +322,7 @@ Clave* BStarTree::buscar(Clave* clave) const {
 		
 void BStarTree::modificar(Clave* clave) {
 	
-	
+	//TODO Implementar!
 	
 }
 
@@ -635,6 +631,7 @@ VectorClaves* BStarTree::split(NodoBStar* nodoTarget, NodoBStar* nodoHno, Clave*
 
 void BStarTree::merge(NodoBStar* nodoTarget, NodoBStar* nodoHno, Clave* clavePadre) {
 	
+	//TODO Implementar!
 	
 	
 }
@@ -643,6 +640,7 @@ void BStarTree::merge(NodoBStar* nodoTarget, NodoBStar* nodoHno, Clave* clavePad
 Clave* BStarTree::merge(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
 						Clave* clavePadre1, Clave* clavePadre2) {
 	
+	//TODO Implementar!
 	return NULL;
 	
 }
