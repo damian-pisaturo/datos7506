@@ -32,7 +32,7 @@ private:
 	 * Organiza el bloque a partir de una modificación dentro del mismo
 	 **/
 	
-	void organizarBloque(int offsettamDispersionToReg,int longReg);
+	void organizarBloque(int settamDispersionToReg,int longReg);
 	/*
 	 * Inserta un registro dentro del bloque, actualizando el offset a espacio libre
 	 **/
