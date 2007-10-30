@@ -748,9 +748,7 @@
 	
 	void* ClaveVariable::getValor() const
 	{
-		//TODO getValor() debe devolver un char* en ClaveVariable.s
-		//return ((string*)this->valor)->c_str();
-		return NULL;
+		return (void*)(((string*)this->valor)->c_str());
 	}
 
 ///////////////////////////////////////////////////////////////////////////
