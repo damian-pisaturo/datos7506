@@ -28,7 +28,8 @@
 #define DUPLICATED	2
 
 
-///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////
+////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
 // Nombre: Hash (Implementa indices de dispersion extensible)
@@ -41,7 +42,7 @@ class Hash
 	//////////////////////////////////////////////////////////////////////
 		Tabla *tabla;
 		ArchivoIndiceHash* archivo;
-		list<string> listaParam;
+		const list<nodoLista> listaParam;
 	
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -72,7 +73,7 @@ class Hash
 		 */
 		int aplicarHash(char* clave);
 		
-		/*
+		/*string
 		 * Método utilizado cuando se aplica la función de dispersión a una clave.
 		 */
 		int hashInterno(char* clave);

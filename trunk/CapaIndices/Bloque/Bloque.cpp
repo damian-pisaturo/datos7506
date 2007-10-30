@@ -480,6 +480,15 @@ void Bloque::setDatos(char* d)
 	datos = d;
 }
 	
+int Bloque::getNroBloque()
+{
+	return numero;
+}
+
+void Bloque::setNroBloque(int num)
+{
+	numero = num;
+}
 	
 	
 	

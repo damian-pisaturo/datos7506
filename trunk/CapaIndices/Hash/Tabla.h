@@ -14,6 +14,7 @@ public:
 	void crear(char* nombreArchivo);
 	int getTamanio();
 	int getDireccionBucket(int i);
+	int getNumProximoBucket();
 };
 
 #endif /*TABLA_H_*/

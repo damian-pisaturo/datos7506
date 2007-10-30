@@ -31,3 +31,11 @@ int Tabla::getDireccionBucket(int i)
 	return direccionesBuckets[i];
 }
 
+int Tabla::getNumProximoBucket()
+{
+	//TODO: implementar este método para que devuelva el numero del proximo bucket a crear.
+	int num = 0;
+	return num;
+}
+
+

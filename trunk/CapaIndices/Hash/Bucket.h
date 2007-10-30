@@ -67,13 +67,13 @@ public:
 ///////////////////////////////////////////////////////////////////////
 // Metodos publicos
 ///////////////////////////////////////////////////////////////////////
-	
 	int insertar(char* clave, char* registro);
 	int borrar(char * clave);
 	Bucket* splitBucket();
 	int redistribuirClaves(Bucket &bucket);	
 	unsigned short getOffsetToRegs();
 	void setTamDispersion(unsigned short tDisp);
+	unsigned short getTamDispersion();
 	void setCantRegs(unsigned short cRegs);
 	
 };

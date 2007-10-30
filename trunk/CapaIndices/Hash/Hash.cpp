@@ -1,7 +1,8 @@
 #include "Hash.h"
 
-Hash::Hash(ArchivoIndiceHash *archivo)
+Hash::Hash(ArchivoIndiceHash *arch)
 {
+	archivo = arch;
 	//TODO:: Agregar nodo con tam de dsipersión a la lista de parámetros
 }
 
@@ -77,15 +78,12 @@ int Hash::insertarRegistro(char* registro, char* clave)
 	else
 	// Si el registro no entra en el bucket hay que crear un nuevo bucket.
 	{
-		//Bucket * nuevoBucket = new Bucket(tabla->getTamanio(),archivo);
+		//Bucket * nuevoBucket = new Bucket(tabla->getNumProximoBucket(),bucket->getTamDispersion(),archivo);
+		// TODO redistribuir los elementos del bucket donde hubo overflow.
 		
 	}
 	return 0;
 	
 }
 
-int main()
-{
-	return 0;
-}
 
