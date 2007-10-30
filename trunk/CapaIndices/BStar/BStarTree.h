@@ -35,7 +35,7 @@ class BStarTree {
 		
 		void insertarInterno(NodoBStar* &nodoDestino, char* codigo);
 		
-		void eliminarInterno(NodoBStar* nodoTarget, Clave* clave, char* codigo);
+		void eliminarInterno(NodoBStar* nodoTarget, char* codigo);
 		
 		bool puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
 									  NodoBStar* &nodoHnoDer) const;

@@ -20,7 +20,7 @@
 #ifndef CLAVE_H_
 #define CLAVE_H_
 
-#include "Tamanios.h"
+#include "../../Common/Tamanios.h"
 #include <iostream>
 #include <list>
 #include <vector>
