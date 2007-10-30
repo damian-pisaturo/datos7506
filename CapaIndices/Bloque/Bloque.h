@@ -96,6 +96,10 @@ public:
 	
 	void setDatos(char* d);
 	
+	int getNroBloque();
+	
+	void setNroBloque(int num);
+	
 };
 
 #endif /*BLOQUE_H_*/

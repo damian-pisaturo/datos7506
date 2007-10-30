@@ -51,6 +51,11 @@ Bucket::~Bucket()
 void Bucket::setTamDispersion(unsigned short tDisp)
 {
 	tamDispersion = tDisp;
+} 
+
+unsigned short Bucket::getTamDispersion()
+{
+	return tamDispersion;
 }
 
 unsigned short Bucket::getOffsetToRegs()
