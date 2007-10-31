@@ -44,6 +44,7 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 		
 		if (!nodoPadre){ //nodoDestino es la raiz.
 			SetClaves* setClavesDerecho = nodoDestino->splitB(nodoDestino->getTamanioMinimo());
+			//Ahora nodoDestino deja de ser la raíz, por lo cual pasa a tener el tamaño de un nodo común.
 			nodoDestino->setTamanio(this->tamanioNodo);
 			Clave* clavePromocionada = *(setClavesDerecho->begin());
 			setClavesDerecho->erase(clavePromocionada);
@@ -337,6 +338,7 @@ bool BStarTree::modificar(Clave* claveVieja, Clave* claveNueva) {
 }
 
 
+/*
 bool BStarTree::puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
 										 NodoBStar* &nodoHnoDer) const {
 	
@@ -380,51 +382,6 @@ bool BStarTree::puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nod
 	}
 	
 	return false;
-}
-
-void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer){
-	
-	SetClaves* setDescenso = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos() );
-	unsigned short cantClaves = setDescenso->size();
-	SetClaves* setAscenso = nodoHnoDer->cederBytes(cantClaves);
-	
-	for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
-		(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());
-		++iterDescenso, ++iterAscenso ){
-		(*iterAscenso)->setHijoDer((*iterDescenso)->getHijoDer());
-		(*iterDescenso)->setHijoDer(0);
-	}
-	
-	nodoDestino->recibir(setDescenso);
-	nodoPadre->recibir(setAscenso);
-	
-	delete setDescenso;
-	delete setAscenso; 
-	
-}
-
-
-void BStarTree::recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer){
-	
-	unsigned short cantClaves = 0;
-	unsigned short bytesSobrantes = nodoHnoDer->obtenerBytesSobrantes(cantClaves);
-	
-	SetClaves* setDescenso = nodoPadre->cederClaves(cantClaves);
-	SetClaves* setAscenso = nodoHnoDer->cederBytes(bytesSobrantes);
-	
-	for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
-		(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());
-		++iterDescenso, ++iterAscenso ){
-		(*iterAscenso)->setHijoDer((*iterDescenso)->getHijoDer());
-		(*iterDescenso)->setHijoDer(0);
-	}
-	
-	nodoDestino->recibir(setDescenso);
-	nodoPadre->recibir(setAscenso);
-	
-	delete setDescenso;
-	delete setAscenso;
-	
 }
 
 
@@ -473,6 +430,29 @@ bool BStarTree::puedePasarseClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* &n
 	return false;
 	
 }
+*/
+
+
+void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer){
+	
+	SetClaves* setDescenso = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos() );
+	unsigned short cantClaves = setDescenso->size();
+	SetClaves* setAscenso = nodoHnoDer->cederBytes(cantClaves);
+	
+	for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
+		(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());
+		++iterDescenso, ++iterAscenso ){
+		(*iterAscenso)->setHijoDer((*iterDescenso)->getHijoDer());
+		(*iterDescenso)->setHijoDer(0);
+	}
+	
+	nodoDestino->recibir(setDescenso);
+	nodoPadre->recibir(setAscenso);
+	
+	delete setDescenso;
+	delete setAscenso; 
+	
+}
 
 
 void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq) {
@@ -480,6 +460,30 @@ void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPa
 	SetClaves* setDescenso = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos(), false );
 	unsigned short cantClaves = setDescenso->size();
 	SetClaves* setAscenso = nodoHnoIzq->cederClaves(cantClaves, false);
+	
+	for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
+		(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());
+		++iterDescenso, ++iterAscenso ){
+		(*iterAscenso)->setHijoDer((*iterDescenso)->getHijoDer());
+		(*iterDescenso)->setHijoDer(0);
+	}
+	
+	nodoDestino->recibir(setDescenso);
+	nodoPadre->recibir(setAscenso);
+	
+	delete setDescenso;
+	delete setAscenso;
+	
+}
+
+
+void BStarTree::recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer){
+	
+	unsigned short cantClaves = 0;
+	unsigned short bytesSobrantes = nodoHnoDer->obtenerBytesSobrantes(cantClaves);
+	
+	SetClaves* setDescenso = nodoPadre->cederClaves(cantClaves);
+	SetClaves* setAscenso = nodoHnoDer->cederBytes(bytesSobrantes);
 	
 	for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
 		(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());

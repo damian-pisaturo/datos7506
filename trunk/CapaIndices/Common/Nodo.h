@@ -57,7 +57,6 @@ class Nodo : public BloqueIndice
 		unsigned char nivel;
 		unsigned int posicionEnArchivo;
 		unsigned short tamanio;
-		unsigned short tamanioMinimo;
 		SetClaves* claves;		
 	
 	public:
@@ -282,22 +281,10 @@ class Nodo : public BloqueIndice
 			return this->tamanio;
 		}
 		
-		virtual unsigned short getTamanioMinimo() const 
-		{
-			return this->tamanioMinimo;
-		}
+		virtual unsigned short getTamanioMinimo() const = 0;
 		
 		//Devuelve el espacio (en bytes) destinado para almacenar claves (elementos)
-		virtual unsigned short getTamanioEspacioClaves() const
-		{
-			return (this->getTamanio() - this->getTamanioHeader());
-		}
-		
-	protected:
-		void setTamanioMinimo(unsigned short tamMin)
-		{
-			this->tamanioMinimo = tamMin;			
-		}
+		virtual unsigned short getTamanioEspacioClaves() const = 0;
 		
 }; //Fin clase Nodo.
 

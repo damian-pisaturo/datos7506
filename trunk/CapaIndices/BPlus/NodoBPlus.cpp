@@ -32,31 +32,46 @@
 NodoBPlus::NodoBPlus(unsigned int refNodo, unsigned char nivel, unsigned short tamanio) 
 				: Nodo(refNodo, nivel, tamanio)
 {
-	this->setTamanioMinimo((tamanio-this->getTamanioHeader())/2);		
+	
 }	
 		
 NodoBPlus::NodoBPlus(unsigned int refNodo, unsigned char nivel, Clave* clave,
 		unsigned short tamanio) : Nodo(refNodo, nivel, clave, tamanio)
 {
-	this->setTamanioMinimo((tamanio-this->getTamanioHeader())/2);
+	
 } 
 
 /*
 NodoBPlus(unsigned int referencia) : Nodo(referencia)
 {}
 */
-		
-NodoBPlus::~NodoBPlus(){}
+
 
 //////////////////////////////////////////////////////////////////////
 // Metodos publicos
 ////////////////////////////////////////////////////////////////////// 
 void NodoBPlus::insertarClave(Clave* &clave, char* codigo)
 {
-	if (this->getNivel() == 0)
-		insertarEnHoja(clave, codigo);
-	else
-		insertarEnNodo(clave, codigo);	
+	char cod = Codigo::NO_MODIFICADO;
+		
+	//Se verifica si la clave está en el conjunto
+	if (this->getClaves()->find(clave) != this->getClaves()->end()) {
+		*codigo = cod;
+		return;
+	}
+	
+	//Insercion ordenada de la clave en el conjunto
+	this->getClaves()->insert(clave);
+	
+	//Si hay espacio suficiente para la nueva clave ...
+	if (this->getEspacioLibre() > clave->getTamanioEnDisco()){
+		this->actualizarEspacioLibre(clave, true);
+		cod = Codigo::MODIFICADO;
+	}else{ //No hay espacio libre suficiente para insertar la clave...
+		 cod = Codigo::OVERFLOW;
+	}
+
+	*codigo = cod;	
 }
 
 void NodoBPlus::insertarEnHoja(Clave* &clave, char* codigo)
@@ -210,12 +225,12 @@ void NodoBPlus::eliminarClave(Clave* clave, char* codigo) {
 		//Se actualiza el espacio libre del nodo
 		this->actualizarEspacioLibre(clave, false);
 		
-		if (this->getTamanioEnDiscoSetClaves() < this->getTamanioMinimo()){
-	   		if (this->getNivel() == 0)                               
-      			*codigo = Codigo::UNDERFLOW_HOJA;
-   			else
-   				*codigo = Codigo::UNDERFLOW;
-	 	}else
+		if (this->getTamanioEnDiscoSetClaves() < this->getTamanioMinimo()) {
+			if (this->getNivel() == 0)                               
+				*codigo = Codigo::UNDERFLOW_HOJA;
+			else
+				*codigo = Codigo::UNDERFLOW;
+		} else
 	 		*codigo = Codigo::MODIFICADO;
 	 	
 	}
@@ -242,3 +257,4 @@ Nodo* NodoBPlus::siguiente(/*ArchivoIndice* archivo,*/Clave* clave)
 	
 	return nodo;
 }
+

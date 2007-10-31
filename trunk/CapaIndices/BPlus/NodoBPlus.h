@@ -51,14 +51,23 @@ class NodoBPlus: public Nodo
 		//NodoBPlus(unsigned int referencia);
 			
 		/*Destructor*/
-		virtual ~NodoBPlus();
+		virtual ~NodoBPlus() {}
 			
 	//////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	//////////////////////////////////////////////////////////////////////
 		void insertarClave(Clave* &clave, char* codigo);	
 		void eliminarClave(Clave* clave, char* codigo);
-		Nodo* siguiente(Clave* clave);		
+		Nodo* siguiente(Clave* clave);
+		
+		//Devuelve el espacio (en bytes) destinado para almacenar claves (elementos)
+		unsigned short getTamanioEspacioClaves() const {
+			return (this->getTamanio() - Nodo::getTamanioHeader());
+		}
+		
+		unsigned short getTamanioMinimo() const {
+			return ((this->getTamanioEspacioClaves())/2);
+		}		
 		
 }; //Fin clase NodoBPlus
 

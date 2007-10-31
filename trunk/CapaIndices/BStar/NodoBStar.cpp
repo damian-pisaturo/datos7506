@@ -3,10 +3,7 @@
 NodoBStar::NodoBStar(unsigned int refNodo, unsigned char nivel, unsigned short tamanio)
 		 : Nodo(refNodo, nivel, tamanio) {
 	
-	if (nivel = 0) //Nodo hoja (le descuento el tamaño que ocupa la referencia al hijo izq)
-		this->setTamanioMinimo(2*(tamanio-this->getTamanioHeader()-Tamanios::TAMANIO_REFERENCIA)/3);
-	else //Nodo interno
-		this->setTamanioMinimo(2*(tamanio-this->getTamanioHeader())/3);
+	
 	
 }
 
@@ -14,10 +11,7 @@ NodoBStar::NodoBStar(unsigned int refNodo, unsigned char nivel, unsigned short t
 NodoBStar::NodoBStar(unsigned int refNodo, unsigned char nivel, Clave* clave, unsigned short tamanio)
 		  : Nodo(refNodo, nivel, clave, tamanio) {
 	
-	if (nivel = 0) //Nodo hoja (le descuento el tamaño que ocupa la referencia al hijo izq)
-		this->setTamanioMinimo(2*(tamanio-this->getTamanioHeader()-Tamanios::TAMANIO_REFERENCIA)/3);
-	else //Nodo interno
-		this->setTamanioMinimo(2*(tamanio-this->getTamanioHeader())/3);
+	
 	
 }
 
@@ -106,14 +100,6 @@ Nodo* NodoBStar::siguiente(Clave* clave) {
 	
 	return nodo;
 	
-}
-
-
-//Devuelve el espacio (en bytes) destinado para almacenar claves (elementos)
-unsigned short NodoBStar::getTamanioEspacioClaves() const {
-	if (this->getNivel() == 0) //Nodo hoja ==> Tengo que sumarle el espacio que se le descuenta por la referencia al hijo izq
-		return (this->getTamanio() - this->getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA);
-	else return Nodo::getTamanioEspacioClaves();
 }
 
 
