@@ -13,11 +13,14 @@ class BStarTree {
 		
 		void insertar(Clave* clave);
 		
-		void eliminar(Clave* clave);
+		//Elimina la Clave clave si la encuentra, y devuelve true. En caso contrario devuelve false.
+		bool eliminar(Clave* clave);
 		
 		Clave* buscar(Clave* clave) const;
 		
-		void modificar(Clave* clave);
+		//Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario, la reemplaza por claveNueva
+		//y devuelve true.
+		bool modificar(Clave* claveVieja, Clave* claveNueva);
 		
 		
 	private:
@@ -75,15 +78,15 @@ class BStarTree {
 		NodoBStar* buscarMenorMayores(NodoBStar* nodo, Clave* clave) const;
 		
 		//Parte dos nodos completos en tres y devuelve las dos claves promocionadas.
-		VectorClaves* split(NodoBStar* nodoTarget, NodoBStar* nodoHnoDer, Clave* clavePadre);
+		VectorClaves* mergeSplitOverflow(NodoBStar* nodoTarget, NodoBStar* nodoHnoDer, Clave* clavePadre);
 		
 		//Este método concatena un nodo con underflow con un nodo hermano y con una clave del nodo
 		//padre. Esto sucede cuando el árbol sólo tiene dos niveles y el nodo raíz sólo tiene una clave.
-		void merge(NodoBStar* nodoTarget, NodoBStar* nodoHno, Clave* clavePadre);
+		void merge(NodoBStar* nodoHijoIzq, NodoBStar* nodoHijoDer, NodoBStar* nodoPadre);
 		
 		//Este método concatena un nodo con underflow con dos nodos hermanos y con dos claves del nodo
 		//padre. Realiza el split internamente y devuelve la clave a promocionar.
-		Clave* merge(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
+		Clave* mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
 					Clave* clavePadre1, Clave* clavePadre2);
 		
 };
