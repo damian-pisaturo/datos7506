@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////
-//	Archivo   : BpTree.cpp
+//	Archivo   : BPlusTree.cpp
 //  Namespace : CapaIndice
 ////////////////////////////////////////////////////////////////////////////
 //	75.06 Organizacion de Datos
 //	Trabajo practico: Framework de Persistencia
 ////////////////////////////////////////////////////////////////////////////
 //	Descripcion
-//		Implementacion de la clase BpTree.
+//		Implementacion de la clase BPlusTree.
 ///////////////////////////////////////////////////////////////////////////
 //	Integrantes
 //		- Alvarez Fantone, Nicolas;
@@ -17,33 +17,35 @@
 //		- Rodriguez, Maria Laura.
 ///////////////////////////////////////////////////////////////////////////
 
-#include "BpTree.h"
+#include "BPlusTree.h"
 
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: BpTree (Implementa Arboles B+ en disco)
+// Nombre: BPlusTree (Implementa Arboles B+ en disco)
 ///////////////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////////////////////////
 	// Contructor/Destructor
 	//////////////////////////////////////////////////////////////////////
-	BpTree::BpTree(/*ArchivoIndice* archivo*/){
+	BPlusTree::BPlusTree(unsigned short tamanioNodo) {
+		this->tamanioNodo = tamanioNodo;
+		this->nodoRaiz = NULL;
 		this->nodoActual = NULL;
 		//this->archivoIndice = archivo;
 	}
 
-	NodoBp* BpTree::getRaiz()
+	NodoBp* BPlusTree::getRaiz()
 	{
 		/*Lee el primer registro del archivo -> la raiz*/
-		return new NodoBp(/*archivoIndice*/,0);
+		return new NodoBp(/*archivoIndice,*/0);
 	}
 
-	void BpTree::primero()
+	void BPlusTree::primero()
 	{
 		/*El nodo actual termina siendo el primer nodo hoja del arbol B+
-		     (para recorridos)*/	
+		(para recorridos)*/	
 		this->nodoActual = this->getRaiz();
 		int auxiliar;
 		/*Busco hasta la hoja*/
@@ -61,8 +63,9 @@
 			nodoActual = NULL;
 		}
 	}
+	
 	/*
-	Clave* BpTree::siguiente()
+	Clave* BPlusTree::siguiente()
 	{	       
 		Clave* devolver = NULL;
 		int aux;
@@ -93,12 +96,12 @@
 	}
 	*/
 
-	void BpTree::insertarClave(Clave* clave)
+	void BPlusTree::insertarClave(Clave* clave)
 	{
 		char codigo = Codigo::NO_MODIFICADO;
 		NodoBp* anterior = NULL;
 		
-		/*Busco la raIz para comenzar el recorrido de InserciOn*/
+		/*Busco la raiz para comenzar el recorrido de insercion*/
 		this->nodoActual = this->getRaiz();
 		
 		/*Se devuelve el codigo y la clave correspondiente*/
@@ -111,7 +114,7 @@
 			this->archivoIndice->grabarNuevoNodo(this->nodoActual);
 			
 			/*Sobreescribo la raiz con la clave que viene del recursivo*/
-			NodoBp* nuevaRaiz = new Nodo(nodoActual->obtenerPosicionEnArchivo(),nodoActual->getNivel()+1,clave,/*this->archivoIndice*/);
+			NodoBp* nuevaRaiz = new Nodo(nodoActual->obtenerPosicionEnArchivo(),nodoActual->getNivel()+1,clave/*, this->archivoIndice*/);
 			nuevaRaiz->setPosicionEnArchivo(0);
 			
 			//this->archivoIndice->sobreescribirNodo(nuevaRaiz);
@@ -123,7 +126,7 @@
 		delete this->nodoActual;				
 	}
 	
-	void BpTree::insertarInterno(NodoBp* actual, Clave* &clave, char* codigo, NodoBp* &anterior)
+	void BPlusTree::insertarInterno(NodoBp* actual, Clave* &clave, char* codigo, NodoBp* &anterior)
 	{
 		/*Si se trata de una  hoja inserto el registro donde corresponda*/
 		if (actual->getNivel() == 0){
@@ -149,19 +152,13 @@
 	        anterior = actual;
         }else if ( (codigo == Codigo::MODIFICADO) && (actual->getNivel()!= 0 ) ){            
             /*Elimino el nodo inmediatamente anterior(de menor nivel)*/
-<<<<<<< .mine
-            
-        	delete anterior;
-            anterior = Actual;
-         }
-=======
+        	
             delete anterior;
             anterior = actual;
         }
->>>>>>> .r45
 }
 
-	void BpTree::eliminarClave(Clave* clave)
+	void BPlusTree::eliminarClave(Clave* clave)
 	{
 		char* codigo = Codigo::NO_MODIFICADO;
 		NodoBp* nodoUnderflow = NULL;
@@ -198,7 +195,7 @@
 
 	}
 /*----------------------------------------------------------------------------------------*/
-	Clave* BpTree::buscarClave(Clave* clave)
+	Clave* BPlusTree::buscarClave(Clave* clave)
 	{	
 		Clave* Buscada = NULL;
 		this->nodoActual = this->getRaiz();
@@ -212,7 +209,7 @@
 		return Buscada;
 	}
 /*----------------------------------------------------------------------------------------*/
-void BpTree::buscarInterno(Clave* clave,Clave*& Buscada){
+void BPlusTree::buscarInterno(Clave* clave,Clave*& Buscada){
 /*devuelve puntero a la clave en archivo o a la mas cercana*/
     
 	if (this->nodoActual->getNivel() == 0){
@@ -234,7 +231,7 @@ void BpTree::buscarInterno(Clave* clave,Clave*& Buscada){
 	}
 }
 
-	bool BpTree::puedeDonar(Nodo* nodoDonador, Nodo* nodoAceptor)
+	bool BPlusTree::puedeDonar(Nodo* nodoDonador, Nodo* nodoAceptor)
 	{  //?? al pedo, no se usa en el ext es solo interno
 		bool devolver = false;
 		
@@ -251,7 +248,7 @@ void BpTree::buscarInterno(Clave* clave,Clave*& Buscada){
 		return devolver;
 	}
 	
-	void BpTree::eliminarInterno(NodoBp* actual,Clave* clave, char* codigo,NodoBp* &nodoUnderflow)
+	void BPlusTree::eliminarInterno(NodoBp* actual,Clave* clave, char* codigo,NodoBp* &nodoUnderflow)
 	{
 		/*si se trata de una hoja debo hacer la eliminacion de la lista de claves*/
 		if (Actual->getNivel() == 0){            
@@ -595,13 +592,13 @@ void BpTree::buscarInterno(Clave* clave,Clave*& Buscada){
 	}
 	}
 
-	bool BpTree::chequearEspacio(Nodo* otroNodo, Nodo* nodoUnderflow)
+	bool BPlusTree::chequearEspacio(Nodo* otroNodo, Nodo* nodoUnderflow)
 	{
 	     bool devolver = false;
 	     
 	     if ( (otroNodo) && (nodoUnderflow) ){
 	     	int espacioOcupado = archivoIndice->getTamanioNodo() - 
-	     		nodoUnderflow->getEspacioLibre() - IndiceManager::getTamanioHeader();
+	     		nodoUnderflow->getEspacioLibre() - ArchivoIndice::getTamanioHeader();
 	     	
 	     	if (espacioOcupado <= otroNodo->getEspacioLibre())
 	        	devolver = true;
@@ -610,7 +607,7 @@ void BpTree::buscarInterno(Clave* clave,Clave*& Buscada){
 	     return devolver;
 	}
 
-	void BpTree::split(Nodo* donador, Nodo* aceptor){
+	void BPlusTree::split(Nodo* donador, Nodo* aceptor){
 
 /*chequear esta funcion*/
      int posicion = 1;

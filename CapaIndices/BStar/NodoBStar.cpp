@@ -61,7 +61,7 @@ void NodoBStar::eliminarClave(Clave* clave, char* codigo) {
 		//Se actualiza el espacio libre del nodo
 		this->actualizarEspacioLibre(clave, false);
 		
-		if (this->getEspacioLibre() > this->getTamanioMinimo())
+		if (this->getTamanioEnDiscoSetClaves() < this->getTamanioMinimo())
 	   		*codigo = Codigo::UNDERFLOW;
 	 	else
 	 		*codigo = Codigo::MODIFICADO;

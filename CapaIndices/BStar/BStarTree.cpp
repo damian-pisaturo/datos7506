@@ -107,10 +107,10 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 				//con la clave padre.
 				VectorClaves* vectorClaves;
 				if (nodoHnoDer) {
-					vectorClaves = split(nodoHnoDer, nodoDestino, clavePadreDer);
+					vectorClaves = mergeSplitOverflow(nodoHnoDer, nodoDestino, clavePadreDer);
 					nodoPadre->extraerClave(clavePadreDer);
 				} else {
-					vectorClaves = split(nodoDestino, nodoHnoIzq, clavePadreIzq);
+					vectorClaves = mergeSplitOverflow(nodoDestino, nodoHnoIzq, clavePadreIzq);
 					nodoPadre->extraerClave(clavePadreIzq);
 				}
 				
@@ -134,7 +134,7 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 }
 
 
-void BStarTree::eliminar(Clave* clave) {
+bool BStarTree::eliminar(Clave* clave) {
 	
 	NodoBStar* nodoTarget = buscarLugar(clave);
 	Clave* claveBuscada = nodoTarget->buscar(clave);
@@ -158,12 +158,17 @@ void BStarTree::eliminar(Clave* clave) {
 			this->eliminarInterno(nodoTarget, &codigo); //resuelve underflow
 		}
 	}
+	else{
+		delete nodoTarget;
+		return false;
+	}
 	
 	delete nodoTarget;
 	
+	return true;
 }
 
-//TODO Revisar el eliminar!!!
+
 void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
 
 	if (*codigo == Codigo::MODIFICADO) {
@@ -234,7 +239,7 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
 					//nodoHnoIzq = new NodoBStar( (*(--iterPadre))->getHijoDer() );
 					clavePadreIzq = *(++iterPadre);
 				}
-				//nodoHnoDer = new NodoBStar( (*iterPadre)->getHijoDer() );
+				//nodoHnoDer = new NodoBStar( (*(++iterPadre))->getHijoDer() );
 				clavePadreDer = *iterPadre;
 			}
 			
@@ -243,61 +248,64 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
 			//Se intenta hacer una redistribución de claves con el hermano derecho de 'nodoTarget'.
 			//Si esto no es posible, se intenta hacer una redistribución con el hermano izquierdo.
 			//Si se tratara de un extremo se mira el hermano del hermano.
+			bool pudoRedistribuir = false;
 			if (nodoHnoDer) {
-				if (nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre))
+				if ( pudoRedistribuir = nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre))
 					this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer);
 				else if (!nodoHnoIzq) {
 					//'nodoHnoHno' debe cederle a 'nodoHnoDer' y luego 'nodoHnoDer' debe cederle a 'nodoTarget'
-					if (nodoHnoHno->puedePasarClaveHaciaIzq(nodoHnoDer, nodoPadre)) {
+					if ( (nodoHnoHno) && (nodoHnoHno->puedePasarClaveHaciaIzq(nodoHnoDer, nodoPadre)) ) {
 						this->pasarClaveHaciaIzquierda(nodoHnoDer, nodoPadre, nodoHnoHno);
-						if (nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre))
+						if ( pudoRedistribuir = nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre))
 							this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer);
 					}
+				} else {
+					if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre))
+						this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq);
 				}
-			} else if (nodoHnoIzq) {
-				if (nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre))
+			} else { // tiene hermano izquierdo
+				if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre))
 					this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq);
 				else { //'nodoTarget' no tiene hermano derecho
 					//'nodoHnoHno' debe cederle a 'nodoHnoIzq' y luego 'nodoHnoIzq' debe cederle a 'nodoTarget'
-					if (nodoHnoHno->puedePasarClaveHaciaDer(nodoHnoIzq, nodoPadre)) {
+					if ( (nodoHnoHno) && (nodoHnoHno->puedePasarClaveHaciaDer(nodoHnoIzq, nodoPadre)) ) {
 						this->pasarClaveHaciaDerecha(nodoHnoIzq, nodoPadre, nodoHnoHno);
-						if (nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre))
+						if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre))
 							this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq);
 					}
 				}
-			} else { //Se realiza la concatenación de 'nodoTarget' con dos nodos hermanos y dos claves
+			}
+			
+			if (!pudoRedistribuir) { //Se realiza la concatenación de 'nodoTarget' con dos nodos hermanos y dos claves
 				//del nodo padre. Luego se realiza un split, generándose dos nodos y una clave a promocionar
 				//hacia el nodo padre.
 				
 				Clave* clavePromocionada = NULL;
 				
-				if (*nodoPadre == *(this->nodoRaiz)) { //Caso en que la raíz tiene sólo dos hijos y 'nodoTarget'
-													//es uno de ellos
-					if ((nodoHnoDer)&&(!nodoHnoIzq)&&(!nodoHnoHno)) this->merge(nodoTarget, nodoHnoDer, clavePadreDer);
-					else if ((nodoHnoIzq)&&(!nodoHnoDer)&&(!nodoHnoHno))this->merge(nodoTarget, nodoHnoIzq, clavePadreIzq);
-				} else {
-				
+				if ( (*nodoPadre == *(this->nodoRaiz)) && (nodoHnoDer)&&(!nodoHnoIzq)&&(!nodoHnoHno)) this->merge(nodoTarget, nodoHnoDer, this->nodoRaiz);
+				else if ( (*nodoPadre == *(this->nodoRaiz)) && (nodoHnoIzq)&&(!nodoHnoDer)&&(!nodoHnoHno))this->merge(nodoTarget, nodoHnoIzq, this->nodoRaiz);
+				else {
 					if ((nodoHnoIzq) && (nodoHnoDer))
-						clavePromocionada = this->merge(nodoTarget, nodoHnoIzq, nodoHnoDer, clavePadreIzq, clavePadreDer);
+						clavePromocionada = this->mergeSplitUnderflow(nodoTarget, nodoHnoIzq, nodoHnoDer, clavePadreIzq, clavePadreDer);
 					else if (!(nodoHnoIzq))
 						if (nodoHnoHno)
-							clavePromocionada = this->merge(nodoTarget, nodoHnoDer, nodoHnoHno, clavePadreDer, clavePadreIzq);
+							clavePromocionada = this->mergeSplitUnderflow(nodoTarget, nodoHnoDer, nodoHnoHno, clavePadreDer, clavePadreIzq);
 					else if (nodoHnoHno)
-						clavePromocionada = this->merge(nodoTarget, nodoHnoIzq, nodoHnoHno, clavePadreIzq, clavePadreDer);
+						clavePromocionada = this->mergeSplitUnderflow(nodoTarget, nodoHnoIzq, nodoHnoHno, clavePadreIzq, clavePadreDer);
 					
 					nodoPadre->extraerClave(clavePadreIzq);
 					nodoPadre->extraerClave(clavePadreDer);
 					nodoPadre->insertarClave(clavePromocionada, codigo);
-					//TODO Chequear posible OF/UF en el nodo padre
-					//if (!nodoPadre->tieneUnderflow()) codigo = Codigo::MODIFICADO;
 					
-				}
-				
-				if (nodoHnoDer) delete nodoHnoDer;
-				if (nodoHnoIzq) delete nodoHnoIzq;
-				if (nodoHnoHno) delete nodoHnoHno;
-				
+					this->insertarInterno(nodoPadre, codigo); //Se resuelve posible overflow al insertar la clave promocionada.
+					
+				}		
 			}
+			
+			if (nodoHnoDer) delete nodoHnoDer;
+			if (nodoHnoIzq) delete nodoHnoIzq;
+			if (nodoHnoHno) delete nodoHnoHno;
+	
 		}
 		
 		delete nodoPadre;
@@ -320,13 +328,15 @@ Clave* BStarTree::buscar(Clave* clave) const {
 }
 
 		
-void BStarTree::modificar(Clave* clave) {
+bool BStarTree::modificar(Clave* claveVieja, Clave* claveNueva) {
 	
-	//TODO Implementar!
+	if ( eliminar(claveVieja) ) insertar(claveNueva);
+	else return false;
 	
+	return true;
 }
 
-//TODO Agregar el caso en que se trata de un extremo
+
 bool BStarTree::puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
 										 NodoBStar* &nodoHnoDer) const {
 	
@@ -418,7 +428,6 @@ void BStarTree::recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodo
 }
 
 
-//TODO Agregar el caso en que se trata de un extremo
 bool BStarTree::puedePasarseClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
 										   NodoBStar* &nodoHnoIzq) const {
 	nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
@@ -591,7 +600,7 @@ NodoBStar* BStarTree::buscarMenorMayores(NodoBStar* nodo, Clave* clave) const {
 	
 }
 
-VectorClaves* BStarTree::split(NodoBStar* nodoTarget, NodoBStar* nodoHno, Clave* clavePadre){
+VectorClaves* BStarTree::mergeSplitOverflow(NodoBStar* nodoTarget, NodoBStar* nodoHno, Clave* clavePadre){
 	
 	nodoTarget->merge(nodoHno, clavePadre);
 	
@@ -628,20 +637,39 @@ VectorClaves* BStarTree::split(NodoBStar* nodoTarget, NodoBStar* nodoHno, Clave*
 	return vectorClaves;
 }
 
+//Por el momento se utiliza cuando se tiene una raiz con dos hijos y se mergea todo en una unica raiz.
+//En un futuro podria llegar a implementarse para nodos internos.
+void BStarTree::merge(NodoBStar* nodoHijoIzq, NodoBStar* nodoHijoDer, NodoBStar* nodoPadre) {
+	
+	nodoPadre->setHijoIzq(0);
+	nodoPadre->obtenerPrimeraClave()->setHijoDer(0);
+	nodoPadre->setNivel(0);
+	
+	nodoPadre->merge(nodoHijoIzq, nodoHijoDer, NULL, NULL);
 
-void BStarTree::merge(NodoBStar* nodoTarget, NodoBStar* nodoHno, Clave* clavePadre) {
-	
-	//TODO Implementar!
-	
+	//TODO eliminar de disco a los nodos nodoHijoDer y nodoHijoIzq
+	delete nodoHijoIzq;
+	delete nodoHijoDer;
 	
 }
 
 
-Clave* BStarTree::merge(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
+Clave* BStarTree::mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
 						Clave* clavePadre1, Clave* clavePadre2) {
 	
-	//TODO Implementar!
-	return NULL;
+	nodoTarget->merge(nodoHno1, nodoHno2, clavePadre1, clavePadre2);
+	SetClaves* setClavesMayores = nodoTarget->splitB( nodoTarget->getTamanioMinimo() );
+	Clave* clavePromocionada = *(setClavesMayores->begin());
+	setClavesMayores->erase(setClavesMayores->begin()); 
 	
+	clavePadre1->setHijoDer(0);
+	clavePadre2->setHijoDer(0);
+	
+	clavePromocionada->setHijoDer(nodoHno1->getPosicionEnArchivo());
+	
+	//TODO eliminar de disco el nodo nodoHno2
+	delete nodoHno2;
+	
+	return clavePromocionada;
 }
 
