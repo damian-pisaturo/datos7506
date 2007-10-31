@@ -89,6 +89,20 @@ char *Bucket::getClavePrimaria(const list <nodoLista>& listaParam, char* registr
 	return NULL;
 }
 
+void Bucket::incrementarCantRegistros()
+{
+	cantRegs++;
+}
+
+void Bucket::decrementarCantRegistros()
+{
+	cantRegs--;
+}
+
+void Bucket::eliminarBucket()
+{
+	//TODO implementar!!! llamar a la funcion del palurdo q borra el bloque.
+}
 
 
 
