@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////
-//	Archivo   : NodoBp.h
+//	Archivo   : NodoBPlus.h
 //  Namespace : CapaIndice
 ////////////////////////////////////////////////////////////////////////////
 //	75.06 Organizacion de Datos
 //	Trabajo practico: Framework de Persistencia
 ////////////////////////////////////////////////////////////////////////////
 //	Descripcion
-//		Cabeceras e interfaz de la clase NodoBp.
+//		Cabeceras e interfaz de la clase NodoBPlus.
 ///////////////////////////////////////////////////////////////////////////
 //	Integrantes
 //		- Alvarez Fantone, Nicolas;
@@ -16,17 +16,17 @@
 //		- Pisaturo, Damian;
 //		- Rodriguez, Maria Laura
 ///////////////////////////////////////////////////////////////////////////
-#ifndef NODOBP_H_
-#define NODOBP_H_
+#ifndef NODOBPLUS_H_
+#define NODOBPLUS_H_
 
 #include "../Common/Nodo.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: NodoBp (Implementa nodos de Arbol B+)
+// Nombre: NodoBPlus (Implementa nodos de Arbol B+)
 ///////////////////////////////////////////////////////////////////////////
-class NodoBp: public Nodo
+class NodoBPlus: public Nodo
 {
 	private:		
 	//////////////////////////////////////////////////////////////////////
@@ -41,17 +41,17 @@ class NodoBp: public Nodo
 	//////////////////////////////////////////////////////////////////////
 		
 		/*Crea el nodo sin setear ningun atributo*/
-		NodoBp(unsigned int refNodo, unsigned char nivel, unsigned short tamanio);
+		NodoBPlus(unsigned int refNodo, unsigned char nivel, unsigned short tamanio);
 			
 		/*Crea un nuevo nodo para insertarle una Clave*/
-		NodoBp(unsigned int refNodo, unsigned char nivel, Clave* clave,
+		NodoBPlus(unsigned int refNodo, unsigned char nivel, Clave* clave,
 			   unsigned short tamanio);
 			
 		/*Lee el archivo y crea ese nodo*/
-		//NodoBp(unsigned int referencia);
+		//NodoBPlus(unsigned int referencia);
 			
 		/*Destructor*/
-		virtual ~NodoBp();
+		virtual ~NodoBPlus();
 			
 	//////////////////////////////////////////////////////////////////////
 	// Metodos publicos
@@ -60,6 +60,6 @@ class NodoBp: public Nodo
 		void eliminarClave(Clave* clave, char* codigo);
 		Nodo* siguiente(Clave* clave);		
 		
-}; //Fin clase NodoBp
+}; //Fin clase NodoBPlus
 
-#endif /*NODOBP_H_*/
+#endif /*NODOBPLUS_H_*/

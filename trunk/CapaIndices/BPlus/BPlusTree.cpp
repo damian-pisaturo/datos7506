@@ -36,10 +36,10 @@
 		//this->archivoIndice = archivo;
 	}
 
-	NodoBp* BPlusTree::getRaiz()
+	NodoBPlus* BPlusTree::getRaiz()
 	{
 		/*Lee el primer registro del archivo -> la raiz*/
-		return new NodoBp(/*archivoIndice,*/0);
+		return new NodoBPlus(/*archivoIndice,*/0);
 	}
 
 	void BPlusTree::primero()
@@ -99,7 +99,7 @@
 	void BPlusTree::insertarClave(Clave* clave)
 	{
 		char codigo = Codigo::NO_MODIFICADO;
-		NodoBp* anterior = NULL;
+		NodoBPlus* anterior = NULL;
 		
 		/*Busco la raiz para comenzar el recorrido de insercion*/
 		this->nodoActual = this->getRaiz();
@@ -111,10 +111,10 @@
 			/*Se graba la raiz en un nuevoNodo en el archivo,
 			 *se setea en nuevoNodo su posicionEnArchivo al grabarlo
 			 */
-			this->archivoIndice->grabarNuevoNodo(this->nodoActual);
+			//this->archivoIndice->grabarNuevoNodo(this->nodoActual);
 			
 			/*Sobreescribo la raiz con la clave que viene del recursivo*/
-			NodoBp* nuevaRaiz = new Nodo(nodoActual->obtenerPosicionEnArchivo(),nodoActual->getNivel()+1,clave/*, this->archivoIndice*/);
+			NodoBPlus* nuevaRaiz = new NodoBPlus(nodoActual->obtenerPosicionEnArchivo(),nodoActual->getNivel()+1,clave/*, this->archivoIndice*/);
 			nuevaRaiz->setPosicionEnArchivo(0);
 			
 			//this->archivoIndice->sobreescribirNodo(nuevaRaiz);
@@ -126,7 +126,7 @@
 		delete this->nodoActual;				
 	}
 	
-	void BPlusTree::insertarInterno(NodoBp* actual, Clave* &clave, char* codigo, NodoBp* &anterior)
+	void BPlusTree::insertarInterno(NodoBPlus* actual, Clave* &clave, char* codigo, NodoBPlus* &anterior)
 	{
 		/*Si se trata de una  hoja inserto el registro donde corresponda*/
 		if (actual->getNivel() == 0){
@@ -161,7 +161,7 @@
 	void BPlusTree::eliminarClave(Clave* clave)
 	{
 		char* codigo = Codigo::NO_MODIFICADO;
-		NodoBp* nodoUnderflow = NULL;
+		NodoBPlus* nodoUnderflow = NULL;
 		
 		/*Busco la raiz para comenzar el recorrido de eliminarClave*/
 		this->nodoActual = this->getRaiz();
@@ -248,10 +248,10 @@ void BPlusTree::buscarInterno(Clave* clave,Clave*& Buscada){
 		return devolver;
 	}
 	
-	void BPlusTree::eliminarInterno(NodoBp* actual,Clave* clave, char* codigo,NodoBp* &nodoUnderflow)
+	void BPlusTree::eliminarInterno(NodoBPlus* actual,Clave* clave, char* codigo,NodoBPlus* &nodoUnderflow)
 	{
 		/*si se trata de una hoja debo hacer la eliminacion de la lista de claves*/
-		if (Actual->getNivel() == 0){            
+		if (actual->getNivel() == 0){            
             nodoUnderflow = actual;
             /*Si al quitar hay underflow las claves devueltas son las que quedan en el nodo del cual se elimino*/
             actual->eliminarClave(this->archivoIndice, clave, codigo);                     	
@@ -270,7 +270,7 @@ void BPlusTree::buscarInterno(Clave* clave,Clave*& Buscada){
             
             //TODO Implementar metodos que devuelvan hermanos izquierdos y derechos
             //del nodo actual (para chequear si pueden ceder claves).
-           	anterior = new NodoBp(this->archivoIndice,actual->refAnterior(clave));
+           	//anterior = new NodoBPlus(this->archivoIndice,actual->refAnterior(clave));
 			
            	//Caso en que el nodo con underflow no tenga hermano izquierdo.
 			if (anterior->obtenerPosicionEnArchivo() == nodoUnderflow->obtenerPosicionEnArchivo()){
@@ -278,7 +278,7 @@ void BPlusTree::buscarInterno(Clave* clave,Clave*& Buscada){
 				anterior =  NULL;		
 			}
 					
-           	posterior = new Nodo(this->archivoIndice,Actual->refPosterior(clave));
+           	//posterior = new NodoBPlus(this->archivoIndice,Actual->refPosterior(clave));
         	
            	//Caso en que el nodo con underflow no tenga hermano derecho.        			
 			if (posterior->obtenerPosicionEnArchivo()== nodoConSubflow->obtenerPosicionEnArchivo()){
@@ -398,14 +398,14 @@ void BPlusTree::buscarInterno(Clave* clave,Clave*& Buscada){
 			Nodo* anterior  = NULL;
      		Nodo* posterior = NULL;
      		
-     		anterior = new Nodo(this->archivoIndice,Actual->refAnterior(clave));
+     		anterior = new NodoBPlus(this->archivoIndice,Actual->refAnterior(clave));
 					
      		if (anterior->obtenerPosicionEnArchivo() == nodoConSubflow->obtenerPosicionEnArchivo()){
      			delete anterior;
 				anterior =  NULL;		
 			}
      		
-     		posterior = new Nodo(this->archivoIndice,Actual->refPosterior(clave));
+     		//posterior = new NodoBPlus(this->archivoIndice,Actual->refPosterior(clave));
 			
 			if (posterior->obtenerPosicionEnArchivo()== nodoUnderflow->obtenerPosicionEnArchivo()){
 				delete posterior;

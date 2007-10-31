@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////
-//	Archivo   : NodoBp.cpp
+//	Archivo   : NodoBPlus.cpp
 //  Namespace : CapaIndice 
 ////////////////////////////////////////////////////////////////////////////
 //	75.06 Organizacion de Datos
 //	Trabajo practico: Framework de Persistencia
 ////////////////////////////////////////////////////////////////////////////
 //	Descripcion
-//		Implementacion de la clase NodoBp.
+//		Implementacion de la clase NodoBPlus.
 ///////////////////////////////////////////////////////////////////////////
 //	Integrantes
 //		- Alvarez Fantone, Nicolas;
@@ -17,41 +17,41 @@
 //		- Rodriguez, Maria Laura.
 ///////////////////////////////////////////////////////////////////////////
 
-#include "NodoBp.h"
+#include "NodoBPlus.h"
 #include "../Common/Codigo.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: NodoBp (Implementa nodos de Arbol B+)
+// Nombre: NodoBPlus (Implementa nodos de Arbol B+)
 //////////////////////////////////////////////////////////////////////////
 	
 //////////////////////////////////////////////////////////////////////
 // Constructores/Destructores
 //////////////////////////////////////////////////////////////////////
-NodoBp::NodoBp(unsigned int refNodo, unsigned char nivel, unsigned short tamanio) 
+NodoBPlus::NodoBPlus(unsigned int refNodo, unsigned char nivel, unsigned short tamanio) 
 				: Nodo(refNodo, nivel, tamanio)
 {
 	this->setTamanioMinimo((tamanio-this->getTamanioHeader())/2);		
 }	
 		
-NodoBp::NodoBp(unsigned int refNodo, unsigned char nivel, Clave* clave,
+NodoBPlus::NodoBPlus(unsigned int refNodo, unsigned char nivel, Clave* clave,
 		unsigned short tamanio) : Nodo(refNodo, nivel, clave, tamanio)
 {
 	this->setTamanioMinimo((tamanio-this->getTamanioHeader())/2);
 } 
 
 /*
-NodoBp(unsigned int referencia) : Nodo(referencia)
+NodoBPlus(unsigned int referencia) : Nodo(referencia)
 {}
 */
 		
-NodoBp::~NodoBp(){}
+NodoBPlus::~NodoBPlus(){}
 
 //////////////////////////////////////////////////////////////////////
 // Metodos publicos
 ////////////////////////////////////////////////////////////////////// 
-void NodoBp::insertarClave(Clave* &clave, char* codigo)
+void NodoBPlus::insertarClave(Clave* &clave, char* codigo)
 {
 	if (this->getNivel() == 0)
 		insertarEnHoja(clave, codigo);
@@ -59,7 +59,7 @@ void NodoBp::insertarClave(Clave* &clave, char* codigo)
 		insertarEnNodo(clave, codigo);	
 }
 
-void NodoBp::insertarEnHoja(Clave* &clave, char* codigo)
+void NodoBPlus::insertarEnHoja(Clave* &clave, char* codigo)
 {
 	char cod = Codigo::NO_MODIFICADO;
 	
@@ -84,7 +84,7 @@ void NodoBp::insertarEnHoja(Clave* &clave, char* codigo)
 	/*No hay espacio libre suficiente para insertar la clave...*/
 	}else{
 		/*
-		Nodo* nuevoNodo = new NodoBp(this->getHnoDer(), this->getNivel(), this->getTamanio());
+		Nodo* nuevoNodo = new NodoBPlus(this->getHnoDer(), this->getNivel(), this->getTamanio());
 		
 		// Condicion para overflow. Devuelve la cantidad de claves que
 		// deben quedar en el nodo que va a dividirse:
@@ -134,7 +134,7 @@ void NodoBp::insertarEnHoja(Clave* &clave, char* codigo)
 	*codigo = cod;
 }
 
-void NodoBp::insertarEnNodo(Clave* &clave, char* codigo)
+void NodoBPlus::insertarEnNodo(Clave* &clave, char* codigo)
 {			
 	char cod = Codigo::NO_MODIFICADO;
 	
@@ -156,7 +156,7 @@ void NodoBp::insertarEnNodo(Clave* &clave, char* codigo)
 	}else{
 		
 		/*
-		Nodo* nuevoNodo = new NodoBp(this->getRefNodo(), this->getNivel(), this->getTamanio());
+		Nodo* nuevoNodo = new NodoBPlus(this->getRefNodo(), this->getNivel(), this->getTamanio());
 		
 		//Condicion para overflow, devuelve la cantidad de claves que 
 		//deben quedar en el nodo que se va a dividir
@@ -197,7 +197,7 @@ void NodoBp::insertarEnNodo(Clave* &clave, char* codigo)
 
 
 
-void NodoBp::eliminarClave(Clave* clave, char* codigo) {
+void NodoBPlus::eliminarClave(Clave* clave, char* codigo) {
 	
 	SetClaves* set = this->getClaves();
 	SetClaves::iterator iter = set->find(clave);
@@ -225,7 +225,7 @@ void NodoBp::eliminarClave(Clave* clave, char* codigo) {
 }
 
 
-Nodo* NodoBp::siguiente(/*ArchivoIndice* archivo,*/Clave* clave)
+Nodo* NodoBPlus::siguiente(/*ArchivoIndice* archivo,*/Clave* clave)
 {
 	Nodo* nodo;
 	Clave* claveResultante = this->getClaves()->findClave(clave);
@@ -233,11 +233,11 @@ Nodo* NodoBp::siguiente(/*ArchivoIndice* archivo,*/Clave* clave)
 	if (claveResultante == NULL) {
 		//Cargar un nuevo nodo en memoria a partir del hijo izquierdo
 		//de este nodo.
-		//nodo = new NodoBp(archivo, this->getHijoIzq());
+		//nodo = new NodoBPlus(archivo, this->getHijoIzq());
 	} else {
 		//Cargar un nuevo nodo en memoria a partir del hijo derecho
 		//de claveResultante.
-		//nodo = new NodoBp(archivo, claveResultante->getHijoDer());
+		//nodo = new NodoBPlus(archivo, claveResultante->getHijoDer());
 	}
 	
 	return nodo;
