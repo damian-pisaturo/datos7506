@@ -65,7 +65,7 @@
 	///////////////////////////////////////////////////////////////////////
 		char ArchivoBase::escribir(const void* bloque) 
 		{
-			char resultado = CodArchivo::OK;
+			char resultado = ResFisica::OK;
 			
 			//Verifica que el archivo esté abierto
 			if (this->archivo.is_open()) {
@@ -74,17 +74,17 @@
 		
 			    //Chequea si se ha producido un error 
 			    if (this->archivo.fail())
-			      resultado = CodArchivo::ERROR_ESCRITURA;
+			      resultado = ResFisica::ERROR_ESCRITURA;
 		    }else
 			  //El archivo no se encuentra abierto
-			  resultado = CodArchivo::NO_ABIERTO;
+			  resultado = ResFisica::NO_ABIERTO;
 			
 			return resultado;
 		}	
 
 		char ArchivoBase::leer(void* bloque) 
 		{
-			char resultado = CodArchivo::OK;
+			char resultado = ResFisica::OK;
 			
 			//Verifica que el archivo esté abierto
 			if (this->archivo.is_open()) {		  	
@@ -94,11 +94,11 @@
 				//Chequea si se ha producido un error
 				if (this->archivo.fail()){
 					this->archivo.clear();
-					resultado = CodArchivo::ERROR_LECTURA;
+					resultado = ResFisica::ERROR_LECTURA;
 				} 
 			}else
 			  //El archivo no se encuentra abierto
-			  resultado = CodArchivo::NO_ABIERTO;
+			  resultado = ResFisica::NO_ABIERTO;
 			
 			return resultado;
 		}
@@ -129,14 +129,14 @@
 				// Calcula el número de bloque según la posición del byte actual
 			    pos = this->archivo.tellg() / this->tamBloque;
 			else
-				pos = CodArchivo::NO_ABIERTO;
+				pos = ResFisica::NO_ABIERTO;
 			
 			  return pos;
 		}
 		
 		char ArchivoBase::posicionarse(unsigned int posicion)
 		{
-			char resultado = CodArchivo::OK;
+			char resultado = ResFisica::OK;
 			
 			//Verifica que el archivo esté abierto
 			if (this->archivo.is_open()) {
@@ -145,9 +145,9 @@
 	
 				//Chequea si se ha producido un error			
 				if (this->archivo.fail())
-					resultado = CodArchivo::ERROR_POSICION;
+					resultado = ResFisica::ERROR_POSICION;
 			}else
-				resultado = CodArchivo::NO_ABIERTO;
+				resultado = ResFisica::NO_ABIERTO;
 			
 			return resultado;
 		}

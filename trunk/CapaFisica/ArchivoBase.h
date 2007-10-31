@@ -17,30 +17,13 @@
 #define ARCHIVOBASE_H_
 
 #include "../Common/Tamanios.h"
+#include "../Common/ResFisica.h"
 
 #include <iostream>
 #include <fstream>
 
 using namespace std;
 
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: CodArchivo
-//			(Clase utilitaria con constantes de error y resultado de 
-//			metodos para la clase ArchivoBase).
-///////////////////////////////////////////////////////////////////////////
-class CodArchivo
-{	
-	public:
-		static const char OK               = -1;
-		static const char NO_ABIERTO       = -2;
-		static const char ERROR_ESCRITURA  = -3;
-		static const char ERROR_LECTURA    = -4;
-		static const char ERROR_POSICION   = -5;
-		static const char BLOQUES_OCUPADOS = -6;
-		
-}; /*Fin clase CodArchivo*/
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -78,16 +61,16 @@ class ArchivoBase
 		 
 		/*Escribe el bloque en el archivo en la posición actual.
 		  * Recibe un puntero a una estructura de datos de tamaño tamBloque.
-		  * Devuelve CodArchivo::ERROR_ESCRITURA si se produjo algun error al
-		  * escribir el bloque; CodArchivo::NO_ABIERTO si el archivo no fue 
-		  * previamente abierto, o CodArchivo::OK de no haberse encontrado errores.
+		  * Devuelve ResFisica::ERROR_ESCRITURA si se produjo algun error al
+		  * escribir el bloque; ResFisica::NO_ABIERTO si el archivo no fue 
+		  * previamente abierto, o ResFisica::OK de no haberse encontrado errores.
 		 */		 
 		char escribir(const void* bloque);
 		
 		/* Lee del archivo el bloque en la posición actual y lo devuelve
-		 * en 'bloque'. Devuelve CodArchivo::ERROR_LECTURA si se produjo algun 
-		 * error al leer el bloque solicitado; CodArchivo::NO_ABIERTO si el 
-		 * archivo no fue previamente abierto, o CodArchivo::OK de no haberse
+		 * en 'bloque'. Devuelve ResFisica::ERROR_LECTURA si se produjo algun 
+		 * error al leer el bloque solicitado; ResFisica::NO_ABIERTO si el 
+		 * archivo no fue previamente abierto, o ResFisica::OK de no haberse
 		 * producido errores.
 		 */
 		char leer(void* bloque);
@@ -99,15 +82,15 @@ class ArchivoBase
 		bool fin();
 		
 		/* Devuelve la posición relativa del bloque actual o
-		 * CodArchivo::NO_ABIERTO si el archivo no fue previamente
+		 * ResFisica::NO_ABIERTO si el archivo no fue previamente
 		 * abierto.
 		 */
 		short posicion();
 		
 		/* Modifica la posición actual con el numero de bloque
 		 * pasado por parametro. Si numBloque es invalido, devuelve
-		 * CodArchivo::ERROR_POSICION; en caso contrario, devuelve
-		 * CodArchivo::OK;
+		 * ResFisica::ERROR_POSICION; en caso contrario, devuelve
+		 * ResFisica::OK;
 		*/
 		char posicionarse(unsigned int numBloque);		
 

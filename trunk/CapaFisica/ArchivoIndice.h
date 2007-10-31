@@ -16,6 +16,9 @@
 #ifndef ARCHIVOINDICEARBOL_H_
 #define ARCHIVOINDICEARBOL_H_
 
+#include "ArchivoBase.h"
+#include "ArchivoEL.h"
+
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
@@ -43,17 +46,22 @@ class ArchivoIndice : public ArchivoBase
 			 * por el archivo de control de espacio libre. Devuelve
 			 * el numero de bloque en el que fue insertado finalmente.
 			 */
-			virtual unsigned short insertarBloque(void* bloque) = 0;
+			virtual short insertarBloque(void* bloque);
 			
 			/*Modifica el nodo cuyo numero en el archivo es numNodo con el 
 			 * contenido de 'nodo'.
 			 */
-			virtual char modificarBloque(void* bloque, unsigned short numBloque) = 0;	
+			virtual char modificarBloque(void* bloque, unsigned short numBloque);	
 			
 			/*Actualiza el archivo de control de espacio libre, modificando
 			 * la entrada booleana correspondiente a numNodo.
 			 */
-			virtual char eliminarBloque(unsigned short numBloque) = 0;
+			virtual char eliminarBloque(unsigned short numBloque);
+			
+			/*Devuelve en 'bloque' el bloque del archivo de indice cuya 
+			 * posicion es numBloque.
+			 */
+			virtual char leerBloque(void* bloque, unsigned short numBloque);
 
 		///////////////////////////////////////////////////////////////////////
 		//	Getter
@@ -64,19 +72,53 @@ class ArchivoIndice : public ArchivoBase
 			}
 };
 
-
 /*********************** NOCHE EN EL FIJO **********************************
  *       
- *           Hernan D. LetCorchett. vs. Nestor "CharGriego" Romano
+ *           Hernan D. LetCorchett vs. Nestor "CharGriego" Romano
  * 
  * Musicalizador: DJ Hash
  **************************************************************************/ 
 
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//-----------------------------------------------------------------------
+// Nombre: ArchivoTablaHash
+//			(Permite el manejo de archivos contenedores de los datos
+//			de la tabla de dispersion utilizada en los indices de Hash).
+///////////////////////////////////////////////////////////////////////////
+class ArchivoTablaHash : ArchivoBase
+{
+	public:
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoTablaHash(string nombreArchivo);
+		virtual ~ArchivoTablaHash();
+	
+	///////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+		
+		/*Obtiene los datos de la tabla de dispersion (cantidad de elementos
+		 * y numeros de buckets en cada elemento).
+		 */
+		unsigned int obtenerCantElementos();
+		unsigned int* obtenerTabla();
+		
+		/*Actualiza la tabla de dispersion con los datos pasados por 
+		 * parametro (cantidad de elementos y numero de buckets).
+		 * escribirTabla() asume que una llamada previa a escribirCantElementos()
+		 * escribio en el archivo la cantidad de elementos correcta que debe insertar.
+		 */
+		char escribirCantElementos(unsigned short cantElem);
+		char escribirTabla(unsigned int* tabla);	
+		
+}; /*Fin clase ArchivoTablaHash*/
 
 class ArchivoIndiceHash : public ArchivoIndice
 {
 	private:
-		fstream archivoTabla;
+		ArchivoTablaHash* archivoTabla;
 		
 	public:
 		///////////////////////////////////////////////////////////////////////

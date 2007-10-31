@@ -74,7 +74,7 @@ class ArchivoELFijo : public ArchivoEL
 	///////////////////////////////////////////////////////////////////////
 		/*Busca en el archivo de control el primer bloque en condicion
 		 * de libre y devuelve su numero dentro del archivo. Si ningun
-		 * bloque se encuentra libre, devuelve CodArchivo::BLOQUES_OCUPADOS.
+		 * bloque se encuentra libre, devuelve ResFisica::BLOQUES_OCUPADOS.
 		 */
 		short buscarBloqueLibre();	
 };
@@ -103,7 +103,7 @@ class ArchivoELVariable : public ArchivoEL
 		/*Busca en el archivo de control el primer bloque que contenga
 		 * un numero de bytes libres mayor a espacioRequerido y devuelve 
 		 * su posicion dentro del archivo. Si ningun bloque cumple con el 
-		 * requisito, devuelve CodArchivo::BLOQUES_OCUPADOS.
+		 * requisito, devuelve ResFisica::BLOQUES_OCUPADOS.
 		 */
 		short buscarEspacioLibre(unsigned short espacioRequerido);	
 };

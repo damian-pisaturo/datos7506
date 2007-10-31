@@ -46,10 +46,10 @@
 		
 		char ArchivoEL::modificarRegistro(void* registro, unsigned short numRegistro)
 		{
-			char resultado = CodArchivo::OK;
+			char resultado = ResFisica::OK;
 			
 			resultado = this->posicionarse(numRegistro);
-			if (resultado == CodArchivo::OK)
+			if (resultado == ResFisica::OK)
 				resultado = this->escribir(registro);
 			
 			return resultado;
@@ -87,7 +87,7 @@
 			}
 			
 			if (this->fin())
-				numBloque = CodArchivo::BLOQUES_OCUPADOS;
+				numBloque = ResFisica::BLOQUES_OCUPADOS;
 			
 			return numBloque;		
 		}
@@ -126,7 +126,7 @@
 			}
 			
 			if (this->fin())
-				numBloque = CodArchivo::BLOQUES_OCUPADOS;
+				numBloque = ResFisica::BLOQUES_OCUPADOS;
 			
 			return numBloque;		
 		}

@@ -30,23 +30,33 @@
 
 		ArchivoIndice::ArchivoIndice(string nombreArchivo, unsigned short tamBloque) :
 			ArchivoBase(nombreArchivo, tamBloque)
-		{
+		{	
+			//Creacion e inicializacion del archivo de control
+			//de espacio libre.
+			bool valor = true;
 			this->archivoEL = new ArchivoELFijo(nombreArchivo + ".nfo");
+			
+			//Escribir primer valor booleano en el archivo de control.
+			this->archivoEL->escribir(&valor);
 		}
 		
-		ArchivoIndice::~ArchivoIndice() { }
+		ArchivoIndice::~ArchivoIndice()
+		{ 
+			if (this->archivoEL)
+				delete archivoEL;			
+		}
 		 
 	///////////////////////////////////////////////////////////////////////
 	//	Metodos publicos
 	///////////////////////////////////////////////////////////////////////
 		
-		unsigned short ArchivoIndice::insertarBloque(void* bloque)
+		short ArchivoIndice::insertarBloque(void* bloque)
 		{			
-			ArchivoELFijo* archivoEL = this->getArchivoEL();
+			ArchivoELFijo* archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
 			
-			unsigned short bloqueLibre = archivoEL->buscarBloqueLibre();
+			short bloqueLibre = archivoEL->buscarBloqueLibre();
 			
-			if (bloqueLibre == CodArchivo::BLOQUES_OCUPADOS){
+			if (bloqueLibre == ResFisica::BLOQUES_OCUPADOS){
 				this->posicionarseFin();
 				bloqueLibre = this->posicion() + 1;
 			}else
@@ -59,10 +69,10 @@
 
 		char ArchivoIndice::modificarBloque(void* bloque, unsigned short numBloque)
 		{
-			char resultado = CodArchivo::OK;
+			char resultado = ResFisica::OK;
 			
 			resultado = this->posicionarse(numBloque);
-			if (resultado == CodArchivo::OK)
+			if (resultado == ResFisica::OK)
 				resultado = this->escribir(bloque);
 			
 			return resultado;
@@ -75,8 +85,106 @@
 			
 			return archivoEL->modificarRegistro(&valor, numBloque);			
 		}
+		
+		char ArchivoIndice::leerBloque(void* bloque, unsigned short numBloque)
+		{	
+			char resultado = this->posicionarse(numBloque);
+			
+			if (resultado == ResFisica::OK)
+				resultado = this->leer(bloque);
+			
+			return resultado;			
+		}
 		 
 
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//-----------------------------------------------------------------------
+// Nombre: ArchivoTablaHash
+//			(Permite el manejo de archivos contenedores de los datos
+//			de la tabla de dispersion utilizada en los indices de Hash).
+///////////////////////////////////////////////////////////////////////////
+		
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoTablaHash::ArchivoTablaHash(string nombreArchivo):
+			ArchivoBase(nombreArchivo, sizeof(unsigned int))
+			{
+				//Escribe una cantidad de elementos inicial igual
+				//a cero.
+				unsigned int cantElementos = 0;
+				this->escribir(&cantElementos);
+			}
+		
+		ArchivoTablaHash::~ArchivoTablaHash() { }
+		 
+	///////////////////////////////////////////////////////////////////////
+ 	//	Metodos publicos
+ 	///////////////////////////////////////////////////////////////////////
+		 unsigned int ArchivoTablaHash::obtenerCantElementos()
+		 {
+			 unsigned int cantElementos = 0;
+			 
+			 //Posicionarse al comienzo del archivo
+			 this->posicionarse(0);
+			 
+			 //Obtener el primer dato entero de la tabla
+			 this->leer(&cantElementos);
+			 
+			 return cantElementos; 
+		 }
+		 
+		 unsigned int* ArchivoTablaHash::obtenerTabla()
+		 {
+			 unsigned int* tabla = NULL;
+			 unsigned int cantElementos = obtenerCantElementos();			 
+			 
+			 if (cantElementos > 0){
+			 	tabla = new unsigned int[cantElementos];
+			 
+				 for (unsigned int i = 0; i < cantElementos; i++){
+					 this->posicionarse(i + 1);
+					 this->leer(tabla + i);
+				 }
+			 }
+			 
+			 return tabla;
+		 }
+		 
+		 char ArchivoTablaHash::escribirCantElementos(unsigned short cantElem)
+		 {	
+			 char resultado = this->posicionarse(0);
+			 
+			 //Posicionarse al comienzo del archivo.
+			 if (resultado == ResFisica::OK)			 
+				 //Obtener el primer atributo entero (cantidad de elementos)
+				 resultado = this->escribir(&cantElem);	
+			 
+			 return resultado;
+		 }
+		 
+		 char ArchivoTablaHash::escribirTabla(unsigned int* tabla)
+		 {
+			 char resultado = ResFisica::OK;
+			 unsigned int cantElem = this->obtenerCantElementos();
+			 
+			 //Posicionarse en el segundo atributo entero
+			 //(primer elemento de la tabla)
+			 resultado = this->posicionarse(1);
+			 
+			 //Recorrer todos los elementos de tabla y
+			 //almacenarlos a disco.
+			 if (resultado == ResFisica::OK)
+				 for (unsigned int i = 0; ( (i < cantElem) && (resultado == ResFisica::OK) ); i++){
+					 resultado = this->escribir(tabla + i);
+					 if (resultado == ResFisica::OK)
+						 resultado = this->posicionarse(i + 2);
+				 }
+			 
+			 return resultado;			 
+		 }
+		
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //-----------------------------------------------------------------------
@@ -90,21 +198,26 @@
 	///////////////////////////////////////////////////////////////////////
 		ArchivoIndiceHash::ArchivoIndiceHash(string nombreArchivo, unsigned short tamBucket):
 			ArchivoIndice(nombreArchivo, tamBucket)
-		virtual ~ArchivoIndiceHash::~ArchivoIndiceHash();
+			{
+				archivoTabla = new ArchivoTablaHash(nombreArchivo + ".nfo");
+			}
+		
+		 ArchivoIndiceHash::~ArchivoIndiceHash() { }
 		
 	///////////////////////////////////////////////////////////////////////
 	//	Metodos publicos
 	///////////////////////////////////////////////////////////////////////
 				
 		void ArchivoIndiceHash::leerTabla(unsigned short* cantElem, unsigned int* elementos)
-		{
-			
-			
+		{			
+			*cantElem = this->archivoTabla->obtenerCantElementos();
+			elementos = this->archivoTabla->obtenerTabla();
 		}
 		
 		void ArchivoIndiceHash::escribirTabla(unsigned short cantElem, unsigned int* elementos)
 		{
-			
+			this->archivoTabla->escribirCantElementos(cantElem);
+			this->archivoTabla->escribirTabla(elementos);			
 		}
 				
 
