@@ -77,6 +77,7 @@ int Hash::insertarRegistro(char* registro, char* clave)
 	if (bucket->verificarEspacioDisponible(longReg,bucket->getEspacioLibre()))
 	{
 		bucket->altaRegistro(listaParam,registro);
+		bucket->incrementarCantRegistros();
 	}
 	else
 	// Hay OVERFLOW
@@ -147,9 +148,46 @@ void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
 	}
 	delete bucket;
 	bucket = bucketAux;
-	
-	
 }
 
+int Hash::eliminarRegistro(char* clave)
+{
+	int posicion = aplicarHash(clave) % tabla->getTamanio();
+	unsigned int nroBucket = tabla->getNroBucket(posicion);
+	
+	Bucket * bucket = new Bucket(archivo, nroBucket);	
+	unsigned short cantRegs = bucket->getCantRegs();
+	
+	if (cantRegs > 1)
+		// Si hay más de 1 registro en el bucket simplemente se elimina el registro pedido.
+		return bucket->bajaRegistro(listaParam,clave);
+	
+	// Si hay un solo registro se debe verificar si se puede borrar el bucket del archivo.
+	// Primero se verifica que el registro que se encuentra en el bucket efectivamente sea
+	// el que se quiere eliminar.
+	unsigned short aux;
+	if (bucket->buscarRegistro(listaParam, (void *) clave,&aux))
+	{	
+		// Si el tamaño de dispersión del bucket coincide con el tamaño de la tabla, se elimina el bucket.
+		if (bucket->getTamDispersion() == tabla->getTamanio())
+		{			
+			// Se llama a marcar al bucket como vacío en el archivo.
+			bucket->eliminarBucket();
+			
+			// Se renueva la referencia de la tabla que antes apuntaba al bucket que se eliminó.
+			unsigned int nroBucket2 = tabla->buscarBucketIgualDispersion(posicion, bucket->getTamDispersion());
+			tabla->setNroBucket(posicion,nroBucket2);
+			
+			// En caso de que deba realizarse una reducción a la mitad del tamaño de la tabla se lo hace.
+			tabla->considerarReduccion();
+			return OK;
+		}
+		else
+			// Si el tamaño de dispersión es != al tamaño de la tabla, sólo se elimina el registro.
+			return bucket->bajaRegistro(listaParam,clave);
+	}
+	else
+		return NO_ENCONTRADO;
+}
 
 

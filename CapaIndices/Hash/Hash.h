@@ -78,11 +78,6 @@ class Hash
 		 */
 		int hashInterno(char* clave);
 		
-		/*
-		 * Inserta "registro" en el bucket.
-		 */
-		int insertarReg(char * registro);
-		
 		void redistribuirElementos(Bucket * bucket, Bucket * bucketNuevo);
 
 };

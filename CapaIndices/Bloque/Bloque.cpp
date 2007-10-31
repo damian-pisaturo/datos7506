@@ -370,8 +370,8 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 	   delete []registro;
 	}
 	if (!registroBorrado)
-		return false;
-	return true;
+		return NO_ENCONTRADO;
+	return OK;
 }
 
 int Bloque::modificarRegistro(const list<nodoLista>& listaParam, unsigned short longReg, void* clavePrimaria, char* registro){
