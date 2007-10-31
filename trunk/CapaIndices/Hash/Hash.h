@@ -28,8 +28,7 @@
 #define DUPLICATED	2
 
 
-///////////////////////////////////
-////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
 // Nombre: Hash (Implementa indices de dispersion extensible)
@@ -58,27 +57,48 @@ class Hash
 		/*
 		 * Este método se utiliza para hacer una operación de alta en el archivo.
 		 * Si el registro se puede insertar devuelve OK; si ya existe un registro
-		 * con la misma clave, devuelve DUPLICATED, y si no hay lugar en el bucket
-		 * correspondiente para insertarlo, devuelve FAIL.
-		 */
+		 * con la misma clave, devuelve DUPLICATED.
+		 * En caso de que el registro no entre en el bucket correspondiente, se 
+		 * toman las medidas necesarias para hacer extensible la función de hash.
+		 * Si el registro es variable "registro" contendrá su longitud en los 
+		 * primeros bytes.
+		 **/
 		int insertarRegistro(char* registro,char* clave);
+		
+		/* Este método se utiliza para hacer una operación de baja en el archivo.
+		 * Si el registro se puede eliminar devuelve OK, si no existe el registro
+		 * a eliminar, se devuelve NO_ENCONTRADO.
+		 * En caso de que el bucket quede vacío, se considera la posibilidad de 
+		 * disminuir el tamaño de la tabla de hash.
+		 **/
 		int eliminarRegistro(char* clave);
 	
 	private:
 	///////////////////////////////////////////////////////////////////////
 	// Metodos privados
 	///////////////////////////////////////////////////////////////////////	
+		
 		/*
 		 * Este método aplica una función de dispersión a la clave.
-		 */
+		 **/
 		int aplicarHash(char* clave);
 		
-		/*string
-		 * Método utilizado cuando se aplica la función de dispersión a una clave.
-		 */
+		/*
+		 * Método utilizado internamente cuando se aplica la función de dispersión a una clave.
+		 **/
 		int hashInterno(char* clave);
 		
+		/*
+		 * Este método se encarga de redistribuir los registros contenidos en bucket 
+		 * entre este mismo y bucketNuevo.
+		 **/
 		void redistribuirElementos(Bucket * bucket, Bucket * bucketNuevo);
+		
+		/*
+		 * Este método se engarga de dividir el tamaño de dispersión del bucket nroBucket
+		 * y actualizarlo en el archivo.
+		 **/
+		void dividirDispersion(unsigned int nroBucket);
 
 };
 
