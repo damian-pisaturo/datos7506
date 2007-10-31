@@ -17,11 +17,11 @@
 //		- Rodriguez, Maria Laura
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef BPTREE_H_
-#define BPTREE_H_
+#ifndef BPLUSTREE_H_
+#define BPLUSTREE_H_
 
 #include "Clave.h"
-#include "NodoBp.h"
+#include "NodoBPlus.h"
 //#include "ArchivoIndicePadre.h"
 
 #include <string>
@@ -40,8 +40,8 @@ class BPlusTree
 	//////////////////////////////////////////////////////////////////////
 	//Atributos privados
 	//////////////////////////////////////////////////////////////////////
-		NodoBp* nodoRaiz;
-		NodoBp* nodoActual;
+		NodoBPlus* nodoRaiz;
+		NodoBPlus* nodoActual;
 		unsigned short tamanioNodo;
 		//ArchivoIndice* archivoIndice;   
 
@@ -81,7 +81,7 @@ class BPlusTree
 		//////////////////////////////////////////////////////////////////////       
     
 		/*Devuelve un nodo con la raiz del arbol*/
-		NodoBp* getRaiz();
+		NodoBPlus* getRaiz();
 		
 		void insertarInterno(Nodo* actual,Clave* &clave,Codigo* &codigo,Nodo* &anterior);		
     
@@ -97,4 +97,4 @@ class BPlusTree
 	  	
 }; //Fin clase BPlusTree.
 
-#endif /*BPTREE_H_*/
+#endif /*BPLUSTREE_H_*/
