@@ -57,10 +57,13 @@ int Hash::aplicarHash(char *clave)
 int Hash::insertarRegistro(char* registro, char* clave)
 {	
 	// Se aplica la función de hash para saber en que bucket se debe insertar.
-	int nroBucket = aplicarHash(clave) % tabla->getTamanio();
+	int posicion = aplicarHash(clave) % tabla->getTamanio();
 	
 	// Se obtiene el bucket donde hay que insertar el registro.
-	Bucket * bucket = new Bucket(archivo,tabla->getDireccionBucket(nroBucket));
+	int numBucket = tabla->getNroBucket(posicion);
+	
+	// Levanta un bucket ya existente del disco y carga sus datos.
+	Bucket * bucket = new Bucket(archivo,numBucket);
 	
 	// Se busca si el registro ya existe.
 	unsigned short aux;
@@ -76,14 +79,77 @@ int Hash::insertarRegistro(char* registro, char* clave)
 		bucket->altaRegistro(listaParam,registro);
 	}
 	else
+	// Hay OVERFLOW
 	// Si el registro no entra en el bucket hay que crear un nuevo bucket.
 	{
-		//Bucket * nuevoBucket = new Bucket(tabla->getNumProximoBucket(),bucket->getTamDispersion(),archivo);
-		// TODO redistribuir los elementos del bucket donde hubo overflow.
+		// Se duplica el tamaño de dispersión del bucket que se divide.
+		bucket->setTamDispersion(bucket->getTamDispersion()*2);
+		
+		// Se crea un nuevo bucket vacío. Se devuelve en numBucketNuevo el número del mismo. 
+		unsigned int numBucketNuevo;
+		Bucket * nuevoBucket = new Bucket(&numBucketNuevo,bucket->getTamDispersion(),archivo);
+		
+		// Duplica la tabla o actualiza sus referencias dependiendo del tamaño de dispersión 
+		// duplicado del bucket donde se produjo overflow.
+		tabla->reorganizarTabla(bucket->getTamDispersion(), posicion, numBucketNuevo); // TODO: implementar.
+		
+		redistribuirElementos(bucket,nuevoBucket);
+		
+		int result = insertarRegistro(registro, clave);
+		return result;
+
 		
 	}
-	return 0;
+	return OK;
+}
+
+void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
+{
+	unsigned short longReg;
+	unsigned short offsetReg = bucket->getOffsetToRegs();
+	char * datos = bucket->getDatos();
+	char * clave;
+	int posicion;
+	unsigned int nroBucket;
+	
+	// Se crea un bucket auxiliar para poner los registros que deberían quedar en bucket.
+	// TODO Cambiar constructor a uno q no toque disco.
+	Bucket * bucketAux = new Bucket(bucket->getNroBloque(),bucket->getTamanioBloque(),bucket->getTamDispersion());
+	
+	// Se recorren los registros reubicándolos.
+	for(int i = 0; i< bucket->getCantRegs(); i++)
+	{
+		// Obtengo el tamaño del registro.
+		longReg = bucket->getTamanioRegistros(listaParam,&datos[offsetReg]);
+		
+		// Obtengo la clave primaria.
+		clave = bucket->getClavePrimaria(listaParam, &datos[offsetReg]);
+		
+		posicion = aplicarHash(clave) % tabla->getTamanio(); 
+		nroBucket = tabla->getNroBucket(posicion);
+		
+		// Se decide en cual de los 2 buckets se inserta el registro.
+		if (nroBucket == nuevoBucket->getNroBloque())
+			nuevoBucket->altaRegistro(listaParam,&datos[offsetReg]);
+		else bucketAux->altaRegistro(listaParam,&datos[offsetReg]);
+		
+		offsetReg += longReg;
+		
+		list<nodoLista>::const_iterator it = listaParam.begin();
+		nodoLista regAtribute = *it;
+		
+		// Se obtiene el tipo de atributo del registro.
+		int tipo = regAtribute.tipo;
+
+		if(tipo == TipoDatos::TIPO_VARIABLE)
+			offsetReg += Tamanios::TAMANIO_LONGITUD;
+		
+	}
+	delete bucket;
+	bucket = bucketAux;
+	
 	
 }
+
 
 

@@ -82,6 +82,8 @@ class Hash
 		 * Inserta "registro" en el bucket.
 		 */
 		int insertarReg(char * registro);
+		
+		void redistribuirElementos(Bucket * bucket, Bucket * bucketNuevo);
 
 };
 

@@ -5,12 +5,12 @@
 #define NO_ENCONTRADO 	1
 #define OVERFLOW		2
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <list>
 
-#include "../Common/Tamanios.h"
+#include "../../Common/Tamanios.h"
 #include "../Common/TipoDatos.h"
 #include "../RegisterInfo/RegisterInfo.h"
 
@@ -76,7 +76,12 @@ public:
 	 **/
 	int modificarRegistro(const list<nodoLista>& listaParam, unsigned short longReg,void* clavePrimaria, char* registro);
 	
+	
+	/*
+	 * Devuelve el offset al primer registro del bloque.
+	 **/
 	virtual unsigned short getOffsetToRegs();
+	
 	/*
 	 * Verifica que el registro a insertar tiene espacio dentro del bloque
 	 * Retorna "true" en caso de que haya espacio y "false" en caso contrario
@@ -88,17 +93,35 @@ public:
 	 **/
 	unsigned short getTamanioRegistros(const list<nodoLista>& listaParam,char *registro);
 	
+	/*
+	 * Devuelve el tamaño del bloque.
+	 **/
 	unsigned int getTamanioBloque();
 	
+	/*
+	 * Setea el tamaño del bloque.
+	 **/
 	void setTamanioBloque(unsigned int tam);
 	
+	/*
+	 * Devuelve un puntero al contenido del bloque.
+	 **/
 	char * getDatos();
 	
+	/*
+	 * Asigna el contenido al bloque.
+	 **/
 	void setDatos(char* d);
 	
-	int getNroBloque();
+	/*
+	 * Devuelve el némero del bloque.
+	 **/
+	unsigned int getNroBloque();
 	
-	void setNroBloque(int num);
+	/*
+	 * Setea el número del bloque.
+	 **/
+	void setNroBloque(unsigned int num);
 	
 };
 
