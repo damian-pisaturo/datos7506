@@ -12,10 +12,10 @@ class NombreCapas
 		const static string CAPA_CONSULTAS;
 		const static string CAPA_METADATA;
 };
-
+/*
 const string NombreCapas::CAPA_FISICA    = "capaFisica";
 const string NombreCapas::CAPA_INDICES   = "capaIndices";
 const string NombreCapas::CAPA_CONSULTAS = "capaConsultas";
 const string NombreCapas::CAPA_METADATA  = "capaMetadata";
-
+*/
 #endif /*NOMBRESCAPAS_H_*/

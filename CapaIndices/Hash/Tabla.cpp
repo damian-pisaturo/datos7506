@@ -21,21 +21,43 @@ void Tabla::crear(char* nombreArchivo)
 	
 }
 
-int Tabla::getTamanio()
+unsigned int Tabla::getTamanio()
 {
 	return tamanio;
 }
 
-int Tabla::getDireccionBucket(int i)
+
+unsigned int Tabla::getNroBucket(int posicionTabla)
 {
-	return direccionesBuckets[i];
+	return nroBucket[posicionTabla];
 }
 
-int Tabla::getNumProximoBucket()
-{
-	//TODO: implementar este método para que devuelva el numero del proximo bucket a crear.
-	int num = 0;
-	return num;
+void Tabla::reorganizarTabla(unsigned short tamDispActualizado, int posicion, unsigned int nuevoNroBucket){
+	
+	if((tamDispActualizado/2)== tamanio){
+		duplicarTabla();
+		nroBucket[posicion] = nuevoNroBucket;
+		
+	}
+	else
+		actualizarReferencias(tamDispActualizado,posicion,nuevoNroBucket);
+	
 }
 
+void Tabla::duplicarTabla(){
+	int * nroBuckets = new int[tamanio*2];
+	
+	memcpy(nroBuckets,nroBucket,tamanio);
+	memcpy(&nroBuckets[tamanio],nroBucket,tamanio);
+	tamanio *=2;
+	
+}
 
+void Tabla::actualizarReferencias(unsigned short tamDispActualizado, int posicion, unsigned int nuevoNroBucket){
+	int i;
+	for(i = posicion;i >= 0;i -= tamDispActualizado)
+		nroBucket[i] = nuevoNroBucket;
+	
+	for(i = posicion; (unsigned)i<tamanio;i += tamDispActualizado)
+		nroBucket[i] = nuevoNroBucket;
+}

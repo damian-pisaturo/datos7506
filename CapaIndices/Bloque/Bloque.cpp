@@ -440,6 +440,9 @@ unsigned short Bloque::getOffsetToRegs()
 	return (Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 }
 
+/*
+ * Devuelve la longitud del registro, sin incluir los 2 bytes de la longitud.
+ **/
 unsigned short Bloque::getTamanioRegistros(const list<nodoLista>& listaParam,char *registro)
 {
 	list<nodoLista>::const_iterator it = listaParam.begin();
@@ -480,12 +483,12 @@ void Bloque::setDatos(char* d)
 	datos = d;
 }
 	
-int Bloque::getNroBloque()
+unsigned int Bloque::getNroBloque()
 {
 	return numero;
 }
 
-void Bloque::setNroBloque(int num)
+void Bloque::setNroBloque(unsigned int num)
 {
 	numero = num;
 }

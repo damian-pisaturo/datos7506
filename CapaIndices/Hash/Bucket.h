@@ -57,13 +57,22 @@ public:
 // Constructor/Destructor
 ///////////////////////////////////////////////////////////////////////
 
-	/*Crea un Bucket vacio*/
-	Bucket(unsigned short numBucket,unsigned short tamDispersion, ArchivoIndice *indiceHash);
+	/*
+	 * Crea un Bucket vacio
+	 **/
+	Bucket(unsigned int * numBucket,unsigned short tamDispersion, ArchivoIndice *indiceHash);
 	
-	/*Crea un Bucket con los datos del bloque cuya 
-	 * referencia en el archivo es la pasada por parametro.
-	 */
-	Bucket(ArchivoIndice* indiceHash, unsigned int referencia);
+	/*
+	 * Crea un Bucket con los datos del bloque cuyo numBucket es la posición del mismo 
+	 * en el archivo.
+	 **/
+	Bucket(ArchivoIndice* indiceHash, unsigned int numBucket);
+	
+	/*
+	 * 
+	 **/
+	Bucket(unsigned int nroBucket,unsigned short tamDispersion,unsigned int tamanioBloque);
+	
 	virtual ~Bucket();
 
 	
@@ -77,8 +86,11 @@ public:
 	Bucket* splitBucket();
 	int redistribuirClaves(Bucket &bucket);	
 	unsigned short getOffsetToRegs();
-	unsigned short setTamDispersion(unsigned short tDisp);
+	void setTamDispersion(unsigned short tDisp);
+	unsigned short getTamDispersion();
 	void setCantRegs(unsigned short cRegs);
+	unsigned short getCantRegs();
+	char * getClavePrimaria(const list <nodoLista>& listaParam, char* registro); // TODO:
 	
 };
 
