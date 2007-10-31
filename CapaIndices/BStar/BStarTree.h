@@ -40,24 +40,24 @@ class BStarTree {
 		
 		void eliminarInterno(NodoBStar* nodoTarget, char* codigo);
 		
-		bool puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
-									  NodoBStar* &nodoHnoDer) const;
+		//bool puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
+		//							  	NodoBStar* &nodoHnoDer) const;
+		
+		//bool puedePasarseClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
+		//								  NodoBStar* &nodoHnoIzq) const;
 		
 		//Pasa una clave de un hermano derecho a otro nodo
 		//Se usa en la eliminación de una clave
 		void pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
-							   NodoBStar* nodoHnoDer);
-		
-		void recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
-									  NodoBStar* nodoHnoDer);
-		
-		bool puedePasarseClaveIzquierda(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
-											  NodoBStar* &nodoHnoIzq) const;
+							   		  NodoBStar* nodoHnoDer);
 		
 		//Pasa una clave de un hermano izquierdo a otro nodo
 		//Se usa en la eliminación de una clave
 		void pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
-				   NodoBStar* nodoHnoIzq);
+				   					NodoBStar* nodoHnoIzq);
+		
+		void recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
+							  		  NodoBStar* nodoHnoDer);
 		
 		void recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
 										NodoBStar* nodoHnoIzq);
@@ -87,7 +87,7 @@ class BStarTree {
 		//Este método concatena un nodo con underflow con dos nodos hermanos y con dos claves del nodo
 		//padre. Realiza el split internamente y devuelve la clave a promocionar.
 		Clave* mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
-					Clave* clavePadre1, Clave* clavePadre2);
+								   Clave* clavePadre1, Clave* clavePadre2);
 		
 };
 

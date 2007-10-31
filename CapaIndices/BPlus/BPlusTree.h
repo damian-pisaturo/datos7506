@@ -51,26 +51,27 @@ class BPlusTree
 	//////////////////////////////////////////////////////////////////////
 		BPlusTree(unsigned short tamanioNodo);
 		
-		virtual ~BPlusTree() {}
+		virtual ~BPlusTree();
 	
 	//////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	//////////////////////////////////////////////////////////////////////
 	    /*Insertar clave en un arbol B+*/	
-		void insertarClave(Clave* clave);
+		void insertar(Clave* clave);
 		
 		/*Eliminar clave pasada por parametro en un arbol B+*/
-		void eliminarClave(Clave* clave);
+		void elimina(Clave* clave);
 	    
 	  	/*Devuelve una copia de la clave buscada con su referencia 
 	  	 * o sino la mas cercana (menor).
 	  	 * Si el arbol esta vacio devuelve NULL.*/
-		Clave* buscarClave(Clave* clave);	
+		Clave* buscar(Clave* clave) const;
 		
-		/* primero()
-		 * Deja en nodoActual el primer nodo del set secuencial
-		 * (menor o mayor, dependiendo del orden de insercion).
-		 */
+		//Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario, la reemplaza por claveNueva
+		//y devuelve true.
+		bool modificar(Clave* claveVieja, Clave* claveNueva);
+		
+		//Deja en nodoActual el primer nodo del set secuencial
 		void primero();
 		
 		Clave* siguiente();
@@ -81,19 +82,13 @@ class BPlusTree
 		//////////////////////////////////////////////////////////////////////       
     
 		/*Devuelve un nodo con la raiz del arbol*/
-		NodoBPlus* getRaiz();
+		NodoBPlus* getRaiz() const;
 		
-		void insertarInterno(Nodo* actual,Clave* &clave,Codigo* &codigo,Nodo* &anterior);		
+		void insertarInterno(NodoBPlus* &nodoDestino, Codigo* codigo);		
     
-	    void eliminarInterno(Nodo* actual,Clave* clave,Codigo* codigo,Nodo* &nodoUnderflow);  
+	    void eliminarInterno(NodoBPlus* nodoTarget, Codigo* codigo);  
 	    
-	    void buscarInterno(Clave* clave,Clave*& claveBuscada);
 	    
-	    bool chequearEspacio(Nodo* otroNodo,Nodo* nodoUnderflow);
-	    
-	  	bool puedeDonar(Nodo* nodoDonador, Nodo* nodoAceptor);
-    
-	  	void split(Nodo* donador, Nodo* aceptor);
 	  	
 }; //Fin clase BPlusTree.
 

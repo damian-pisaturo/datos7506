@@ -23,7 +23,19 @@ class NodoBStar : public Nodo {
 		
 		//Devuelve el espacio (en bytes) destinado para almacenar claves (elementos).
 		//Esta es una redefinición del método de la clase padre.
-		virtual unsigned short getTamanioEspacioClaves() const;
+		virtual unsigned short getTamanioEspacioClaves() const {
+			
+			if (this->getNivel() == 0) //Nodo hoja ==> Tengo que sumarle el espacio que se le descuenta por la referencia al hijo izq
+				return (this->getTamanio() - Nodo::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA);
+			else return (this->getTamanio() - Nodo::getTamanioHeader());
+			
+		}
+		
+		unsigned short getTamanioMinimo() const {
+			
+			return (2*(this->getTamanioEspacioClaves())/3);
+			
+		}
 		
 		VectorConjuntos* split();
 
