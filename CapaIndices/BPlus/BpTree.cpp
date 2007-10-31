@@ -601,7 +601,7 @@ void BpTree::buscarInterno(Clave* clave,Clave*& Buscada){
 	     
 	     if ( (otroNodo) && (nodoUnderflow) ){
 	     	int espacioOcupado = archivoIndice->getTamanioNodo() - 
-	     		nodoUnderflow->getEspacioLibre() - ArchivoIndice::getTamanioHeader();
+	     		nodoUnderflow->getEspacioLibre() - IndiceManager::getTamanioHeader();
 	     	
 	     	if (espacioOcupado <= otroNodo->getEspacioLibre())
 	        	devolver = true;
