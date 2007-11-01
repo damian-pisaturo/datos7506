@@ -20,7 +20,7 @@
 #ifndef BPLUSTREE_H_
 #define BPLUSTREE_H_
 
-#include "Clave.h"
+#include "../Common/Clave.h"
 #include "NodoBPlus.h"
 //#include "ArchivoIndicePadre.h"
 
@@ -60,7 +60,7 @@ class BPlusTree
 		void insertar(Clave* clave);
 		
 		/*Eliminar clave pasada por parametro en un arbol B+*/
-		void elimina(Clave* clave);
+		bool eliminar(Clave* clave);
 	    
 	  	/*Devuelve una copia de la clave buscada con su referencia 
 	  	 * o sino la mas cercana (menor).
@@ -84,11 +84,15 @@ class BPlusTree
 		/*Devuelve un nodo con la raiz del arbol*/
 		NodoBPlus* getRaiz() const;
 		
-		void insertarInterno(NodoBPlus* &nodoDestino, Codigo* codigo);		
+		void insertarInterno(NodoBPlus* &nodoDestino, char* codigo);		
     
-	    void eliminarInterno(NodoBPlus* nodoTarget, Codigo* codigo);  
+	    void eliminarInterno(NodoBPlus* nodoTarget, char* codigo);  
 	    
+	    NodoBPlus* buscarPadre(NodoBPlus* padre, NodoBPlus* hijo) const;
 	    
+	    NodoBPlus* buscarLugar(Clave* clave) const;
+	    
+	    NodoBPlus* buscarLugarRecursivo(NodoBPlus* nodo, Clave* clave) const;
 	  	
 }; //Fin clase BPlusTree.
 
