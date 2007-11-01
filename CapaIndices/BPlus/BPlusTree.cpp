@@ -498,3 +498,90 @@ NodoBPlus* BPlusTree::buscarLugarRecursivo(NodoBPlus* nodo, Clave* clave) const 
 
 }
 
+
+Clave* BPlusTree::split(NodoBStar* nodoTarget) {
+	
+	
+	Clave*  = nodoTarget->split(); //En nodoTarget quedan las claves menores
+	
+	NodoBStar* nuevoNodo = new NodoBStar(nodoHno->getHijoIzq(), nodoHno->getNivel(), nodoHno->getTamanio());
+	
+	nuevoNodo->setClaves((*vectorConjuntos)[0]);
+	nodoHno->setClaves((*vectorConjuntos)[1]);
+	
+	delete vectorConjuntos;
+	
+	Clave* ultimaClaveNuevoNodo = nuevoNodo->obtenerUltimaClave(); 
+	Clave* ultimaClaveNodoHno = nodoHno->obtenerUltimaClave();
+	
+	//Se extraen las claves a promocionar
+	nuevoNodo->extraerUltimaClave();
+	nodoHno->extraerUltimaClave();
+	
+	nodoHno->setHijoIzq(ultimaClaveNuevoNodo->getHijoDer());
+	nodoTarget->setHijoIzq(ultimaClaveNodoHno->getHijoDer());
+
+	ultimaClaveNuevoNodo->setHijoDer(nodoHno->getPosicionEnArchivo());
+	ultimaClaveNodoHno->setHijoDer(nodoTarget->getPosicionEnArchivo());
+	
+	//TODO escribir nuevoNodo en disco y actualizar el nodoHno y nodoTarget
+	
+	VectorClaves* vectorClaves = new VectorClaves(3);
+	
+	vectorClaves->push_back(ultimaClaveNuevoNodo);
+	vectorClaves->push_back(ultimaClaveNodoHno);
+	//Agrego una tercera clave que sólo se utiliza para guardar la referencia
+	//en disco al nuevoNodo.
+	vectorClaves->push_back(new ClaveEntera(0,0,nuevoNodo->getPosicionEnArchivo()));
+	
+	delete nuevoNodo;
+	
+	return vectorClaves;
+}
+
+//Por el momento se utiliza cuando se tiene una raiz con dos hijos y se mergea todo en una unica raiz.
+//En un futuro podria llegar a implementarse para nodos internos.
+void BPlusTree::merge(NodoBStar* nodoHijoIzq, NodoBStar* nodoHijoDer, NodoBStar* nodoPadre) {
+	
+	nodoPadre->setHijoIzq(0);
+	nodoPadre->obtenerPrimeraClave()->setHijoDer(0);
+	nodoPadre->setNivel(0);
+	
+	nodoPadre->merge(nodoHijoIzq, nodoHijoDer, NULL, NULL);
+	
+	//TODO Escritura especial de la raíz
+
+	//TODO eliminar de disco a los nodos nodoHijoDer y nodoHijoIzq
+	delete nodoHijoIzq;
+	delete nodoHijoDer;
+	
+}
+
+
+Clave* BPlusTree::merge(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
+									  Clave* clavePadre1, Clave* clavePadre2) {
+	
+	Clave* copiaClavePadre1 = clavePadre1->copiar();
+	Clave* copiaClavePadre2 = clavePadre2->copiar();
+	
+	copiaClavePadre1->setHijoDer(nodoHno1->getHijoIzq());
+	copiaClavePadre2->setHijoDer(nodoHno2->getHijoIzq());
+		
+	nodoTarget->merge(nodoHno1, nodoHno2, copiaClavePadre1, copiaClavePadre2);
+	//Se realiza el split indicándole al método que a nodoTarget lo deje lleno y que el resto
+	//de las claves las devuelva en setClavesMayores.
+	SetClaves* setClavesMayores = nodoTarget->splitB( nodoTarget->getTamanioEspacioClaves() );
+	Clave* clavePromocionada = *(setClavesMayores->begin());
+	setClavesMayores->erase(setClavesMayores->begin());
+	
+	nodoHno1->setClaves(setClavesMayores);
+	nodoHno1->setHijoIzq(clavePromocionada->getHijoDer());
+	clavePromocionada->setHijoDer(nodoHno1->getPosicionEnArchivo());
+		
+	//TODO Actualizar nodoTarget
+	//TODO Actualizar nodoHno1
+	//TODO Eliminar de disco el nodo nodoHno2
+	delete nodoHno2;
+	
+	return clavePromocionada;
+}
