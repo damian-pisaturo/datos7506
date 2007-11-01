@@ -28,7 +28,7 @@ SetClaves* SetClaves::splitBPlus(unsigned short minClaves) {
 	SetClaves* conjClavesMayores = new SetClaves();
 	SetClaves::iterator iter = this->begin();
 	
-	for(unsigned i = 0; (iter != this->end()) && (i < minClaves); ++iter)
+	for(unsigned short i = 0; (iter != this->end()) && (i < minClaves); ++iter)
 		i += (*iter)->getTamanioEnDisco();
 	
 	for (SetClaves::iterator iterMayores = iter;
