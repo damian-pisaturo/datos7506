@@ -45,8 +45,10 @@ BPlusTree::~BPlusTree() {
 
 NodoBPlus* BPlusTree::getRaiz() const
 {
-	/*Lee el primer registro del archivo -> la raiz*/
-	return new NodoBPlus(/*archivoIndice,*/0);
+	//Lee el primer registro del archivo -> la raiz
+	//TODO Cargar un nodo desde disco!!
+	//return new NodoBPlus(archivoIndice, 0);
+	return NULL;
 }
 
 
@@ -108,7 +110,7 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 			nuevoNodoDerecho->setClaves(setClavesDerecho);
 			//TODO escribir 'nuevoNodoDerecho' en disco para obtener su posicion en el archivo.
 			clavePromocionada->setHijoDer(nuevoNodoDerecho->getPosicionEnArchivo());
-			NodoBPlus* nuevaRaiz = new NodoBPlus(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1, this->tamanioRaiz);
+			NodoBPlus* nuevaRaiz = new NodoBPlus(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1, this->tamanioNodo);
 			//TODO escritura especial de la raiz
 			delete nuevoNodoDerecho;
 			this->nodoRaiz = nuevaRaiz; //No se libera la memoria ocupada por el nodo raíz, ya que siempre
@@ -377,10 +379,11 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 					
 					nodoPadre->eliminarClave(clavePadreIzq, codigo);
 					nodoPadre->eliminarClave(clavePadreDer, codigo);
-					nodoPadre->insertarClave(clavePromocionada, codigo);
+					char codigoInsertar;
+					nodoPadre->insertarClave(clavePromocionada, &codigoInsertar);
 					
 					if (nodoPadre->tieneOverflow()) //Se resuelve posible overflow al insertar la clave promocionada
-						this->insertarInterno(nodoPadre, codigo);
+						this->insertarInterno(nodoPadre, &codigoInsertar);
 					//Sino, se resuelve posible underflow al eliminar las claves separadoras. Si no hay underflow,
 					//este método se encargará de escribir nodoPadre en disco.
 					else this->eliminarInterno(nodoPadre, codigo);

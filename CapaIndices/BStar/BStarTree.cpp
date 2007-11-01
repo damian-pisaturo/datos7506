@@ -323,10 +323,11 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
 					
 					nodoPadre->eliminarClave(clavePadreIzq, codigo);
 					nodoPadre->eliminarClave(clavePadreDer, codigo);
-					nodoPadre->insertarClave(clavePromocionada, codigo);
+					char codigoInsertar;
+					nodoPadre->insertarClave(clavePromocionada, &codigoInsertar);
 					
 					if (nodoPadre->tieneOverflow()) //Se resuelve posible overflow al insertar la clave promocionada
-						this->insertarInterno(nodoPadre, codigo);
+						this->insertarInterno(nodoPadre, &codigoInsertar);
 					//Sino, se resuelve posible underflow al eliminar las claves separadoras. Si no hay underflow,
 					//este método se encargará de escribir nodoPadre en disco.
 					else this->eliminarInterno(nodoPadre, codigo);
