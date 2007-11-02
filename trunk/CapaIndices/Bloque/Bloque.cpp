@@ -29,7 +29,6 @@
 Bloque::Bloque(unsigned int num,unsigned int tam){
 	numero = num;
 	tamanio = tam;
-	//contendrá offset a espacio libre, cantidad de registros, y datos.-
 	datos = new char[tamanio];
 }
 
@@ -38,14 +37,13 @@ Bloque::~Bloque(){
 		delete [] datos;
 }
 
-/**
+/*
  * Este metodo busca un registro en el bloque segun su clavePrimaria. Si lo encuentra
  * devuelve true y su offset dentro del bloque en "offsetReg"; y si no lo encuentra
  * devuelve false.
- */
-
+ **/
 bool Bloque::buscarRegistro(const list<nodoLista>& listaParam, void *clavePrimaria, unsigned short *offsetReg){
-	
+	// Obtengo el offset a los registros
 	int offsetToReg = getOffsetToRegs();
 	int offsetToProxCampo = 0;
 
@@ -57,7 +55,8 @@ bool Bloque::buscarRegistro(const list<nodoLista>& listaParam, void *clavePrimar
 	char *registro;
 	list<nodoLista>::const_iterator it;
 	nodoLista regAtribute;
-	int tipo;
+	int tipo; //Indica si el tipo de campo del registro es variable o fijo
+	int tipoDeRegistro; // Indica si el registro es variable o fijo
 	string pk;
 	unsigned short longRegistro;
 	unsigned short longCampo;
@@ -70,24 +69,25 @@ bool Bloque::buscarRegistro(const list<nodoLista>& listaParam, void *clavePrimar
 	regAtribute = *it;
 	
 	// Se obtiene el tipo de atributo del registro.
-	tipo = regAtribute.tipo;
+	tipoDeRegistro = regAtribute.tipo;
 	// Mientras haya mas registros y no lo haya encontrado.
 	while( (i<cantRegistros + 1) && (!encontrado) ){
 		
 		
-		if(tipo == TipoDatos::TIPO_VARIABLE){
+		if(tipoDeRegistro == TipoDatos::TIPO_VARIABLE){
 			//Se obtiene la longitud del registro.
 			memcpy(&longRegistro,&datos[offsetToReg],Tamanios::TAMANIO_LONGITUD);
 			
 			// Se omite la longitud del registro.
 			offsetToReg += 2;
 		}
-		else {
+		else 
 			// Se obtiene la longitud del registro.
-			//memcpy(&longRegistro,&regAtribute[posOfDelim + 1],Tamanios::TAMANIO_LONGITUD);
+			// En este caso la longitud del registro fijo viene dada en el primer nodo de la lista
+			// en pk.
 			memcpy(&longRegistro,&regAtribute.pk[0],Tamanios::TAMANIO_LONGITUD);
-			offsetToReg += longRegistro;
-		}
+			
+		
 		
 		// Se obtiene el registro (sin incluir la longitud del mismo)
 		registro = getRegistro(longRegistro,offsetToReg);
@@ -278,7 +278,11 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 	int i = 1 ;
 	// Mientras no se borre al registro y haya más registros..
 	while( (i<cantRegistros + 1) && (!registroBorrado) ){
-	
+		
+		// Reseteo el iterador en las sucesivas iteraciones a la primera
+		if(i>1)
+			it = listaParam.begin();
+		
 		// Se obtiene la longitud del registro.
 		longReg = getTamanioRegistros(listaParam,&datos[offsetToReg]);
 		registro = new char[longReg];
@@ -360,13 +364,18 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 				   }
 				   delete[]campo;	   
 			   }
+			   offsetToProxCampo +=  1;
 		   }
 		   else if(tipo == TipoDatos::TIPO_FECHA){
 			   //TODO: Completar la fecha
 		   }
 	   } 
-	   //La próxima iteración se levantará la longitud del registro siguiente
+	   // La próxima iteración se levantará la longitud del registro siguiente
 	   offsetToReg += longReg;
+	   // Incremento el contador de registros consultados
+	   i++;
+	   // Reseteo el offset al prox campo dentro del registro
+	   offsetToProxCampo = 0;
 	   delete []registro;
 	}
 	if (!registroBorrado)
