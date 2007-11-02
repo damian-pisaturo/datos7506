@@ -33,7 +33,6 @@ Nodo::Nodo(unsigned int refNodo, unsigned char nivel, Clave* clave,
 	this->refNodo = refNodo;
 	this->nivel   = nivel;
 	this->tamanio = tamanio;
-	this->tamanioMinimo = 0;
 	//this->espacioLibre = archivo->getTamanioNodo()- archivo->getTamanioHeader();
 	
 	/*Agrega la clave a la lista de claves del nodo*/
@@ -48,7 +47,6 @@ Nodo::Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio)
 	this->refNodo = refNodo;
     this->nivel = nivel;
     this->tamanio = tamanio;
-    this->tamanioMinimo = 0;
     //this->espacioLibre = archivo->getTamanioNodo()- archivo->getTamanioHeader();
     
     /*Agrega la clave a la lista de claves del nodo*/
@@ -484,4 +482,55 @@ bool Nodo::tieneUnderflow() const {
 SetClaves* Nodo::splitB(unsigned short minClaves) {
 	return (this->getClaves()->splitBPlus(minClaves));
 }
+
+
+void Nodo::insertarClave(Clave* &clave, char* codigo)
+{
+	char cod = Codigo::NO_MODIFICADO;
+		
+	//Se verifica si la clave está en el conjunto
+	if (this->getClaves()->find(clave) != this->getClaves()->end()) {
+		*codigo = cod;
+		return;
+	}
+	
+	//Insercion ordenada de la clave en el conjunto
+	this->getClaves()->insert(clave);
+	
+	//Si hay espacio suficiente para la nueva clave ...
+	if (this->getEspacioLibre() > clave->getTamanioEnDisco()){
+		this->actualizarEspacioLibre(clave, true);
+		cod = Codigo::MODIFICADO;
+	}else{ //No hay espacio libre suficiente para insertar la clave...
+		 cod = Codigo::OVERFLOW;
+	}
+
+	*codigo = cod;	
+}
+
+
+void Nodo::eliminarClave(Clave* clave, char* codigo) {
+	
+	SetClaves* set = this->getClaves();
+	SetClaves::iterator iter = set->find(clave);
+	
+	if (iter != set->end()) { //Se encontró la clave
+		//Se libera la memoria utilizada por la clave
+		delete *iter;
+		//Se elimina el puntero a la clave que estaba dentro del conjunto
+		set->erase(iter);
+		//Se actualiza el espacio libre del nodo
+		this->actualizarEspacioLibre(clave, false);
+		
+		if (this->getTamanioEnDiscoSetClaves() < this->getTamanioMinimo()) 
+			*codigo = Codigo::UNDERFLOW;
+		else
+	 		*codigo = Codigo::MODIFICADO;
+	 	
+	}
+	
+	*codigo = Codigo::NO_MODIFICADO;
+	
+}
+
 

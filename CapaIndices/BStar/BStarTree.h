@@ -69,6 +69,8 @@ class BStarTree {
 		//Devuelve un puntero al nodo donde se debe insertar/eliminar la clave.
 		NodoBStar* buscarLugar(Clave* clave) const;
 		
+		NodoBStar* buscarClave(NodoBStar* nodo, Clave* clave) const;
+		
 		NodoBStar* buscarLugarRecursivo(NodoBStar* nodo, Clave* clave) const;
 		
 		//Se supone que el nodo que recibe no es hoja. Este nodo debe ser el nodo
@@ -82,11 +84,11 @@ class BStarTree {
 		
 		//Este método concatena un nodo con underflow con un nodo hermano y con una clave del nodo
 		//padre. Esto sucede cuando el árbol sólo tiene dos niveles y el nodo raíz sólo tiene una clave.
-		void merge(NodoBStar* nodoHijoIzq, NodoBStar* nodoHijoDer, NodoBStar* nodoPadre);
+		void merge(NodoBStar* &nodoHijoIzq, NodoBStar* &nodoHijoDer, NodoBStar* nodoPadre);
 		
 		//Este método concatena un nodo con underflow con dos nodos hermanos y con dos claves del nodo
 		//padre. Realiza el split internamente y devuelve la clave a promocionar.
-		Clave* mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
+		Clave* mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* &nodoHno2,
 								   Clave* clavePadre1, Clave* clavePadre2);
 		
 };

@@ -52,13 +52,12 @@ class NodoBPlus: public Nodo
 			
 		/*Destructor*/
 		virtual ~NodoBPlus() {}
+		
+		Nodo* copiar() const;
 			
 	//////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	//////////////////////////////////////////////////////////////////////
-		void insertarClave(Clave* &clave, char* codigo);	
-		void eliminarClave(Clave* clave, char* codigo);
-		Nodo* siguiente(Clave* clave);
 		
 		//Devuelve el espacio (en bytes) destinado para almacenar claves (elementos)
 		unsigned short getTamanioEspacioClaves() const {
