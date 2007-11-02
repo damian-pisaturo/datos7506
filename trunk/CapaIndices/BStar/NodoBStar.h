@@ -12,12 +12,6 @@ class NodoBStar : public Nodo {
 				  unsigned short tamanio);
 		
 		virtual ~NodoBStar() {}
-	
-		void insertarClave(Clave* &clave, char* codigo);
-		
-		void eliminarClave(Clave* clave, char* codigo);
-		
-		Nodo* siguiente(Clave* clave);
 		
 		unsigned short getTamanioEnDisco() const;
 		
@@ -38,6 +32,8 @@ class NodoBStar : public Nodo {
 		}
 		
 		VectorConjuntos* split();
+		
+		Nodo* copiar() const;
 
 };
 

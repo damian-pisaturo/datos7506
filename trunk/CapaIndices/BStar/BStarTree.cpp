@@ -149,7 +149,10 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 
 bool BStarTree::eliminar(Clave* clave) {
 	
-	NodoBStar* nodoTarget = buscarLugar(clave);
+	NodoBStar* nodoTarget = buscarClave(this->nodoRaiz, clave);
+	
+	if (!nodoTarget) return false;
+	
 	Clave* claveBuscada = nodoTarget->buscar(clave);
 	
 	char codigo;
@@ -349,7 +352,9 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
 
 Clave* BStarTree::buscar(Clave* clave) const {
 	
-	NodoBStar* nodo = this->buscarLugar(clave);
+	NodoBStar* nodo = this->buscarClave(this->nodoRaiz, clave);
+	
+	if (!nodo) return NULL;
 	
 	SetClaves::iterator iter = nodo->getClaves()->find(clave);
 	
@@ -609,6 +614,41 @@ NodoBStar* BStarTree::buscarPadre(NodoBStar* padre, NodoBStar* hijo) const {
 }
 
 
+NodoBStar* BStarTree::buscarClave(NodoBStar* nodo, Clave* clave) const {
+	
+	NodoBStar *nuevoNodo = NULL, *auxNodo = NULL;
+		
+	Clave* claveResultante = nodo->buscar(clave);
+	
+	if (claveResultante && (*claveResultante == *clave))
+		return nodo;
+	
+	if (claveResultante == NULL) {
+		
+		if (nodo->getHijoIzq() == 0) { //Nodo hoja
+			return NULL;
+		} else {
+			//nuevoNodo = new NodoBStar(archivo, nodo->getHijoIzq());
+			auxNodo = buscarClave(nuevoNodo, clave);
+			delete nuevoNodo;
+		}
+		
+	} else {
+		
+		if (claveResultante->getHijoDer() == 0) {//Nodo hoja
+			return NULL;
+		} else {
+			//nuevoNodo = new NodoBStar(archivo, claveResultante->getHijoDer());
+			auxNodo = buscarClave(nuevoNodo, clave);
+			delete nuevoNodo;
+		}
+		
+	}
+	
+	return auxNodo;
+}
+
+
 NodoBStar* BStarTree::buscarLugar(Clave* clave) const {
 	
 	if (!clave) return NULL;
@@ -701,7 +741,7 @@ VectorClaves* BStarTree::mergeSplitOverflow(NodoBStar* nodoTarget, NodoBStar* no
 
 //Por el momento se utiliza cuando se tiene una raiz con dos hijos y se mergea todo en una unica raiz.
 //En un futuro podria llegar a implementarse para nodos internos.
-void BStarTree::merge(NodoBStar* nodoHijoIzq, NodoBStar* nodoHijoDer, NodoBStar* nodoPadre) {
+void BStarTree::merge(NodoBStar* &nodoHijoIzq, NodoBStar* &nodoHijoDer, NodoBStar* nodoPadre) {
 	
 	nodoPadre->setHijoIzq(0);
 	nodoPadre->obtenerPrimeraClave()->setHijoDer(0);
@@ -712,13 +752,17 @@ void BStarTree::merge(NodoBStar* nodoHijoIzq, NodoBStar* nodoHijoDer, NodoBStar*
 	//TODO Escritura especial de la raíz
 
 	//TODO eliminar de disco a los nodos nodoHijoDer y nodoHijoIzq
+	
 	delete nodoHijoIzq;
+	nodoHijoIzq = NULL;
+	
 	delete nodoHijoDer;
+	nodoHijoDer = NULL;
 	
 }
 
 
-Clave* BStarTree::mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
+Clave* BStarTree::mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* &nodoHno2,
 									  Clave* clavePadre1, Clave* clavePadre2) {
 	
 	Clave* copiaClavePadre1 = clavePadre1->copiar();
@@ -741,7 +785,9 @@ Clave* BStarTree::mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1
 	//TODO Actualizar nodoTarget
 	//TODO Actualizar nodoHno1
 	//TODO Eliminar de disco el nodo nodoHno2
+	
 	delete nodoHno2;
+	nodoHno2 = NULL;
 	
 	return clavePromocionada;
 }

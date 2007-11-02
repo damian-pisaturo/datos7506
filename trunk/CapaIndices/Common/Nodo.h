@@ -86,22 +86,15 @@ class Nodo : public BloqueIndice
 		 * 	Codigo::NO_MODIFICADO - Insercion llevada a cabo correctamente.
 		 *  Codigo::OVERFLOW - Sobreflujo de claves.
 		 * */
-		virtual void insertarClave(Clave* &clave, char* codigo) = 0;
-				
-		/*siguiente()
-		 *	Devuelve un puntero al siguiente Nodo en la busqueda
-		 *  recursiva (hijo derecho o izquierdo) de la clave pasada 
-		 *  por parametro.
-		 */
-		virtual Nodo* siguiente(Clave* clave) = 0; 
+		virtual void insertarClave(Clave* &clave, char* codigo);
 		
 		/*eliminarClave()
 		 * Elimina la clave pasada en el nodo corriente.
 		 * Devuelve en codigo, dependiendo del resultado:
 		 * 	Codigo::NO_MODIFICADO - Eliminacion llevada a cabo correctamente.
 		 *  Codigo::UNDERFLOW - Subflujo de claves.
-		 */		
-		virtual void eliminarClave(Clave* clave, char* codigo) = 0;
+		 */
+		virtual void eliminarClave(Clave* clave, char* codigo);
 		
 		/*actualizarEspacioLibre()
 	     * Modifica el espacioLibre en el nodo sumando o restando
@@ -130,6 +123,10 @@ class Nodo : public BloqueIndice
 		
 		bool operator == (const Nodo &nodo) const {
 			return (this->getPosicionEnArchivo() == nodo.getPosicionEnArchivo());
+		}
+		
+		unsigned short getCantidadClaves() const {
+			return this->getClaves()->size();
 		}
 		
 		//Calcula el tamanio que ocupa el conjunto de claves dentro del nodo
@@ -199,6 +196,9 @@ class Nodo : public BloqueIndice
 		//Split que se comporta como el de un arbol B (parte en dos el nodo), donde minClaves es
 		//la cantidad (en bytes) que debe tener cada parte resultante.
 		SetClaves* splitB(unsigned short minClaves);
+		
+		//Método abstracto que devuelve una copia de este nodo
+		virtual Nodo* copiar() const = 0;
 		
 	///////////////////////////////////////////////////////////////////////////
 	// Getters/Setters
