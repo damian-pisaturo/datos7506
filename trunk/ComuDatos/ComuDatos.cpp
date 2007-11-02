@@ -132,14 +132,6 @@ string ComuDatos::parametro(unsigned int posParametro)
 	
 }
 
-unsigned char ComuDatos::parametro(unsigned int posParametro)
-{	
-	if (posParametro < this->parametrosProceso.size())
-		return this->parametrosProceso[posParametro];
-	else
-		return FIN_PARAMETROS;
-	
-}
 
 
 
