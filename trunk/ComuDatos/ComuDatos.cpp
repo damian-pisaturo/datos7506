@@ -1,14 +1,7 @@
 #include "ComuDatos.h"
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-#include <iostream>
 
 
 #define CORRIMIENTOARGUMENTO 3
-
 	 
 int contarArgv(char **argv)
 {
@@ -16,7 +9,6 @@ int contarArgv(char **argv)
 	for(contador = 0; argv[contador] != NULL; contador++);
 	return contador;
 }
-
 
 ComuDatos::ComuDatos()
 {
@@ -59,8 +51,8 @@ ComuDatos::ComuDatos(char** argv)
 //! parametros tiene que ser NULL o tener un puntero a NULL en el último lugar del vector.
 void ComuDatos::lanzar()
 {
-	char *argumentos[this->parametrosProceso.size()+CORRIMIENTOARGUMENTO+1];
-
+	char** argumentos = new char*[this->parametrosProceso.size()+CORRIMIENTOARGUMENTO+1];
+ 
 	if (this->nombreProceso.length() == 0)
 	{
 		cout << "Error en lanzar" << endl;
@@ -80,6 +72,7 @@ void ComuDatos::lanzar()
 	
 	argumentos[0] = (char*) malloc (sizeof(char)*(this->nombreProceso.length()+1));
 	strcpy(argumentos[0], this->nombreProceso.c_str());
+	
 	for(unsigned int i=3; i<(this->parametrosProceso.size()+CORRIMIENTOARGUMENTO); i++)
 	{
 		argumentos[i] = (char*) malloc (sizeof(char)*(this->parametrosProceso.at(i-CORRIMIENTOARGUMENTO).length()+1));
@@ -123,17 +116,101 @@ void ComuDatos::agregarParametro(string valorParametro, unsigned int posParametr
 	this->parametrosProceso[posParametro] = valorParametro;
 }
 
-string ComuDatos::parametro(unsigned int posParametro)
+char ComuDatos::parametro(unsigned int posParametro, string &parametro)
 {	
-	if (posParametro < this->parametrosProceso.size())
-		return this->parametrosProceso[posParametro];
-	else
-		return FIN_PARAMETROS;
+	char resultado = SIN_ERROR;
 	
+	if (posParametro < this->parametrosProceso.size())
+		parametro = this->parametrosProceso[posParametro];
+	else
+		resultado = FIN_PARAMETROS;	
+	
+	return resultado;
 }
 
+char ComuDatos::parametro(unsigned int posParametro, int* parametro)
+{	
+	char resultado = SIN_ERROR;
+	string aux;
+	
+	if (posParametro < this->parametrosProceso.size()){
+		aux = this->parametrosProceso[posParametro];
+		parametro = (int*)aux.c_str();
+	}else
+		resultado = FIN_PARAMETROS;	
+	
+	return resultado;
+}
 
+char ComuDatos::parametro(unsigned int posParametro, unsigned int* parametro)
+{	
+	char resultado = SIN_ERROR;
+	string aux;
+	
+	if (posParametro < this->parametrosProceso.size()){
+		aux = this->parametrosProceso[posParametro];
+		parametro = (unsigned int*)aux.c_str();
+	}else
+		resultado = FIN_PARAMETROS;	
+	
+	return resultado;
+}
 
+char ComuDatos::parametro(unsigned int posParametro, short* parametro)
+{
+	char resultado = SIN_ERROR;
+	string aux;
+	
+	if (posParametro < this->parametrosProceso.size()){
+		aux = this->parametrosProceso[posParametro];
+		parametro = (short*)aux.c_str();
+	}else
+		resultado =  FIN_PARAMETROS;
+	
+	return resultado;
+}
+
+char ComuDatos::parametro(unsigned int posParametro, unsigned short* parametro)
+{
+	char resultado = SIN_ERROR;
+	string aux;
+	
+	if (posParametro < this->parametrosProceso.size()){
+		aux = this->parametrosProceso[posParametro];
+		parametro = (unsigned short*)aux.c_str();
+	}else
+		resultado =  FIN_PARAMETROS;
+	
+	return resultado;
+}
+
+char ComuDatos::parametro(unsigned int posParametro, char* parametro)
+{
+	char resultado = SIN_ERROR;
+	string aux;
+	
+	if (posParametro < this->parametrosProceso.size()){
+		aux = this->parametrosProceso[posParametro];
+		parametro = (char*)aux.c_str();
+	}else
+		resultado = FIN_PARAMETROS;	
+	
+	return resultado;
+}
+
+char ComuDatos::parametro(unsigned int posParametro, unsigned char* parametro)
+{
+	char resultado = SIN_ERROR;
+	string aux;
+	
+	if (posParametro < this->parametrosProceso.size()){
+		aux = this->parametrosProceso[posParametro];
+		parametro = (unsigned char*)aux.c_str();
+	}else
+		resultado = FIN_PARAMETROS;	
+	
+	return resultado;
+}
 
 int ComuDatos::fd_leer()
 {
@@ -145,45 +222,136 @@ int ComuDatos::fd_escribir()
 	return this->fd_pipeP;
 }
  
-void ComuDatos::escribir(string enviarDato)
+char ComuDatos::escribir(string enviarDato)
 {
+	char resultado = SIN_ERROR;
+	
 	if (enviarDato.length()<(TOPE_ENVIAR_STRING-1))
 	{
 		write(this->fd_pipeP, enviarDato.c_str(), (enviarDato.length()+1)*sizeof(char));
-	}
+	}else resultado = EXCEDE_TOPE;
+	
+	return resultado;
 }
 
-void ComuDatos::escribir(int enviarDato)
+char ComuDatos::escribir(int enviarDato)
 {
+	char resultado = SIN_ERROR;
+	
 	if (sizeof(enviarDato)<(TOPE_ENVIAR_STRING-1))
 	{
 		write(this->fd_pipeP, &enviarDato, sizeof(int));
-	}
+	}else resultado = EXCEDE_TOPE;
+	
+	return resultado;
 }
 
-
-string ComuDatos::leerString(int cantidad)
+char ComuDatos::escribir(short enviarDato)
 {
-	if (cantidad <= TOPE_ENVIAR_STRING)
-	{		
+	char resultado = SIN_ERROR;
+	
+	if (sizeof(enviarDato)<(TOPE_ENVIAR_STRING-1))
+	{
+		write(this->fd_pipeP, &enviarDato, sizeof(short));
+	}else resultado = EXCEDE_TOPE;
+	
+	return resultado;
+}
+
+char ComuDatos::escribir(unsigned short enviarDato)
+{
+	char resultado = SIN_ERROR;
+	
+	if (sizeof(enviarDato)<(TOPE_ENVIAR_STRING-1))
+	{
+		write(this->fd_pipeP, &enviarDato, sizeof(unsigned short));
+	}else resultado = EXCEDE_TOPE;
+	
+	return resultado;
+}
+
+char ComuDatos::escribir(unsigned int enviarDato)
+{
+	char resultado = SIN_ERROR;
+	
+	if (sizeof(enviarDato)<(TOPE_ENVIAR_STRING-1))
+	{
+		write(this->fd_pipeP, &enviarDato, sizeof(unsigned int));
+	}else resultado = EXCEDE_TOPE;
+	
+	return resultado;
+}
+
+char ComuDatos::escribir(char enviarDato)
+{
+	char resultado = SIN_ERROR;
+	
+	if (sizeof(enviarDato)<(TOPE_ENVIAR_STRING-1))
+	{
+		write(this->fd_pipeP, &enviarDato, sizeof(char));
+	}else resultado = EXCEDE_TOPE;
+	
+	return resultado;
+}
+
+char ComuDatos::leer(unsigned int cantidad, string &s)
+{
+	char resultado = SIN_ERROR;
+	
+	if (cantidad <= TOPE_ENVIAR_STRING){		
 		char leo[TOPE_ENVIAR_STRING];
 		read(this->fd_pipeH, leo, cantidad);
 		leo[cantidad] = 0;
-		string retorno = leo;
-		return retorno;
-	}else return "";
+		s = leo;
+	}else resultado = EXCEDE_TOPE;
+	
+	return resultado;
 }
 
-int ComuDatos::leerInt()
+char ComuDatos::leer(int* i)
 {
-	if (4 <= TOPE_ENVIAR_STRING)
-	{		
-		int leo;
-		read(this->fd_pipeH, &leo, sizeof(int));
-		return leo;
-	}else return -123456; //OJO ACÁ! PENSAR OTRA COSA COMO ERROR DE LECTURA
+	int leo;
+	read(this->fd_pipeH, &leo, sizeof(int));
+	*i = leo;
+	
+	return SIN_ERROR;
 }
 
+char ComuDatos::leer(unsigned int* ui)
+{
+	unsigned int leo;
+	read(this->fd_pipeH, &leo, sizeof(unsigned int));
+	*ui = leo;
+	
+	return SIN_ERROR;
+}
+
+char ComuDatos::leer(short* s)
+{		
+	short leo;
+	read(this->fd_pipeH, &leo, sizeof(short));
+	*s = leo;
+	
+	return SIN_ERROR;	
+}
+
+char ComuDatos::leer(unsigned short* us)
+{
+	unsigned short leo;
+	read(this->fd_pipeH, &leo, sizeof(unsigned short));
+	*us = leo;
+	
+	return SIN_ERROR;
+}
+
+char ComuDatos::leer(char* c)
+{
+	char leo;
+	read(this->fd_pipeH, &leo, sizeof(char));
+	*c = leo;
+	
+	return SIN_ERROR;
+}
 
 void ComuDatos::liberarRecursos()
 {

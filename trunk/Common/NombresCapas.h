@@ -1,6 +1,6 @@
 #ifndef NOMBRESCAPAS_H_
 #define NOMBRESCAPAS_H_
-#include <iostream>
+#include <string>
 
 using namespace std;
 

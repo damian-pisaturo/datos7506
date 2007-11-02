@@ -46,12 +46,12 @@ class ArchivoIndice : public ArchivoBase
 			 * por el archivo de control de espacio libre. Devuelve
 			 * el numero de bloque en el que fue insertado finalmente.
 			 */
-			virtual short insertarBloque(void* bloque);
+			virtual short escribirBloque(const void* bloque);
 			
 			/*Modifica el nodo cuyo numero en el archivo es numNodo con el 
 			 * contenido de 'nodo'.
 			 */
-			virtual char modificarBloque(void* bloque, unsigned short numBloque);	
+			virtual char escribirBloque(const void* bloque, unsigned short numBloque);	
 			
 			/*Actualiza el archivo de control de espacio libre, modificando
 			 * la entrada booleana correspondiente a numNodo.

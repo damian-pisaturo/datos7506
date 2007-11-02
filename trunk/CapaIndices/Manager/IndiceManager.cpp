@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////
+b///////////////////////////////////////////////////////////////////////////
 //	Archivo   : ArchivoIndice.cpp
 //  Namespace : CapaFisica
 ////////////////////////////////////////////////////////////////////////////
@@ -153,14 +153,18 @@
 		
 		//Instancia del pipe
 		ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
-		pipe->agregarParametro(OperacionesCapas::FISICA_LEER_NODO, 0);
-		pipe->agregarParametro(this->getNombreArchivo(), 1);
-		pipe->agregarParametro(numBloque*(this->getTamanioBloque()), 2);
+		
+		//Parametros de inicializacion de la Capa Fisica para
+		//leer un nodo de disco.
+		pipe->agregarParametro(OperacionesCapas::FISICA_LEER_NODO, 0); //Codigo de operacion.
+		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo.
+		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
+		pipe->agregarParametro(numBloque, 3); //Numero de nodo a leer dentro del archivo
 	
 		//Se lanza el proceso de la capa fisica. 
 		//Se obtiene en buffer el contenido del Nodo solicitado.
 		pipe->lanzar();
-		buffer = pipe->leerString(this->getTamanioBloque());
+		pipe->leer(this->getTamanioBloque(), buffer);
 		
 		char * data = (char*) buffer.c_str();
 
@@ -198,7 +202,7 @@
 		//Setear la posicion del nodo en el archivo
 		nodoLeido->setPosicionEnArchivo(numBloque);	
 		
-		resultado = pipe->leerInt();		
+		pipe->leer(&resultado);		
 		pipe->liberarRecursos();
 		
 		return resultado;
@@ -221,8 +225,12 @@
 		
 		//Instancia del pipe
 		ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
-		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO, 0);
-		pipe->agregarParametro(this->getNombreArchivo(), 1);			
+		
+		//Parametros de inicializacion de la Capa Fisica para
+		//escribir un nodo en disco.
+		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO, 0); //Codigo de operacion.
+		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre del archivo.
+		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
 		
 		//Se lanza el proceso de la capa fisica. 
 		pipe->lanzar();
@@ -259,14 +267,15 @@
 		pipe->escribir(buffer);
 		
 		//Obtener nueva posicion del bloque en el archivo. 
-		unsigned short numBloque = pipe->leerInt();
+		unsigned short numBloque = 0;
+		pipe->leer(&numBloque);
 		 
 		//Setear en el nodo la posicion donde se grabo el nodo.
 		nodoNuevo->setPosicionEnArchivo(numBloque);		
 		
 		//Solicitar resultado de la comunicacion con la 
 		//capa fisica.
-		resultado = pipe->leerInt();
+		pipe->leer(&resultado);
 		
 		pipe->liberarRecursos();
 		delete[] data;
@@ -274,8 +283,8 @@
 		return resultado;
 	}
 	
-	int IndiceArbolManager::sobreEscribirBloque(BloqueIndice* bloqueModif)
-	{	
+	int IndiceArbolManager::escribirBloque(unsigned short numNodo, BloqueIndice* bloqueModif)
+	{
 		int resultado = 0;
 		Nodo* nodoNuevo = static_cast<Nodo*> (bloqueModif);
 		
@@ -291,9 +300,12 @@
 		
 		//Instancia del pipe
 		ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
-		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO, 0);
-		pipe->agregarParametro(this->getNombreArchivo(), 1);
-		pipe->agregarParametro(nodoNuevo->getPosicionEnArchivo(), 2);	
+		
+		//Parametros de inicializacion de la Capa Fisica.
+		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO, 0); //Codigo de operacion.
+		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre archivo.
+		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
+		pipe->agregarParametro(numNodo, 3); //Numero de nodo a sobre-escribir.
 		
 		//Se lanza el proceso de la capa fisica. 
 		pipe->lanzar();
@@ -331,7 +343,7 @@
 		
 		//Solicitar resultado de la comunicacion con la 
 		//capa fisica.
-		resultado = pipe->leerInt();
+		pipe->leer(&resultado);
 		
 		pipe->liberarRecursos();
 		delete[] data;
@@ -339,26 +351,25 @@
 		return resultado;
 	}
 
-	int IndiceArbolManager::eliminarNodo(unsigned int posicion)
+	int IndiceArbolManager::eliminarBloque(unsigned short posicion)
 	{
-		int resultado = 0;
+		char resultado = 0;
 		
 		//Instancia del pipe
 		ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
 		
 		//Parametros para inicializar el pipe.
-		//Buscar en el archivo de espacio libre y actualizar la
-		//entrada del bloque cuyo numero en el archivo de 
-		pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_NODO, 0);
-		pipe->agregarParametro(this->getNombreArchivo(), 1);
-		pipe->agregarParametro(posicion, 2);
+		pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_BLOQUE, 0); //Codigo de operacion.
+		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre del archivo.
+		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bloque en disco.
+		pipe->agregarParametro(posicion, 2); //Posicion del bloque a eliminar.
 		
 		//Se lanza el proceso de la capa fisica. 
 		pipe->lanzar();
 		
 		//Solicitar resultado de la comunicacion con la 
 		//capa fisica.
-		resultado = pipe->leerInt();
+		pipe->leer(&resultado);
 		
 		return resultado;
 	}
@@ -413,48 +424,205 @@
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////
-		int IndiceHashManager::leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido)
+		int IndiceHashManager::leerBloque(unsigned int numBucket, BloqueIndice* bloqueLeido)
 		{
-			//TODO Revisar implementacion.
-			
+			char resultado = 0;
 			Bucket* bucketLeido = static_cast<Bucket*> (bloqueLeido);
-						
-			char* bloqueArchivo;
-			//TODO: Levantar de archivo
+			string buffer;
 			
-			// Se obtiene el offset a espacio libre.
-			unsigned short espLibre;
-			memcpy(&espLibre,bloqueArchivo,Tamanios::TAMANIO_ESPACIO_LIBRE);
-			bucketLeido->setEspacioLibre(espLibre);
+			//Variable de interpretacion del bucket
+			HeaderBucket headerBucket;
 			
-			// Se obtiene la cantidad de registros.
-			unsigned short cantRegs;
-			memcpy(&cantRegs,&bloqueArchivo[Tamanios::TAMANIO_ESPACIO_LIBRE],Tamanios::TAMANIO_CANTIDAD_REGISTROS);
-			bucketLeido->setCantRegs(cantRegs);
+			//Instancia del pipe
+			ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
 			
-			// Se obtiene el tamanio de dispersión del bucket.
-			unsigned short tamDisp;
-			memcpy(&tamDisp,&bloqueArchivo[Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS],Tamanios::TAMANIO_DISPERSION);
-			bucketLeido->setTamDispersion(tamDisp);
+			//Parametros de ejecucion de la Capa Fisica para leer
+			//un bucket de disco.
+			pipe->agregarParametro(OperacionesCapas::FISICA_LEER_BUCKET, 0); //Codigo de operacion.
+			pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo.
+			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bucket.
+			pipe->agregarParametro(numBucket, 3); //Numero de bucket a leer.
+		
+			//Se lanza el proceso de la capa fisica. 
+			//Se obtiene en buffer el contenido del Bucket solicitado.
+			pipe->lanzar();
+			pipe->leer(this->getTamanioBloque(), buffer);
 			
-			//TODO Chequear valor de retorno del pipe
+			char * data = (char*) buffer.c_str();
 			
-			return 0;
-						
+			bucketLeido->setDatos(data);
+			memcpy(&headerBucket, data, sizeof(HeaderBucket));
+			
+			bucketLeido->setTamDispersion(headerBucket.tamDispersion);
+			bucketLeido->setEspacioLibre(headerBucket.espLibre);
+			bucketLeido->setCantRegs(headerBucket.cantRegs);
+			bucketLeido->setNroBloque(numBucket);
+		
+			pipe->leer(&resultado);		
+			pipe->liberarRecursos();
+			
+			return resultado;						
 		}
 		
 		int IndiceHashManager::escribirBloque(BloqueIndice* nuevoBloque)
 		{
-			// TODO: pedir a la capa fisica q escriba datos a partir de offset en el archivo.
-			return 0;
+			char resultado = 0;
+			Bucket* bucketLeido = static_cast<Bucket*> (nuevoBloque);
+			
+			//Variables de escritura del buffer
+			string buffer;
+			
+			//Instancia del pipe
+			ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+			
+			//Parametros de ejecucion de la Capa Fisica para escribir un
+			//bucket a disco.
+			pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_BUCKET, 0); //Codigo de operacion.
+			pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre del archivo
+			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bucket
+			
+			//Se lanza el proceso de la capa fisica. 
+			pipe->lanzar();
+			
+			//TODO Chequear que getDatos() devuelve el char* tal cual se va a meter a disco.
+			
+			char* data = bucketLeido->getDatos();
+			*(data + this->getTamanioBloque() + 1) = 0;
+			
+			//Grabar el buffer en el archivo.
+			buffer = data;
+			pipe->escribir(buffer);
+			
+			//Obtener nueva posicion del bucket en el archivo. 
+			unsigned short numBucket = 0;
+			pipe->leer(&numBucket);
+			 
+			//Setear en el bucket la posicion donde se grabo.
+			bucketLeido->setNroBloque(numBucket);
+			
+			pipe->liberarRecursos();
+			delete[] data;
+			
+			return resultado;
 		}
 		
-		int IndiceHashManager::sobreEscribirBloque(BloqueIndice* bloqueModif)
+		int IndiceHashManager::escribirBloque(unsigned short numBucket, BloqueIndice* bloqueModif)
 		{
-			//TODO: Sobre-escribir datos del bloque usando el ComuDatos
-			//para acceder a la capa fisica.
+			char resultado = 0;
+			Bucket* bucketLeido = static_cast<Bucket*> (bloqueModif);
 			
-			return 0;
+			//Variables de escritura del buffer
+			string buffer;
+			
+			//Instancia del pipe
+			ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+			
+			//Parametros de ejecucion de la Capa Fisica para modificar
+			//un bucket en disco.
+			pipe->agregarParametro(OperacionesCapas::FISICA_MODIFICAR_BUCKET, 0); //Codigo de operacion
+			pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
+			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bucket en disco.
+			pipe->agregarParametro(numBucket, 3); //Numero de bucket a sobre-escribir.
+			
+			//Se lanza el proceso de la capa fisica. 
+			pipe->lanzar();
+			
+			//TODO Chequear que getDatos() devuelve el char* tal cual se va a meter a disco.
+			
+			char* data = bucketLeido->getDatos();
+			*(data + this->getTamanioBloque() + 1) = 0;
+			
+			//Grabar el buffer en el archivo.
+			buffer = data;
+			pipe->escribir(buffer);
+	
+			//Setear en el bucket la posicion donde se grabo.
+			bucketLeido->setNroBloque(numBucket);
+			
+			//Solicitar resultado de la comunicacion con la 
+			//capa fisica.
+			pipe->leer(&resultado);
+			
+			pipe->liberarRecursos();
+			delete[] data;
+			
+			return resultado;
+		}
+		
+		int IndiceHashManager::eliminarBloque(unsigned short numBucket)
+		{
+			char resultado = 0;
+			
+			//Instancia del pipe
+			ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+			
+			//Parametros de inicializacion de la Capa Fisisca para
+			//eliminar un bucket de disco.
+			pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_BUCKET, 0); //Codigo de operacion
+			pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
+			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bucket en disco
+			pipe->agregarParametro(numBucket, 2); //Numero de bucket a eliminar dentro del archivo.
+			
+			//Se lanza el proceso de la capa fisica. 
+			pipe->lanzar();
+			
+			//Solicitar resultado de la comunicacion con la 
+			//capa fisica.
+			pipe->leer(&resultado);
+			
+			return resultado;
+		}
+		
+		void IndiceHashManager::leerTabla(unsigned int* tamanio, unsigned int* buckets)
+		{
+			string bucketsTabla;
+						
+			//Instancia del pipe
+			ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+			
+			//Parametros de inicializacion de la Capa Fisica para
+			//leer la tabla de dispersion 
+			pipe->agregarParametro(OperacionesCapas::FISICA_LEER_TABLA_HASH, 0); //Codigo de operacion
+			pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo.
+			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño de un bucket en disco.
+			
+			//Se lanza el proceso de la capa fisica. 
+			pipe->lanzar();
+			
+			//Obtener tamaño de la tabla
+			pipe->leer(tamanio);
+			
+			//Obtener numero de buckets de la tabla
+			pipe->leer(sizeof(unsigned int)*tamanio, bucketsTabla);
+			buckets = (unsigned int*) bucketsTabla.c_str();
+			
+			pipe->liberarRecursos();
+		}
+		
+		void IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* buckets)
+		{
+			string bucketsTabla;
+									
+			//Instancia del pipe
+			ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+			
+			//Parametros de inicializacion de la Capa Fisica para
+			//actualizar la tabla de dispersion 
+			pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_TABLA_HASH, 0); //Codigo de operacion
+			pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo.
+			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño de un bucket en disco.
+			
+			//Se lanza el proceso de la capa fisica. 
+			pipe->lanzar();
+			
+			//Enviar el tamaño de la tabla por el pipe.
+			pipe->escribir(tamanio);
+			
+			bucketsTabla = (char*) buckets;
+			//Enviar el contenido de la tabla por el pipe.
+			pipe->escribir(bucketsTabla.size(), bucketsTabla);
+			
+			pipe->liberarRecursos();			
 		}
 
 ///////////////////////////////////////////////////////////////////////////

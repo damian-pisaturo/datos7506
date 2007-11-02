@@ -4,11 +4,18 @@
  *	
  *	Librería para comunicaciones de procesos para Organización de Datos, cátedra Servetto.
  */
- #include <string>
- #include <vector>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#include <iostream>
+#include <vector>
  
- #define TOPE_ENVIAR_STRING 512
- #define FIN_PARAMETROS "\1"
+#define TOPE_ENVIAR_STRING 512
+#define FIN_PARAMETROS '\1'
+#define EXCEDE_TOPE '\3'
+#define SIN_ERROR '\2'
  
  using namespace std;
 
@@ -37,11 +44,17 @@
 	 
 	 	//! Agrega un parámetro de valor en la posición indicada. 
 	 	//! Si no se han cargado las posiciones anteriores se las asinga con valor vacío.
-	 		void agregarParametro(unsigned char valorParametro, unsigned int posParametro);
+	 	void agregarParametro(unsigned char valorParametro, unsigned int posParametro);
 	 	void agregarParametro(string valorParametro, unsigned int posParametro);
 	 
 	 	//! Obtiene el valor de la posición indicada 
-		string parametro(unsigned int posParametro);
+		char parametro(unsigned int posParametro, string &parametro);
+		char parametro(unsigned int posParametro, int* parametro);
+		char parametro(unsigned int posParametro, unsigned int* parametro);
+		char parametro(unsigned int posParametro, short* parametro);
+		char parametro(unsigned int posParametro, unsigned short* parametro);
+		char parametro(unsigned int posParametro, char* parametro);
+		char parametro(unsigned int posParametro, unsigned char* parametro);
 			 
 	 	//! Retorna el descriptor de archivo (tipo open, read, write) del canal de comunicación
 		//! para lectura.
@@ -51,14 +64,30 @@
 		int fd_escribir();
 	 
 	 	//! Escribe un string en el canal de comunicación de datos correspondiente.
-	 	void escribir(string enviarDato);
-	 	//! Escribe un INT en el canal de comunicación de datos correspondiente.
-	 	void escribir(int enviarDato);
+	 	char escribir(string enviarDato);
+	 	//! Escribe un int en el canal de comunicación de datos correspondiente.
+	 	char escribir(int enviarDato);
+	 	//! Escribe un unsigned int en el canal de comunicación de datos correspondiente.
+	 	char escribir(unsigned int enviarDato);
+	 	//! Escribe un short en el canal de comunicación de datos correspondiente.
+	 	char escribir(short enviarDato);
+		//! Escribe un short en el canal de comunicación de datos correspondiente.
+		char escribir(unsigned short enviarDato);
+	 	//! Escribe un char en el canal de comunicación de datos correspondiente.
+	 	char escribir(char enviarDato);
 	 			
 	 	//! Lee un string de longitud máxima "cantidad" del canal de comunicación de datos correspondiente.
-	 	string leerString(int cantidad);
+	 	char leer(unsigned int cantidad, string &s);
 	 	//! Lee un int del canal de comunicación de datos correspondiente.
-	 	int leerInt();
+	 	char leer(int* i);
+	 	//! Lee un unsigned short del canal de comunicación de datos correspondiente.
+	 	char leer(unsigned int* ui);
+	 	//! Lee un short del canal de comunicación de datos correspondiente.
+	 	char leer(short* s);
+	 	//! Lee un unsigned short del canal de comunicación de datos correspondiente.
+	 	char leer(unsigned short* us);
+	 	//! Lee un char del canal de comunicación de datos correspondiente.
+	 	char leer(char* c);
 	 		 			 
 		//! Libera los recursos reservados para las comunicaciones.
 	 	void liberarRecursos();
