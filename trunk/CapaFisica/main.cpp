@@ -22,54 +22,106 @@ using namespace std;
 
 int main(int argc, char**argv){
 
-	if (argc > 3){
+	if (argc > 2){
 		
 		ComuDatos pipe(argv);
 		
-		string nombreArchivo,nombreArchivoEL;
+		string nombreArchivo;
 		unsigned char accion;
 		
 		accion = pipe.parametro(0);
 		nombreArchivo = pipe.parametro(1);
-		nombreArchivoEL = pipe.parametro(2);
 			
 		switch(accion){
 		
-		case OperacionesCapas::FISICA_ESCRIBIR_NODO:{
+			case OperacionesCapas::FISICA_LEER_NODO:{
+								
+				
+								
+			}break;
+					
 			
-			int lugarDondeGuardar=false;
+			case OperacionesCapas::FISICA_ESCRIBIR_NODO:{
+				
+				
+				
+			}break;
 			
-			ArchivoBase miArchivoRegistros = new ArchivoRegistros(nombreArchivo);
-			
-			ArchivoBase miArchivoEL = new ArchivoRegistros(nombreArchivoEL,1);
-			
-			while(lugarDondeguardar != true)
-			miArchivoEL.leer(&lugarDondeGuardar);
+			case OperacionesCapas::FISICA_MODIFICAR_NODO:{
+				
 						
-			if (lugarDondeGuardar != false){
+					
+						
+			}break;
+					
 			
-				miArchivoRegistros.posicionarse(lugarDondeGuardar);
-				miarchivoRegistros.escribir((pipe.leerString(miArchivoRegistros.getTamanioRegistro())).c_str());
+			case OperacionesCapas::FISICA_ELIMINAR_NODO:{
+								
+								
+								
+			}break;
+					
+			case OperacionesCapas::FISICA_LEER_BUCKET:{
+											
+											
+											
+			}break;
+			
+			case OperacionesCapas::FISICA_ESCRIBIR_BUCKET:{
+											
+											
+											
+			}break;
+						
+			case OperacionesCapas::FISICA_MODIFICAR_BUCKET:{
+											
+											
+											
+			}break;
+						
+			case OperacionesCapas::FISICA_ELIMINAR_BUCKET:{
+											
+											
+											
+			}break;
+						
+						
+			case OperacionesCapas::FISICA_LEER_DATO:{
+											
+											
+											
+			}break;
+						
+						
+			case OperacionesCapas::FISICA_ESCRIBIR_DATO:{
+											
+											
+											
+			}break;
+						
+						
+			case OperacionesCapas::FISICA_MIDIFICAR_DATO:{
+											
+											
+											
+			}break;
+						
+						
+			case OperacionesCapas::FISICA_ELIMINAR_DATO:{
+											
+											
+											
+			}break;
+			
+			case default:{
 				
 			}
-			
-			
-			
-			
-		}break;
-		
-		case default:{
-			//NADA!!!
-		}
 		
 		}
 	}else{
-	//NO HAGO ALGO.
+	
 	}
 
-	
-
-	
-	
+		
 	
 }
