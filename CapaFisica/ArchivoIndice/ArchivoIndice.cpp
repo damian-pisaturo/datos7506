@@ -50,7 +50,7 @@
 	//	Metodos publicos
 	///////////////////////////////////////////////////////////////////////
 		
-		short ArchivoIndice::insertarBloque(void* bloque)
+		short ArchivoIndice::escribirBloque(const void* bloque)
 		{			
 			ArchivoELFijo* archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
 			
@@ -67,7 +67,7 @@
 			return bloqueLibre;
 		}
 
-		char ArchivoIndice::modificarBloque(void* bloque, unsigned short numBloque)
+		char ArchivoIndice::escribirBloque(const void* bloque, unsigned short numBloque)
 		{
 			char resultado = ResFisica::OK;
 			
@@ -141,7 +141,7 @@
 			 unsigned int cantElementos = obtenerCantElementos();			 
 			 
 			 if (cantElementos > 0){
-			 	tabla = new unsigned int[cantElementos];
+			 	tabla = new unsigned int[cantElementos + 1];
 			 
 				 for (unsigned int i = 0; i < cantElementos; i++){
 					 this->posicionarse(i + 1);

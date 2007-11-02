@@ -24,7 +24,6 @@
 
 #include <iostream>
 
-
 #include "../Common/Nodo.h"
 #include "../../Common/Tamanios.h"
 #include "../Common/SetClaves.h"
@@ -87,14 +86,18 @@ class IndiceManager
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y escribir
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
 		 */
-		//TODO: Nicoooo!!! NDevolver el numero de bloque donde lo escribis!!!
 		virtual int escribirBloque(BloqueIndice* bloqueNuevo) = 0;
 		
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y
 		 * sobre-escribir el bloque modificado en el disco
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
 		 */
-		virtual int sobreEscribirBloque(BloqueIndice* bloqueModif) = 0;
+		virtual int escribirBloque(unsigned short numBloque, BloqueIndice* bloqueModif) = 0;
+		
+		/*Agrega una referencia en el archivo de bloques liberados al
+		 * bloque que se quiere eliminar
+		 */
+		virtual int eliminarBloque(unsigned short posicion);
 		
 		/* Devuelve una instancia de un pipe de comunicacion entre
 		 * la clase actual y el ejecutable cuyo nombre es pasado
@@ -188,13 +191,15 @@ class IndiceArbolManager : public IndiceManager
 		
 		virtual int escribirBloque(BloqueIndice* bloqueNuevo);		
 		/*Permite modificar la informacion de un nodo -> inclusive la raiz si posicion = 0*/
-		virtual int sobreEscribirBloque(BloqueIndice* bloqueModif);
+		virtual int escribirBloque(unsigned short numBloque, BloqueIndice* bloqueModif);
 		
 		/*Agrega una referencia en el archivo de nodos liberados al
-		 * nodo que se quiere eliminar*/
-		virtual int eliminarNodo(unsigned int posicion);
+		 * nodo que se quiere eliminar
+		 */
+		virtual int eliminarBloque(unsigned short posicion);
 		
-		/*Exportar el archivo de Indice*/
+		/*Exportar el archivo de Indice
+		 */
 		void exportar(ostream &archivoTexto,int posicion);
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -216,6 +221,13 @@ class IndiceArbolManager : public IndiceManager
 class IndiceHashManager : public IndiceManager
 {	
 	public:
+		
+		typedef struct HeaderBucket{
+			unsigned short espLibre;
+			unsigned short cantRegs;
+			unsigned short tamDispersion;
+		};
+		
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
@@ -228,7 +240,7 @@ class IndiceHashManager : public IndiceManager
 		/*Lee el bucket cuya referencia en el archivo es numeroBloque y llena
 		 * una estructura Bucket con su informacion para ser consultada.
 		 */
-		virtual int leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido);
+		virtual int leerBloque(unsigned int numeroBucket, BloqueIndice* bloqueLeido);
 		
 		/* Busca el primer bucket libre en el archivo y escribe el nuevo bucket
 		 * en el. Si no encuentra ninguno, appendea al final del archivo.
@@ -237,7 +249,23 @@ class IndiceHashManager : public IndiceManager
 		
 		/* Sobreescribe el bloque actual con el bloqueNuevo.
 		 */
-		virtual int sobreEscribirBloque(BloqueIndice* bloqueNuevo);
+		virtual int escribirBloque(unsigned short numBucket, BloqueIndice* bloqueNuevo);
+		
+		virtual int eliminarBloque(unsigned short posicion);
+		
+		/* Sobre-escribe la tabla de dispersion con el tamaño y los
+		 * numeros de buckets pasados por parametro.
+		 */
+		void escribirTabla(unsigned int tamanio, unsigned int* buckets);
+		
+		/* Lee la tabla de dispersion de disco y coloca su tamaño
+		 * y numero de buckets en los parametros pasados.
+		 * 
+		 * Se devuelve en 'buckets' un puntero a una cantidad de 
+		 * numero de buckets igual a 'tamanio', reservando el 
+		 * espacio necesario.
+		 */
+		void leerTabla(unsigned int* tamanio, unsigned int* buckets);
 
 };
 
