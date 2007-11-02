@@ -37,12 +37,13 @@
 	 
 	 	//! Agrega un parámetro de valor en la posición indicada. 
 	 	//! Si no se han cargado las posiciones anteriores se las asinga con valor vacío.
-	 	void agregarParametro(int valorParametro, unsigned int posParametro);
+	 		void agregarParametro(unsigned char valorParametro, unsigned int posParametro);
 	 	void agregarParametro(string valorParametro, unsigned int posParametro);
 	 
 	 	//! Obtiene el valor de la posición indicada 
 		string parametro(unsigned int posParametro);
-	 
+		unsigned char parametro(unsigned int posParametro);
+			 
 	 	//! Retorna el descriptor de archivo (tipo open, read, write) del canal de comunicación
 		//! para lectura.
 		int fd_leer();

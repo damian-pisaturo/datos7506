@@ -103,7 +103,7 @@ void ComuDatos::ejecutable(string nombreEjecutable)
 		this->nombreProceso = nombreEjecutable;
 }
 
-void ComuDatos::agregarParametro(int valorParametro, unsigned int posParametro)
+void ComuDatos::agregarParametro(unsigned char valorParametro, unsigned int posParametro)
 {
 	char num[20];
 	sprintf(num,"%d",valorParametro);
@@ -131,6 +131,17 @@ string ComuDatos::parametro(unsigned int posParametro)
 		return FIN_PARAMETROS;
 	
 }
+
+unsigned char ComuDatos::parametro(unsigned int posParametro)
+{	
+	if (posParametro < this->parametrosProceso.size())
+		return this->parametrosProceso[posParametro];
+	else
+		return FIN_PARAMETROS;
+	
+}
+
+
 
 int ComuDatos::fd_leer()
 {
