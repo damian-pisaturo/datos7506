@@ -24,14 +24,14 @@
 
 #include <iostream>
 
-#include "../CapaIndices/Common/Nodo.h"
-//#include "../CapaIndices/Hash/Bucket.h"
-#include "../CapaIndices/Common/Tamanios.h"
-#include "../CapaIndices/Common/SetClaves.h"
-#include "../ComuDatos/ComuDatos.h"
-#include "../Common/NombresCapas.h"
-#include "../CapaIndices/Common/TipoDatos.h"
-#include "../Common/OperacionesCapas.h"
+#include "../Common/Nodo.h"
+#include "../Hash/Bucket.h"
+#include "../../Common/Tamanios.h"
+#include "../Common/SetClaves.h"
+#include "../../ComuDatos/ComuDatos.h"
+#include "../../Common/NombresCapas.h"
+#include "../Common/TipoDatos.h"
+#include "../../Common/OperacionesCapas.h"
 
 using namespace std;
 
@@ -252,7 +252,6 @@ class IndiceSecundarioManager: public IndiceArbolManager
 {	
 	private:		
 		unsigned int tamanioArray;
-		string nombreArchivoLista;
 		
 	public:
 	//////////////////////////////////////////////////////////////////////
@@ -316,13 +315,13 @@ class IndiceEnteroGriegoManager: public IndiceArbolManager
 // Nombre: ArchivoIndiceEnteroRomano 
 //		   (Implementa archivo de indices secundarios de clave entera).
 ///////////////////////////////////////////////////////////////////////////
-class IndiceInteroRomanoManager: public IndiceSecundarioManager
+class IndiceEnteroRomanoManager: public IndiceSecundarioManager
 {
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceInteroRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
+		IndiceEnteroRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
 
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -517,13 +516,13 @@ class IndiceFechaGriegoManager: public IndiceArbolManager
 // Nombre: IndiceFechaGriegoManager
 //		   (Implementa archivo de indices secundarios de clave de tipo fecha).
 //////////////////////////////////////////////////////////////////////////////
-class IndiceFechaGriegoManager: public IndiceSecundarioManager
+class IndiceFechaRomanoManager: public IndiceSecundarioManager
 {	
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceFechaGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
+		IndiceFechaRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
 	
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -597,7 +596,7 @@ class IndiceVariableRomanoManager: public IndiceSecundarioManager
 // Nombre: IndiceCompuestoGriegoManager 
 //		   (Implementa archivo de indices primarios de clave compuesta).
 ///////////////////////////////////////////////////////////////////////////
-typedef list<string*> ListaTipos;
+typedef list<int> ListaTipos;
 
 class IndiceCompuestoGriegoManager: public IndiceArbolManager
 {
