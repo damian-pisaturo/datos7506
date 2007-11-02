@@ -26,7 +26,7 @@
  * Este constructor recibe el número de bloque dentro del archivo, y el tamaño del 
  * bloque medido en bytes.
  */
-Bloque::Bloque(int num,int tam){
+Bloque::Bloque(unsigned int num,unsigned int tam){
 	numero = num;
 	tamanio = tam;
 	//contendrá offset a espacio libre, cantidad de registros, y datos.-

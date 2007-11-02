@@ -19,6 +19,7 @@
 //		- Rodriguez, Maria Laura.
 ///////////////////////////////////////////////////////////////////////////
 #include "IndiceManager.h"
+#include "../Hash/Bucket.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -416,7 +417,7 @@
 		{
 			//TODO Revisar implementacion.
 			
-			//Bucket* bucketLeido = static_cast<Bucket*> (bloqueLeido);
+			Bucket* bucketLeido = static_cast<Bucket*> (bloqueLeido);
 						
 			char* bloqueArchivo;
 			//TODO: Levantar de archivo
@@ -424,17 +425,17 @@
 			// Se obtiene el offset a espacio libre.
 			unsigned short espLibre;
 			memcpy(&espLibre,bloqueArchivo,Tamanios::TAMANIO_ESPACIO_LIBRE);
-			//bucketLeido->setEspLibre(espLibre);
+			bucketLeido->setEspacioLibre(espLibre);
 			
 			// Se obtiene la cantidad de registros.
 			unsigned short cantRegs;
 			memcpy(&cantRegs,&bloqueArchivo[Tamanios::TAMANIO_ESPACIO_LIBRE],Tamanios::TAMANIO_CANTIDAD_REGISTROS);
-			//bucketLeido->setCantRegs(cantRegs);
+			bucketLeido->setCantRegs(cantRegs);
 			
 			// Se obtiene el tamanio de dispersión del bucket.
 			unsigned short tamDisp;
 			memcpy(&tamDisp,&bloqueArchivo[Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS],Tamanios::TAMANIO_DISPERSION);
-			//bucketLeido->setTamDispersion(tamDisp);
+			bucketLeido->setTamDispersion(tamDisp);
 			
 			//TODO Chequear valor de retorno del pipe
 			

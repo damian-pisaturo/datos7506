@@ -26,7 +26,7 @@
  */
 // TODO: conseguir el num de bloque.
 
-Bucket::Bucket(unsigned int * numBucket, unsigned short tamDispersion,ArchivoIndice *indiceHash):
+Bucket::Bucket(unsigned int * numBucket, unsigned short tamDispersion,IndiceManager *indiceHash):
 Bloque(*numBucket,indiceHash->getTamanioBloque())
 {
 	this->tamDispersion = tamDispersion;
@@ -39,7 +39,8 @@ Bloque(*numBucket,indiceHash->getTamanioBloque())
 /**
  * Este constructor inicia un bloque preexistente levantandolo desde el archivo.
  */
-Bucket::Bucket(ArchivoIndice* indiceHash, unsigned int nroBucket):Bloque(nroBucket,indiceHash->getTamanioBloque())
+Bucket::Bucket(IndiceManager* indiceHash, unsigned int nroBucket):
+	Bloque(nroBucket,indiceHash->getTamanioBloque())
 {
 	indiceHash->leerBloque(nroBucket, this); 
 }
@@ -48,7 +49,8 @@ Bucket::Bucket(ArchivoIndice* indiceHash, unsigned int nroBucket):Bloque(nroBuck
  * Constructor utilizado para crear un bucket auxiliar y no acceder a disco 
  **/
 
-Bucket::Bucket(unsigned int nroBucket,unsigned short tamDispersion,unsigned int tamanioBloque):Bloque(nroBucket,tamanioBloque){
+Bucket::Bucket(unsigned int nroBucket,unsigned short tamDispersion,unsigned int tamanioBloque):
+	Bloque(nroBucket,tamanioBloque){
 	
 }
 

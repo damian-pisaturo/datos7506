@@ -21,7 +21,7 @@
 ///////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 ///////////////////////////////////////////////////////////////////////
-Hash::Hash(ArchivoIndiceHash *arch)
+Hash::Hash(IndiceHashManager *arch)
 {
 	archivo = arch;
 	//TODO:: Agregar nodo con tam de dsipersión a la lista de parámetros
@@ -63,7 +63,7 @@ int Hash::insertarRegistro(char* registro, char* clave)
 	// Se obtiene la longitud del registro independientemente de si es variable o fija.
 	unsigned short longReg = bucket->getTamanioRegistros(listaParam,registro);
 	
-	if (bucket->verificarEspacioDisponible(longReg,bucket->getEspacioLibre()))
+	if (bucket->verificarEspacioDisponible(longReg,bucket->getEspLibre()))
 	{
 		bucket->altaRegistro(listaParam,registro);
 		bucket->incrementarCantRegistros();
