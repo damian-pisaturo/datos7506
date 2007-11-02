@@ -68,8 +68,8 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor
 	///////////////////////////////////////////////////////////////////////
-	IndiceArbolManager::ArchivoIndiceArbol(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice):
-		ArchivoIndice(tamNodo, nombreArchivo, tipoIndice)
+	IndiceArbolManager::IndiceArbolManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice):
+		IndiceManager(tamNodo, nombreArchivo, tipoIndice)
 	{ 
 		//TODO Usar ComuDato para escribir la raiz vacia si el 
 		//archivo de indice esta vacio.
@@ -221,8 +221,7 @@
 		//Instancia del pipe
 		ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
 		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO, 0);
-		pipe->agregarParametro(this->getNombreArchivo(), 1);
-		pipe->agregarParametro(this->nombreArchivoEL, 2);			
+		pipe->agregarParametro(this->getNombreArchivo(), 1);			
 		
 		//Se lanza el proceso de la capa fisica. 
 		pipe->lanzar();
@@ -350,7 +349,7 @@
 		//Buscar en el archivo de espacio libre y actualizar la
 		//entrada del bloque cuyo numero en el archivo de 
 		pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_NODO, 0);
-		pipe->agregarParametro(this->nombreArchivoEL, 1);
+		pipe->agregarParametro(this->getNombreArchivo(), 1);
 		pipe->agregarParametro(posicion, 2);
 		
 		//Se lanza el proceso de la capa fisica. 
@@ -405,10 +404,8 @@
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		IndiceHashManager::IndiceHashManager(unsigned int tamBucket, string nombreArchivo):
-			ArchivoIndice(tamBucket, nombreArchivo, TipoIndices::HASH)
-		{
-			this->nombreArchivoTabla = nombreArchivo + ".tbl";
-		}
+			IndiceManager(tamBucket, nombreArchivo, TipoIndices::HASH)
+		{ }
 		
 		IndiceHashManager::~IndiceHashManager() { }
 	
@@ -471,10 +468,9 @@
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
 	IndiceSecundarioManager::IndiceSecundarioManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice):
-		ArchivoIndiceArbol(tamNodo, nombreArchivo, tipoIndice)
+		IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice)
 	{			 
 			this->tamanioArray = tamBloqueLista/sizeof(int); 
-			this->nombreArchivoLista = nombreArchivo + ".list";
 	}
 	
 	IndiceSecundarioManager::~IndiceSecundarioManager(){ }
@@ -704,7 +700,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-	IndiceEnteroGriegoManager::IndiceEnteroGriegoManager(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
+	IndiceEnteroGriegoManager::IndiceEnteroGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice):
 		IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice){ }
 	
 	//////////////////////////////////////////////////////////////////////
@@ -736,7 +732,7 @@
 			memcpy(&valor, buffer, sizeof(int));
 			buffer+=sizeof(int);
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
@@ -759,14 +755,14 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceInteroRomanoManager::IndiceInteroRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice):
+		IndiceEnteroRomanoManager::IndiceEnteroRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice):
 			IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
 		{ }
 	
 	//////////////////////////////////////////////////////////////////////
 	// Metodos privados
 	//////////////////////////////////////////////////////////////////////		
-		Clave* IndiceInteroRomanoManager::leerClaveHoja(char* &buffer)
+		Clave* IndiceEnteroRomanoManager::leerClaveHoja(char* &buffer)
 		{
 			int valor;
 			unsigned int refRegistro;
@@ -782,7 +778,7 @@
 			return new ClaveEntera(valor, refRegistro);	
 		}
 		
-		Clave* IndiceInteroRomanoManager::leerClaveNoHoja(char* &buffer)
+		Clave* IndiceEnteroRomanoManager::leerClaveNoHoja(char* &buffer)
 		{
 			int valor;
 			unsigned int refRegistro;		
@@ -792,7 +788,7 @@
 			memcpy(&valor, buffer, sizeof(int));
 			buffer += sizeof(int);
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
@@ -815,7 +811,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceBooleanGriegoManager::IndiceBooleanGriegoManager(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
+		IndiceBooleanGriegoManager::IndiceBooleanGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice):
 			IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice)
 		{ }
 		
@@ -848,7 +844,7 @@
 			memcpy(&valor, buffer, sizeof(bool));
 			buffer += sizeof(bool);
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
@@ -871,7 +867,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceCharGriegoManager::IndiceCharGriegoManager(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
+		IndiceCharGriegoManager::IndiceCharGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice):
 			IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice)
 		{ }
 		
@@ -904,7 +900,7 @@
 			memcpy(&valor, buffer, sizeof(char));
 			buffer += sizeof(char);
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
@@ -927,7 +923,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceCharRomanoManager::IndiceCharRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice):
+		IndiceCharRomanoManager::IndiceCharRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice):
 			IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
 		{ }
 		
@@ -960,7 +956,7 @@
 			memcpy(&valor, buffer, sizeof(char));
 			buffer += sizeof(char);
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
@@ -983,7 +979,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceShortGriegoManager::IndiceShortGriegoManager(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
+		IndiceShortGriegoManager::IndiceShortGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice):
 			IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice)
 		{ }
 				
@@ -1016,7 +1012,7 @@
 			memcpy(&valor, buffer, sizeof(short));
 			buffer += sizeof(short);
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
@@ -1039,7 +1035,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceShortRomanoManager::IndiceShortRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice):
+		IndiceShortRomanoManager::IndiceShortRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice):
 			IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
 		{ }
 		
@@ -1072,7 +1068,7 @@
 			memcpy(&valor, buffer, sizeof(short));
 			buffer += sizeof(short);
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
@@ -1095,7 +1091,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceRealRomanoManager::IndiceRealRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice):
+		IndiceRealRomanoManager::IndiceRealRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice):
 			IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
 		{ }
 						
@@ -1128,7 +1124,7 @@
 			memcpy(&valor, buffer, sizeof(float));
 			buffer += sizeof(float);
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
@@ -1151,7 +1147,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceFechaGriegoManager::IndiceFechaGriegoManager(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
+		IndiceFechaGriegoManager::IndiceFechaGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice):
 			IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice)
 		{ }
 						
@@ -1184,7 +1180,7 @@
 			memcpy(&valor, buffer, sizeof(ClaveFecha::TFECHA));
 			buffer += sizeof(ClaveFecha::TFECHA);
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
@@ -1207,7 +1203,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceFechaRomanoManager::IndiceFechaRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice):
+		IndiceFechaRomanoManager::IndiceFechaRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice):
 			IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
 		{ }
 								
@@ -1240,7 +1236,7 @@
 			memcpy(&valor, buffer, sizeof(ClaveFecha::TFECHA));
 			buffer += sizeof(ClaveFecha::TFECHA);
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
@@ -1265,7 +1261,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceVariableGriegoManager::IndiceVariableGriegoManager(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice):
+		IndiceVariableGriegoManager::IndiceVariableGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice):
 			IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice)
 		{ }
 						
@@ -1295,7 +1291,7 @@
 			memcpy(buffer, valor->c_str(), clave->getTamanioValor());
 			buffer += clave->getTamanioValor();
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.			
 				referencia = clave->getReferencia();
 				memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
@@ -1330,7 +1326,7 @@
 			valor = buffer;
 			buffer += valor.size() + 1;
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
@@ -1354,7 +1350,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceVariableRomanoManager::IndiceVariableRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, t_indice tipoIndice):
+		IndiceVariableRomanoManager::IndiceVariableRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice):
 			IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
 		{ }
 						
@@ -1383,7 +1379,7 @@
 			memcpy(buffer, valor->c_str(), clave->getTamanioValor());
 			buffer += clave->getTamanioValor();
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.			
 				referencia = clave->getReferencia();
 				memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
@@ -1416,7 +1412,7 @@
 			valor = buffer;
 			buffer += valor.size() + 1;
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
@@ -1439,7 +1435,7 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceCompuestoGriegoManager::IndiceCompuestoGriegoManager(unsigned int tamNodo, string nombreArchivo, t_indice tipoIndice, ListaTipos* listaTipos):
+		IndiceCompuestoGriegoManager::IndiceCompuestoGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice, ListaTipos* listaTipos):
 			IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice)
 		{
 			this->tipos = listaTipos;
@@ -1486,7 +1482,7 @@
 				buffer += claveAux->getTamanioValor();
 			}
 			
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.			
 				referencia = clave->getReferencia();
 				memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
@@ -1501,7 +1497,7 @@
 		Clave* IndiceCompuestoGriegoManager::leerClaveHoja(char* &buffer)
 		{
 			ListaClaves listaClaves;
-			string* tipo;
+			int tipo;
 			unsigned int refRegistro = 0, tamanio = 0;
 			void* valor = NULL;
 			
@@ -1511,7 +1507,7 @@
 					
 					tipo = (*iterTipos);
 					
-					if ((*tipo) == TipoDatos::TIPO_ENTERO){						
+					if (tipo == TipoDatos::TIPO_ENTERO){						
 						//Copia del valor de la clave
 						valor = new int;
 						tamanio = sizeof(int);
@@ -1519,39 +1515,39 @@
 						memcpy(valor, buffer, tamanio);
 						listaClaves.push_back(new ClaveEntera(*((int*)valor)));
 					
-					}else if ((*tipo) == TipoDatos::TIPO_BOOL){
+					}else if (tipo == TipoDatos::TIPO_BOOL){
 						valor = new bool;
 						tamanio = sizeof(bool);
 						
 						memcpy(valor, buffer, tamanio);
 						listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
-					}else if ((*tipo) == TipoDatos::TIPO_CHAR){
+					}else if (tipo == TipoDatos::TIPO_CHAR){
 						valor = new char;
 						tamanio = sizeof(char);
 						
 						memcpy(valor, buffer, tamanio);
 						listaClaves.push_back(new ClaveChar(*((char*)valor)));
 						
-					}else if ((*tipo) == TipoDatos::TIPO_SHORT){
+					}else if (tipo == TipoDatos::TIPO_SHORT){
 						valor = new short;
 						tamanio = sizeof(short);
 						
 						memcpy(valor, buffer, tamanio);
 						listaClaves.push_back(new ClaveShort(*((short*)valor)));
 						
-					}else if ((*tipo) == TipoDatos::TIPO_REAL){
+					}else if (tipo == TipoDatos::TIPO_FLOAT){
 						valor = new float;
 						tamanio = sizeof(float);
 						
 						memcpy(valor, buffer, tamanio);
 						listaClaves.push_back(new ClaveReal(*((float*)valor)));
-					}else if ((*tipo) == TipoDatos::TIPO_FECHA){
+					}else if (tipo == TipoDatos::TIPO_FECHA){
 						valor = new ClaveFecha::TFECHA;
 						tamanio = sizeof(ClaveFecha::TFECHA);
 						
 						memcpy(valor, buffer, tamanio);
 						listaClaves.push_back(new ClaveFecha((ClaveFecha::TFECHA*)valor));
-					}else if ((*tipo) == TipoDatos::TIPO_VARIABLE){
+					}else if (tipo == TipoDatos::TIPO_VARIABLE){
 						valor = new string;
 						valor = buffer;
 						tamanio = ((string*)valor)->size() + 1;
@@ -1559,7 +1555,6 @@
 						listaClaves.push_back(new ClaveVariable(*((string*)valor)));
 					}
 					
-					delete valor;
 					buffer += tamanio;
 				}
 	
@@ -1573,7 +1568,7 @@
 		Clave* IndiceCompuestoGriegoManager::leerClaveNoHoja(char* &buffer)
 		{
 			ListaClaves listaClaves;
-			string* tipo;
+			int tipo;
 			unsigned int refRegistro = 0, hijoDer = 0, tamanio = 0;
 			void* valor = NULL;
 			
@@ -1583,7 +1578,7 @@
 					
 				tipo = (*iterTipos);
 				
-				if (*tipo == TipoDatos::TIPO_ENTERO){						
+				if (tipo == TipoDatos::TIPO_ENTERO){						
 					//Copia del valor de la clave
 					valor = new int;
 					tamanio = sizeof(int);
@@ -1591,39 +1586,39 @@
 					memcpy(valor, buffer, tamanio);
 					listaClaves.push_back(new ClaveEntera(*((int*)valor)));
 				
-				}else if (*tipo == TipoDatos::TIPO_BOOL){
+				}else if (tipo == TipoDatos::TIPO_BOOL){
 					valor = new bool;
 					tamanio = sizeof(bool);
 					
 					memcpy(valor, buffer, tamanio);
 					listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
-				}else if (*tipo == TipoDatos::TIPO_CHAR){
+				}else if (tipo == TipoDatos::TIPO_CHAR){
 					valor = new char;
 					tamanio = sizeof(char);
 					
 					memcpy(valor, buffer, tamanio);
 					listaClaves.push_back(new ClaveChar(*((char*)valor)));
 					
-				}else if (*tipo == TipoDatos::TIPO_SHORT){
+				}else if (tipo == TipoDatos::TIPO_SHORT){
 					valor = new short;
 					tamanio = sizeof(short);
 					
 					memcpy(valor, buffer, tamanio);
 					listaClaves.push_back(new ClaveShort(*((short*)valor)));
 					
-				}else if (*tipo == TipoDatos::TIPO_REAL){
+				}else if (tipo == TipoDatos::TIPO_FLOAT){
 					valor = new float;
 					tamanio = sizeof(float);
 					
 					memcpy(valor, buffer, tamanio);
 					listaClaves.push_back(new ClaveReal(*((float*)valor)));
-				}else if (*tipo == TipoDatos::TIPO_FECHA){
+				}else if (tipo == TipoDatos::TIPO_FECHA){
 					valor = new ClaveFecha::TFECHA;
 					tamanio = sizeof(ClaveFecha::TFECHA);
 					
 					memcpy(valor, buffer, tamanio);
 					listaClaves.push_back(new ClaveFecha((ClaveFecha::TFECHA*)valor));
-				}else if (*tipo == TipoDatos::TIPO_VARIABLE){
+				}else if (tipo == TipoDatos::TIPO_VARIABLE){
 					valor = new string;
 					valor = buffer;
 					tamanio = ((string*)valor)->size() + 1;
@@ -1631,11 +1626,10 @@
 					listaClaves.push_back(new ClaveVariable(*((string*)valor)));
 				}
 					
-				delete valor;
 				buffer += tamanio;
 			}			
 	
-			if (this->getTipoIndice() == ARBOL_BS){
+			if (this->getTipoIndice() == TipoIndices::ARBOL_BS){
 				//Si el arbol es B*, copiar referencia al registro de datos.
 				memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 				buffer += Tamanios::TAMANIO_REFERENCIA;
