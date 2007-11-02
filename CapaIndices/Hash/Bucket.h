@@ -22,11 +22,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include "../Common/BloqueIndice.h"
-#include "../../CapaFisica/ArchivoIndice.h"
+#include "../Managers/IndiceManager.h"
 #include "../Bloque/Bloque.h"
 
-class ArchivoIndice;
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -34,19 +32,16 @@ class ArchivoIndice;
 // Nombre: Bucket (Permite el manejo de buckets en memoria)
 //////////////////////////////////////////////////////////////////////////
 
-class Bucket : public BloqueIndice , public Bloque 
+class Bucket : public Bloque , public BloqueIndice
 {
 private:
 //////////////////////////////////////////////////////////////////////
 // Atributos
 //////////////////////////////////////////////////////////////////////
-	// TODO Los datos estan en bloque.
-	//TODO El tamanio del bucket vendra en el ArchivoIndiceHash, ademas lo tiene la clase bloque.
-	// El num de bucket esta en el bloque.
 	unsigned short tamDispersion;
 	unsigned short cantRegs;
 	unsigned short espLibre;
-	//ArchivoIndiceHash *archivo;
+
 	
 ///////////////////////////////////////////////////////////////////////
 // Metodos privados
@@ -60,13 +55,13 @@ public:
 	/*
 	 * Crea un Bucket vacio
 	 **/
-	Bucket(unsigned int * numBucket,unsigned short tamDispersion, ArchivoIndice *indiceHash);
+	Bucket(unsigned int* numBucket, unsigned short tamDispersion, IndiceManager *indiceHash);
 	
 	/*
 	 * Crea un Bucket con los datos del bloque cuyo numBucket es la posición del mismo 
 	 * en el archivo.
 	 **/
-	Bucket(ArchivoIndice* indiceHash, unsigned int numBucket);
+	Bucket(IndiceManager* indiceHash, unsigned int numBucket);
 	
 	/*
 	 * 
