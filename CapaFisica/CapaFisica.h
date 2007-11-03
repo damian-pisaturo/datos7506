@@ -1,8 +1,8 @@
 #ifndef CAPAFISICA_H_
 #define CAPAFISICA_H_
 
-#include "ArchivoIndice.h"
-#include "ArchivoDatos.h"
+#include "ArchivoIndice/ArchivoIndice.h"
+#include "ArchivoDatos/ArchivoDatos.h"
 #include "../Common/ResFisica.h"
 #include "../Common/OperacionesCapas.h"
 #include "../ComuDatos/ComuDatos.h"
