@@ -19,6 +19,7 @@
 #ifndef TABLA_H_
 #define TABLA_H_
 #include <cstring>
+#include "Bucket.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -33,13 +34,14 @@ private:
 	//////////////////////////////////////////////////////////////////////
 	unsigned int tamanio;			// Contiene la cantidad de entradas de la tabla.
 	unsigned int * nroBucket;		// Contiene una lista de buckets.
+	IndiceHashManager * archivo;
 	
 public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 	Tabla();
-	Tabla(char* nombreArchivo);
+	Tabla(char* nombreArchivo, IndiceHashManager* archivo);
 	virtual ~Tabla();
 	
 	///////////////////////////////////////////////////////////////////////
@@ -51,7 +53,7 @@ public:
 	 * Pide a la capa física la creación de un archivo de datos con 1 solo bucket, 
 	 * y un archivo con la tabla.
 	 **/
-	void crear(char* nombreArchivo);
+	void crear(char* nombreArchivo, unsigned int tamanioBloque);
 	
 	/*
 	 * Este método reorganiza la tabla luego de una inserción que haya provocado un overflow.

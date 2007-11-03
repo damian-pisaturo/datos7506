@@ -21,20 +21,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 ///////////////////////////////////////////////////////////////////////
-/* 
- * Este constructor inicializa un bucket nuevo
- */
-// TODO: conseguir el num de bloque.
-
-Bucket::Bucket(unsigned int * numBucket, unsigned short tamDispersion,IndiceManager *indiceHash):
-Bloque(*numBucket,indiceHash->getTamanioBloque())
-{
-	this->tamDispersion = tamDispersion;
-	this->cantRegs      = 0;
-	//Los primeros 6 bytes se usan para guardar esplibre, cantRegs y tamDispersion.
-	this->setEspacioLibre(Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION); 
-	// TODO: llamar a lo q sea q implemente Nico para hacer un bucket nuevo. PALURDOOOOO de 6 patas!!!
-}
   
 /**
  * Este constructor inicia un bloque preexistente levantandolo desde el archivo.
@@ -46,12 +32,14 @@ Bucket::Bucket(IndiceManager* indiceHash, unsigned int nroBucket):
 }
 
 /*
- * Constructor utilizado para crear un bucket auxiliar y no acceder a disco 
+ * Constructor utilizado para crear un bucket nuevo en memoria y no acceder a disco 
  **/
-
-Bucket::Bucket(unsigned int nroBucket,unsigned short tamDispersion,unsigned int tamanioBloque):
+Bucket::Bucket(unsigned int nroBucket,unsigned short tamDisp,unsigned int tamanioBloque):
 	Bloque(nroBucket,tamanioBloque){
-	
+	tamDispersion = tamDisp;
+	cantRegs = 0;
+	//Los primeros 6 bytes se usan para guardar esplibre, cantRegs y tamDispersion.
+	this->setEspacioLibre(Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION);
 }
 
 Bucket::~Bucket()
@@ -106,6 +94,15 @@ void Bucket::eliminarBucket()
 	//TODO implementar!!! llamar a la funcion del palurdo q borra el bloque.
 }
 
+/*
+ * Actualiza la variable de espacio libre.
+ **/
+void Bucket::actualizarEspLibre()
+{
+	unsigned short espLibre;
+	memcpy(&espLibre,getDatos(),Tamanios::TAMANIO_ESPACIO_LIBRE);
+	setEspacioLibre(espLibre);
+}
 
 
 

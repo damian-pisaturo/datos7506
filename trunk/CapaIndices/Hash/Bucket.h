@@ -40,8 +40,6 @@ private:
 //////////////////////////////////////////////////////////////////////
 	unsigned short tamDispersion;
 	unsigned short cantRegs;
-	unsigned short espLibre;
-
 	
 ///////////////////////////////////////////////////////////////////////
 // Metodos privados
@@ -51,11 +49,6 @@ public:
 ///////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 ///////////////////////////////////////////////////////////////////////
-
-	/*
-	 * Crea un Bucket vacio
-	 **/
-	Bucket(unsigned int* numBucket, unsigned short tamDispersion, IndiceManager *indiceHash);
 	
 	/*
 	 * Crea un Bucket con los datos del bloque cuyo numBucket es la posición del mismo 
@@ -64,7 +57,7 @@ public:
 	Bucket(IndiceManager* indiceHash, unsigned int numBucket);
 	
 	/*
-	 * 
+	 * Constructor utilizado para crear un bucket en memoria y no acceder a disco
 	 **/
 	Bucket(unsigned int nroBucket,unsigned short tamDispersion,unsigned int tamanioBloque);
 	
@@ -85,6 +78,7 @@ public:
 	void incrementarCantRegistros();
 	void decrementarCantRegistros();
 	void eliminarBucket();
+	void actualizarEspLibre();
 	
 };
 
