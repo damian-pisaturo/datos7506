@@ -17,8 +17,8 @@
 #ifndef ARCHIVODATOS_H_
 #define ARCHIVODATOS_H_
 
-#include "ArchivoBase.h"
-#include "ArchivoEL.h"
+#include "../ArchivoBase/ArchivoBase.h"
+#include "../ArchivoEL/ArchivoEL.h"
 
 class TipoOrganizacion
 {

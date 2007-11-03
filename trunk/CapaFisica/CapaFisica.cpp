@@ -52,7 +52,7 @@
 			
 			//Lectura de un nodo de un arbol
 			case OperacionesCapas::FISICA_LEER_NODO:
-				
+			{
 				//Obtencion del numero de bloque
 				//dentro del archivo.
 				pipe.parametro(3, &numBloque);
@@ -69,12 +69,11 @@
 				pipe.escribir(buffer);
 				
 				delete[] datos;							
-				
-				break;
+			}break;
 			
 			//Escritura de un nodo de arbol
 			case OperacionesCapas::FISICA_ESCRIBIR_NODO:
-				
+			{
 				archivo = new ArchivoIndice(nombreArchivo, tamBloque);
 								
 				//Obtencion del bucket a escribir a traves del pipe.
@@ -86,11 +85,10 @@
 				
 				//Se envia la nueva posicion del nodo.
 				pipe.escribir(numBloque);												
-				
-				break;
+			}break;
 				
 			case OperacionesCapas::FISICA_MODIFICAR_NODO:
-				
+			{
 				pipe.parametro(3, &numBloque);
 				
 				archivo = new ArchivoIndice(nombreArchivo, tamBloque);
@@ -103,11 +101,10 @@
 				
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
-					
-				break;
+			}break;
 			
 			case OperacionesCapas::FISICA_ELIMINAR_NODO:			
-							
+			{
 				pipe.parametro(3, &numBloque);
 				
 				archivo = new ArchivoIndice(nombreArchivo, tamBloque);
@@ -117,14 +114,12 @@
 				
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
-				
-				break;
+			}break;
 						
 			case OperacionesCapas::FISICA_LEER_BUCKET:
-				
+			{				
 				//Obtencion del tamaño del bucket y su numero
-				//dentro del archivo.
-				
+				//dentro del archivo.				
 				pipe.parametro(3, &numBloque);
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				
@@ -142,11 +137,10 @@
 				pipe.escribir(resultado);
 				
 				delete[] datos;
-				
-				break;
+			}break;
 				
 			case OperacionesCapas::FISICA_ESCRIBIR_BUCKET:
-	
+			{
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				
 				//Obtencion del bucket a escribir a traves del pipe.
@@ -158,11 +152,10 @@
 				
 				//Se envia la nueva posicion del nodo.
 				pipe.escribir(numBloque);												
-				
-				break;
+			}break;
 							
 			case OperacionesCapas::FISICA_MODIFICAR_BUCKET:
-				
+			{
 				pipe.parametro(3, &numBloque);
 				
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
@@ -175,9 +168,10 @@
 				
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
-				break;
+			}break;
 							
 			case OperacionesCapas::FISICA_ELIMINAR_BUCKET:
+			{
 				pipe.parametro(3, &numBloque);
 				
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
@@ -188,12 +182,12 @@
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
 				
-				break;
+			}break;
 			
 			case OperacionesCapas::FISICA_LEER_TABLA_HASH:
-				
+			{	
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
-				unsigned int tamanio = 0;
+				unsigned short tamanio = 0;
 				unsigned int* buckets = NULL;
 				
 				((ArchivoIndiceHash*)archivo)->leerTabla(&tamanio, buckets);
@@ -201,14 +195,13 @@
 				buffer = (char*) buckets;
 				
 				pipe.escribir(tamanio);
-				pipe.escribir(buffer.size(), buffer);				
-				
-				break;
+				pipe.escribir(buffer);	
+			}break;
 				
 			case OperacionesCapas::FISICA_ESCRIBIR_TABLA_HASH:
-				
+			{
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
-				unsigned int tamanio = 0;
+				unsigned short tamanio = 0;
 				unsigned int* buckets = NULL;
 				
 				pipe.leer(&tamanio);
@@ -216,32 +209,33 @@
 				
 				buckets = (unsigned int*) buffer.c_str();
 				
-				(ArchivoIndiceHash*)archivo)->escribirTabla(&tamanio, buckets);
-				
-				break;
+				((ArchivoIndiceHash*)archivo)->escribirTabla(tamanio, buckets);
+			}break;
 			
 			case OperacionesCapas::FISICA_LEER_DATO:
+			{
 				
-			break;
+			}break;
 			
 			case OperacionesCapas::FISICA_ESCRIBIR_DATO:
-												
-			break;
+			{
+				
+			}break;
 							
 							
 			case OperacionesCapas::FISICA_MODIFICAR_DATO:
+			{								
 												
-												
-			break;
+			}break;
 				
 			case OperacionesCapas::FISICA_ELIMINAR_DATO:
+			{								
 												
-												
-			break;
+			}break;
 				
 			default:
-			
-			break;
+			{
+			}break;
 					
 			
 			
