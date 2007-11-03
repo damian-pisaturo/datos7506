@@ -250,8 +250,15 @@ void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
 		
 		// Se decide en cual de los 2 buckets se inserta el registro.
 		if (nroBucket == nuevoBucket->getNroBloque())
+		{
 			nuevoBucket->altaRegistro(listaParam,&datos[offsetReg]);
-		else bucketAux->altaRegistro(listaParam,&datos[offsetReg]);
+			nuevoBucket->incrementarCantRegistros();
+		}
+		else
+		{
+			bucketAux->altaRegistro(listaParam,&datos[offsetReg]);
+			bucketAux->incrementarCantRegistros();
+		}
 		
 		offsetReg += longReg;
 		
@@ -264,6 +271,8 @@ void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
 		if(tipo == TipoDatos::TIPO_VARIABLE)
 			offsetReg += Tamanios::TAMANIO_LONGITUD;
 	}
+	bucketAux->actualizarEspLibre();
+	nuevoBucket->actualizarEspLibre();
 	delete bucket;
 	bucket = bucketAux;
 }
