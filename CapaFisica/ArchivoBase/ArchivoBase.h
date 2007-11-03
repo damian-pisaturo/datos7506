@@ -16,8 +16,8 @@
 #ifndef ARCHIVOBASE_H_
 #define ARCHIVOBASE_H_
 
-#include "../Common/Tamanios.h"
-#include "../Common/ResFisica.h"
+#include "../../Common/Tamanios.h"
+#include "../../Common/ResFisica.h"
 
 #include <iostream>
 #include <fstream>

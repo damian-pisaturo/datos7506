@@ -16,14 +16,15 @@
 #ifndef ARCHIVOINDICEARBOL_H_
 #define ARCHIVOINDICEARBOL_H_
 
-#include "ArchivoBase.h"
-#include "ArchivoEL.h"
+#include "../ArchivoBase/ArchivoBase.h"
+#include "../ArchivoEL/ArchivoEL.h"
+#include "../../Common/ResFisica.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
 // Nombre: ArchivoIndice
-//			(Abstracta. Define el comportamiento de las clases de manejo
+//			(Define el comportamiento de las clases de manejo
 //			 de archivos de indices en disco).
 ///////////////////////////////////////////////////////////////////////////
 class ArchivoIndice : public ArchivoBase
@@ -78,6 +79,52 @@ class ArchivoIndice : public ArchivoBase
  * 
  * Musicalizador: DJ Hash
  **************************************************************************/ 
+
+
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoLista
+//			(Permite el manejo de archivos contenedores de listas de 
+//			claves primarias utilizadas por los indices secundarios).
+///////////////////////////////////////////////////////////////////////////
+
+class ArchivoLista : ArchivoIndice
+{
+	public:
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoLista(string nombreArchivo, unsigned short tamBloqueLista);
+		virtual ~ArchivoLista();
+		
+	///////////////////////////////////////////////////////////////////////
+	//	Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+		/*Añade una nueva lista en el primer bloque libre indicado
+		 * por el archivo de control de espacio libre. Devuelve
+		 * el numero de bloque en el que fue insertada finalmente.
+		 */
+		short escribirLista(const unsigned int cantClaves, const void* lista);
+		
+		/*Modifica la lista cuyo numero en el archivo es numBloque con el 
+		 * contenido de 'lista' conteniendo una cantidad cantClaves 
+		 * de claves primarias.
+		 */
+		char escribirLista(const unsigned int cantClaves, const void* lista, unsigned short numBloque);	
+		
+		/*Actualiza el archivo de control de espacio libre, modificando
+		 * la entrada booleana correspondiente a numBloque.
+		 */
+		char eliminarLista(unsigned short numBloque);
+		
+		/*Devuelve en 'lista' el bloque del archivo de indice cuya 
+		 * posicion es numBloque y en cantClaves la cantidad de claves
+		 * contenida en la lista.
+		 */
+		virtual char leerLista(unsigned int* cantClaves, void* lista, unsigned short numBloque);
+
+}; /*Fin clase ArchivoLista*/
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase

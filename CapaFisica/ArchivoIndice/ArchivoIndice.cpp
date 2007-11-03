@@ -14,13 +14,12 @@
 //		- Rodriguez, Maria Laura.
 ///////////////////////////////////////////////////////////////////////////
 #include "ArchivoIndice.h"
-#include "ArchivoEL.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
 // Nombre: ArchivoIndice
-//			(Abstracta. Define el comportamiento de las clases de manejo
+//			(Define el comportamiento de las clases de manejo
 //			 de archivos de indices en disco).
 ///////////////////////////////////////////////////////////////////////////
 
@@ -94,8 +93,83 @@
 				resultado = this->leer(bloque);
 			
 			return resultado;			
+		}	 
+
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoLista
+//			(Permite el manejo de archivos contenedores de listas de 
+//			claves primarias utilizadas por los indices secundarios).
+///////////////////////////////////////////////////////////////////////////
+
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoLista::ArchivoLista(string nombreArchivo, unsigned short tamBloqueLista):
+			ArchivoIndice(nombreArchivo + ".list", tamBloqueLista)
+		{ }
+		
+		ArchivoLista::~ArchivoLista()
+		{ }
+		
+	///////////////////////////////////////////////////////////////////////
+ 	//	Metodos publicos
+ 	///////////////////////////////////////////////////////////////////////
+		
+		short ArchivoLista::escribirLista(const unsigned int cantClaves, const void* lista)
+		{
+			short posicion = 0;
+			
+			char* datos = new char[this->getTamanioBloque()];
+			
+			*((unsigned int*)datos) = cantClaves;
+			memcpy(datos, lista, this->getTamanioBloque() - sizeof(unsigned int));
+		
+			posicion = this->escribirBloque(datos);
+			
+			delete[] datos;
+			
+			return posicion;
+		}				
+	
+		char ArchivoLista::escribirLista(const unsigned int cantClaves, const void* lista, unsigned short numBloque)
+		{
+			char resultado = ResFisica::OK;
+			
+			char* datos = new char[this->getTamanioBloque()];
+			
+			*((unsigned int*)datos) = cantClaves;
+			memcpy(datos, lista, this->getTamanioBloque() - sizeof(unsigned int));
+			
+			resultado = this->escribirBloque(datos, numBloque);
+			
+			delete[] datos;
+			
+			return resultado;
 		}
-		 
+				
+		char ArchivoLista::eliminarLista(unsigned short numBloque)
+		{
+			return this->eliminarBloque(numBloque);
+		}
+				
+		char ArchivoLista::leerLista(unsigned int* cantClaves, void* lista, unsigned short numBloque)
+		{
+			char resultado = ResFisica::OK;
+			char* datos = new char[this->getTamanioBloque() + 1];
+			 
+			resultado = this->leerBloque(datos, numBloque);
+			
+			if (resultado = ResFisica::OK){
+				cantClaves = ((unsigned int*)datos);
+				memcpy(lista, datos + sizeof(unsigned int), this->getTamanioBloque() - sizeof(unsigned int));			
+			}
+			
+			delete[] datos;
+			
+			return resultado;
+		}
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase

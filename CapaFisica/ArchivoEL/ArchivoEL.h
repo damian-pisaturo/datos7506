@@ -17,7 +17,7 @@
 #ifndef ARCHIVOEL_H_
 #define ARCHIVOEL_H_
 
-#include "ArchivoBase.h"
+#include "../ArchivoBase/ArchivoBase.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
