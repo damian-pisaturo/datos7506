@@ -78,10 +78,6 @@ unsigned short Bucket::getCantRegs()
 	return cantRegs;
 }
 
-char *Bucket::getClavePrimaria(const list <nodoLista>& listaParam, char* registro){
-	return NULL;
-}
-
 void Bucket::incrementarCantRegistros()
 {
 	cantRegs++;
@@ -90,11 +86,6 @@ void Bucket::incrementarCantRegistros()
 void Bucket::decrementarCantRegistros()
 {
 	cantRegs--;
-}
-
-void Bucket::eliminarBucket()
-{
-	//TODO implementar!!! llamar a la funcion del palurdo q borra el bloque.
 }
 
 /*

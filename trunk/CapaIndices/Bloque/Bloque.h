@@ -13,6 +13,7 @@
 #include "../../Common/Tamanios.h"
 #include "../Common/TipoDatos.h"
 #include "../RegisterInfo/RegisterInfo.h"
+#include "../Common/Clave.h"
 
 using namespace std;
 
@@ -94,6 +95,11 @@ public:
 	unsigned short getTamanioRegistros(const list<nodoLista>& listaParam,char *registro);
 	
 	/*
+	 * Devuelve la clave primaria de "registro".
+	 **/
+	char * getClavePrimaria(const list <nodoLista>& listaParam, char* registro);
+	
+	/*
 	 * Devuelve el tamaño del bloque.
 	 **/
 	unsigned int getTamanioBloque();
@@ -111,7 +117,7 @@ public:
 	/*
 	 * Asigna el contenido al bloque.
 	 **/
-	void setDatos(char* d);
+	void setDatos(char* data);
 	
 	/*
 	 * Devuelve el némero del bloque.
