@@ -26,12 +26,13 @@
 ///////////////////////////////////////////////////////////////////////////
 
 	int main(int argc, char**argv)
-	{
+	{	
+		char resultado = ResFisica::OK;
+		
 		if (argc > 3){
 			
 			ArchivoBase* archivo = NULL;
-			char* datos = NULL;
-			char resultado = ResFisica::OK;
+			char* datos = NULL;			
 			
 			ComuDatos pipe(argv);
 			
@@ -245,9 +246,9 @@
 			
 			
 			}
-		}else{
+		}else resultado = ResFisica::CANT_ARGUMENTOS_INVALIDA;
 		
-		}
+		return resultado;		
 	}
 	
 			
