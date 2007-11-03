@@ -39,7 +39,8 @@ VectorConjuntos* NodoBStar::split(){
 Nodo* NodoBStar::copiar() const {
 	
 	NodoBStar* nodoCopia = new NodoBStar(this->getHijoIzq(), this->getNivel(), this->getTamanio());
-	SetClaves* setClavesCopia = new SetClaves(*(this->getClaves()));
+	SetClaves* setClavesCopia = new SetClaves();
+	*setClavesCopia = *(this->getClaves());
 	nodoCopia->setClaves(setClavesCopia);
 	nodoCopia->setPosicionEnArchivo(this->getPosicionEnArchivo());
 	return nodoCopia;

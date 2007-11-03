@@ -47,7 +47,9 @@ class TipoIndices
 	public:
 		static const unsigned char ARBOL_BS = 0;
 		static const unsigned char ARBOL_BP = 1;
-		static const unsigned char HASH     = 2;	
+		static const unsigned char HASH     = 2;
+		static const unsigned char GRIEGO	= 3;
+		static const unsigned char ROMANO	= 4;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -81,7 +83,7 @@ class IndiceManager
 		 * dependiendo del tipo de bloque (nodo arbol B+, nodo B*, bucket de hash).
 		 * Utiliza ComuDatos para comunicarse con la Capa Fisica.
 		 */
-		virtual int leerBloque(int numeroBloque, BloqueIndice* bloqueLeido) = 0;
+		virtual int leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido) = 0;
 
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y escribir
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
@@ -187,7 +189,7 @@ class IndiceArbolManager : public IndiceManager
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////////	
 		
-		virtual int leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido) = 0;
+		virtual int leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido);
 		
 		virtual int escribirBloque(BloqueIndice* bloqueNuevo);		
 		/*Permite modificar la informacion de un nodo -> inclusive la raiz si posicion = 0*/
@@ -367,6 +369,7 @@ class IndiceEnteroRomanoManager: public IndiceSecundarioManager
 // Nombre: ArchivoIndiceBooleanGriego 
 //		   (Implementa archivo de indices primarios de clave booleana).
 ///////////////////////////////////////////////////////////////////////////
+//TODO Cambiar IndiceBooleanGriegoManager por IndiceBooleanRomanoManager
 class IndiceBooleanGriegoManager: public IndiceArbolManager
 {	
 	private:
@@ -589,7 +592,7 @@ class IndiceVariableGriegoManager: public IndiceArbolManager
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);
 	
-	};
+};
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -652,5 +655,7 @@ class IndiceCompuestoGriegoManager: public IndiceArbolManager
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);
 };
+
+//TODO Implementar IndiceCompuestoRomanoManager
 
 #endif /*INDICEMANAGER_H_*/

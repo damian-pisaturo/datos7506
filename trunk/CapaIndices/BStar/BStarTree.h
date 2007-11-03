@@ -22,6 +22,8 @@ class BStarTree {
 		//y devuelve true.
 		bool modificar(Clave* claveVieja, Clave* claveNueva);
 		
+		bool vacio() const { return (this->nodoRaiz == NULL); }
+		
 		
 	private:
 		//Atributos

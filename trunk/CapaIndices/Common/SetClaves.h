@@ -50,6 +50,9 @@ class SetClaves : public set<Clave*, Comparador> {
 		//y con dos claves padre.
 		void merge(SetClaves* set1, SetClaves* set2, Clave* c1, Clave* c2);
 		
+		//Sobrecarga del operador = para que al copiar el conjunto también copia las claves
+		SetClaves& operator = (const SetClaves& setClaves);
+		
 };
 
 #endif /*SETCLAVES_H_*/

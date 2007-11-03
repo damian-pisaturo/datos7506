@@ -1,0 +1,24 @@
+#ifndef INDICEMANAGERFACTORY_H_
+#define INDICEMANAGERFACTORY_H_
+
+#include "../Manager/IndiceManager.h"
+#include "TipoDatos.h"
+
+class IndiceManagerFactory {
+	private:
+		IndiceManagerFactory() {}
+	
+		static IndiceManagerFactory instance;
+	
+	public:
+		virtual ~IndiceManagerFactory() {}
+	
+		static IndiceManagerFactory& getInstance() { return instance; }
+	
+		IndiceManager* getIndiceManager(unsigned char tipoIndice, unsigned short tamBloqueLista,
+										int tipoDato, ListaTipos* listaTipos,
+										unsigned char tipoEstructura, unsigned short tamNodo,
+										const string& nombreArchivo) const;
+};
+
+#endif /*INDICEMANAGERFACTORY_H_*/

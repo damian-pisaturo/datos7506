@@ -593,7 +593,7 @@
 			pipe->leer(tamanio);
 			
 			//Obtener numero de buckets de la tabla
-			pipe->leer(sizeof(unsigned int)*tamanio, bucketsTabla);
+			pipe->leer(sizeof(unsigned int)*(*tamanio), bucketsTabla);
 			buckets = (unsigned int*) bucketsTabla.c_str();
 			
 			pipe->liberarRecursos();
