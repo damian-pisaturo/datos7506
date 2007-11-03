@@ -68,6 +68,9 @@ int Hash::insertarRegistro(char* registro, char* clave)
 	// Se obtiene la longitud del registro independientemente de si es variable o fija.
 	unsigned short longReg = bucket->getTamanioRegistros(listaParam,registro);
 	
+	// si el registro es variable se agrega a su longitud los bytes que contienen la misma.
+	if (esRegistroVariable())
+		longReg += Tamanios::TAMANIO_LONGITUD;
 	if (bucket->verificarEspacioDisponible(longReg,bucket->getEspacioLibre()))
 	{
 		// Da de alta el registro en el bloque y persiste en disco.
@@ -239,7 +242,7 @@ void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
 	// Se recorren los registros reubicándolos.
 	for(int i = 0; i< bucket->getCantRegs(); i++)
 	{
-		// Obtengo el tamaño del registro.
+		// Obtengo el tamaño del registro.	
 		longReg = bucket->getTamanioRegistros(listaParam,&datos[offsetReg]);
 		
 		// Obtengo la clave primaria.
@@ -293,3 +296,15 @@ void Hash::dividirDispersion(unsigned int nroBucket)
 	delete bucket;
 }
 
+/* Si el indice de hash está trabajando con registros de tipo variable retorna true;
+ * de lo contrario retorna false.
+ **/ 
+bool Hash::esRegistroVariable()
+{
+	list<nodoLista>::const_iterator it;
+	it = listaParam.begin();
+	
+	if (it->tipo == TipoDatos::TIPO_VARIABLE)
+		return true;
+	return false;
+}

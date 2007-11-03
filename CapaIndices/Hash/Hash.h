@@ -63,7 +63,7 @@ class Hash
 		 * Si el registro es variable "registro" contendrá su longitud en los 
 		 * primeros bytes.
 		 **/
-		int insertarRegistro(char* registro,char* clave);
+		int insertarRegistro(char *registro,char *clave);
 		
 		/* Este método se utiliza para hacer una operación de baja en el archivo.
 		 * Si el registro se puede eliminar devuelve OK, si no existe el registro
@@ -71,7 +71,7 @@ class Hash
 		 * En caso de que el bucket quede vacío, se considera la posibilidad de 
 		 * disminuir el tamaño de la tabla de hash.
 		 **/
-		int eliminarRegistro(char* clave);
+		int eliminarRegistro(char *clave);
 	
 	private:
 	///////////////////////////////////////////////////////////////////////
@@ -81,24 +81,27 @@ class Hash
 		/*
 		 * Este método aplica una función de dispersión a la clave.
 		 **/
-		int aplicarHash(char* clave);
+		int aplicarHash(char *clave);
 		
 		/*
 		 * Método utilizado internamente cuando se aplica la función de dispersión a una clave.
 		 **/
-		int hashInterno(char* clave);
+		int hashInterno(char *clave);
 		
 		/*
 		 * Este método se encarga de redistribuir los registros contenidos en bucket 
 		 * entre este mismo y bucketNuevo.
 		 **/
-		void redistribuirElementos(Bucket * bucket, Bucket * bucketNuevo);
+		void redistribuirElementos(Bucket *bucket, Bucket *bucketNuevo);
 		
 		/*
 		 * Este método se engarga de dividir el tamaño de dispersión del bucket nroBucket
 		 * y actualizarlo en el archivo.
 		 **/
 		void dividirDispersion(unsigned int nroBucket);
+		
+		
+		bool esRegistroVariable();
 
 };
 
