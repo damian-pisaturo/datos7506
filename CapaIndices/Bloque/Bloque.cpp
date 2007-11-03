@@ -30,6 +30,10 @@ Bloque::Bloque(unsigned int numeroBloque,unsigned int tamanioBloque){
 	numero = numeroBloque;
 	tamanio = tamanioBloque;
 	datos = new char[tamanio];
+	unsigned short espLibre = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+	unsigned short cantRegs = 0;
+	memcpy(datos,&espLibre,Tamanios::TAMANIO_ESPACIO_LIBRE);
+	memcpy(&datos[Tamanios::TAMANIO_ESPACIO_LIBRE],&cantRegs,Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 }
 
 Bloque::~Bloque(){
@@ -87,7 +91,7 @@ bool Bloque::buscarRegistro(const list<nodoLista>& listaParam, void *clavePrimar
 			// Se obtiene la longitud del registro.
 			// En este caso la longitud del registro fijo viene dada en el primer nodo de la lista
 			// en pk.
-			memcpy(&longRegistro,&regAtribute.pk[0],Tamanios::TAMANIO_LONGITUD);
+			longRegistro = ((unsigned short)atoi(regAtribute.pk.c_str()));
 		
 		// Se obtiene el registro (sin incluir la longitud del mismo)
 		registro = getRegistro(longRegistro,offsetToReg + bytesLong);
@@ -307,17 +311,19 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 		
 		// Se obtiene la longitud del registro.
 		longReg = getTamanioRegistros(listaParam,&datos[offsetToReg]);
-		registro = new char[longReg];
 		
+		registro = new char[longReg];
+
+		cout << offsetToReg << endl;
 		if (tipo == TipoDatos::TIPO_VARIABLE){
 			// Se omite la longitud del registro.
 			offsetToReg += Tamanios::TAMANIO_LONGITUD;
 			bytesLongitud = Tamanios::TAMANIO_LONGITUD;
 		}
-	
+		
 		// Se obtiene el registro.
 		registro = getRegistro(longReg,offsetToReg);
-	
+		
 		//Itero la lista de atributos del registro
 		for(++it ; ((it != listaParam.end()) && (!checkPk)); ++it){
 		   regAtribute = *it;
@@ -395,7 +401,6 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 			   offsetToProxCampo += sizeof(char);
 		   }
 		   else if(tipo == TipoDatos::TIPO_FECHA){
-
 			   if (pk == "true"){
 				   checkPk = true;
 				   ClaveFecha::TFECHA fecha;
@@ -606,7 +611,7 @@ unsigned short Bloque::getTamanioRegistros(const list<nodoLista>& listaParam,cha
 		memcpy(&longReg,registro,Tamanios::TAMANIO_LONGITUD);
 	else 
 		// Se obtiene la longitud del registro fijo.
-		memcpy(&longReg,&regAtribute.pk[0],Tamanios::TAMANIO_LONGITUD);
+		longReg = ((unsigned short)atoi(regAtribute.pk.c_str()));
 	
 	return longReg;
 }
