@@ -74,7 +74,7 @@ class BPlusTree
 		//Deja en nodoActual el primer nodo del set secuencial
 		void primero();
 		
-		Clave* siguiente();
+		bool vacio() const { return (this->nodoRaiz == NULL); }
 		
 	private:
 		//////////////////////////////////////////////////////////////////////
@@ -100,9 +100,11 @@ class BPlusTree
 	    //de modificar nada en el nodo padre, hay que hacerlo desde afuera.
 	    void merge(NodoBPlus* nodoIzq, NodoBPlus* &nodoDer, Clave* separador);
 	    
-	    void pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre, NodoBPlus* nodoHnoDer);
+	    void pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
+	    							  NodoBPlus* nodoHnoDer);
 	    
-	    void pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre, NodoBPlus* nodoHnoIzq);
+	    void pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
+	    							NodoBPlus* nodoHnoIzq);
 	    
 	  	
 }; //Fin clase BPlusTree.

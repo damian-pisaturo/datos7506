@@ -54,6 +54,8 @@ NodoBPlus* BPlusTree::getRaiz() const
 
 void BPlusTree::primero()
 {
+	if (this->vacio()) return;
+	
 	/*El nodo actual termina siendo el primer nodo hoja del arbol B+
 	(para recorridos)*/	
 	this->nodoActual = this->nodoRaiz;
@@ -70,17 +72,30 @@ void BPlusTree::primero()
 
 void BPlusTree::insertar(Clave* clave)
 {
-	//Se busca el nodo hoja donde se debe insertar la clave
-	NodoBPlus* nodoDestino = buscarLugar(clave);
-	char codigo;
+	if (!clave) return;
 	
-	nodoDestino->insertarClave(clave, &codigo);
-	
-	//La clave queda insertada independientemente de si hay OVERFLOW o no.
-	
-	insertarInterno(nodoDestino, &codigo);
-	
-	delete nodoDestino;
+	if (this->vacio()) {
+		
+		this->nodoRaiz = new NodoBPlus(0, 0, clave, this->tamanioNodo);
+		
+		//TODO Escribir la raíz en disco
+		
+	} else {
+		
+		//Se busca el nodo hoja donde se debe insertar la clave
+		NodoBPlus* nodoDestino = buscarLugar(clave);
+		
+		char codigo;
+		
+		nodoDestino->insertarClave(clave, &codigo);
+		
+		//La clave queda insertada independientemente de si hay OVERFLOW o no.
+		
+		insertarInterno(nodoDestino, &codigo);
+		
+		delete nodoDestino;
+		
+	}
 }
 
 
@@ -127,6 +142,8 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 
 bool BPlusTree::eliminar(Clave* clave) {
 	
+	if ( (!clave) || (this->vacio()) ) return false;
+	
 	NodoBPlus* nodoTarget = buscarLugar(clave);
 	Clave* claveBuscada = nodoTarget->buscar(clave);
 	
@@ -163,8 +180,14 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 		
 		if (!nodoPadre) {//nodoTarget es el nodo raíz, no se chequea underflow.
 			*codigo = Codigo::MODIFICADO;
-			//TODO Escritura de la raíz
-		} else{
+			if (nodoTarget->getCantidadClaves() == 0) {
+				//TODO Se "elimina" la raíz de disco.
+				//La memoria utilizada por el nodo se libera al final del método eliminar
+				this->nodoRaiz = NULL;
+			} else {
+				//TODO Escritura de la raíz
+			}
+		} else {
 		
 			//Se buscan los hermanos derecho e izquierdo de 'nodoTarget'
 			
@@ -214,6 +237,7 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 			//Se intenta hacer una redistribución de claves con el hermano derecho de 'nodoTarget'.
 			//Si esto no es posible, se intenta hacer una redistribución con el hermano izquierdo.
 			bool pudoRedistribuir = false;
+			//TODO Implementar un método similar a puedePasarClaveHaciaXXX para las hojas del B+
 			if (nodoHnoDer) {
 				if ( pudoRedistribuir = nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre))
 					this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer);
@@ -229,33 +253,24 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 			if (!pudoRedistribuir) { //Se realiza la concatenación de 'nodoTarget' con un nodo hermano. Si es un nodo
 									//interno, también se concatena con un separador del padre.
 				
-				Clave* clavePromocionada = NULL;
-				
 				if ( (*nodoPadre == *(this->nodoRaiz)) && (nodoPadre->getCantidadClaves() == 1) ) {
 					if (nodoHnoDer) this->merge(nodoTarget, nodoHnoDer, nodoPadre->obtenerPrimeraClave());
 					else this->merge(nodoTarget, nodoHnoIzq, nodoPadre->obtenerPrimeraClave());
 					this->nodoRaiz = (NodoBPlus*)nodoTarget->copiar();
 					//TODO Reemplazar la raíz vieja por la nueva
 				} else {
-					/*
-					if ((nodoHnoIzq) && (nodoHnoDer))
-						clavePromocionada = this->mergeSplitUnderflow(nodoHnoIzq, nodoTarget, nodoHnoDer, clavePadreIzq, clavePadreDer);
-					else if (!(nodoHnoIzq))
-						if (nodoHnoHno)
-							clavePromocionada = this->mergeSplitUnderflow(nodoTarget, nodoHnoDer, nodoHnoHno, clavePadreDer, clavePadreIzq);
-					else if (nodoHnoHno)
-						clavePromocionada = this->mergeSplitUnderflow(nodoHnoHno, nodoHnoIzq, nodoTarget, clavePadreDer, clavePadreIzq);
-					*/
-					nodoPadre->eliminarClave(clavePadreIzq, codigo);
-					nodoPadre->eliminarClave(clavePadreDer, codigo);
-					char codigoInsertar;
-					nodoPadre->insertarClave(clavePromocionada, &codigoInsertar);
 					
-					if (nodoPadre->tieneOverflow()) //Se resuelve posible overflow al insertar la clave promocionada
-						this->insertarInterno(nodoPadre, &codigoInsertar);
-					//Sino, se resuelve posible underflow al eliminar las claves separadoras. Si no hay underflow,
+					if (nodoHnoDer) {
+						this->merge(nodoTarget, nodoHnoDer, clavePadreDer);
+						nodoPadre->eliminarClave(clavePadreDer, codigo);
+					} else {
+						this->merge(nodoHnoIzq, nodoTarget, clavePadreIzq);
+						nodoPadre->eliminarClave(clavePadreIzq, codigo);
+					}
+					
+					//Se resuelve posible underflow al eliminar la clave separadora. Si no hay underflow,
 					//este método se encargará de escribir nodoPadre en disco.
-					else this->eliminarInterno(nodoPadre, codigo);
+					this->eliminarInterno(nodoPadre, codigo);
 					
 				}		
 			}
@@ -272,6 +287,8 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 
 
 Clave* BPlusTree::buscar(Clave* clave) const {
+	
+	if ( (!clave) || (this->vacio()) ) return NULL;
 	
 	NodoBPlus* nodo = this->buscarLugar(clave);
 	
@@ -414,34 +431,43 @@ void BPlusTree::merge(NodoBPlus* nodoIzquierdo, NodoBPlus* &nodoDerecho, Clave* 
 }
 
 
-void BPlusTree::pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre, NodoBPlus* nodoHnoDer){
+void BPlusTree::pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
+										 NodoBPlus* nodoHnoDer){
 	
-	SetClaves* setDescenso = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos() );
-	unsigned short cantClaves = setDescenso->size();
-	SetClaves* setAscenso = nodoHnoDer->cederClaves(cantClaves);
-	unsigned int nuevoHijoIzq = 0;
-	
-	for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
-		(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());
-		++iterDescenso, ++iterAscenso ) {
+	if (nodoDestino->getNivel() == 0) {
+		SetClaves* setIntercambio = nodoHnoDer->cederBytes( nodoDestino->obtenerBytesRequeridos() );
+		nodoDestino->recibir(setIntercambio);
+		delete setIntercambio;
+		//TODO Actualizar el separador en el nodo padre y chequear underflow y overflow!
+	} else {
+		SetClaves* setDescenso = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos() );
+		unsigned short cantClaves = setDescenso->size();
+		SetClaves* setAscenso = nodoHnoDer->cederClaves(cantClaves);
+		unsigned int nuevoHijoIzq = 0;
 		
-		nuevoHijoIzq = (*iterAscenso)->getHijoDer();
-		(*iterAscenso)->setHijoDer((*iterDescenso)->getHijoDer());
-		(*iterDescenso)->setHijoDer(nodoHnoDer->getHijoIzq());
-		nodoHnoDer->setHijoIzq(nuevoHijoIzq);
+		for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
+			(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());
+			++iterDescenso, ++iterAscenso ) {
+			
+			nuevoHijoIzq = (*iterAscenso)->getHijoDer();
+			(*iterAscenso)->setHijoDer((*iterDescenso)->getHijoDer());
+			(*iterDescenso)->setHijoDer(nodoHnoDer->getHijoIzq());
+			nodoHnoDer->setHijoIzq(nuevoHijoIzq);
+			
+		}
 		
+		nodoDestino->recibir(setDescenso);
+		nodoPadre->recibir(setAscenso);
+		
+		delete setDescenso;
+		delete setAscenso;
 	}
-	
-	nodoDestino->recibir(setDescenso);
-	nodoPadre->recibir(setAscenso);
-	
-	delete setDescenso;
-	delete setAscenso;
 	
 }
 
 
-void BPlusTree::pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre, NodoBPlus* nodoHnoIzq) {
+void BPlusTree::pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
+									   NodoBPlus* nodoHnoIzq) {
 	
 	SetClaves* setDescenso = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos(), false );
 	unsigned short cantClaves = setDescenso->size();

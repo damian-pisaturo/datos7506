@@ -14,16 +14,29 @@ BStarTree::~BStarTree() {
 
 void BStarTree::insertar(Clave* clave) {
 	
-	NodoBStar* nodoDestino = buscarLugar(clave);
-	char codigo;
+	if (!clave) return;
 	
-	nodoDestino->insertarClave(clave, &codigo);
-	
-	//La clave queda insertada independientemente de si hay OVERFLOW o no.
-	
-	insertarInterno(nodoDestino, &codigo);
-	
-	delete nodoDestino;
+	if (this->vacio()) {
+		
+		this->nodoRaiz = new NodoBStar(0, 0, clave, this->tamanioRaiz);
+		
+		//TODO Escribir la raíz en disco
+		
+	} else {
+		
+		NodoBStar* nodoDestino = buscarLugar(clave);
+		
+		char codigo;
+		
+		nodoDestino->insertarClave(clave, &codigo);
+		
+		//La clave queda insertada independientemente de si hay OVERFLOW o no.
+		
+		insertarInterno(nodoDestino, &codigo);
+		
+		delete nodoDestino;
+		
+	}
 
 }
 
@@ -149,8 +162,11 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 
 bool BStarTree::eliminar(Clave* clave) {
 	
+	if ( (!clave) || (this->vacio()) ) return false;
+	
 	NodoBStar* nodoTarget = buscarClave(this->nodoRaiz, clave);
 	
+	//Se verifica si se encontró el nodo que puede llegar a contener la clave
 	if (!nodoTarget) return false;
 	
 	Clave* claveBuscada = nodoTarget->buscar(clave);
@@ -215,7 +231,13 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
 		
 		if (!nodoPadre) {//nodoTarget es el nodo raíz, no se chequea underflow.
 			*codigo = Codigo::MODIFICADO;
-			//TODO Escritura especial de la raíz
+			if (nodoTarget->getCantidadClaves() == 0) {
+				//TODO Se "elimina" la raíz de disco.
+				//La memoria utilizada por el nodo se libera al final del método eliminar
+				this->nodoRaiz = NULL;
+			} else {
+				//TODO Escritura especial de la raíz
+			}
 		} else{
 		
 			//Se buscan los hermanos derecho e izquierdo de 'nodoTarget'
@@ -351,6 +373,8 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
 
 
 Clave* BStarTree::buscar(Clave* clave) const {
+	
+	if ( (!clave) || (this->vacio()) ) return NULL;
 	
 	NodoBStar* nodo = this->buscarClave(this->nodoRaiz, clave);
 	

@@ -50,7 +50,8 @@ NodoBPlus(unsigned int referencia) : Nodo(referencia)
 Nodo* NodoBPlus::copiar() const {
 	
 	NodoBPlus* nodoCopia = new NodoBPlus(this->getHijoIzq(), this->getNivel(), this->getTamanio());
-	SetClaves* setClavesCopia = new SetClaves(*(this->getClaves()));
+	SetClaves* setClavesCopia = new SetClaves();
+	*setClavesCopia = *(this->getClaves());
 	nodoCopia->setClaves(setClavesCopia);
 	nodoCopia->setPosicionEnArchivo(this->getPosicionEnArchivo());
 	return nodoCopia;

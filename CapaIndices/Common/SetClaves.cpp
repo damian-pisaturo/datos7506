@@ -99,4 +99,16 @@ void SetClaves::merge(SetClaves* set1, SetClaves* set2, Clave* c1, Clave* c2) {
 	set2->clear();
 	
 }
-		
+
+
+SetClaves& SetClaves::operator = (const SetClaves& setClaves) {
+	
+	this->clear();
+	
+	for (SetClaves::const_iterator iter = setClaves.begin(); iter != setClaves.end(); ++iter)
+		this->insert((*iter)->copiar());
+	
+	return *this;
+	
+}
+	
