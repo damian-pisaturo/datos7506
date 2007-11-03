@@ -359,7 +359,7 @@
 		ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
 		
 		//Parametros para inicializar el pipe.
-		pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_BLOQUE, 0); //Codigo de operacion.
+		pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_NODO, 0); //Codigo de operacion.
 		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre del archivo.
 		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bloque en disco.
 		pipe->agregarParametro(posicion, 2); //Posicion del bloque a eliminar.
@@ -619,8 +619,9 @@
 			pipe->escribir(tamanio);
 			
 			bucketsTabla = (char*) buckets;
+			
 			//Enviar el contenido de la tabla por el pipe.
-			pipe->escribir(bucketsTabla.size(), bucketsTabla);
+			pipe->escribir(bucketsTabla);
 			
 			pipe->liberarRecursos();			
 		}
