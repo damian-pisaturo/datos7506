@@ -82,10 +82,10 @@
 				
 				//Escritura del bucket a disco.
 				//Se obtiene la posicion donde fue escrito.
-				posicion = ((ArchivoIndice*)archivo)->escribirBloque(buffer.c_str());
+				numBloque = ((ArchivoIndice*)archivo)->escribirBloque(buffer.c_str());
 				
 				//Se envia la nueva posicion del nodo.
-				pipe.escribir(posicion);												
+				pipe.escribir(numBloque);												
 				
 				break;
 				
@@ -154,10 +154,10 @@
 				
 				//Escritura del bucket a disco.
 				//Se obtiene la posicion donde fue escrito.
-				posicion = ((ArchivoIndiceHash*)archivo)->escribirBloque(buffer.c_str());
+				numBloque = ((ArchivoIndiceHash*)archivo)->escribirBloque(buffer.c_str());
 				
 				//Se envia la nueva posicion del nodo.
-				pipe.escribir(posicion);												
+				pipe.escribir(numBloque);												
 				
 				break;
 							
