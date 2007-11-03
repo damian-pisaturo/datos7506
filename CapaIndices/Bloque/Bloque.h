@@ -28,7 +28,7 @@ private:
 	
 	//Métodos privados
 	
-	/*CapaIndices/Bloque/Bloque.cpp 
+	/*
 	 * Organiza el bloque a partir de una modificación dentro del mismo
 	 **/
 	

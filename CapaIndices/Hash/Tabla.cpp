@@ -26,8 +26,9 @@ Tabla::Tabla()
 	tamanio = 1;
 }
 
-Tabla::Tabla(char* nombreArchivo)
+Tabla::Tabla(char* nombreArchivo, IndiceHashManager* arch)
 {
+	archivo = arch;
 	// TODO: lee el archivo e inicializa la tabla con las direcciones de los buckets.
 }
 
@@ -44,10 +45,11 @@ Tabla::~Tabla()
  * Pide a la capa física la creación de un archivo de datos con 1 solo bucket, 
  * y un archivo con la tabla.
  **/
-void Tabla::crear(char* nombreArchivo)
+void Tabla::crear(char* nombreArchivo, unsigned int tamanioBloque)
 {
-	// Creo un archivo con un solo bucket, y un archivo para la tabla.
-	// TODO: pido a la capa fisica q los cree.	
+	// Crea un archivo de datos, y un archivo para la tabla.
+	Bucket * bucket = new Bucket(0, 1, tamanioBloque);
+	archivo->escribirBloque(bucket);
 }
 
 /*

@@ -21,14 +21,16 @@
 ///////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 ///////////////////////////////////////////////////////////////////////
-Hash::Hash(IndiceHashManager *arch)
+Hash::Hash(IndiceHashManager *arch, list<nodoLista> lista, char* nombreArchivoTabla)
 {
 	archivo = arch;
-	//TODO:: Agregar nodo con tam de dsipersión a la lista de parámetros
+	listaParam = lista;
+	tabla = new Tabla(nombreArchivoTabla, archivo);
 }
 
 Hash::~Hash()
 {
+	delete tabla;
 }
 ///////////////////////////////////////////////////////////////////////
 // Metodos publicos
@@ -57,17 +59,22 @@ int Hash::insertarRegistro(char* registro, char* clave)
 	// Se busca si el registro ya existe.
 	unsigned short aux;
 	if (bucket->buscarRegistro(listaParam, (void*)clave, &aux))
+	{
+		delete bucket;
 		// ya existe un registro con esa clave.
 		return DUPLICATED; 
+	}
 	
 	// Se obtiene la longitud del registro independientemente de si es variable o fija.
 	unsigned short longReg = bucket->getTamanioRegistros(listaParam,registro);
 	
-	if (bucket->verificarEspacioDisponible(longReg,bucket->getEspLibre()))
+	if (bucket->verificarEspacioDisponible(longReg,bucket->getEspacioLibre()))
 	{
+		// Da de alta el registro en el bloque y persiste en disco.
 		bucket->altaRegistro(listaParam,registro);
 		bucket->incrementarCantRegistros();
-		// TODO: bucket->escribirBloque();
+		bucket->actualizarEspLibre();
+		archivo->escribirBloque(numBucket, bucket);
 	}
 	else
 	// Hay OVERFLOW
@@ -77,22 +84,27 @@ int Hash::insertarRegistro(char* registro, char* clave)
 		bucket->setTamDispersion(bucket->getTamDispersion()*2);
 		
 		// Se crea un nuevo bucket vacío. Se devuelve en numBucketNuevo el número del mismo. 
-		unsigned int numBucketNuevo;
-		Bucket * nuevoBucket = new Bucket(&numBucketNuevo,bucket->getTamDispersion(),archivo);
+		unsigned int numBucketNuevo = 0;
+		Bucket * nuevoBucket = new Bucket(numBucketNuevo,bucket->getTamDispersion(),archivo->getTamanioBloque());
+		numBucketNuevo = archivo->escribirBloque(nuevoBucket);
 		
 		// Duplica la tabla o actualiza sus referencias dependiendo del tamaño de dispersión 
 		// (ya duplicado) del bucket donde se produjo overflow.
-		tabla->reorganizarTabla(bucket->getTamDispersion(), posicion, numBucketNuevo); // TODO: implementar.
+		tabla->reorganizarTabla(bucket->getTamDispersion(), posicion, numBucketNuevo); 
 		
 		redistribuirElementos(bucket,nuevoBucket);
-		// TODO: bucket->escribirBloque();
-		// TODO: nuevoBucket->escribirBloque();
 		
+		// Guarda en disco la redistribución de los elementos.
+		archivo->escribirBloque(numBucket, bucket);
+		archivo->escribirBloque(numBucketNuevo, nuevoBucket);
+
+		delete bucket;
+		delete nuevoBucket;
+		// Intenta nuevamente la inserción del registro.
 		int result = insertarRegistro(registro, clave);
-		
 		return result;
 	}
-	
+	delete bucket;
 	return OK;
 }
 
@@ -117,7 +129,9 @@ int Hash::eliminarRegistro(char* clave)
 	{
 		// Si hay más de 1 registro en el bucket simplemente se elimina el registro pedido.
 		int result = bucket->bajaRegistro(listaParam,clave);
-		//TODO: bucket->escribirBloque();
+		// Se actualiza la baja en el archivo.
+		archivo->escribirBloque(nroBucket, bucket);
+		delete bucket;
 		return result;
 	}
 	
@@ -131,7 +145,7 @@ int Hash::eliminarRegistro(char* clave)
 		if (bucket->getTamDispersion() == tabla->getTamanio())
 		{			
 			// Se llama a marcar al bucket como vacío en el archivo.
-			bucket->eliminarBucket();
+			archivo->eliminarBloque(nroBucket);
 			
 			// Se renueva la referencia de la tabla que antes apuntaba al bucket que se eliminó.
 			unsigned int nroBucket2 = tabla->buscarBucketIgualDispersion(posicion, bucket->getTamDispersion());
@@ -142,18 +156,24 @@ int Hash::eliminarRegistro(char* clave)
 			
 			// En caso de que deba realizarse una reducción a la mitad del tamaño de la tabla se lo hace.
 			tabla->considerarReduccion();
+			delete bucket;
 			return OK;
 		}
 		else
 		{
 			// Si el tamaño de dispersión es != al tamaño de la tabla, sólo se elimina el registro.
 			int result = bucket->bajaRegistro(listaParam,clave);
-			//TODO: bucket->escribirBloque();
+			// Se actualiza la baja en disco.
+			archivo->escribirBloque(nroBucket, bucket);
+			delete bucket;
 			return result;
 		}	
 	}
 	else
+	{
+		delete bucket;
 		return NO_ENCONTRADO;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -214,7 +234,6 @@ void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
 	unsigned int nroBucket;
 	
 	// Se crea un bucket auxiliar para poner los registros que deberían quedar en bucket.
-	// TODO Cambiar constructor a uno q no toque disco.
 	Bucket * bucketAux = new Bucket(bucket->getNroBloque(),bucket->getTamanioBloque(),bucket->getTamDispersion());
 	
 	// Se recorren los registros reubicándolos.
@@ -261,7 +280,7 @@ void Hash::dividirDispersion(unsigned int nroBucket)
 	// Se divide el tamaño de dispersión.
 	bucket->setTamDispersion(bucket->getTamDispersion()/2);
 	
-	//TODO:bucket->escribirBloque();
+	archivo->escribirBloque(nroBucket, bucket);
 	delete bucket;
 }
 
