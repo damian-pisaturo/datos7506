@@ -357,7 +357,7 @@
 	int IndiceArbolManager::eliminarBloque(unsigned short posicion)
 	{
 		char resultado = 0;
-		
+	
 		//Instancia del pipe
 		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 		
