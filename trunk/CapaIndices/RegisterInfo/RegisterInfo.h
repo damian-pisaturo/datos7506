@@ -11,7 +11,7 @@ typedef struct _nodoLista{
 	string pk;
 }nodoLista;
 
-typedef  list<nodoLista*> ListaNodos;
+typedef  list<nodoLista> ListaNodos;
 class RegisterInfo
 {
 
@@ -28,9 +28,10 @@ public:
 	RegisterInfo();
 	virtual ~RegisterInfo();
 	void setParameterList();
-	list <nodoLista> getParameterList();
+	ListaNodos getParameterList();
 	void setLongitudRegistro(int longitud);
 	int getLongitudRegistro();
+	void insertarElemento();
 };
 
 #endif /*REGISTERINFO_H_*/

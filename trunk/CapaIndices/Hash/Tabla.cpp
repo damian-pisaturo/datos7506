@@ -29,11 +29,14 @@ Tabla::Tabla()
 Tabla::Tabla(char* nombreArchivo, IndiceHashManager* arch)
 {
 	archivo = arch;
-	// TODO: lee el archivo e inicializa la tabla con las direcciones de los buckets.
+	archivo->leerTabla(&this->tamanio,this->nroBucket);
+	
 }
 
 Tabla::~Tabla()
 {
+	if(nroBucket)
+		delete[] nroBucket;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -47,6 +50,9 @@ Tabla::~Tabla()
  **/
 void Tabla::crear(char* nombreArchivo, unsigned int tamanioBloque)
 {
+	this->tamanio = 1;
+	//TODO: Preguntar a Nico por posicion
+	this->setNroBucket(0,0);
 	// Crea un archivo de datos, y un archivo para la tabla.
 	Bucket * bucket = new Bucket(0, 1, tamanioBloque);
 	archivo->escribirBloque(bucket);
