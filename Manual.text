@@ -1,0 +1,36 @@
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo Practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Manual de Usuario.
+////////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      	- Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      	- Grisolia, Nahuel;
+//		- Pisaturo, Damian;
+//		- Rodriguez, Maria Laura.
+////////////////////////////////////////////////////////////////////////////
+
+
+1 - Comentarios Iniciales
+-------------------------
+
+* En esta etapa del trabajo practico se realizaron las implementaciones de las capas de mas bajo nivel, Capa Fisica y Capa Indices.
+
+* Se tienen dos ejecutables "stand-alone" para cada capa, los cuales se comunican gracias a una clase (provista por la catedra pero modificada por nosotros para satisfacer nuestras necesidades) que proporciona un canal de datos para tal efecto.
+
+
+
+2 - ¿Como puedo probar el Trabajo Practico?
+-------------------------------------------
+
+
+
+
+3 - Bugs Conocidos
+------------------
+
+* Nodo con UnderFlow: Es posible que un nodo quede en estado de UnderFlow en el caso de que las Claves sean muy grandes en tamaño en relacion con el Nodo que las contiene. 
