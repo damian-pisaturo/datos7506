@@ -52,6 +52,9 @@ Bucket::~Bucket()
 void Bucket::setTamDispersion(unsigned short tDisp)
 {
 	tamDispersion = tDisp;
+	char * datos = getDatos();
+	// Actualizo el tamaño de dispersión tambien en "datos".
+	memcpy(&datos[Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS],&tDisp,Tamanios::TAMANIO_DISPERSION);
 } 
 
 unsigned short Bucket::getTamDispersion()
