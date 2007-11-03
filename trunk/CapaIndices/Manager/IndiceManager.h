@@ -76,7 +76,7 @@ class IndiceManager
 		
 		IndiceManager(unsigned int tamanioBloque, string nombreArchivo, unsigned char tipoIndice);
 		
-		virtual ~IndiceManager() {}
+		virtual ~IndiceManager();
 	
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
@@ -356,7 +356,7 @@ class IndiceEnteroRomanoManager: public IndiceSecundarioManager
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
 		IndiceEnteroRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
-		~IndiceEnteroRom
+		~IndiceEnteroRomanoManager();
 		
 	private:
 	//////////////////////////////////////////////////////////////////////
