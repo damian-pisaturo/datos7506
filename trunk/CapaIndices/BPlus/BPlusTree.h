@@ -101,10 +101,10 @@ class BPlusTree
 	    void merge(NodoBPlus* nodoIzq, NodoBPlus* &nodoDer, Clave* separador);
 	    
 	    void pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
-	    							  NodoBPlus* nodoHnoDer);
+	    							  NodoBPlus* nodoHnoDer, Clave* clavePadre);
 	    
 	    void pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
-	    							NodoBPlus* nodoHnoIzq);
+	    							NodoBPlus* nodoHnoIzq, Clave* clavePadre);
 	    
 	  	
 }; //Fin clase BPlusTree.

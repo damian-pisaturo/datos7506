@@ -239,15 +239,15 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 			bool pudoRedistribuir = false;
 			//TODO Implementar un método similar a puedePasarClaveHaciaXXX para las hojas del B+
 			if (nodoHnoDer) {
-				if ( pudoRedistribuir = nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre))
-					this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer);
+				if ( pudoRedistribuir = nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre, clavePadreDer))
+					this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer, clavePadreDer);
 				else if (nodoHnoIzq) {
-					if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre))
-						this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq);
+					if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre, clavePadreIzq))
+						this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
 				}
 			} else { // tiene hermano izquierdo
-				if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre))
-					this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq);
+				if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre, clavePadreIzq))
+					this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
 			}
 			
 			if (!pudoRedistribuir) { //Se realiza la concatenación de 'nodoTarget' con un nodo hermano. Si es un nodo
@@ -431,64 +431,90 @@ void BPlusTree::merge(NodoBPlus* nodoIzquierdo, NodoBPlus* &nodoDerecho, Clave* 
 }
 
 
-void BPlusTree::pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
-										 NodoBPlus* nodoHnoDer){
+void BPlusTree::pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre, NodoBPlus* nodoHnoDer, Clave* clavePadre){
+	
+	char codigo;
+	unsigned short bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
+	SetClaves* setIntercambio = NULL;
+	Clave* clavePromocionada = NULL;
+	
+	nodoPadre->extraerClave(clavePadre);
 	
 	if (nodoDestino->getNivel() == 0) {
-		SetClaves* setIntercambio = nodoHnoDer->cederBytes( nodoDestino->obtenerBytesRequeridos() );
+	
+		setIntercambio = nodoHnoDer->cederBytes(bytesRequeridos);
+		
+		clavePromocionada = nodoHnoDer->obtenerPrimeraClave()->copiar();
+		
+	} else {
+	
+		clavePadre->setHijoDer(nodoHnoDer->getHijoIzq());
+		
+		if ( tamanioClavePadre < bytesRequeridos)
+			setIntercambio = nodoHnoDer->cederBytes(bytesRequeridos - tamanioClavePadre);
+
+		clavePromocionada = nodoHnoDer->extraerPrimeraClave();
+	
+		nodoHnoDer->setHijoIzq(clavePromocionada->getHijoDer());
+		
+		nodoDestino->insertarClave(clavePadre, &codigo);
+		
+	}
+		
+	clavePromocionada->setHijoDer(nodoHnoDer->getPosicionEnArchivo());
+	
+	nodoPadre->insertarClave(clavePromocionada, &codigo);
+	
+	if (setIntercambio) {
 		nodoDestino->recibir(setIntercambio);
 		delete setIntercambio;
-		//TODO Actualizar el separador en el nodo padre y chequear underflow y overflow!
+	}
+
+}
+
+
+void BPlusTree::pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre, NodoBPlus* nodoHnoIzq, Clave* clavePadre) {
+
+	char codigo;
+	unsigned short bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
+	SetClaves* setIntercambio = NULL;
+	Clave* clavePromocionada = NULL;
+	
+	nodoPadre->extraerClave(clavePadre);
+	
+	if (nodoDestino->getNivel() == 0) {
+	
+		setIntercambio = nodoHnoIzq->cederBytes(bytesRequeridos, false);
+		
+		clavePromocionada = (*(setIntercambio->begin()))->copiar();
+		
 	} else {
-		SetClaves* setDescenso = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos() );
-		unsigned short cantClaves = setDescenso->size();
-		SetClaves* setAscenso = nodoHnoDer->cederClaves(cantClaves);
-		unsigned int nuevoHijoIzq = 0;
+	
+		clavePadre->setHijoDer(nodoDestino->getHijoIzq());
 		
-		for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
-			(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());
-			++iterDescenso, ++iterAscenso ) {
-			
-			nuevoHijoIzq = (*iterAscenso)->getHijoDer();
-			(*iterAscenso)->setHijoDer((*iterDescenso)->getHijoDer());
-			(*iterDescenso)->setHijoDer(nodoHnoDer->getHijoIzq());
-			nodoHnoDer->setHijoIzq(nuevoHijoIzq);
-			
-		}
+		if ( tamanioClavePadre < bytesRequeridos)
+			setIntercambio = nodoHnoIzq->cederBytes(bytesRequeridos - tamanioClavePadre, false);
+
+		clavePromocionada = *(setIntercambio->begin());
 		
-		nodoDestino->recibir(setDescenso);
-		nodoPadre->recibir(setAscenso);
+		setIntercambio->erase(setIntercambio->begin());
+	
+		nodoDestino->setHijoIzq(clavePromocionada->getHijoDer());
 		
-		delete setDescenso;
-		delete setAscenso;
+		nodoDestino->insertarClave(clavePadre, &codigo);
+		
+	}
+		
+	clavePromocionada->setHijoDer(nodoDestino->getPosicionEnArchivo());
+	
+	nodoPadre->insertarClave(clavePromocionada, &codigo);
+	
+	if (setIntercambio) {
+		nodoDestino->recibir(setIntercambio);
+		delete setIntercambio;
 	}
 	
 }
 
-
-void BPlusTree::pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
-									   NodoBPlus* nodoHnoIzq) {
-	
-	SetClaves* setDescenso = nodoPadre->cederBytes( nodoDestino->obtenerBytesRequeridos(), false );
-	unsigned short cantClaves = setDescenso->size();
-	SetClaves* setAscenso = nodoHnoIzq->cederClaves(cantClaves, false);
-	unsigned int nuevoHijoIzq = 0;
-	
-	for(SetClaves::iterator iterDescenso = setDescenso->begin(), iterAscenso = setAscenso->begin();
-		(iterDescenso != setDescenso->end()) && (iterAscenso != setAscenso->end());
-		++iterDescenso, ++iterAscenso ) {
-		
-		nuevoHijoIzq = (*iterAscenso)->getHijoDer();
-		(*iterAscenso)->setHijoDer((*iterDescenso)->getHijoDer());
-		(*iterDescenso)->setHijoDer(nodoDestino->getHijoIzq());
-		nodoDestino->setHijoIzq(nuevoHijoIzq);
-		
-	}
-	
-	nodoDestino->recibir(setDescenso);
-	nodoPadre->recibir(setAscenso);
-	
-	delete setDescenso;
-	delete setAscenso;
-	
-}
