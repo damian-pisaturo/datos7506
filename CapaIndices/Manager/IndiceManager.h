@@ -74,8 +74,7 @@ class IndiceManager
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		
-		IndiceManager(unsigned int tamanioBloque, string nombreArchivo, unsigned char tipoIndice);
-		
+		IndiceManager(unsigned int tamanioBloque, string nombreArchivo, unsigned char tipoIndice);		
 		virtual ~IndiceManager();
 	
 	///////////////////////////////////////////////////////////////////////
@@ -101,7 +100,7 @@ class IndiceManager
 		/*Agrega una referencia en el archivo de bloques liberados al
 		 * bloque que se quiere eliminar
 		 */
-		virtual int eliminarBloque(unsigned short posicion);
+		virtual int eliminarBloque(unsigned short posicion) = 0;
 		
 		/* Devuelve una instancia de un pipe de comunicacion entre
 		 * la clase actual y el ejecutable cuyo nombre es pasado
