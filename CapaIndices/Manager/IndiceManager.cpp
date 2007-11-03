@@ -152,7 +152,7 @@
 		SetClaves* set = new SetClaves();
 		
 		//Instancia del pipe
-		ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 		
 		//Parametros de inicializacion de la Capa Fisica para
 		//leer un nodo de disco.
@@ -224,7 +224,7 @@
 		//nodoNuevo->actualizarEspacioLibre(this); //NADIE SABIA.
 		
 		//Instancia del pipe
-		ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 		
 		//Parametros de inicializacion de la Capa Fisica para
 		//escribir un nodo en disco.
@@ -299,7 +299,7 @@
 		//nodoNuevo->actualizarEspacioLibre(this); //NADIE SABIA.
 		
 		//Instancia del pipe
-		ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 		
 		//Parametros de inicializacion de la Capa Fisica.
 		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO, 0); //Codigo de operacion.
@@ -356,7 +356,7 @@
 		char resultado = 0;
 		
 		//Instancia del pipe
-		ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 		
 		//Parametros para inicializar el pipe.
 		pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_NODO, 0); //Codigo de operacion.
@@ -434,7 +434,7 @@
 			HeaderBucket headerBucket;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de ejecucion de la Capa Fisica para leer
 			//un bucket de disco.
@@ -473,7 +473,7 @@
 			string buffer;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de ejecucion de la Capa Fisica para escribir un
 			//bucket a disco.
@@ -515,7 +515,7 @@
 			string buffer;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de ejecucion de la Capa Fisica para modificar
 			//un bucket en disco.
@@ -554,7 +554,7 @@
 			char resultado = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//eliminar un bucket de disco.
@@ -578,7 +578,7 @@
 			string bucketsTabla;
 						
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisica para
 			//leer la tabla de dispersion 
@@ -604,7 +604,7 @@
 			string bucketsTabla;
 									
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NombreCapas::CAPA_FISICA);
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisica para
 			//actualizar la tabla de dispersion 

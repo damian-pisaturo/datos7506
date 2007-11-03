@@ -407,6 +407,8 @@ bool Nodo::puedeRecibirClaveDesdeDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* c
 	if ( (this->puedeRecibir(primerosBytesSobrantes + tamanioClavePadre, 0))
 		&& ( nodoPadre->puedeRecibir(bytesUltimaClaveSobrante, tamanioClavePadre) ) )
 		return true;
+	
+	return false;
 
 }
 
@@ -415,7 +417,7 @@ bool Nodo::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* cla
 	
 	//Bytes requeridos por el hermano izquierdo
 	unsigned short bytesRequeridos = nodoHnoIzq->obtenerBytesRequeridos();
-	unsigned short bytesPropuestosPadre = 0, bytesPropuestosPorMi = 0;
+	unsigned short bytesPropuestosPorMi = 0;
 	unsigned short bytesHaciaElPadre = 0;
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
 	unsigned char clavesPropuestas = 0;
@@ -443,7 +445,7 @@ bool Nodo::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* cla
 	
 	//Bytes requeridos por el hermano derecho
 	unsigned short bytesRequeridos = nodoHnoDer->obtenerBytesRequeridos();
-	unsigned short bytesPropuestosPadre = 0, bytesPropuestosPorMi = 0;
+	unsigned short bytesPropuestosPorMi = 0;
 	unsigned short bytesHaciaElPadre = 0;
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
 	unsigned char clavesPropuestas = 0;

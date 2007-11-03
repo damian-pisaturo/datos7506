@@ -73,8 +73,10 @@ class IndiceManager
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
+		
 		IndiceManager(unsigned int tamanioBloque, string nombreArchivo, unsigned char tipoIndice);
-		virtual ~IndiceManager() { };
+		
+		virtual ~IndiceManager() {}
 	
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
@@ -152,7 +154,7 @@ class IndiceArbolManager : public IndiceManager
 	///////////////////////////////////////////////////////////////////////
 		/*Si el archivo esta vacio, crea una raiz vacia*/
 		IndiceArbolManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
-		virtual ~IndiceArbolManager();
+		virtual ~IndiceArbolManager() {}
 	
 	private:
 	///////////////////////////////////////////////////////////////////////
@@ -327,6 +329,8 @@ class IndiceEnteroGriegoManager: public IndiceArbolManager
 	//////////////////////////////////////////////////////////////////////		
 		IndiceEnteroGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
 		
+		virtual ~IndiceEnteroGriegoManager() {}
+		
 	private:
 	//////////////////////////////////////////////////////////////////////
 	// Metodos privados
@@ -352,7 +356,8 @@ class IndiceEnteroRomanoManager: public IndiceSecundarioManager
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
 		IndiceEnteroRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
-
+		~IndiceEnteroRom
+		
 	private:
 	//////////////////////////////////////////////////////////////////////
 	// Metodos privados
@@ -385,6 +390,8 @@ class IndiceBooleanGriegoManager: public IndiceArbolManager
 	// Constructor
 	//////////////////////////////////////////////////////////////////////		
 		IndiceBooleanGriegoManager(unsigned int tamNodo,string nombreArchivo, unsigned char tipoIndice);
+		
+		~IndiceBooleanGriegoManager() {}
 	
 }; //Fin clase ArchivoIndiceBooleanGriego
 
@@ -402,6 +409,8 @@ class IndiceCharGriegoManager: public IndiceArbolManager
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
 		IndiceCharGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
+		
+		~IndiceCharGriegoManager() {}
 		
 	private:
 	//////////////////////////////////////////////////////////////////////
