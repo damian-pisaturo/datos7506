@@ -395,9 +395,7 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 			   offsetToProxCampo += sizeof(char);
 		   }
 		   else if(tipo == TipoDatos::TIPO_FECHA){
-<<<<<<< .mine
-		
-=======
+
 			   if (pk == "true"){
 				   checkPk = true;
 				   ClaveFecha::TFECHA fecha;
@@ -411,7 +409,6 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 				   }
 			   }
 			   offsetToProxCampo += sizeof(ClaveFecha::TFECHA);
->>>>>>> .r112
 		   }
 	   } 
 	   // La próxima iteración se levantará la longitud del registro siguiente
