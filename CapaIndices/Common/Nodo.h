@@ -166,13 +166,13 @@ class Nodo : public BloqueIndice
 		//Retorna un puntero la última clave o NULL si el nodo no tiene claves.
 		Clave* obtenerUltimaClave() const;
 		
-		bool puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre) const;
+		virtual bool puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* clavePadre) const;
 		
-		bool puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre) const;
+		virtual bool puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* clavePadre) const;
 		
-		bool puedeRecibirClaveDesdeIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre) const;
+		bool puedeRecibirClaveDesdeIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* clavePadre) const;
 		
-		bool puedeRecibirClaveDesdeDer(Nodo* nodoHnoDer, Nodo* nodoPadre) const;
+		bool puedeRecibirClaveDesdeDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* clavePadre) const;
 		
 		//Este metodo fusiona el conjunto de claves de este nodo con el conjunto
 		//de un nodo hermano y con una clave padre.
@@ -183,7 +183,9 @@ class Nodo : public BloqueIndice
 		void merge(Nodo* nodoHno1, Nodo* nodoHno2, Clave* clavePadre1, Clave* clavePadre2);
 		
 		//Saca del setClaves a la ultima clave, sin liberar la memoria.
-		void extraerUltimaClave();
+		Clave* extraerUltimaClave();
+		
+		Clave* extraerPrimeraClave();
 		
 		//Saca del setClaves la clave recibida por parametro, sin liberar la memoria.
 		void extraerClave(Clave* clave);

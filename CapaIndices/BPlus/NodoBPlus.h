@@ -54,6 +54,11 @@ class NodoBPlus: public Nodo
 		virtual ~NodoBPlus() {}
 		
 		Nodo* copiar() const;
+		
+		bool puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* clavePadre) const;
+				
+		bool puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* clavePadre) const;
+				
 			
 	//////////////////////////////////////////////////////////////////////
 	// Metodos publicos

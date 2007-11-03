@@ -58,3 +58,61 @@ Nodo* NodoBPlus::copiar() const {
 	
 }
 
+
+bool NodoBPlus::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* clavePadre) const {
+	
+	if (this->getNivel() == 0) {
+
+		//Bytes requeridos por el hermano izquierdo
+		unsigned short bytesRequeridos = nodoHnoIzq->obtenerBytesRequeridos();
+		unsigned short bytesPropuestosPorMi = 0;
+		unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
+		unsigned char clavesPropuestas = 0;
+		
+		bytesPropuestosPorMi = this->bytesACeder(bytesRequeridos, clavesPropuestas);
+		
+		if ( (bytesPropuestosPorMi > 0) && (nodoHnoIzq->puedeRecibir(bytesPropuestosPorMi, 0)) ) {
+			
+			unsigned char i = 0;
+			SetClaves::iterator iter;
+			for (iter = this->getClaves()->begin(); i < clavesPropuestas; ++iter, ++i);
+			//*iter es la clave que deberia quedar como separador
+			return nodoPadre->puedeRecibir((*iter)->getTamanioEnDisco(), tamanioClavePadre);
+			
+		}
+		
+		return false;
+		
+	} else return Nodo::puedePasarClaveHaciaIzq(nodoHnoIzq, nodoPadre, clavePadre);
+	
+}
+
+
+bool NodoBPlus::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* clavePadre) const {
+
+	if (this->getNivel() == 0) {
+
+		//Bytes requeridos por el hermano izquierdo
+		unsigned short bytesRequeridos = nodoHnoDer->obtenerBytesRequeridos();
+		unsigned short bytesPropuestosPorMi = 0;
+		unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
+		unsigned char clavesPropuestas = 0;
+		
+		bytesPropuestosPorMi = this->bytesACeder(bytesRequeridos, clavesPropuestas, false);
+		
+		if ( (bytesPropuestosPorMi > 0) && (nodoHnoDer->puedeRecibir(bytesPropuestosPorMi, 0)) ) {
+			
+			unsigned char i = 0;
+			SetClaves::reverse_iterator iter;
+			for (iter = this->getClaves()->rbegin(); i < (clavesPropuestas-1); ++iter, ++i);
+			//*iter es la clave que deberia quedar como separador
+			return nodoPadre->puedeRecibir((*iter)->getTamanioEnDisco(), tamanioClavePadre);
+			
+		}
+		
+		return false;
+		
+	} else return Nodo::puedePasarClaveHaciaDer(nodoHnoDer, nodoPadre, clavePadre);
+	
+}
+
