@@ -14,11 +14,11 @@ class IndiceManagerFactory {
 		virtual ~IndiceManagerFactory() {}
 	
 		static IndiceManagerFactory& getInstance() { return instance; }
-	
+		
 		IndiceManager* getIndiceManager(unsigned char tipoIndice, unsigned short tamBloqueLista,
 										int tipoDato, ListaTipos* listaTipos,
 										unsigned char tipoEstructura, unsigned short tamNodo,
-										const string& nombreArchivo) const;
+										unsigned int tamBucket, const string& nombreArchivo) const;
 };
 
 #endif /*INDICEMANAGERFACTORY_H_*/
