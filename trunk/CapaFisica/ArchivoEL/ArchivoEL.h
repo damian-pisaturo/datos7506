@@ -42,12 +42,12 @@ class ArchivoEL : public ArchivoBase
 		/*Añade un nuevo registro de datos de control
 		 * al final del archivo de espacio libre.
 		 */
-		virtual char agregarRegistro(void* registro);
+		virtual char agregarRegistro(const void* registro);
 		
 		/* Modifica el registro cuyo numero dentro del 
 		 * archivo es numReg por el contenido de 'registro'
 		 */
-		virtual char modificarRegistro(void* registro, unsigned short numRegistro);
+		virtual char modificarRegistro(const void* registro, unsigned short numRegistro);
 		
 };
 

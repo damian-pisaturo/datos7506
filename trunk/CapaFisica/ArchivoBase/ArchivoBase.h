@@ -92,11 +92,15 @@ class ArchivoBase
 		 * ResFisica::ERROR_POSICION; en caso contrario, devuelve
 		 * ResFisica::OK;
 		*/
-		char posicionarse(unsigned int numBloque);		
+		char posicionarse(unsigned short numBloque);		
 
 		/* Se posiciona al final del archivo.
 		*/
 		void posicionarseFin();
+		
+		/*Retorna el tamaño total en bytes del archivo.
+		 */
+		long size();
 
 	///////////////////////////////////////////////////////////////////////
 	// Getter

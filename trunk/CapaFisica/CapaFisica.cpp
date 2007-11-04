@@ -16,7 +16,6 @@
 
 #include "CapaFisica.h"
 
-
 ///////////////////////////////////////////////////////////////////////////
 // Funcion principal
 //------------------------------------------------------------------------
@@ -47,7 +46,7 @@
 			pipe.parametro(0, &accion);       //Accion a procesar.
 			pipe.parametro(1, nombreArchivo); //Nombre del archivo a emplear.
 			pipe.parametro(2, &tamBloque);    //Tamanio del bloque/registro del archivo.
-				
+			
 			switch(accion){
 			
 			//Lectura de un nodo de un arbol
@@ -61,12 +60,18 @@
 				datos = new char[tamBloque + 1];
 				
 				//Lectura del nodo dentro del archivo.
-				((ArchivoIndice*)archivo)->leerBloque(datos, tamBloque);
-				*(datos + tamBloque + 1) = 0;
-				buffer = datos;
+				resultado = ((ArchivoIndice*)archivo)->leerBloque(datos, numBloque);
 				
-				//Envio de datos a traves del pipe.
-				pipe.escribir(buffer);
+				//Envio del resultado de la operacion de lectura.
+				pipe.escribir(resultado);
+							
+				if (resultado == ResFisica::OK){
+					*(datos+ tamBloque + 1) = 0;
+					buffer = datos;							
+				
+					//Envio de datos a traves del pipe.
+					pipe.escribir(buffer);
+				}
 				
 				delete[] datos;							
 			}break;
@@ -78,13 +83,13 @@
 								
 				//Obtencion del bucket a escribir a traves del pipe.
 				pipe.leer(tamBloque, buffer);
-				
+		
 				//Escritura del bucket a disco.
-				//Se obtiene la posicion donde fue escrito.
+				//Se obtiene la posicion donde fue escrito.				
 				numBloque = ((ArchivoIndice*)archivo)->escribirBloque(buffer.c_str());
 				
 				//Se envia la nueva posicion del nodo.
-				pipe.escribir(numBloque);												
+				pipe.escribir(numBloque);										
 			}break;
 				
 			case OperacionesCapas::FISICA_MODIFICAR_NODO:
@@ -212,6 +217,26 @@
 				((ArchivoIndiceHash*)archivo)->escribirTabla(tamanio, buckets);
 			}break;
 			
+			case OperacionesCapas::FISICA_ESCRIBIR_NODO_DOBLE:
+			{
+							
+			}break;
+			
+			case OperacionesCapas::FISICA_LEER_NODO_DOBLE:
+			{
+							
+			}break;
+			
+			case OperacionesCapas::FISICA_MODIFICAR_NODO_DOBLE:
+			{
+							
+			}break;
+			
+			case OperacionesCapas::FISICA_ELIMINAR_NODO_DOBLE:
+			{
+							
+			}break;
+			
 			case OperacionesCapas::FISICA_LEER_DATO:
 			{
 				
@@ -235,6 +260,7 @@
 				
 			default:
 			{
+				
 			}break;
 					
 			

@@ -14,17 +14,22 @@ class OperacionesCapas
 		const static unsigned char FISICA_MODIFICAR_LISTA      = 6;
 		const static unsigned char FISICA_ELIMINAR_LISTA       = 7;
 		
-		const static unsigned char FISICA_ESCRIBIR_BUCKET      = 8;
-		const static unsigned char FISICA_LEER_BUCKET          = 9;
-		const static unsigned char FISICA_MODIFICAR_BUCKET     = 10;
-		const static unsigned char FISICA_ELIMINAR_BUCKET      = 11;
-		const static unsigned char FISICA_LEER_TABLA_HASH      = 12;
-		const static unsigned char FISICA_ESCRIBIR_TABLA_HASH  = 13;
+		const static unsigned char FISICA_ESCRIBIR_NODO_DOBLE   = 8;
+		const static unsigned char FISICA_LEER_NODO_DOBLE       = 9;
+		const static unsigned char FISICA_MODIFICAR_NODO_DOBLE  = 10;
+		const static unsigned char FISICA_ELIMINAR_NODO_DOBLE   = 11;
 		
-		const static unsigned char FISICA_ESCRIBIR_DATO        = 14;
-		const static unsigned char FISICA_LEER_DATO            = 15;
-		const static unsigned char FISICA_MODIFICAR_DATO       = 16;
-		const static unsigned char FISICA_ELIMINAR_DATO        = 17;
+		const static unsigned char FISICA_ESCRIBIR_BUCKET      = 12;
+		const static unsigned char FISICA_LEER_BUCKET          = 13;
+		const static unsigned char FISICA_MODIFICAR_BUCKET     = 14;
+		const static unsigned char FISICA_ELIMINAR_BUCKET      = 15;
+		const static unsigned char FISICA_LEER_TABLA_HASH      = 16;
+		const static unsigned char FISICA_ESCRIBIR_TABLA_HASH  = 17;
+		
+		const static unsigned char FISICA_ESCRIBIR_DATO        = 18;
+		const static unsigned char FISICA_LEER_DATO            = 19;
+		const static unsigned char FISICA_MODIFICAR_DATO       = 20;
+		const static unsigned char FISICA_ELIMINAR_DATO        = 21;
 };
 
 #endif /*OPERACIONESCAPAS_H_*/

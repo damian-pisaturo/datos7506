@@ -30,21 +30,30 @@
 	///////////////////////////////////////////////////////////////////////
 		ArchivoEL::ArchivoEL(string nombre, unsigned short tamBloque) :
 			ArchivoBase(nombre, tamBloque)
-		{ }
+		{
+			//Si el archivo esta vacio, agregar el primer registro
+			//booleano.
+			//cout << "Size:" << this->size() << endl;
+			if (this->size() == 0){	
+				//cout << "Inserto el primer bool" << endl;
+				bool valor = true;
+				this->agregarRegistro(&valor);
+			}			
+		}
 		
 		ArchivoEL::~ArchivoEL(){ }
 		
 	///////////////////////////////////////////////////////////////////////
 	//	Metodos publicos
 	///////////////////////////////////////////////////////////////////////
-		char ArchivoEL::agregarRegistro(void* registro)
+		char ArchivoEL::agregarRegistro(const void* registro)
 		{					
 			this->posicionarseFin();
 			
 			return (this->escribir(registro));	
 		}
 		
-		char ArchivoEL::modificarRegistro(void* registro, unsigned short numRegistro)
+		char ArchivoEL::modificarRegistro(const void* registro, unsigned short numRegistro)
 		{
 			char resultado = ResFisica::OK;
 			
@@ -79,14 +88,17 @@
 		short ArchivoELFijo::buscarBloqueLibre()
 		{
 			bool libre = false;
-			short numBloque = -1;
+			short numBloque = 0;
+
+			this->posicionarse(0);
+			this->leer(&libre);
 			
 			while((!libre) && (!this->fin())){
 				this->posicionarse(++numBloque);
 				this->leer(&libre);
 			}
 			
-			if (this->fin())
+			if (!libre)
 				numBloque = ResFisica::BLOQUES_OCUPADOS;
 			
 			return numBloque;		

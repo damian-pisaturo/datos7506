@@ -85,6 +85,8 @@ class IndiceManager
 		 * Utiliza ComuDatos para comunicarse con la Capa Fisica.
 		 */
 		virtual int leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido) = 0;
+		
+		virtual int leerBloqueDoble(unsigned int numeroBloque, BloqueIndice* bloqueLeido) = 0;
 
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y escribir
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
@@ -97,10 +99,18 @@ class IndiceManager
 		 */
 		virtual int escribirBloque(unsigned short numBloque, BloqueIndice* bloqueModif) = 0;
 		
+		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y
+		 * escribir dos bloques consecutivos en disco. Empleado para la escritura
+		 * especial de una raiz de Arbol B*.
+		 */
+		virtual int escribirBloqueDoble(BloqueIndice* bloqueModif) = 0;
+		virtual int escribirBloqueDoble(unsigned short numBloque, BloqueIndice* bloqueModif) = 0;
+		
 		/*Agrega una referencia en el archivo de bloques liberados al
 		 * bloque que se quiere eliminar
 		 */
 		virtual int eliminarBloque(unsigned short posicion) = 0;
+		virtual int eliminarBloqueDoble(unsigned short posicion) = 0;
 		
 
 	///////////////////////////////////////////////////////////////////////
@@ -145,8 +155,8 @@ class IndiceManager
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: ArchivoIndiceArbol
-//			(Abstracta. Clase que sirve de abstraccion de la capa 
+// Nombre: IndiceArbolManager
+//			( Clase que sirve de abstraccion de la capa 
 //			fisica para los indices en arboles de la capa de indices).
 ///////////////////////////////////////////////////////////////////////////
 class IndiceArbolManager : public IndiceManager
@@ -197,13 +207,15 @@ class IndiceArbolManager : public IndiceManager
 		virtual int leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido);
 		
 		virtual int escribirBloque(BloqueIndice* bloqueNuevo);		
-		/*Permite modificar la informacion de un nodo -> inclusive la raiz si posicion = 0*/
+		/*Permite modificar la informacion de un nodo*/
 		virtual int escribirBloque(unsigned short numBloque, BloqueIndice* bloqueModif);
 		
 		/*Agrega una referencia en el archivo de nodos liberados al
 		 * nodo que se quiere eliminar
 		 */
 		virtual int eliminarBloque(unsigned short posicion);
+		
+		
 		
 		/*Exportar el archivo de Indice
 		 */
