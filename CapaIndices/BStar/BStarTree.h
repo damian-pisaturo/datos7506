@@ -2,12 +2,14 @@
 #define BSTARTREE_H_
 
 #include "NodoBStar.h"
+#include "../Manager/IndiceManager.h"
+
 
 class BStarTree {
 	
 	public:
 		//Constructor que recibe el tamaño de los nodos (en bytes)
-		BStarTree(unsigned short tamanioNodo);
+		BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo);
 		
 		virtual ~BStarTree();
 		
@@ -35,6 +37,8 @@ class BStarTree {
 		unsigned short tamanioRaiz; //Tamanio máximo (en bytes) de la raíz
 		unsigned short tamanioNodo; //Tamanio máximo (en bytes) de un nodo
 		
+		//Objeto utilizado para cargar y guardar los nodos desde disco
+		IndiceManager& indiceManager; 
 		
 		//Métodos
 		

@@ -22,7 +22,7 @@
 
 #include "../Common/Clave.h"
 #include "NodoBPlus.h"
-//#include "ArchivoIndicePadre.h"
+#include "../Manager/IndiceManager.h"
 
 #include <string>
 #include <iostream>
@@ -43,13 +43,16 @@ class BPlusTree
 		NodoBPlus* nodoRaiz;
 		NodoBPlus* nodoActual;
 		unsigned short tamanioNodo;
-		//ArchivoIndice* archivoIndice;   
+		
+		//Objeto utilizado para cargar y guardar los nodos desde disco
+		IndiceManager& indiceManager;
+		
 
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Contructor/Destructor
 	//////////////////////////////////////////////////////////////////////
-		BPlusTree(unsigned short tamanioNodo);
+		BPlusTree(IndiceManager& indiceManager, unsigned short tamanioNodo);
 		
 		virtual ~BPlusTree();
 	

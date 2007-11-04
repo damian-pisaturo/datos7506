@@ -102,12 +102,6 @@ class IndiceManager
 		 */
 		virtual int eliminarBloque(unsigned short posicion) = 0;
 		
-		/* Devuelve una instancia de un pipe de comunicacion entre
-		 * la clase actual y el ejecutable cuyo nombre es pasado
-		 * por parametro.
-		 */
-		ComuDatos* instanciarPipe(string nombreEjecutable);
-		
 
 	///////////////////////////////////////////////////////////////////////
 	// Getters/Setters
@@ -136,6 +130,16 @@ class IndiceManager
 		{
 			return this->tipoIndice;
 		}
+		
+		
+	protected:
+		
+		/* Devuelve una instancia de un pipe de comunicacion entre
+		 * la clase actual y el ejecutable cuyo nombre es pasado
+		 * por parametro.
+		 */
+		ComuDatos* instanciarPipe(string nombreEjecutable);
+		
 };
 
 ///////////////////////////////////////////////////////////////////////////
