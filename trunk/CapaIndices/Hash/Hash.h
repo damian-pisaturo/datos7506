@@ -102,6 +102,12 @@ class Hash
 		
 		
 		bool esRegistroVariable();
+		
+		/*
+		 * A partir de una clave recupera un registro 
+		 **/
+		bool recuperarRegistro(list<nodoLista> lista,void *clave,char *registro); 
+		
 
 };
 

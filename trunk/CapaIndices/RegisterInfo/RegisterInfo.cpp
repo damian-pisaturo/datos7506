@@ -7,6 +7,7 @@ RegisterInfo::RegisterInfo()
 	// TODO: Cambiar el tipo de dato de pk
 	nodoLista nodo;
 	
+	//El primer nodo de la lista indica si el registro es variable o no.
 	nodo.tipo = TipoDatos::TIPO_VARIABLE;
 	nodo.pk = "9";
 	

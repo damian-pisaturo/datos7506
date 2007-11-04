@@ -648,18 +648,14 @@
 	///////////////////////////////////////////////////////////////////////
 	ClaveVariable::ClaveVariable(const string& clave, unsigned int referencia,
 														unsigned int hijoDer)
-	{		
-		//Se trunca el nombre si es de mas de longMaxCadena caracteres
-//		if (clave.size()> ClaveCadena::longMaxCadena)
-//			clave.erase(ClaveCadena::longMaxCadena);
-		
+	{			
 		this->setValor(new string(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
-		//El tamanio de esta clave esta compuesto por la cantidad de caracteres,
-		//los bytes utilizados para almacenar la longitud de la cadena y
+		//El tamaño de esta clave esta compuesto por la cantidad de caracteres,
+		//el byte utilizado para indicar el fin de la cadena y
 		//los bytes utilizados por la referencia.
-		this->tamanio = clave.size()*sizeof(char) + Tamanios::TAMANIO_LONGITUD_CADENA + Tamanios::TAMANIO_REFERENCIA;
+		this->tamanio = (clave.size()+1)*sizeof(char) /*+ Tamanios::TAMANIO_LONGITUD_CADENA*/ + Tamanios::TAMANIO_REFERENCIA;
 		//Si la clave si insertará en un nodo interno
 		//agrego el tamaño de la referencia al hijo derecho
 		if (hijoDer != 0) this->tamanio += Tamanios::TAMANIO_REFERENCIA;
