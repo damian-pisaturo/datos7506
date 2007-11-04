@@ -29,11 +29,10 @@
 //////////////////////////////////////////////////////////////////////
 // Contructor/Destructor
 //////////////////////////////////////////////////////////////////////
-BPlusTree::BPlusTree(unsigned short tamanioNodo) {
+BPlusTree::BPlusTree(IndiceManager& indiceManager, unsigned short tamanioNodo) : indiceManager(indiceManager) {
 	this->tamanioNodo = tamanioNodo;
 	this->nodoRaiz = NULL;
 	this->nodoActual = NULL;
-	//this->archivoIndice = archivo;
 }
 
 
@@ -46,7 +45,7 @@ BPlusTree::~BPlusTree() {
 NodoBPlus* BPlusTree::getRaiz() const
 {
 	//Lee el primer registro del archivo -> la raiz
-	//TODO Cargar un nodo desde disco!!
+	//TODO Cargar la raiz desde disco!!
 	//return new NodoBPlus(archivoIndice, 0);
 	return NULL;
 }
@@ -64,8 +63,8 @@ void BPlusTree::primero()
 	while(this->nodoActual->getNivel() != 0){
 		refHijoIzq =  this->nodoActual->getHijoIzq();
 		if (this->nodoActual != this->nodoRaiz) delete this->nodoActual;
-		//TODO Leer nodo de disco
-		//this->nodoActual = new NodoBPlus(this->archivoIndice, refHijoIzq);
+		this->nodoActual = new NodoBPlus(0, 0, this->tamanioNodo);
+		indiceManager.leerBloque(refHijoIzq, this->nodoActual);
 	}
 }
 
@@ -102,8 +101,8 @@ void BPlusTree::insertar(Clave* clave)
 void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 	
 	if (*codigo == Codigo::MODIFICADO){
-		//TODO actualizar en disco el nodo modificado.
-		//archivoIndice->sobreescribirNodo(nodoDestino);
+		//Se actualiza en disco el nodo modificado.
+		indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
 	}
 	else if ( *codigo == Codigo::OVERFLOW ){
 		NodoBPlus* nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
@@ -113,7 +112,7 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 			Clave* clavePromocionada = (*(setClavesDerecho->begin()))->copiar();
 			NodoBPlus* nuevoNodoDerecho = new NodoBPlus(clavePromocionada->getHijoDer(), nodoDestino->getNivel(), this->tamanioNodo);
 			nuevoNodoDerecho->setClaves(setClavesDerecho);
-			//TODO escribir 'nuevoNodoDerecho' en disco para obtener su posicion en el archivo.
+			indiceManager.escribirBloque(nuevoNodoDerecho);
 			clavePromocionada->setHijoDer(nuevoNodoDerecho->getPosicionEnArchivo());
 			NodoBPlus* nuevaRaiz = new NodoBPlus(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1, this->tamanioNodo);
 			//TODO escritura de la raiz
@@ -167,8 +166,8 @@ bool BPlusTree::eliminar(Clave* clave) {
 void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 
 	if (*codigo == Codigo::MODIFICADO) {
-		//TODO actualizar en disco el nodo modificado.
-		//archivoIndice->sobreescribirNodo(nodoTarget);
+		//Se actualiza en disco el nodo modificado.
+		indiceManager.escribirBloque(nodoTarget->getPosicionEnArchivo(), nodoTarget);
 	} else if (*codigo == Codigo::UNDERFLOW) {
 		
 		//Puntero a la clave del nodo padre que se encuentra entre nodoTarget y su hermano izq
@@ -204,31 +203,36 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 				//nodoTarget no tiene hermano izquierdo;
 				//Se tendrían que cargar el hno derecho
 				iterPadre = nodoPadre->getClaves()->begin();
-				//TODO El constructor debe devolver un nodo a partir de una referencia a disco.
-				//nodoHnoDer = new NodoBPlus( (*iterPadre)->getHijoDer() );
+				nodoHnoDer = new NodoBPlus(0, 0, this->tamanioNodo);
+				indiceManager.leerBloque((*iterPadre)->getHijoDer(), nodoHnoDer);
 				clavePadreDer = *iterPadre;
 			} else if ( (++iterPadre) == nodoPadre->getClaves()->end() ) {
 				//nodoTarget es el hijo derecho de la última clave del nodo
 				//nodoTarget no tiene hermano derecho
 				if ( (--iterPadre) == nodoPadre->getClaves()->begin() ) {
-					//nodoHnoIzq = new NodoBPlus( nodoPadre->getHijoIzq() );
+					nodoHnoIzq = new NodoBPlus(0, 0, this->tamanioNodo);
+					indiceManager.leerBloque(nodoPadre->getHijoIzq(), nodoHnoIzq);
 					clavePadreIzq = *iterPadre;
 				}
 				else{
-					//nodoHnoIzq = new NodoBPlus( (*(--iterPadre))->getHijoDer() );
+					nodoHnoIzq = new NodoBPlus(0, 0, this->tamanioNodo);
+					indiceManager.leerBloque((*(--iterPadre))->getHijoDer(), nodoHnoIzq);
 					clavePadreIzq = *(++iterPadre);
 				}	
 			} else {
 				--iterPadre; //Lo decremento xq se incrementó en el 'else if' anterior
 				if ( iterPadre == nodoPadre->getClaves()->begin() ) {
-					//nodoHnoIzq = new NodoBPlus( nodoPadre->getHijoIzq() );
+					nodoHnoIzq = new NodoBPlus(0, 0, this->tamanioNodo);
+					indiceManager.leerBloque(nodoPadre->getHijoIzq(), nodoHnoIzq);
 					clavePadreIzq = *iterPadre;
 				}
 				else{
-					//nodoHnoIzq = new NodoBPlus( (*(--iterPadre))->getHijoDer() );
+					nodoHnoIzq = new NodoBPlus(0, 0, this->tamanioNodo);
+					indiceManager.leerBloque((*(--iterPadre))->getHijoDer(), nodoHnoIzq);
 					clavePadreIzq = *(++iterPadre);
 				}
-				//nodoHnoDer = new NodoBPlus( (*(++iterPadre))->getHijoDer() );
+				nodoHnoDer = new NodoBPlus(0, 0, this->tamanioNodo);
+				indiceManager.leerBloque((*(++iterPadre))->getHijoDer(), nodoHnoDer);
 				clavePadreDer = *iterPadre;
 			}
 			
@@ -237,7 +241,7 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 			//Se intenta hacer una redistribución de claves con el hermano derecho de 'nodoTarget'.
 			//Si esto no es posible, se intenta hacer una redistribución con el hermano izquierdo.
 			bool pudoRedistribuir = false;
-			//TODO Implementar un método similar a puedePasarClaveHaciaXXX para las hojas del B+
+			
 			if (nodoHnoDer) {
 				if ( pudoRedistribuir = nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre, clavePadreDer))
 					this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer, clavePadreDer);
@@ -320,14 +324,18 @@ NodoBPlus* BPlusTree::buscarPadre(NodoBPlus* padre, NodoBPlus* hijo) const {
 	
 	if (padre->esPadre(hijo, claveOrientadora)) {
 		
-		//auxNodo = new NodoBPlus(archivo, padre->getPosicionEnArchivo());
+		auxNodo = new NodoBPlus(0, 0, this->tamanioNodo);
+		//Devuelvo una copia del padre
+		*auxNodo = *padre; //Operador =
 		
 	} else {
 		
     	if (claveOrientadora == NULL) {
-    		//nuevoNodo = new NodoBPlus(archivo, padre->getHijoizq());
+    		nuevoNodo = new NodoBPlus(0, 0, this->tamanioNodo);
+    		indiceManager.leerBloque(padre->getHijoIzq(), nuevoNodo);
     	} else {
-    		//nuevoNodo = new NodoBPlus(archivo, claveOrientadora->getHijoDer());
+    		nuevoNodo = new NodoBPlus(0, 0, this->tamanioNodo);
+    		indiceManager.leerBloque(claveOrientadora->getHijoDer(), nuevoNodo);
     	}
     	
     	auxNodo = buscarPadre(nuevoNodo, hijo);
@@ -360,9 +368,12 @@ NodoBPlus* BPlusTree::buscarLugarRecursivo(NodoBPlus* nodo, Clave* clave) const 
 	if (claveResultante == NULL) {
 		
 		if (nodo->getHijoIzq() == 0) { //Nodo hoja
-			//auxNodo = new NodoBPlus(archivo, nodo->getPosicionEnArchivo());
+			auxNodo = new NodoBPlus(0, 0, this->tamanioNodo);
+			//Devuelvo una copia de 'nodo'
+			*auxNodo = *nodo;
 		} else {
-			//nuevoNodo = new NodoBPlus(archivo, nodo->getHijoIzq());
+			nuevoNodo = new NodoBPlus(0, 0, this->tamanioNodo);
+			indiceManager.leerBloque(nodo->getHijoIzq(), nuevoNodo);
 			auxNodo = buscarLugarRecursivo(nuevoNodo, clave);
 			delete nuevoNodo;
 		}
@@ -370,9 +381,12 @@ NodoBPlus* BPlusTree::buscarLugarRecursivo(NodoBPlus* nodo, Clave* clave) const 
 	} else {
 		
 		if (claveResultante->getHijoDer() == 0) {//Nodo hoja
-			//auxNodo = new NodoBPlus(archivo, nodo->getPosicionEnArchivo());
+			auxNodo = new NodoBPlus(0, 0, this->tamanioNodo);
+			//Devuelvo una copia de 'nodo'
+			*auxNodo = *nodo;
 		} else {
-			//nuevoNodo = new NodoBPlus(archivo, claveResultante->getHijoDer());
+			nuevoNodo = new NodoBPlus(0, 0, this->tamanioNodo);
+			indiceManager.leerBloque(claveResultante->getHijoDer(), nuevoNodo);
 			auxNodo = buscarLugarRecursivo(nuevoNodo, clave);
 			delete nuevoNodo;
 		}
@@ -393,7 +407,7 @@ Clave* BPlusTree::split(NodoBPlus* nodoTarget) {
 	if (nodoTarget->getNivel() == 0){ //Si es hoja
 		nuevoNodo = new NodoBPlus(nodoTarget->getHnoDer(), nodoTarget->getNivel(), nodoTarget->getTamanio());
 		nuevoNodo->setClaves(clavesMayores);
-		//TODO Escribir a disco el nuevo nodo!! nico puto
+		indiceManager.escribirBloque(nuevoNodo);
 		nodoTarget->setHnoDer(nuevoNodo->getPosicionEnArchivo());
 		clavePromocionada = (*(clavesMayores->begin()))->copiar();
 	}
@@ -402,7 +416,7 @@ Clave* BPlusTree::split(NodoBPlus* nodoTarget) {
 		clavesMayores->erase(clavesMayores->begin());
 		nuevoNodo = new NodoBPlus(clavePromocionada->getHijoDer(), nodoTarget->getNivel(), nodoTarget->getTamanio());
 		nuevoNodo->setClaves(clavesMayores);
-		//TODO Escribir a disco el nuevo nodo!! nico reputo
+		indiceManager.escribirBloque(nuevoNodo);
 	}
 	
 	clavePromocionada->setHijoDer(nuevoNodo->getPosicionEnArchivo());
@@ -422,8 +436,8 @@ void BPlusTree::merge(NodoBPlus* nodoIzquierdo, NodoBPlus* &nodoDerecho, Clave* 
 		nodoIzquierdo->merge(nodoDerecho, separador->copiar());
 	}
 	
-	//TODO borrar de disco al nodoDerecho. NiCO3
-	//TODO actualizar en disco al nodoIzquierdo, que ya no debería tener más underflow, je.
+	indiceManager.eliminarBloque(nodoDerecho->getPosicionEnArchivo());
+	indiceManager.escribirBloque(nodoIzquierdo->getPosicionEnArchivo(), nodoIzquierdo);
 	
 	delete nodoDerecho;
 	nodoDerecho = NULL;
