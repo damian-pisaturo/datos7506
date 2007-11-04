@@ -100,7 +100,7 @@
 		short ArchivoDatosBloques::leerBloque(void* bloque, unsigned int espacioLibre)
 		{
 			short resultado = ResFisica::OK;
-			short posicion = 0;
+			unsigned short posicion = 0;
 			ArchivoELVariable* archivoEL = static_cast<ArchivoELVariable*>(this->getArchivoEL());
 			
 			posicion = archivoEL->buscarEspacioLibre(espacioLibre);

@@ -353,7 +353,7 @@
 		
 		return resultado;
 	}
-
+	
 	int IndiceArbolManager::eliminarBloque(unsigned short posicion)
 	{
 		char resultado = 0;
@@ -366,6 +366,268 @@
 		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre del archivo.
 		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bloque en disco.
 		pipe->agregarParametro(posicion, 2); //Posicion del bloque a eliminar.
+		
+		//Se lanza el proceso de la capa fisica. 
+		pipe->lanzar();
+		
+		//Solicitar resultado de la comunicacion con la 
+		//capa fisica.
+		pipe->leer(&resultado);
+		
+		return resultado;
+	}
+	
+	int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo)
+	{
+		int resultado = 0;
+		unsigned short numBloque = 0;
+		Nodo* nodoNuevo = static_cast<Nodo*> (bloqueNuevo);
+		
+		//Variables de escritura del buffer
+		string buffer;
+		char* data = new char[2*this->getTamanioBloque()];
+		
+		char* primerBloque = new char[this->getTamanioBloque() + 1];
+		char* segundoBloque = new char[this->getTamanioBloque() + 1];		
+		
+		//Variables de interpretacion del nodo
+		HeaderNodo headerNodo;
+		SetClaves* set;
+		
+		//Instancia del pipe
+		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+		
+		//Parametros de inicializacion de la Capa Fisica.
+		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO_DOBLE, 0); //Codigo de operacion.
+		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre archivo.
+		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
+		
+		//Se lanza el proceso de la capa fisica. 
+		pipe->lanzar();
+		
+		//Copiar el header al buffer
+		headerNodo.nivel = nodoNuevo->getNivel();  
+		headerNodo.refNodo = nodoNuevo->getRefNodo();
+		headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
+		
+		//punteroAux apunta al inicio del buffer de datos.
+		//Necesario para crear un elemento de tipo string.
+		const char* punteroAux = primerBloque;
+		memcpy(primerBloque, &headerNodo, sizeof(HeaderNodo));
+		data += sizeof(HeaderNodo);
+		
+		//Obtener la lista de claves
+		set = nodoNuevo->getClaves();
+		
+		//Recorrer la lista de claves copiando cada clave al buffer
+		if(nodoNuevo->getNivel() == 0){
+			for(SetClaves::iterator iterClaves = set->begin(); 
+				iterClaves != set->end(); ++iterClaves)
+				this->copiarClaveHoja((Clave*)(*iterClaves), data);
+			
+		}else{
+			for(SetClaves::iterator iterClaves = set->begin(); 
+				iterClaves != set->end(); ++iterClaves)
+				this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
+		}
+		
+		memcpy(primerBloque, punteroAux, this->getTamanioBloque());
+		memcpy(segundoBloque, punteroAux + this->getTamanioBloque(), this->getTamanioBloque());
+		
+		*(primerBloque + this->getTamanioBloque() + 1) = 0;
+		*(segundoBloque + this->getTamanioBloque() + 1) = 0;
+		
+		//Grabar el primer bloque en el archivo.
+		buffer = primerBloque;		
+		pipe->escribir(buffer);
+		
+		//Obtener nueva posicion del primer nodo en el archivo
+		//y settearla en el nodo. La segunda posicion es contigua.
+		pipe->leer(&numBloque);		
+		nodoNuevo->setPosicionEnArchivo(numBloque);
+		
+		//Grabar el segundo bloque en el archivo.
+		buffer = segundoBloque;
+		pipe->escribir(buffer);
+		
+		//Solicitar resultado de la comunicacion con la 
+		//capa fisica.
+		pipe->leer(&resultado);
+		
+		pipe->liberarRecursos();
+		
+		delete[] data;
+		delete[] primerBloque;
+		delete[] segundoBloque;
+		
+		return resultado;
+
+	}
+	
+	int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo, unsigned short numBloque)
+	{
+		int resultado = 0;
+		unsigned short numBloque = 0;
+		Nodo* nodoNuevo = static_cast<Nodo*> (bloqueNuevo);
+		
+		//Variables de escritura del buffer
+		string buffer;
+		char* data = new char[2*this->getTamanioBloque()];
+		
+		char* primerBloque = new char[this->getTamanioBloque() + 1];
+		char* segundoBloque = new char[this->getTamanioBloque() + 1];		
+		
+		//Variables de interpretacion del nodo
+		HeaderNodo headerNodo;
+		SetClaves* set;
+		
+		//Instancia del pipe
+		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+		
+		//Parametros de inicializacion de la Capa Fisica.
+		pipe->agregarParametro(OperacionesCapas::FISICA_MODIFICAR_NODO_DOBLE, 0); //Codigo de operacion.
+		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre archivo.
+		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
+		pipe->agregarParametro(numBloque, 3); //Numero de bloque dentro del archivo.
+		
+		//Se lanza el proceso de la capa fisica. 
+		pipe->lanzar();
+		
+		//Copiar el header al buffer
+		headerNodo.nivel = nodoNuevo->getNivel();  
+		headerNodo.refNodo = nodoNuevo->getRefNodo();
+		headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
+		
+		//punteroAux apunta al inicio del buffer de datos.
+		//Necesario para crear un elemento de tipo string.
+		const char* punteroAux = primerBloque;
+		memcpy(primerBloque, &headerNodo, sizeof(HeaderNodo));
+		data += sizeof(HeaderNodo);
+		
+		//Obtener la lista de claves
+		set = nodoNuevo->getClaves();
+		
+		//Recorrer la lista de claves copiando cada clave al buffer
+		if(nodoNuevo->getNivel() == 0){
+			for(SetClaves::iterator iterClaves = set->begin(); 
+				iterClaves != set->end(); ++iterClaves)
+				this->copiarClaveHoja((Clave*)(*iterClaves), data);
+			
+		}else{
+			for(SetClaves::iterator iterClaves = set->begin(); 
+				iterClaves != set->end(); ++iterClaves)
+				this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
+		}
+		
+		memcpy(primerBloque, punteroAux, this->getTamanioBloque());
+		memcpy(segundoBloque, punteroAux + this->getTamanioBloque(), this->getTamanioBloque());
+		
+		*(primerBloque + this->getTamanioBloque() + 1) = 0;
+		*(segundoBloque + this->getTamanioBloque() + 1) = 0;
+		
+		//Grabar el primer bloque en el archivo.
+		buffer = primerBloque;		
+		pipe->escribir(buffer);
+		
+		//Grabar el segundo bloque en el archivo.
+		buffer = segundoBloque;
+		pipe->escribir(buffer);
+		
+		//Solicitar resultado de la comunicacion con la 
+		//capa fisica.
+		pipe->leer(&resultado);
+		
+		pipe->liberarRecursos();
+		
+		delete[] data;
+		delete[] primerBloque;
+		delete[] segundoBloque;
+		
+		return resultado;
+	}
+	
+	int IndiceArbolManager::leerBloqueDoble(unsigned int numeroBloque, BloqueIndice* bloqueLeido)
+	{
+		int resultado = 0;
+		Nodo* nodoLeido = static_cast<Nodo*> (bloqueLeido);
+		string buffer;
+		
+		//Variables de interpretacion del nodo
+		HeaderNodo headerNodo;		
+		Clave* claveNueva;
+		SetClaves* set = new SetClaves();
+		
+		//Instancia del pipe
+		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+		
+		//Parametros de inicializacion de la Capa Fisica para
+		//leer un nodo de disco.
+		pipe->agregarParametro(OperacionesCapas::FISICA_LEER_NODO_DOBLE, 0); //Codigo de operacion.
+		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo.
+		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
+		pipe->agregarParametro(numBloque, 3); //Numero de nodo a leer dentro del archivo
+	
+		//Se lanza el proceso de la capa fisica.		
+		pipe->lanzar();		
+		
+		//Se obtiene en buffer el contenido de ambos nodos solicitado.
+		pipe->leer(this->getTamanioBloque(), buffer);
+
+		//Castear el header
+		memcpy(&headerNodo, data, sizeof(HeaderNodo));
+		data += sizeof(HeaderNodo);
+		
+		//Setear el espacio libre, si es hoja y el HijoIzq
+		nodoLeido->setNivel(headerNodo.nivel);
+		nodoLeido->setEspacioLibre(headerNodo.espacioLibre); 
+		nodoLeido->setRefNodo(headerNodo.refNodo);
+		
+		//Recorrer el buffer desde donde quedo hasta que supere
+		//el espacio libre, interpretando clave por clave.			
+		const char* punteroFinal = data + (this->getTamanioBloque() - headerNodo.espacioLibre);
+		
+		if(nodoLeido->getNivel() == 0){
+			while(data < punteroFinal){	
+				//Leer la clave	
+				claveNueva = this->leerClaveHoja(data);
+				//Agregarla a la lista	
+				set->insert(claveNueva);
+			}	 
+		}else{
+			while(data < punteroFinal){	
+				//Leer la clave	
+				claveNueva = this->leerClaveNoHoja(data);
+				//Agregarla a la lista	
+				set->insert(claveNueva);
+			}
+		}
+		
+		//Agregar el setClaves al nodo
+		nodoLeido->setClaves(set);
+		//Setear la posicion del nodo en el archivo
+		nodoLeido->setPosicionEnArchivo(numBloque);	
+		
+		pipe->leer(&resultado);		
+		pipe->liberarRecursos();
+		
+		delete[] data;
+		
+		return resultado;
+		
+	}
+	
+	int IndiceArbolManager::eliminarBloqueDoble(unsigned short posicion)
+	{
+		char resultado = 0;
+	
+		//Instancia del pipe
+		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+		
+		//Parametros para inicializar el pipe.
+		pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_NODO_DOBLE, 0); //Codigo de operacion.
+		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre del archivo.
+		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bloque en disco.
+		pipe->agregarParametro(posicion, 2); //Posicion del primer bloque a eliminar.
 		
 		//Se lanza el proceso de la capa fisica. 
 		pipe->lanzar();

@@ -33,8 +33,7 @@
 			this->archivo.open(nombre.c_str(), ios::in |ios::out |ios::binary);
 			
 			//Determina si tuvo éxito la apertura del archivo
-			if (!this->archivo.is_open()){
-				
+			if (!this->archivo.is_open()){				
 			    //Limpia los flags de control de estado del archivo.
 			    this->archivo.clear();
 				  
@@ -43,11 +42,7 @@
 			    this->archivo.close();
 				    
 			    //Reabre el archivo para lectura - escritura binario
-			    this->archivo.open(nombre.c_str(),ios::in|ios::out|ios::binary);
-			    
-			    //Header del archivo
-			    //TODO Verificar si algun atributo mas es comun a todos los tipos de archivos.
-			    this->archivo.write((const char*)(&tamBloque), Tamanios::TAMANIO_LONGITUD);
+			    this->archivo.open(nombre.c_str(),ios::in|ios::out|ios::binary);			    
 			}
 			
 			this->tamBloque = tamBloque;
@@ -57,7 +52,7 @@
 		{
 			//Cierra el archivo
 			this->tamBloque = 0;
-			this->archivo.close();	
+			this->archivo.close();				
 		}
 
 	///////////////////////////////////////////////////////////////////////
@@ -66,19 +61,21 @@
 		char ArchivoBase::escribir(const void* bloque) 
 		{
 			char resultado = ResFisica::OK;
-			
+
 			//Verifica que el archivo esté abierto
-			if (this->archivo.is_open()) {
+			if (this->archivo.is_open()) {	
 				//Escribe el bloque en el archivo
-			    this->archivo.write(static_cast<const char*>(bloque), this->tamBloque);
-		
+			    this->archivo.write(static_cast<const char*>(bloque), this->tamBloque);			  
+			    
 			    //Chequea si se ha producido un error 
 			    if (this->archivo.fail())
 			      resultado = ResFisica::ERROR_ESCRITURA;
+			    else
+			    	 this->archivo.flush();
 		    }else
 			  //El archivo no se encuentra abierto
 			  resultado = ResFisica::NO_ABIERTO;
-			
+
 			return resultado;
 		}	
 
@@ -88,9 +85,9 @@
 			
 			//Verifica que el archivo esté abierto
 			if (this->archivo.is_open()) {		  	
-				//Lee del archivo un bloque */
+				//Lee del archivo un bloque 
 				this->archivo.read(static_cast<char*>(bloque), this->tamBloque);
-
+				
 				//Chequea si se ha producido un error
 				if (this->archivo.fail()){
 					this->archivo.clear();
@@ -104,10 +101,8 @@
 		}
 
 		bool ArchivoBase::fin()
-		{
-			return archivo.eof();
-			/*
-		  // para comprobar el fin lee un char del buffer, sin retirarlo y lo
+		{	
+		  // Para comprobar el fin lee un char del buffer, sin retirarlo y lo
 		  // compara con el fin de archivo
 		  bool esEof = (this->archivo.peek() == char_traits<char>::eof());
 		
@@ -116,7 +111,7 @@
 		    this->archivo.clear();
 		
 		  return esEof;
-		  */
+		 
 		}
 	
 	
@@ -134,27 +129,36 @@
 			  return pos;
 		}
 		
-		char ArchivoBase::posicionarse(unsigned int posicion)
+		char ArchivoBase::posicionarse(unsigned short posicion)
 		{
 			char resultado = ResFisica::OK;
-			
-			//Verifica que el archivo esté abierto
-			if (this->archivo.is_open()) {
-				//Mueve la posición actual según sea el tamano del bloque
-				this->archivo.seekg(posicion * this->tamBloque, ios_base::beg);
-	
-				//Chequea si se ha producido un error			
-				if (this->archivo.fail())
-					resultado = ResFisica::ERROR_POSICION;
+
+			if (this->size() > (posicion + 1)*this->tamBloque){
+				//Verifica que el archivo esté abierto
+				if (this->archivo.is_open()) {
+					//Mueve la posición actual según sea el tamano del bloque
+					this->archivo.seekg(posicion * this->tamBloque, ios_base::beg);
+		
+					//Chequea si se ha producido un error			
+					if (this->archivo.fail())
+						resultado = ResFisica::ERROR_POSICION;
+				}else
+					resultado = ResFisica::NO_ABIERTO;
 			}else
-				resultado = ResFisica::NO_ABIERTO;
+				resultado = ResFisica::ERROR_LECTURA;
 			
 			return resultado;
 		}
 	
 		void ArchivoBase::posicionarseFin()
 		{
-			this->archivo.seekg(0,ios_base::end);
+			this->archivo.seekg(0,ios::end);
+		}
+		
+		long ArchivoBase::size()
+		{			
+			this->posicionarseFin();
+			return this->archivo.tellg();	
 		}
 
 	///////////////////////////////////////////////////////////////////////
@@ -165,3 +169,4 @@
 		{
 			return this->tamBloque;
 		}
+

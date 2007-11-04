@@ -30,13 +30,7 @@
 		ArchivoIndice::ArchivoIndice(string nombreArchivo, unsigned short tamBloque) :
 			ArchivoBase(nombreArchivo, tamBloque)
 		{	
-			//Creacion e inicializacion del archivo de control
-			//de espacio libre.
-			bool valor = true;
 			this->archivoEL = new ArchivoELFijo(nombreArchivo + ".nfo");
-			
-			//Escribir primer valor booleano en el archivo de control.
-			this->archivoEL->escribir(&valor);
 		}
 		
 		ArchivoIndice::~ArchivoIndice()
@@ -50,18 +44,33 @@
 	///////////////////////////////////////////////////////////////////////
 		
 		short ArchivoIndice::escribirBloque(const void* bloque)
-		{			
+		{		
+			bool valor = false;
 			ArchivoELFijo* archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
 			
 			short bloqueLibre = archivoEL->buscarBloqueLibre();
 			
 			if (bloqueLibre == ResFisica::BLOQUES_OCUPADOS){
+				//Si ningun bloque esta libre, appendea al
+				//final del archivo. 
 				this->posicionarseFin();
 				bloqueLibre = this->posicion() + 1;
-			}else
+				
+				//Se modifica el atributo booleano de control
+				//en el archivo de espacio libre.
+				archivoEL->agregarRegistro(&valor);
+				
+				//Se agrega nueva entrada booleana al archivo de control
+				//de espacio libre.
+				//valor = true;
+				//archivoEL->agregarRegistro(&valor);
+			}else{
 				this->posicionarse(bloqueLibre);
+				archivoEL->modificarRegistro(&valor, bloqueLibre);
+			}
 			
-			this->escribir(bloque);			
+			//Escritura del bloque a disco.
+			this->escribir(bloque);
 			
 			return bloqueLibre;
 		}
@@ -69,17 +78,23 @@
 		char ArchivoIndice::escribirBloque(const void* bloque, unsigned short numBloque)
 		{
 			char resultado = ResFisica::OK;
+			bool valor = false;
+			ArchivoELFijo* archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
 			
 			resultado = this->posicionarse(numBloque);
 			if (resultado == ResFisica::OK)
-				resultado = this->escribir(bloque);
+				resultado = this->escribir(bloque);			
+			
+			//Se modifica la entrada correspondiente al bloque 
+			//modificado en el archivo de control de espacio libre.
+			archivoEL->modificarRegistro(&valor, numBloque);
 			
 			return resultado;
 		}
 		
 		char ArchivoIndice::eliminarBloque(unsigned short numBloque)
 		{
-			bool valor = false;
+			bool valor = true;
 			ArchivoEL* archivoEL = this->getArchivoEL();
 			
 			return archivoEL->modificarRegistro(&valor, numBloque);			
@@ -91,6 +106,7 @@
 			
 			if (resultado == ResFisica::OK)
 				resultado = this->leer(bloque);
+			
 			
 			return resultado;			
 		}	 
