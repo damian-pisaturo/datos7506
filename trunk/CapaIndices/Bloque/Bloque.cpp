@@ -68,6 +68,7 @@ bool Bloque::buscarRegistro(const list<nodoLista>& listaParam, void *clavePrimar
 	unsigned short bytesLong = 0;
 	char *campo;
 	float campoNumerico;
+	int campoNumericoInt;
 	short int campoShort;
 
 	int i = 1 ;
@@ -132,8 +133,8 @@ bool Bloque::buscarRegistro(const list<nodoLista>& listaParam, void *clavePrimar
 				   
 			   if(pk == "true"){
 				   checkPk = true;					   
-				   memcpy((int*)&campoNumerico,&registro[offsetToProxCampo],sizeof(int));		 
-				   if(campoNumerico == *((int*)clavePrimaria)){
+				   memcpy(&campoNumericoInt,&registro[offsetToProxCampo],sizeof(int));		 
+				   if(campoNumericoInt == *((int*)clavePrimaria)){
 					   *offsetReg = offsetToReg;
 					   encontrado = true;
 				   }
@@ -242,7 +243,7 @@ void Bloque::organizarBloque(int offsetToReg,int longReg){
  * Inserta un nuevo registro dentro del bloque
  * Retorna true si la inserción fue exitosa, o false en caso contrario
  **/
-bool Bloque::altaRegistro(const list<nodoLista>& listaParam,char *registro){
+int Bloque::altaRegistro(const list<nodoLista>& listaParam,char *registro){
 	unsigned short offsetEspLibre;
 	unsigned short longReg;
 	
@@ -262,9 +263,9 @@ bool Bloque::altaRegistro(const list<nodoLista>& listaParam,char *registro){
 		
 		// registro incluye su longitud en los primeros 2 bytes.
 		insertarRegistro(registro,offsetEspLibre,longReg); 
-		return true;	
+		return OK;	
 	}
-	return false;
+	return OVERFLOW;
 }
 	
 /*
@@ -286,6 +287,7 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 	bool checkPk;
 	unsigned short longCampo;
 	char *campo;
+	int campoNumericoInt;
 	float campoNumerico;
 	unsigned short campoShort;
 	unsigned short bytesLongitud = 0;
@@ -314,7 +316,6 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 		
 		registro = new char[longReg];
 
-		cout << offsetToReg << endl;
 		if (tipo == TipoDatos::TIPO_VARIABLE){
 			// Se omite la longitud del registro.
 			offsetToReg += Tamanios::TAMANIO_LONGITUD;
@@ -356,9 +357,9 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 			   
 			   if(pk == "true"){
 				   checkPk = true;
-				   memcpy((int*)&campoNumerico,&registro[offsetToProxCampo],sizeof(int));
+				   memcpy(&campoNumericoInt,&registro[offsetToProxCampo],sizeof(int));
 				 
-				   if(campoNumerico == *((int*)clavePrimaria)){
+				   if(campoNumericoInt == *((int*)clavePrimaria)){
 					   organizarBloque(offsetToReg-bytesLongitud,longReg + bytesLongitud);
 					   registroBorrado = true;
 				   }
@@ -369,7 +370,7 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 			   if(pk == "true"){
 				   checkPk = true;
 				   memcpy(&campoShort,&registro[offsetToProxCampo],sizeof(short int));
-				   if(campoNumerico == *((short int*)clavePrimaria)){
+				   if(campoShort == *((short int*)clavePrimaria)){
    						organizarBloque(offsetToReg-bytesLongitud,longReg + bytesLongitud);
    						registroBorrado = true;
    				    }

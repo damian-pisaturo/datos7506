@@ -66,7 +66,7 @@ public:
 	/*
 	 * Inserta un nuevo registro dentro del bloque
 	 **/
-	bool altaRegistro(const list<nodoLista>& listaParam, char *registro);
+	int altaRegistro(const list<nodoLista>& listaParam, char *registro);
 	
 	/*
 	 * Elimina un registro del bloque, reorganizando el espacio libre
