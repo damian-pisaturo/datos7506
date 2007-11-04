@@ -11,7 +11,7 @@ class TipoDatos
 		const static int TIPO_BOOL		= 3;
 		const static int TIPO_FLOAT		= 4;
 		const static int TIPO_FECHA		= 5;
-		const static int TIPO_STRING	= 6;
+		const static int TIPO_STRING	= 6; 
 		const static int TIPO_COMPUESTO	= 7;
 		
 		// Las constantes a continuación se usan para saber si los
