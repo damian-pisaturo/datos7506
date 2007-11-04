@@ -5,7 +5,7 @@ IndiceManagerFactory IndiceManagerFactory::instance;
 IndiceManager* IndiceManagerFactory::getIndiceManager(unsigned char tipoIndice, unsigned short tamBloqueLista,
 													  int tipoDato, ListaTipos* listaTipos,
 													  unsigned char tipoEstructura, unsigned short tamNodo,
-													  const string& nombreArchivo) const {
+													  unsigned int tamBucket, const string& nombreArchivo) const {
 	
 	switch (tipoIndice) {
 	
@@ -56,6 +56,10 @@ IndiceManager* IndiceManagerFactory::getIndiceManager(unsigned char tipoIndice, 
 					//return new IndiceCompuestoRomanoManager(tamNodo, nombreArchivo, tamBloqueLista, tipoEstructura, listaTipos);
 					return NULL;
 			}
+			
+		case TipoIndices::HASH:
+			
+			return new IndiceHashManager(tamBucket, nombreArchivo);
 			
 		default: return NULL;
 	
