@@ -1,5 +1,6 @@
 #ifndef REGISTERINFO_H_
 #define REGISTERINFO_H_
+
 #include "../Common/TipoDatos.h"
 
 #include <list>
@@ -16,8 +17,10 @@ using namespace std;
 // En caso contrario, habrá muchos atributos 'pk = "true"' que indican si ese
 // atributo del registro forma parte de la clave compuesta.
 // En el primer nodo de la lista 'cantClaves' indica la cantidad de claves que
-// conforman la clave compuesta. En los nodos siguientes, 'cantClaves' se utiliza
-// para saber 
+// conforman la clave compuesta. En los nodos siguientes, si la lista se utiliza en
+// una operacion de modificacion de registros, 'cantClaves' indica si esa clave
+// debe ser modificada o no.
+
 typedef struct _nodoLista{
 	int tipo;
 	string pk;
@@ -25,6 +28,7 @@ typedef struct _nodoLista{
 }nodoLista;
 
 typedef  list<nodoLista> ListaNodos;
+
 class RegisterInfo
 {
 
