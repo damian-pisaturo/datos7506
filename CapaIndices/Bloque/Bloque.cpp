@@ -282,7 +282,8 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 	char *registro;
 	list<nodoLista>::const_iterator it = listaParam.begin();
 	nodoLista regAtribute;
-	int tipo;
+	int tipoRegistro; // Indica si el registro es variable o fijo
+	int tipo; // Indica el tipo de dato del campo de un registro
 	string pk;
 	bool checkPk;
 	unsigned short longCampo;
@@ -300,7 +301,7 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 	
 	regAtribute = *it;
 	// Se obtiene el tipo de atributo del registro.
-	tipo = regAtribute.tipo;
+	tipoRegistro = regAtribute.tipo;
 	
 	int i = 1 ;
 	// Mientras no se borre al registro y haya más registros..
@@ -316,7 +317,7 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria)
 		
 		registro = new char[longReg];
 
-		if (tipo == TipoDatos::TIPO_VARIABLE){
+		if (tipoRegistro == TipoDatos::TIPO_VARIABLE){
 			// Se omite la longitud del registro.
 			offsetToReg += Tamanios::TAMANIO_LONGITUD;
 			bytesLongitud = Tamanios::TAMANIO_LONGITUD;
