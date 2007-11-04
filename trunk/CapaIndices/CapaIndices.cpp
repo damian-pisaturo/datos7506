@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "Bloque/Bloque.h"
+#include <map>
 
 using namespace std;
 
@@ -194,5 +195,14 @@ int main(int argc, char** argv) {
 		cout <<"Tercer dato del registro2:"<<endl;
 		cout <<enteroCuatro<<endl;
 		*/
+	
+	map<string, string> mapa;
+	
+	string s1("hola");
+	string s2("chau");
+	
+	mapa[s1] = s2;
+	
+	cout << mapa["hola"] << endl;
 }
 
