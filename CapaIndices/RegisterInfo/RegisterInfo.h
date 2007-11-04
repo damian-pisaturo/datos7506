@@ -15,7 +15,9 @@ using namespace std;
 // Si 'cantClaves = 1', habrá un solo atributo utilizado como clave primaria.
 // En caso contrario, habrá muchos atributos 'pk = "true"' que indican si ese
 // atributo del registro forma parte de la clave compuesta.
-
+// En el primer nodo de la lista 'cantClaves' indica la cantidad de claves que
+// conforman la clave compuesta. En los nodos siguientes, 'cantClaves' se utiliza
+// para saber 
 typedef struct _nodoLista{
 	int tipo;
 	string pk;

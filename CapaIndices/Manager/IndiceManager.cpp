@@ -376,7 +376,9 @@
 		
 		return resultado;
 	}
-	
+
+//TODO Terminar de implementar!!!
+/*
 	int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo)
 	{
 		int resultado = 0;
@@ -464,6 +466,7 @@
 
 	}
 	
+//TODO Terminar de implementar!!!
 	int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo, unsigned short numBloque)
 	{
 		int resultado = 0;
@@ -545,7 +548,9 @@
 		
 		return resultado;
 	}
-	
+
+//TODO terminar de implementar!!!
+
 	int IndiceArbolManager::leerBloqueDoble(unsigned int numeroBloque, BloqueIndice* bloqueLeido)
 	{
 		int resultado = 0;
@@ -616,6 +621,7 @@
 		
 	}
 	
+//TODO Terminar de implementar!!!
 	int IndiceArbolManager::eliminarBloqueDoble(unsigned short posicion)
 	{
 		char resultado = 0;
@@ -638,6 +644,7 @@
 		
 		return resultado;
 	}
+*/
 	
 	void IndiceArbolManager::exportar(ostream &archivoTexto, int posicion)
 	{
