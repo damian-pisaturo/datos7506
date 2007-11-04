@@ -19,7 +19,6 @@
 
 #include "BPlusTree.h"
 
-
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
@@ -29,8 +28,9 @@
 //////////////////////////////////////////////////////////////////////
 // Contructor/Destructor
 //////////////////////////////////////////////////////////////////////
-BPlusTree::BPlusTree(IndiceManager& indiceManager, unsigned short tamanioNodo) : indiceManager(indiceManager) {
-	this->tamanioNodo = tamanioNodo;
+BPlusTree::BPlusTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
+	: BTree(indiceManager, tamanioNodo) {
+	
 	this->nodoRaiz = NULL;
 	this->nodoActual = NULL;
 }

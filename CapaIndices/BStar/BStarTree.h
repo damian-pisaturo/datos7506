@@ -1,11 +1,12 @@
 #ifndef BSTARTREE_H_
 #define BSTARTREE_H_
 
+#include "../BTree/BTree.h"
 #include "NodoBStar.h"
 #include "../Manager/IndiceManager.h"
 
 
-class BStarTree {
+class BStarTree : public BTree{
 	
 	public:
 		//Constructor que recibe el tamaño de los nodos (en bytes)
@@ -26,19 +27,16 @@ class BStarTree {
 		
 		bool vacio() const { return (this->nodoRaiz == NULL); }
 		
-		
 	private:
 		//Atributos
 		
 		NodoBStar* nodoRaiz;
+		
 		//Para administrar la raíz, se utiliza el modelo en el cual la misma
 		//posee el espacio suficiente para que a la hora de dividirse,
 		//genere dos nodos 2/3 llenos.
 		unsigned short tamanioRaiz; //Tamanio máximo (en bytes) de la raíz
-		unsigned short tamanioNodo; //Tamanio máximo (en bytes) de un nodo
-		
-		//Objeto utilizado para cargar y guardar los nodos desde disco
-		IndiceManager& indiceManager; 
+	 
 		
 		//Métodos
 		
