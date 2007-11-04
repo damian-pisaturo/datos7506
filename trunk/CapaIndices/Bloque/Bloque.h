@@ -62,7 +62,7 @@ public:
 	///////////////////////////////////////////////////////////////////////
 	// Métodos públicos
 	///////////////////////////////////////////////////////////////////////
-	bool buscarRegistro(const list<nodoLista>& listaParam, void *clavePrimaria, unsigned short* offsetReg);
+	bool buscarRegistro(const list<nodoLista>& listaParam, void **clavePrimaria, unsigned short* offsetReg);
 	/*
 	 * Inserta un nuevo registro dentro del bloque
 	 **/
@@ -71,11 +71,11 @@ public:
 	/*
 	 * Elimina un registro del bloque, reorganizando el espacio libre
 	 **/
-	int bajaRegistro(const list <nodoLista>& listaParam,void *clavePrimaria);
+	int bajaRegistro(const list <nodoLista>& listaParam,void **clavePrimaria);
 	/*
 	 * Modifica el contenido de un registro.
 	 **/
-	int modificarRegistro(const list<nodoLista>& listaParam, unsigned short longReg,void* clavePrimaria, char* registro);
+	int modificarRegistro(const list<nodoLista>& listaParam, unsigned short longReg,void** clavePrimaria, char* registro);
 	
 	
 	/*
@@ -97,7 +97,7 @@ public:
 	/*
 	 * Devuelve la clave primaria de "registro".
 	 **/
-	char * getClavePrimaria(const list <nodoLista>& listaParam, char* registro);
+	void**  getClavePrimaria(const list <nodoLista>& listaParam, char* registro);
 	
 	/*
 	 * Devuelve el tamaño del bloque.
