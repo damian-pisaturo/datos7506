@@ -1,10 +1,12 @@
 #include "BStarTree.h"
 
-BStarTree::BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo) : indiceManager(indiceManager) {
-	this->tamanioNodo = tamanioNodo;
+
+BStarTree::BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
+	: BTree(indiceManager, tamanioNodo) {
+	
+	this->nodoRaiz = NULL;
 	this->tamanioRaiz = 4*(tamanioNodo - NodoBStar::getTamanioHeader())/3;
 	this->tamanioRaiz += NodoBStar::getTamanioHeader();
-	this->nodoRaiz = NULL;
 }
 
 BStarTree::~BStarTree() {

@@ -20,6 +20,7 @@
 #ifndef BPLUSTREE_H_
 #define BPLUSTREE_H_
 
+#include "../BTree/BTree.h"
 #include "../Common/Clave.h"
 #include "NodoBPlus.h"
 #include "../Manager/IndiceManager.h"
@@ -34,20 +35,16 @@ using namespace std;
 // Nombre: BPlusTree (Implementa Arboles B+ en disco)
 ///////////////////////////////////////////////////////////////////////////
 
-class BPlusTree
+class BPlusTree : public BTree
 {
 	private:
 	//////////////////////////////////////////////////////////////////////
 	//Atributos privados
 	//////////////////////////////////////////////////////////////////////
-		NodoBPlus* nodoRaiz;
 		NodoBPlus* nodoActual;
-		unsigned short tamanioNodo;
-		
-		//Objeto utilizado para cargar y guardar los nodos desde disco
-		IndiceManager& indiceManager;
-		
 
+		NodoBPlus* nodoRaiz;
+		
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Contructor/Destructor
@@ -78,7 +75,6 @@ class BPlusTree
 		void primero();
 		
 		bool vacio() const { return (this->nodoRaiz == NULL); }
-		
 	private:
 		//////////////////////////////////////////////////////////////////////
 		// Metodos privados
