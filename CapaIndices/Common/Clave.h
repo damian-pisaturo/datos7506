@@ -387,13 +387,7 @@ class ClaveVariable: public Clave
 	///////////////////////////////////////////////////////////////////////
 	// Atributos
 	///////////////////////////////////////////////////////////////////////
-		//Longitud maxima de la cadena a almacenar.
-		static const unsigned char longMaxCadena = 40;
 
-		/*La longitud actual de la cadena puede obtenerse mediante
-		  el metodo size() de la clase string. Aunque no esté como atributo,
-		  debe persistirse en disco.
-		*/
 
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor

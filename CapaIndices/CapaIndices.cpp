@@ -4,8 +4,18 @@
 #include "Bloque/Bloque.h"
 
 using namespace std;
-int main(int argc, char** argv) {
+
+void cargarDefiniciones() {
 	
+	
+	
+	
+}
+
+int main(int argc, char** argv) {
+	 
+	
+	cargarDefiniciones();
 	/*
 	 * Este codigo es para probar ABM con registros fijos.
 	 * Cabe aclarar que bloque no es el encargado de chequear las claves repetidas, esa funcionalidad 
@@ -93,14 +103,20 @@ int main(int argc, char** argv) {
 	char *zeta = new char[5];
 	zeta = "HOLAS";
 	int enteroDos = 320;
+	int enteroTres = 24;
+	char *lau = new char [6];
+	lau = "mlaura";
+	int enteroCuatro = 321;
 		
 	unsigned short espLibre;
-	unsigned short tamanio = 25;
+	unsigned short tamanio = 50;
 	unsigned short cantRegs = 0; 
 	char *registro = new char [17];
+	char *registro2 = new char [18];
 	unsigned short longReg = 15;
+	unsigned short longReg2 = 16;
 	unsigned short longString = 5;
-	
+	unsigned short longString2 = 6;
 	RegisterInfo * listaLoca = new RegisterInfo();
 	Bloque * bloque =  new Bloque(0,tamanio);
 	memcpy(registro,&longReg,sizeof(unsigned short));
@@ -110,19 +126,51 @@ int main(int argc, char** argv) {
 	memcpy(&registro[sizeof(int)+2*sizeof(unsigned short) + 5*sizeof(char)],&enteroDos,sizeof(int));
 	int result = bloque->altaRegistro(listaLoca->getParameterList(),registro);
 	
-	cout<<"result:"<<endl;
+	cout<<"result 1:"<<endl;
 	cout<<result<<endl;
 	
-	char* datos = bloque->getDatos();
+	memcpy(registro2,&longReg2,sizeof(unsigned short));
+	memcpy(&registro2[sizeof(unsigned short)],&enteroTres,sizeof(int));
+	memcpy(&registro2[sizeof(unsigned short)+sizeof(int)],&longString2,sizeof(unsigned short));
+	memcpy(&registro2[sizeof(int)+2*sizeof(unsigned short)],&lau,6*sizeof(char));
+	memcpy(&registro2[sizeof(int)+2*sizeof(unsigned short) + 6*sizeof(char)],&enteroCuatro,sizeof(int));
+		
+	result = bloque->altaRegistro(listaLoca->getParameterList(),registro2);
+		
+	lau = "abcdef";
+	
+	memcpy(&registro2[sizeof(int)+2*sizeof(unsigned short)],&lau,6*sizeof(char));
+	
+	
+	cout<<"result 2:"<<endl;
+	cout<<result<<endl;
+	result = bloque->modificarRegistro(listaLoca->getParameterList(),16,&enteroCuatro,registro2);
+	cout<<"result 3:"<<endl;
+		cout<<result<<endl;
+//	int clave  = 320;
+	//result = bloque->bajaRegistro(listaLoca->getParameterList(),&clave);
+	
+	
+	char* datos = bloque->getDatos(); 
 	memcpy(&espLibre,datos,sizeof(unsigned short));
 	memcpy(&cantRegs,&datos[2],sizeof(unsigned short));
 	memcpy(&enteroUno,&datos[6],sizeof(int));
 	memcpy(&zeta,&datos[12],5*sizeof(char));
 	memcpy(&enteroDos,&datos[17],sizeof(int));
 	
-
+	//Reistro 2
+	memcpy(&enteroTres,&datos[23],sizeof(int));
+	memcpy(&lau,&datos[29],6*sizeof(char));
+	memcpy(&enteroCuatro,&datos[35],sizeof(int));
+	
+	//Reistro 2
+		memcpy(&enteroTres,&datos[23],sizeof(int));
+		memcpy(&lau,&datos[29],6*sizeof(char));
+		memcpy(&enteroCuatro,&datos[35],sizeof(int));
+	cout << "Elimino?"<<endl;
+	cout << result<<endl;
 	cout << "Espacio Libre"<<endl;
-	cout << espLibre<<endl;
+ 	cout << espLibre<<endl;
 	cout <<"Cantidad de registros: "<<endl;
 	cout <<cantRegs<<endl;
 	cout <<"Primer dato del registro:"<<endl;
@@ -131,5 +179,12 @@ int main(int argc, char** argv) {
 	cout <<zeta<<endl;
 	cout <<"Tercer dato del registro:"<<endl;
 	cout <<enteroDos<<endl;
+	
+	cout <<"Primer dato del registro2:"<<endl;
+		cout <<enteroTres<<endl;
+		cout <<"Segundo dato del registro2:"<<endl;
+		cout <<lau<<endl;
+		cout <<"Tercer dato del registro2:"<<endl;
+		cout <<enteroCuatro<<endl;
 }
 

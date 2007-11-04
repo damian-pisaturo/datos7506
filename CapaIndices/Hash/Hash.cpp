@@ -308,3 +308,27 @@ bool Hash::esRegistroVariable()
 		return true;
 	return false;
 }
+/*
+ * Recupera un registro a partir de una clave 
+ **/
+
+bool Hash::recuperarRegistro(list<nodoLista> listaParam,void *clave, char *registro){
+	// Se aplica la función de hash para ver en que bucket se debe buscar el
+	// registro a recuperar.
+	//int posicion = aplicarHash((char*)clave) % tabla->getTamanio();
+	//unsigned int nroBucket = tabla->getNroBucket(posicion);
+		
+	// Se levanta dicho bucket.
+	//Bucket * bucket = new Bucket(archivo, nroBucket);	
+	//unsigned short offsetToReg;
+	//Si encuentro el registro buscado tengo el offset al registro en offsetToReg
+	//if (bucket->buscarRegistro(listaParam, (void *)clave,&offsetToReg)){	
+		//unsigned short longReg;	
+		//longReg = getTamanioRegistros(listaParam,bucket->getDatos[offsetToReg]);
+		//memcpy(&longRegOrig,&datos[offsetReg],Tamanios::TAMANIO_LONGITUD);
+
+		return true;
+	//}	
+	//else return false;
+		
+}
