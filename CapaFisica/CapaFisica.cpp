@@ -25,8 +25,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 	int main(int argc, char**argv)
-	{	/*
-	
+	{
 		char resultado = ResFisica::OK;
 		
 		if (argc > 3){
@@ -231,48 +230,48 @@
 			
 			case OperacionesCapas::FISICA_ESCRIBIR_NODO_DOBLE:
 			{
-							
+				//TODO
 			}break;
 			
 			case OperacionesCapas::FISICA_LEER_NODO_DOBLE:
 			{
-							
+				//TODO			
 			}break;
 			
 			case OperacionesCapas::FISICA_MODIFICAR_NODO_DOBLE:
 			{
-							
+				//TODO	
 			}break;
 			
 			case OperacionesCapas::FISICA_ELIMINAR_NODO_DOBLE:
 			{
-							
+				//TODO	
 			}break;
 			
 			case OperacionesCapas::FISICA_LEER_DATO:
 			{
-				
+				//TODO
 			}break;
 			
 			case OperacionesCapas::FISICA_ESCRIBIR_DATO:
 			{
-				
+				//TODO
 			}break;
 							
 							
 			case OperacionesCapas::FISICA_MODIFICAR_DATO:
 			{								
-												
+				//TODO						
 			}break;
 				
 			case OperacionesCapas::FISICA_ELIMINAR_DATO:
 			{								
-												
+				//TODO						
 			}break;
 				
 			default:
 			{
-				
+				//TODO
 			}break;
 					
 			
@@ -282,41 +281,6 @@
 		}else resultado = ResFisica::CANT_ARGUMENTOS_INVALIDA;
 		
 		return resultado;	
-		
-		*/
-		
-		/*
-		IndiceEnteroGriegoManager* indiceManager = (IndiceEnteroGriegoManager*) IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::GRIEGO, 0, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BP, 512, 0, "datos");
-		
-		Clave* clave = new ClaveEntera(4, 123, 56);
-		int num = indiceManager->escribirBloque(bloque);
-		
-		cout << "Te la ensarte en este numero: " << num << endl;
-		
-		delete bloque;
-		BloqueIndice* bloque = new NodoBPlus(213, 0, clave, 512);		
-		
-		*/
-		
-	
-		IndiceEnteroGriegoManager* indiceManager = (IndiceEnteroGriegoManager*) IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::GRIEGO, 0, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BP, 512, 0, "datos");
-		
-		//Clave* clave = NULL;
-		BloqueIndice* bloque = new NodoBPlus();		
-		
-		indiceManager->leerBloque(0, bloque);
-		
-		cout << "getesplibr" << ((NodoBPlus*)bloque)->getEspacioLibre() << endl;
-		cout << "getrefnod" << ((NodoBPlus*)bloque)->getRefNodo() << endl;
-		cout << "getnivelx" << ((NodoBPlus*)bloque)->getNivel() << endl;
-		cout << "gettam" << ((NodoBPlus*)bloque)->getTamanio() << endl;
-						
-		//clave = ((NodoBPlus*)bloque)->obtenerPrimeraClave();
-		
-		//cout << "debe ser algun num claveeeee: " << *((int *)clave->getValor());
-		
-		delete bloque;	
-		
 		
 	}
 

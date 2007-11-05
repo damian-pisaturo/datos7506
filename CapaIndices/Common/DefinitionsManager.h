@@ -48,6 +48,7 @@ class DefinitionsManager {
 		
 		typedef std::map<std::string, ListaTiposIndices*> MapaTiposIndices;
 		
+		
 		//Metodos
 		DefinitionsManager();
 		

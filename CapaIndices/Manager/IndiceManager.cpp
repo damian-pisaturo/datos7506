@@ -146,16 +146,15 @@
 	int IndiceArbolManager::leerBloque(unsigned int numBloque, BloqueIndice* bloqueLeido)
 	{
 		char resultado = 0;
-		//Nodo* nodoLeido = static_cast<Nodo*> (bloqueLeido);
+		Nodo* nodoLeido = static_cast<Nodo*> (bloqueLeido);
 		
 		//Buffer
 		char* data = new char[this->getTamanioBloque() + 1];
 		char* punteroAux = data;
 		
-		//Variables de interpretacion del nodo
-		//HeaderNodo headerNodo;		
-		//Clave* claveNueva;
-		//SetClaves* set = new SetClaves();
+		//Variables de interpretacion del nodo		
+		Clave* claveNueva;
+		SetClaves* set = new SetClaves();
 		
 		//Instancia del pipe
 		ComuDatos* pipe = instanciarPipe(/*NOMBRE_CAPA_FISICA*/"datos");
@@ -169,51 +168,36 @@
 	
 		//Se lanza el proceso de la capa fisica. 
 		//Se obtiene en buffer el contenido del Nodo solicitado.
-		pipe->lanzar();
-		//pipe->leer(&resultado);	
+		pipe->lanzar();	
 		
 		pipe->leer(this->getTamanioBloque(), data);		
 		
-		for (short i = 0; i < 512; i++)
-			printf("%#10x", data[i]);
-		
 		//Castear el header
-		//memcpy(&headerNodo, data, sizeof(HeaderNodo));
-		//data += sizeof(HeaderNodo);
-		//HeaderNodo headerNodo;
 		unsigned char nivel;
 		unsigned int refNodo;
 		unsigned short espLibre;
 		
-		memcpy(&refNodo, data, 4);
-		data+=4;		
+		memcpy(&nivel, data, sizeof(unsigned char));
+		data += sizeof(unsigned char);
 		
-		memcpy(&espLibre,data, 4);
-		data+=4;		
+		memcpy(&refNodo, data, sizeof(unsigned int));
+		data += sizeof(unsigned int);
 		
-		memcpy(&nivel,data, 1);
-		data++;
-				
-	
-				
-				cout << endl;
-				printf("Nivel_ %d\n", nivel);
-				cout << "EspacioLibre_" << espLibre << endl;
-				cout << "RefNodo_" << refNodo << endl;
-				
-		/*
-		char a;
-		memcpy(&a, data + 4, sizeof(char));
-		
+		memcpy(&espLibre, data, sizeof(unsigned short));
+		data += sizeof(unsigned short);
+			
+		//memcpy(&headerNodo, data, sizeof(HeaderNodo));
+		//data += sizeof(HeaderNodo);
+		//HeaderNodo headerNodo;			
 		
 		//Setear el espacio libre, si es hoja y el HijoIzq
-		nodoLeido->setNivel(headerNodo.nivel);
-		nodoLeido->setEspacioLibre(headerNodo.espacioLibre); 
-		nodoLeido->setRefNodo(headerNodo.refNodo);
+		nodoLeido->setNivel(nivel);
+		nodoLeido->setEspacioLibre(espLibre); 
+		nodoLeido->setRefNodo(refNodo);
 		
 		//Recorrer el buffer desde donde quedo hasta que supere
-		//el espacio libre, interpretando clave por clave.			
-		const char* punteroFinal = data + (this->getTamanioBloque() - headerNodo.espacioLibre);
+		//el espacio libre, interpretando clave por clave.
+		const char* punteroFinal = punteroAux + (this->getTamanioBloque() - espLibre - nodoLeido->getTamanioHeader());
 		
 		if(nodoLeido->getNivel() == 0){
 			while(data < punteroFinal){	
@@ -238,7 +222,7 @@
 		
 		pipe->leer(&resultado);		
 		pipe->liberarRecursos();
-		*/
+		
 		delete[] punteroAux;
 		
 		return resultado;
@@ -274,11 +258,13 @@
 		headerNodo.nivel = nodoNuevo->getNivel();  
 		headerNodo.refNodo = nodoNuevo->getRefNodo();
 		headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
-				
-		//punteroAux apunta al inicio del buffer de datos.
-		//Necesario para crear un elemento de tipo string.		
-		memcpy(data, &headerNodo, sizeof(HeaderNodo));
-		data += sizeof(HeaderNodo);
+		
+		memcpy(data, &headerNodo.nivel, sizeof(char));
+		data+=sizeof(char);
+		memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
+		data+=sizeof(unsigned int);
+		memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));		
+		data+=sizeof(unsigned short);
 		
 		//Obtener la lista de claves
 		set = nodoNuevo->getClaves();
@@ -316,8 +302,8 @@
 		Nodo* nodoNuevo = static_cast<Nodo*> (bloqueModif);
 		
 		//Variables de escritura del buffer
-		string buffer;
-		char* data = new char[this->getTamanioBloque()];
+		char* data = new char[this->getTamanioBloque() + 1];
+		const char* punteroAux = data;
 		
 		//Variables de interpretacion del nodo
 		HeaderNodo headerNodo;
@@ -341,13 +327,7 @@
 		headerNodo.nivel = nodoNuevo->getNivel();  
 		headerNodo.refNodo = nodoNuevo->getRefNodo();
 		headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
-		
-		//punteroAux apunta al inicio del buffer de datos.
-		//Necesario para crear un elemento de tipo string.
-		const char* punteroAux = data;
-		memcpy(data, &headerNodo, sizeof(HeaderNodo));
-		data += sizeof(HeaderNodo);
-		
+				
 		//Obtener la lista de claves
 		set = nodoNuevo->getClaves();
 		
@@ -370,7 +350,7 @@
 		//capa fisica.
 		pipe->leer(&resultado);
 		
-		pipe->liberarRecursos();
+		delete pipe;
 		delete[] punteroAux;
 		
 		return resultado;
@@ -1169,13 +1149,15 @@
 		{
 			int valor;
 			unsigned int refRegistro;
-		
+			
+			cout << "MIRAAAAAAAAAAAAA";
 			//Se interpreta el valor entero de la clave.
 			memcpy(&valor, buffer, sizeof(int));
 			buffer+=sizeof(int);
 			
 			//Se interpreta la referencia al registro de datos.
 			memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
+			buffer+=Tamanios::TAMANIO_REFERENCIA;
 		
 			//Crear la clave
 			return new ClaveEntera(valor, refRegistro);	
