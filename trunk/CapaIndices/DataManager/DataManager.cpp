@@ -11,9 +11,10 @@ DataManager::~DataManager()
 		this->registro = NULL;
 }
 
-void DataManager::crearRegistroAlta(ListaValoresAtributos listaVA,ListaTiposAtributos listaTipos){
-	ListaTiposAtributos::const_iterator itTipos = listaTipos.begin();
-	ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
+void DataManager::crearRegistroAlta(DefinitionsManager::ListaValoresAtributos &listaVA,
+									DefinitionsManager::ListaTiposAtributos &listaTipos) {
+	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTipos.begin();
+	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
 	int tipo; //Indica si el tipo de campo del registro es variable o fijo
 	nodoLista regAttribute;
 	unsigned short offsetToCampo = 0;
@@ -79,9 +80,10 @@ void DataManager::crearRegistroAlta(ListaValoresAtributos listaVA,ListaTiposAtri
 	}
 	this->registro = registro;
 }	
-unsigned short DataManager::getTamanioRegistro(ListaTiposAtributos listaTiposAtributos,ListaValoresAtributos listaVA){
-	ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
-	ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
+unsigned short DataManager::getTamanioRegistro(DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
+											   DefinitionsManager::ListaValoresAtributos &listaVA){
+	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
+	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
 	unsigned short tamanioRegistro = 0;
 	nodoLista regAttribute = *itTipos;
 	string campoRegistro;
@@ -128,11 +130,38 @@ unsigned short DataManager::getTamanioRegistro(ListaTiposAtributos listaTiposAtr
 	}
 
 
-void DataManager::crearRegistroModificacion(ListaTiposAtributos listaTiposAtributos, ListaValoresAtributos listaVA,ListaClaves listaClaves){
-	ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
-	ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
+void DataManager::crearRegistroModificacion(DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
+											DefinitionsManager::ListaValoresAtributos &listaVA,
+											DefinitionsManager::ListaClaves &listaClaves){
+	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
+	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
 	
 	//ComuDatos 
 	
 	
 }
+
+
+int DataManager::insertar(const string& nombreTipo, const DefinitionsManager::ListaValoresAtributos* listaVA,
+				 		  const DefinitionsManager::ListaTiposAtributos* listaTipos) {
+	
+	return 0;
+	
+}
+
+
+int DataManager::eliminar(const string& nombreTipo, DefinitionsManager::ListaClaves* listaClaves) {
+	
+	return 0;
+	
+}
+
+
+int DataManager::modificar(const string& nombreTipo, const DefinitionsManager::ListaValoresAtributos* listaVA,
+			  			   const DefinitionsManager::ListaTiposAtributos* listaTipos,
+			  			   DefinitionsManager::ListaClaves* listaClaves) {
+	
+	return 0;
+	
+}
+
