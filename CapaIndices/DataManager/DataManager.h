@@ -21,6 +21,17 @@ public:
 	char* getRegistro() const{
 		return registro;
 	}
+	/*
+	 * Inserta un registro en disco 
+	 **/
+	int insertar(const string& nombreTipo, const ListaValoresAtributos* listaVA, const ListaTiposAtributos* listaTipos);
+	/*
+	 * Elimina un registro del disco 
+	 **/
+	int eliminar(const string& nombreTipo, ListaClaves* listaClaves);
+	
+	int modificar(const string& nombreTipo, const ListaValoresAtributos* listaVA, const ListaTiposAtributos* listaTipos, ListaClaves* listaClaves);
+	
 	void crearRegistroAlta(ListaValoresAtributos listaVA,ListaTiposAtributos listaTiposAtributos);
 	//void crearRegistroModificacion(ListaTiposAtributos listaTiposAtributos, ListaClaves listaClaves);
 private:
