@@ -16,7 +16,7 @@ void DataManager::crearRegistroAlta(ListaValoresAtributos listaVA,ListaTiposAtri
 	ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
 	int tipo; //Indica si el tipo de campo del registro es variable o fijo
 	nodoLista regAttribute;
-	unsigned short offsetToCampo;
+	unsigned short offsetToCampo = 0;
 	unsigned short longRegistro = this->getTamanioRegistro(listaTipos,listaVA);
 	char *registro = new char[longRegistro];
 	string campoRegistro;
@@ -26,7 +26,7 @@ void DataManager::crearRegistroAlta(ListaValoresAtributos listaVA,ListaTiposAtri
 	if(regAttribute.tipo == TipoDatos::TIPO_VARIABLE){
 		// Guardo la longitud del registro en los primeros dos bytes del mismo
 		memcpy(registro,&longRegistro,Tamanios::TAMANIO_LONGITUD);
-		offsetToCampo = 2;
+		offsetToCampo = sizeof(unsigned short);
 	}
 	// Se itera la lista de atributos del registro.
 	// Y se van guardando los datos del registro
@@ -72,18 +72,17 @@ void DataManager::crearRegistroAlta(ListaValoresAtributos listaVA,ListaTiposAtri
 			memcpy(&registro[offsetToCampo],campoBooleano,sizeof(bool));
 			offsetToCampo += sizeof(bool);
 		}
-		if(this->registro){
-			delete[] this->registro;
-			this->registro = NULL;
-		}
-		this->registro = registro;
 	}
-	
+	if(this->registro){
+		delete[] this->registro;
+		this->registro = NULL;
+	}
+	this->registro = registro;
 }	
 unsigned short DataManager::getTamanioRegistro(ListaTiposAtributos listaTiposAtributos,ListaValoresAtributos listaVA){
 	ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
 	ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
-	unsigned short tamanioRegistro;
+	unsigned short tamanioRegistro = 0;
 	nodoLista regAttribute = *itTipos;
 	string campoRegistro;
 	int tipo;

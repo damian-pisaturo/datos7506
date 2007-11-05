@@ -1,7 +1,7 @@
 #ifndef DATAMANAGER_H_
 #define DATAMANAGER_H_
 
-#include "../RegisterInfo/RegisterInfo.cpp"
+#include "../RegisterInfo/RegisterInfo.h"
 #include "../Common/TipoDatos.h"
 #include "../../Common/Tamanios.h"
 #include "../Common/Clave.h"
