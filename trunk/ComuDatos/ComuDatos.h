@@ -1,3 +1,6 @@
+#ifndef COMUDATOS_H_
+#define COMUDATOS_H_
+
 /* 
  *	Autor: Aleee
  *  Fecha: 15 de Agosto de 2007
@@ -12,7 +15,7 @@
 #include <iostream>
 #include <vector>
  
-#define TOPE_ENVIAR_STRING 512
+#define TOPE_ENVIAR_STRING 1024
 #define FIN_PARAMETROS '\1'
 #define EXCEDE_TOPE '\3'
 #define SIN_ERROR '\2'
@@ -44,27 +47,23 @@
 	 
 	 	//! Agrega un parámetro de valor en la posición indicada. 
 	 	//! Si no se han cargado las posiciones anteriores se las asinga con valor vacío.
-	 	void agregarParametro(unsigned char valorParametro, unsigned int posParametro);
+	 	void agregarParametro(int valorParametro, unsigned int posParametro);
 	 	void agregarParametro(string valorParametro, unsigned int posParametro);
-	 
+	 	
 	 	//! Obtiene el valor de la posición indicada 
 		char parametro(unsigned int posParametro, string &parametro);
 		char parametro(unsigned int posParametro, int* parametro);
-		char parametro(unsigned int posParametro, unsigned int* parametro);
-		char parametro(unsigned int posParametro, short* parametro);
-		char parametro(unsigned int posParametro, unsigned short* parametro);
-		char parametro(unsigned int posParametro, char* parametro);
-		char parametro(unsigned int posParametro, unsigned char* parametro);
-			 
+					 
 	 	//! Retorna el descriptor de archivo (tipo open, read, write) del canal de comunicación
 		//! para lectura.
-		int fd_leer();
+		int fd_leer();	 	//! Lee un short del canal de comunicación de datos correspondiente.
+
 		//! Retorna el descriptor de archivo (tipo open, read, write) del canal de comunicación
 		//! para escritura.
 		int fd_escribir();
 	 
 	 	//! Escribe un string en el canal de comunicación de datos correspondiente.
-	 	char escribir(string enviarDato);
+	 	char escribir(const char* enviarDato, unsigned int size);
 	 	//! Escribe un int en el canal de comunicación de datos correspondiente.
 	 	char escribir(int enviarDato);
 	 	//! Escribe un unsigned int en el canal de comunicación de datos correspondiente.
@@ -77,7 +76,7 @@
 	 	char escribir(char enviarDato);
 	 			
 	 	//! Lee un string de longitud máxima "cantidad" del canal de comunicación de datos correspondiente.
-	 	char leer(unsigned int cantidad, string &s);
+	 	char leer(unsigned int cantidad, char* s);
 	 	//! Lee un int del canal de comunicación de datos correspondiente.
 	 	char leer(int* i);
 	 	//! Lee un unsigned short del canal de comunicación de datos correspondiente.
@@ -95,3 +94,6 @@
 	 	//! Libera los recursos tomados por la instancia (los de comunicaciones incluidos).
 	 	~ComuDatos();
  };
+
+#endif
+

@@ -145,17 +145,20 @@
 			
 	int IndiceArbolManager::leerBloque(unsigned int numBloque, BloqueIndice* bloqueLeido)
 	{
-		int resultado = 0;
-		Nodo* nodoLeido = static_cast<Nodo*> (bloqueLeido);
-		string buffer;
+		char resultado = 0;
+		//Nodo* nodoLeido = static_cast<Nodo*> (bloqueLeido);
+		
+		//Buffer
+		char* data = new char[this->getTamanioBloque() + 1];
+		char* punteroAux = data;
 		
 		//Variables de interpretacion del nodo
-		HeaderNodo headerNodo;		
-		Clave* claveNueva;
-		SetClaves* set = new SetClaves();
+		//HeaderNodo headerNodo;		
+		//Clave* claveNueva;
+		//SetClaves* set = new SetClaves();
 		
 		//Instancia del pipe
-		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+		ComuDatos* pipe = instanciarPipe(/*NOMBRE_CAPA_FISICA*/"datos");
 		
 		//Parametros de inicializacion de la Capa Fisica para
 		//leer un nodo de disco.
@@ -167,13 +170,41 @@
 		//Se lanza el proceso de la capa fisica. 
 		//Se obtiene en buffer el contenido del Nodo solicitado.
 		pipe->lanzar();
-		pipe->leer(this->getTamanioBloque(), buffer);
+		//pipe->leer(&resultado);	
 		
-		char * data = (char*) buffer.c_str();
-
+		pipe->leer(this->getTamanioBloque(), data);		
+		
+		for (short i = 0; i < 512; i++)
+			printf("%#10x", data[i]);
+		
 		//Castear el header
-		memcpy(&headerNodo, data, sizeof(HeaderNodo));
-		data += sizeof(HeaderNodo);
+		//memcpy(&headerNodo, data, sizeof(HeaderNodo));
+		//data += sizeof(HeaderNodo);
+		//HeaderNodo headerNodo;
+		unsigned char nivel;
+		unsigned int refNodo;
+		unsigned short espLibre;
+		
+		memcpy(&refNodo, data, 4);
+		data+=4;		
+		
+		memcpy(&espLibre,data, 4);
+		data+=4;		
+		
+		memcpy(&nivel,data, 1);
+		data++;
+				
+	
+				
+				cout << endl;
+				printf("Nivel_ %d\n", nivel);
+				cout << "EspacioLibre_" << espLibre << endl;
+				cout << "RefNodo_" << refNodo << endl;
+				
+		/*
+		char a;
+		memcpy(&a, data + 4, sizeof(char));
+		
 		
 		//Setear el espacio libre, si es hoja y el HijoIzq
 		nodoLeido->setNivel(headerNodo.nivel);
@@ -207,18 +238,19 @@
 		
 		pipe->leer(&resultado);		
 		pipe->liberarRecursos();
+		*/
+		delete[] punteroAux;
 		
 		return resultado;
 	}
 	
 	int IndiceArbolManager::escribirBloque(BloqueIndice* bloqueNuevo)
 	{	
-		int resultado = 0;
 		Nodo* nodoNuevo = static_cast<Nodo*> (bloqueNuevo);
 		
 		//Variables de escritura del buffer
-		string buffer;
 		char* data = new char[this->getTamanioBloque()];
+		char* punteroAux = data;
 		
 		//Variables de interpretacion del nodo
 		HeaderNodo headerNodo;
@@ -227,14 +259,14 @@
 		//nodoNuevo->actualizarEspacioLibre(this); //NADIE SABIA.
 		
 		//Instancia del pipe
-		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
-		
+		ComuDatos* pipe = instanciarPipe(/*NOMBRE_CAPA_FISICA*/"datos");
+
 		//Parametros de inicializacion de la Capa Fisica para
-		//escribir un nodo en disco.
+		//escribir un nodo en disco.		
 		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO, 0); //Codigo de operacion.
 		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre del archivo.
 		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
-		
+					
 		//Se lanza el proceso de la capa fisica. 
 		pipe->lanzar();
 		
@@ -242,10 +274,9 @@
 		headerNodo.nivel = nodoNuevo->getNivel();  
 		headerNodo.refNodo = nodoNuevo->getRefNodo();
 		headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
-		
+				
 		//punteroAux apunta al inicio del buffer de datos.
-		//Necesario para crear un elemento de tipo string.
-		char* punteroAux = data;
+		//Necesario para crear un elemento de tipo string.		
 		memcpy(data, &headerNodo, sizeof(HeaderNodo));
 		data += sizeof(HeaderNodo);
 		
@@ -263,11 +294,8 @@
 				this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
 		}
 		
-		*data = 0;
-		
 		//Grabar el buffer en el archivo.
-		buffer = punteroAux;
-		pipe->escribir(buffer);
+		pipe->escribir(punteroAux, this->getTamanioBloque());
 		
 		//Obtener nueva posicion del bloque en el archivo. 
 		unsigned short numBloque = 0;
@@ -276,14 +304,10 @@
 		//Setear en el nodo la posicion donde se grabo el nodo.
 		nodoNuevo->setPosicionEnArchivo(numBloque);		
 		
-		//Solicitar resultado de la comunicacion con la 
-		//capa fisica.
-		pipe->leer(&resultado);
-		
 		pipe->liberarRecursos();
-		delete[] data;
-		
-		return resultado;
+		delete[] punteroAux;
+	
+		return numBloque;
 	}
 	
 	int IndiceArbolManager::escribirBloque(unsigned short numNodo, BloqueIndice* bloqueModif)
@@ -303,7 +327,7 @@
 		
 		//Instancia del pipe
 		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
-		
+
 		//Parametros de inicializacion de la Capa Fisica.
 		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO, 0); //Codigo de operacion.
 		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre archivo.
@@ -337,19 +361,17 @@
 			for(SetClaves::iterator iterClaves = set->begin(); 
 				iterClaves != set->end(); ++iterClaves)
 				this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
-		}
+		}		
 		
-		*data = 0;
 		//Grabar el buffer en el archivo.
-		buffer = punteroAux;
-		pipe->escribir(buffer);
+		pipe->escribir(punteroAux, this->getTamanioBloque());
 		
 		//Solicitar resultado de la comunicacion con la 
 		//capa fisica.
 		pipe->leer(&resultado);
 		
 		pipe->liberarRecursos();
-		delete[] data;
+		delete[] punteroAux;
 		
 		return resultado;
 	}
@@ -376,9 +398,7 @@
 		
 		return resultado;
 	}
-
-//TODO Terminar de implementar!!!
-/*
+	
 	int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo)
 	{
 		int resultado = 0;
@@ -441,7 +461,7 @@
 		
 		//Grabar el primer bloque en el archivo.
 		buffer = primerBloque;		
-		pipe->escribir(buffer);
+		//pipe->escribir(buffer);
 		
 		//Obtener nueva posicion del primer nodo en el archivo
 		//y settearla en el nodo. La segunda posicion es contigua.
@@ -450,7 +470,7 @@
 		
 		//Grabar el segundo bloque en el archivo.
 		buffer = segundoBloque;
-		pipe->escribir(buffer);
+		//pipe->escribir(buffer);
 		
 		//Solicitar resultado de la comunicacion con la 
 		//capa fisica.
@@ -466,11 +486,9 @@
 
 	}
 	
-//TODO Terminar de implementar!!!
-	int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo, unsigned short numBloque)
+	int IndiceArbolManager::escribirBloqueDoble(unsigned short numBloque, BloqueIndice* bloqueNuevo)
 	{
 		int resultado = 0;
-		unsigned short numBloque = 0;
 		Nodo* nodoNuevo = static_cast<Nodo*> (bloqueNuevo);
 		
 		//Variables de escritura del buffer
@@ -530,11 +548,11 @@
 		
 		//Grabar el primer bloque en el archivo.
 		buffer = primerBloque;		
-		pipe->escribir(buffer);
+		//pipe->escribir(buffer);
 		
 		//Grabar el segundo bloque en el archivo.
 		buffer = segundoBloque;
-		pipe->escribir(buffer);
+		//pipe->escribir(buffer);
 		
 		//Solicitar resultado de la comunicacion con la 
 		//capa fisica.
@@ -548,14 +566,13 @@
 		
 		return resultado;
 	}
-
-//TODO terminar de implementar!!!
-
-	int IndiceArbolManager::leerBloqueDoble(unsigned int numeroBloque, BloqueIndice* bloqueLeido)
+	
+	int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque, BloqueIndice* bloqueLeido)
 	{
 		int resultado = 0;
 		Nodo* nodoLeido = static_cast<Nodo*> (bloqueLeido);
 		string buffer;
+		char* data = NULL;
 		
 		//Variables de interpretacion del nodo
 		HeaderNodo headerNodo;		
@@ -576,8 +593,10 @@
 		pipe->lanzar();		
 		
 		//Se obtiene en buffer el contenido de ambos nodos solicitado.
-		pipe->leer(this->getTamanioBloque(), buffer);
-
+		//pipe->leer(this->getTamanioBloque(), buffer);
+		
+		data = (char*)buffer.c_str();
+		
 		//Castear el header
 		memcpy(&headerNodo, data, sizeof(HeaderNodo));
 		data += sizeof(HeaderNodo);
@@ -621,7 +640,6 @@
 		
 	}
 	
-//TODO Terminar de implementar!!!
 	int IndiceArbolManager::eliminarBloqueDoble(unsigned short posicion)
 	{
 		char resultado = 0;
@@ -644,7 +662,6 @@
 		
 		return resultado;
 	}
-*/
 	
 	void IndiceArbolManager::exportar(ostream &archivoTexto, int posicion)
 	{
@@ -718,7 +735,7 @@
 			//Se lanza el proceso de la capa fisica. 
 			//Se obtiene en buffer el contenido del Bucket solicitado.
 			pipe->lanzar();
-			pipe->leer(this->getTamanioBloque(), buffer);
+			//pipe->leer(this->getTamanioBloque(), buffer);
 			
 			char * data = (char*) buffer.c_str();
 			
@@ -763,7 +780,7 @@
 			
 			//Grabar el buffer en el archivo.
 			buffer = data;
-			pipe->escribir(buffer);
+		//	pipe->escribir(buffer);
 			
 			//Obtener nueva posicion del bucket en el archivo. 
 			unsigned short numBucket = 0;
@@ -806,7 +823,7 @@
 			
 			//Grabar el buffer en el archivo.
 			buffer = data;
-			pipe->escribir(buffer);
+			//pipe->escribir(buffer);
 	
 			//Setear en el bucket la posicion donde se grabo.
 			bucketLeido->setNroBloque(numBucket);
@@ -865,7 +882,7 @@
 			pipe->leer(tamanio);
 			
 			//Obtener numero de buckets de la tabla
-			pipe->leer(sizeof(unsigned int)*(*tamanio), bucketsTabla);
+			//pipe->leer(sizeof(unsigned int)*(*tamanio), bucketsTabla);
 			buckets = (unsigned int*) bucketsTabla.c_str();
 			
 			pipe->liberarRecursos();
@@ -893,7 +910,7 @@
 			bucketsTabla = (char*) buckets;
 			
 			//Enviar el contenido de la tabla por el pipe.
-			pipe->escribir(bucketsTabla);
+			//pipe->escribir(bucketsTabla);
 			
 			pipe->liberarRecursos();			
 		}

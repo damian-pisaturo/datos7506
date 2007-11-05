@@ -31,15 +31,16 @@
 //////////////////////////////////////////////////////////////////////
 NodoBPlus::NodoBPlus(unsigned int refNodo, unsigned char nivel, unsigned short tamanio) 
 				: Nodo(refNodo, nivel, tamanio)
-{
-	
-}	
-		
+{ }	
+
+NodoBPlus::NodoBPlus() 
+				: Nodo(0, 0, 0)
+{ }	
+
+
 NodoBPlus::NodoBPlus(unsigned int refNodo, unsigned char nivel, Clave* clave,
 		unsigned short tamanio) : Nodo(refNodo, nivel, clave, tamanio)
-{
-	
-} 
+{ } 
 
 /*
 NodoBPlus(unsigned int referencia) : Nodo(referencia)

@@ -39,7 +39,7 @@ class BloqueIndice
 	public:
 		BloqueIndice() {}
 		
-		~BloqueIndice() {}
+		virtual ~BloqueIndice() {}
 		
 		///////////////////////////////////////////////////////////////////////////
 		// Getter/Setter

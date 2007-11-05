@@ -40,9 +40,13 @@ class NodoBPlus: public Nodo
 	// Contructores/Destructores
 	//////////////////////////////////////////////////////////////////////
 		
-		/*Crea el nodo sin setear ningun atributo*/
+		/*Crea el nodo con los atributos dados*/
+				
 		NodoBPlus(unsigned int refNodo, unsigned char nivel, unsigned short tamanio);
-			
+		
+		/*Crea el nodo sin setear ningun atributo*/
+		NodoBPlus();
+		
 		/*Crea un nuevo nodo para insertarle una Clave*/
 		NodoBPlus(unsigned int refNodo, unsigned char nivel, Clave* clave,
 			   unsigned short tamanio);

@@ -52,7 +52,7 @@ ComuDatos::ComuDatos(char** argv)
 void ComuDatos::lanzar()
 {
 	char** argumentos = new char*[this->parametrosProceso.size()+CORRIMIENTOARGUMENTO+1];
- 
+	
 	if (this->nombreProceso.length() == 0)
 	{
 		cout << "Error en lanzar" << endl;
@@ -61,8 +61,8 @@ void ComuDatos::lanzar()
 	
 	string pipeLee = this->nombreProceso + "_ComuDatosH";
 	string pipeEscribe = this->nombreProceso + "_ComuDatosP";
-	//mkfifo(pipeLee.c_str(), 0666);
-	//mkfifo(pipeEscribe.c_str(), 0666);
+	mkfifo(pipeLee.c_str(), 0666);
+	mkfifo(pipeEscribe.c_str(), 0666);
 	
 	// Parametro 1 lectura y 2 escritura hijo.
 	argumentos[1] = (char*) malloc (sizeof(char)*pipeEscribe.length()+1);
@@ -80,11 +80,12 @@ void ComuDatos::lanzar()
 	}
 	argumentos[this->parametrosProceso.size()+CORRIMIENTOARGUMENTO] = NULL;
 	
-	//this->id_procesoHijo = fork();
+	this->id_procesoHijo = fork();
 
 	if (this->id_procesoHijo > 0)
 	{
 		execv(argumentos[0], argumentos);
+		cout << "aca exe" << endl;
 	}
 
 	this->fd_pipeH = open(pipeLee.c_str(), O_RDONLY);
@@ -96,15 +97,19 @@ void ComuDatos::ejecutable(string nombreEjecutable)
 		this->nombreProceso = nombreEjecutable;
 }
 
-void ComuDatos::agregarParametro(unsigned char valorParametro, unsigned int posParametro)
-{
+void ComuDatos::agregarParametro(int valorParametro, unsigned int posParametro)
+{	
 	char num[20];
-	sprintf(num,"%d",valorParametro);
-	if (posParametro >= this->parametrosProceso.size())
-	{
-		this->parametrosProceso.resize(posParametro+1);
-	}
-	this->parametrosProceso.at(posParametro) = num;
+
+	sprintf(num, "%d", valorParametro);
+
+    if (posParametro >= this->parametrosProceso.size())
+    {
+    	this->parametrosProceso.resize(posParametro+1);
+    }
+    
+    this->parametrosProceso.at(posParametro) = num;
+    
 }
 
 void ComuDatos::agregarParametro(string valorParametro, unsigned int posParametro)
@@ -135,77 +140,7 @@ char ComuDatos::parametro(unsigned int posParametro, int* parametro)
 	
 	if (posParametro < this->parametrosProceso.size()){
 		aux = this->parametrosProceso[posParametro];
-		parametro = (int*)aux.c_str();
-	}else
-		resultado = FIN_PARAMETROS;	
-	
-	return resultado;
-}
-
-char ComuDatos::parametro(unsigned int posParametro, unsigned int* parametro)
-{	
-	char resultado = SIN_ERROR;
-	string aux;
-	
-	if (posParametro < this->parametrosProceso.size()){
-		aux = this->parametrosProceso[posParametro];
-		parametro = (unsigned int*)aux.c_str();
-	}else
-		resultado = FIN_PARAMETROS;	
-	
-	return resultado;
-}
-
-char ComuDatos::parametro(unsigned int posParametro, short* parametro)
-{
-	char resultado = SIN_ERROR;
-	string aux;
-	
-	if (posParametro < this->parametrosProceso.size()){
-		aux = this->parametrosProceso[posParametro];
-		parametro = (short*)aux.c_str();
-	}else
-		resultado =  FIN_PARAMETROS;
-	
-	return resultado;
-}
-
-char ComuDatos::parametro(unsigned int posParametro, unsigned short* parametro)
-{
-	char resultado = SIN_ERROR;
-	string aux;
-	
-	if (posParametro < this->parametrosProceso.size()){
-		aux = this->parametrosProceso[posParametro];
-		parametro = (unsigned short*)aux.c_str();
-	}else
-		resultado =  FIN_PARAMETROS;
-	
-	return resultado;
-}
-
-char ComuDatos::parametro(unsigned int posParametro, char* parametro)
-{
-	char resultado = SIN_ERROR;
-	string aux;
-	
-	if (posParametro < this->parametrosProceso.size()){
-		aux = this->parametrosProceso[posParametro];
-		parametro = (char*)aux.c_str();
-	}else
-		resultado = FIN_PARAMETROS;	
-	
-	return resultado;
-}
-
-char ComuDatos::parametro(unsigned int posParametro, unsigned char* parametro)
-{
-	char resultado = SIN_ERROR;
-	string aux;
-	
-	if (posParametro < this->parametrosProceso.size()){
-		aux = this->parametrosProceso[posParametro];
-		parametro = (unsigned char*)aux.c_str();
+		*parametro = atoi(aux.c_str());
 	}else
 		resultado = FIN_PARAMETROS;	
 	
@@ -222,13 +157,13 @@ int ComuDatos::fd_escribir()
 	return this->fd_pipeP;
 }
  
-char ComuDatos::escribir(string enviarDato)
+char ComuDatos::escribir(const char* enviarDato, unsigned int size)
 {
 	char resultado = SIN_ERROR;
 	
-	if (enviarDato.length()<(TOPE_ENVIAR_STRING-1))
+	if (size < (TOPE_ENVIAR_STRING-1))
 	{
-		write(this->fd_pipeP, enviarDato.c_str(), (enviarDato.length()+1)*sizeof(char));
+		write(this->fd_pipeP, enviarDato, (size+1)*sizeof(char));
 	}else resultado = EXCEDE_TOPE;
 	
 	return resultado;
@@ -294,15 +229,14 @@ char ComuDatos::escribir(char enviarDato)
 	return resultado;
 }
 
-char ComuDatos::leer(unsigned int cantidad, string &s)
+char ComuDatos::leer(unsigned int cantidad, char* s)
 {
 	char resultado = SIN_ERROR;
 	
 	if (cantidad <= TOPE_ENVIAR_STRING){		
 		char leo[TOPE_ENVIAR_STRING];
 		read(this->fd_pipeH, leo, cantidad);
-		leo[cantidad] = 0;
-		s = leo;
+		memcpy(s, leo, cantidad);		
 	}else resultado = EXCEDE_TOPE;
 	
 	return resultado;

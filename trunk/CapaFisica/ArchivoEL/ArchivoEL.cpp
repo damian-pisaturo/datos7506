@@ -35,9 +35,9 @@
 			//booleano.
 			//cout << "Size:" << this->size() << endl;
 			if (this->size() == 0){	
-				//cout << "Inserto el primer bool" << endl;
+				cout << "Inserto el primer bool" << endl;
 				bool valor = true;
-				this->agregarRegistro(&valor);
+				this->agregarRegistro(&valor);				
 			}			
 		}
 		
@@ -49,6 +49,12 @@
 		char ArchivoEL::agregarRegistro(const void* registro)
 		{					
 			this->posicionarseFin();
+			
+			bool a;
+			a = *((bool*)registro);
+			
+			if (a) cout<<"Voy a meter un true" << endl;
+			else cout<<"Voy a meter un false" << endl;
 			
 			return (this->escribir(registro));	
 		}
@@ -100,7 +106,7 @@
 			
 			if (!libre)
 				numBloque = ResFisica::BLOQUES_OCUPADOS;
-			
+
 			return numBloque;		
 		}
 
