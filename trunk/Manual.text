@@ -27,10 +27,30 @@
 2 - ¿Como puedo probar el Trabajo Practico?
 -------------------------------------------
 
+* Se tienen "hardcodeados" dos tipos de datos, Persona y Pelicula, que funcionan emulando al verdadero archivo de definiciones que en un futuro tendriamos.
+
+* Utilizando un pequeño archivo de operaciones que indicará que acciones tomar sobre los datos.
 
 
 
-3 - Bugs Conocidos
+3 - Secuencia básica de intercambio de mensajes entre capas
+-----------------------------------------------------------
+
+
+	----------<------Confirmacion--------<-------<------+
+	|						    |	
++--------------+				     +-------------+
+| Capa Indices |---->(OPERACION de PERSISTENCIA)---->| Capa Fisica |
++--------------+				     +-------------+
+	^
+	|
+	|
+(Archivo de Def´s)
+
+
+
+
+4 - Bugs Conocidos
 ------------------
 
 * Nodo con UnderFlow: Es posible que un nodo quede en estado de UnderFlow en el caso de que las Claves sean muy grandes en tamaño en relacion con el Nodo que las contiene. 
