@@ -47,7 +47,7 @@ class Hash
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		Hash(IndiceHashManager* indiceHash, list<nodoLista> lista, char* NombreArchivoTabla);
+		Hash(IndiceHashManager* indiceHash, list<nodoLista> lista, char* NombreArchivoTabla,unsigned int tamBucket);
 		virtual ~Hash();	
 		
 	///////////////////////////////////////////////////////////////////////
@@ -73,6 +73,13 @@ class Hash
 		 **/
 		int eliminarRegistro(void **clave);
 	
+		/*
+		 * A partir de una clave recupera un registro 
+		 **/
+		bool recuperarRegistro(void **clave,char *registro); 
+		
+		
+		
 	private:
 	///////////////////////////////////////////////////////////////////////
 	// Metodos privados
@@ -103,10 +110,6 @@ class Hash
 		
 		bool esRegistroVariable();
 		
-		/*
-		 * A partir de una clave recupera un registro 
-		 **/
-		bool recuperarRegistro(void **clave,char *registro); 
 		
 		char* serializarClave(void** claveVoid);
 

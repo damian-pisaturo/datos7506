@@ -4,6 +4,12 @@
 //#include "IndiceArbol.h"
 //#include "IndiceHash.h"
 
+class Indice;
+
+#include <vector>
+
+typedef std::vector<Indice*> VectorIndices;
+
 class Indice
 {
 	public:

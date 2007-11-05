@@ -6,7 +6,7 @@
 #include "../Common/IndiceManagerFactory.h"
 #include "Indice.h"
 
-class IndiceHash : Indice {
+class IndiceHash :public Indice {
 	
 	private:
 	
@@ -14,13 +14,15 @@ class IndiceHash : Indice {
 		
 		
 	public:
-		IndiceHash(list<nodoLista> listaParam, unsigned int tamBucket, const string& nombreArchivo);
+		IndiceHash(list<nodoLista> &listaParam, unsigned int tamBucket, const string& nombreArchivo);
 		virtual ~IndiceHash();
 			
 		
 		int insertarRegistro(char *registro, void **clave);
 		
 		int eliminarRegistro(void **clave);
+		
+		bool recuperarRegistro(void **clave, char* registro);
 		
 		
 };

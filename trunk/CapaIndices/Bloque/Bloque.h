@@ -3,7 +3,7 @@
  
 #define OK 				0
 #define NO_ENCONTRADO 	1
-#define OVERFLOW		2
+#define SOBREFLUJO		2
 
 #include <cstdio>
 #include <cstdlib>

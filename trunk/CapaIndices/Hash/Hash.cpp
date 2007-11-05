@@ -21,11 +21,11 @@
 ///////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 ///////////////////////////////////////////////////////////////////////
-Hash::Hash(IndiceHashManager *arch, list<nodoLista> lista, char* nombreArchivoTabla)
+Hash::Hash(IndiceHashManager *arch, list<nodoLista> lista, char* nombreArchivoTabla, unsigned int tamBucket)
 {
 	archivo = arch;
 	listaParam = lista;
-	tabla = new Tabla(nombreArchivoTabla, archivo);
+	tabla = new Tabla(nombreArchivoTabla, archivo,tamBucket);
 }
 
 Hash::~Hash()
@@ -179,6 +179,51 @@ int Hash::eliminarRegistro(void **clave)
 	}
 }
 
+/*
+ * Recupera un registro a partir de una clave 
+ **/
+
+bool Hash::recuperarRegistro(void **clave, char *registro){
+	// Se aplica la función de hash para ver en que bucket se debe buscar el
+	// registro a recuperar.
+	int posicion = aplicarHash(clave) % tabla->getTamanio();
+	unsigned int nroBucket = tabla->getNroBucket(posicion);
+		
+	// Se levanta dicho bucket.
+	Bucket * bucket = new Bucket(archivo, nroBucket);	
+	unsigned short offsetToReg;
+	
+	// Si no encuentro el registro buscado devuelvo false. Pero si lo encuentro,
+	// tengo el offset al mismo en offsetToReg.
+	if (!(bucket->buscarRegistro(listaParam, clave,&offsetToReg)))
+		return false;
+	
+	unsigned short longReg;	
+	const char *datos = bucket->getDatos();
+	
+	// Hay que hacer una copia que no sea const de datos.
+	char* copiaDatos = new char[archivo->getTamanioBloque() + 1];
+	memcpy(copiaDatos,datos,archivo->getTamanioBloque());
+	*(copiaDatos + 1)= 0;
+	
+		// Obtiene la longitud.
+	longReg = bucket->getTamanioRegistros(listaParam,&copiaDatos[offsetToReg]);
+
+	
+	list<nodoLista>::const_iterator it;
+	it = listaParam.begin();
+	
+	if (it->tipo == TipoDatos::TIPO_VARIABLE){
+		registro = new char[Tamanios::TAMANIO_LONGITUD + longReg];
+		memcpy(registro,&datos[offsetToReg],Tamanios::TAMANIO_LONGITUD + longReg);
+	}
+	else{
+		registro = new char[longReg];
+		memcpy(registro,&datos[offsetToReg],longReg);
+	}
+	return true;
+}
+
 ///////////////////////////////////////////////////////////////////////
 // Metodos privados
 ///////////////////////////////////////////////////////////////////////
@@ -314,50 +359,6 @@ bool Hash::esRegistroVariable()
 	if (it->tipo == TipoDatos::TIPO_VARIABLE)
 		return true;
 	return false;
-}
-/*
- * Recupera un registro a partir de una clave 
- **/
-
-bool Hash::recuperarRegistro(void **clave, char *registro){
-	// Se aplica la función de hash para ver en que bucket se debe buscar el
-	// registro a recuperar.
-	int posicion = aplicarHash(clave) % tabla->getTamanio();
-	unsigned int nroBucket = tabla->getNroBucket(posicion);
-		
-	// Se levanta dicho bucket.
-	Bucket * bucket = new Bucket(archivo, nroBucket);	
-	unsigned short offsetToReg;
-	
-	// Si no encuentro el registro buscado devuelvo false. Pero si lo encuentro,
-	// tengo el offset al mismo en offsetToReg.
-	if (!(bucket->buscarRegistro(listaParam, clave,&offsetToReg)))
-		return false;
-	
-	unsigned short longReg;	
-	const char *datos = bucket->getDatos();
-	
-	// Hay que hacer una copia que no sea const de datos.
-	char* copiaDatos = new char[archivo->getTamanioBloque() + 1];
-	memcpy(copiaDatos,datos,archivo->getTamanioBloque());
-	*(copiaDatos + 1)= 0;
-	
-		// Obtiene la longitud.
-	longReg = bucket->getTamanioRegistros(listaParam,&copiaDatos[offsetToReg]);
-
-	
-	list<nodoLista>::const_iterator it;
-	it = listaParam.begin();
-	
-	if (it->tipo == TipoDatos::TIPO_VARIABLE){
-		registro = new char[Tamanios::TAMANIO_LONGITUD + longReg];
-		memcpy(registro,&datos[offsetToReg],Tamanios::TAMANIO_LONGITUD + longReg);
-	}
-	else{
-		registro = new char[longReg];
-		memcpy(registro,&datos[offsetToReg],longReg);
-	}
-	return true;
 }
 
 char* Hash::serializarClave(void** claveVoid)

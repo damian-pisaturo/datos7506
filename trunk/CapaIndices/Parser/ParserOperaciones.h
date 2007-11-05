@@ -11,6 +11,7 @@
 #include <fstream>
 #include "../Common/DefinitionsManager.h"
 #include "../DataManager/DataManager.h"
+#include "../Indices/Indice.h"
 using namespace std;
 
 class ParserOperaciones {
@@ -18,9 +19,12 @@ class ParserOperaciones {
 	private:
 		
 		ifstream archivo;
+		VectorIndices &indicesPersonas;
+		VectorIndices &indicesPeliculas;
 	
 	public:
-		ParserOperaciones(string nombreArchivo);
+		ParserOperaciones(const string &nombreArchivo, VectorIndices &vectorIndicesPersonas,
+						  VectorIndices &vectorIndicesPelicula);
 		virtual ~ParserOperaciones();
 		
 		//Devuelve false cuando se encuentra con una operacion que no entiende como ejecutar.

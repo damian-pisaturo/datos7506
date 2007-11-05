@@ -1,6 +1,9 @@
 #include "ParserOperaciones.h"
 
-ParserOperaciones::ParserOperaciones(string nombreArchivo) {
+ParserOperaciones::ParserOperaciones(const string &nombreArchivo, VectorIndices &vectorIndicesPersonas,
+									 VectorIndices &vectorIndicesPeliculas)
+									: indicesPersonas(vectorIndicesPersonas),
+									indicesPeliculas(vectorIndicesPeliculas){
 	archivo.open(nombreArchivo.c_str());
 }
 
