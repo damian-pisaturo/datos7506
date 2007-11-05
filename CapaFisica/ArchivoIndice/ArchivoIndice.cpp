@@ -54,7 +54,7 @@
 				//Si ningun bloque esta libre, appendea al
 				//final del archivo. 
 				this->posicionarseFin();
-				bloqueLibre = this->posicion() + 1;
+				bloqueLibre = this->posicion();
 				
 				//Se modifica el atributo booleano de control
 				//en el archivo de espacio libre.
@@ -177,7 +177,7 @@
 			 
 			resultado = this->leerBloque(datos, numBloque);
 			
-			if (resultado = ResFisica::OK){
+			if (resultado == ResFisica::OK){
 				cantClaves = ((unsigned int*)datos);
 				memcpy(lista, datos + sizeof(unsigned int), this->getTamanioBloque() - sizeof(unsigned int));			
 			}

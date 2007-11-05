@@ -25,27 +25,27 @@
 ///////////////////////////////////////////////////////////////////////////
 
 	int main(int argc, char**argv)
-	{	
+	{	/*
+	
 		char resultado = ResFisica::OK;
 		
 		if (argc > 3){
 			
-			ArchivoBase* archivo = NULL;
-			char* datos = NULL;			
+			ArchivoBase* archivo = NULL;			
 			
 			ComuDatos pipe(argv);
 			
 			string nombreArchivo;
-			string buffer;
-			unsigned char  accion    = 0;
-			unsigned short tamBloque = 0;
-			unsigned short numBloque = 0;
-			
+			char* buffer  = NULL;
+			int accion    = 0;
+			int tamBloque = 0;
+			int numBloque = 0;
+	
 			//Obtener parametros comunes a todas las acciones
 			//de la capa fisica.
 			pipe.parametro(0, &accion);       //Accion a procesar.
 			pipe.parametro(1, nombreArchivo); //Nombre del archivo a emplear.
-			pipe.parametro(2, &tamBloque);    //Tamanio del bloque/registro del archivo.
+			pipe.parametro(2, &tamBloque);  //Tamanio del bloque/registro del archivo.
 			
 			switch(accion){
 			
@@ -55,45 +55,53 @@
 				//Obtencion del numero de bloque
 				//dentro del archivo.
 				pipe.parametro(3, &numBloque);
+	
 				archivo = new ArchivoIndice(nombreArchivo, tamBloque);
 				
-				datos = new char[tamBloque + 1];
+				buffer = new char[tamBloque*sizeof(char) + 1];
 				
 				//Lectura del nodo dentro del archivo.
-				resultado = ((ArchivoIndice*)archivo)->leerBloque(datos, numBloque);
+				resultado = ((ArchivoIndice*)archivo)->leerBloque(buffer, numBloque);
 				
+				for (short i = 0; i < 512; i++)
+							printf("%#10x", buffer[i]);
+				
+				cout << endl;cout << endl;cout << endl;cout << endl;
+						
 				//Envio del resultado de la operacion de lectura.
-				pipe.escribir(resultado);
+				//pipe.escribir(resultado);
 							
-				if (resultado == ResFisica::OK){
-					*(datos+ tamBloque + 1) = 0;
-					buffer = datos;							
-				
+				//if (resultado == ResFisica::OK)
 					//Envio de datos a traves del pipe.
-					pipe.escribir(buffer);
-				}
+					pipe.escribir(buffer, tamBloque);	
 				
-				delete[] datos;							
+				delete[] buffer;							
 			}break;
 			
 			//Escritura de un nodo de arbol
 			case OperacionesCapas::FISICA_ESCRIBIR_NODO:
-			{
+			{				
 				archivo = new ArchivoIndice(nombreArchivo, tamBloque);
+				buffer = new char[tamBloque*sizeof(char) + 1];
 								
 				//Obtencion del bucket a escribir a traves del pipe.
 				pipe.leer(tamBloque, buffer);
-		
+				
 				//Escritura del bucket a disco.
 				//Se obtiene la posicion donde fue escrito.				
-				numBloque = ((ArchivoIndice*)archivo)->escribirBloque(buffer.c_str());
+				numBloque = ((ArchivoIndice*)archivo)->escribirBloque(buffer);
 				
+				cout << "Lo escribi en " << numBloque << endl;
 				//Se envia la nueva posicion del nodo.
-				pipe.escribir(numBloque);										
+				pipe.escribir(numBloque);		
+				
+				delete[] buffer;
+				//delete archivo;
 			}break;
 				
 			case OperacionesCapas::FISICA_MODIFICAR_NODO:
 			{
+				buffer = new char[tamBloque*sizeof(char)];
 				pipe.parametro(3, &numBloque);
 				
 				archivo = new ArchivoIndice(nombreArchivo, tamBloque);
@@ -102,10 +110,12 @@
 				pipe.leer(tamBloque, buffer);
 				
 				//Escritura del nodo a disco en la posicion pasada por parametro.
-				resultado = ((ArchivoIndice*)archivo)->escribirBloque(buffer.c_str(), numBloque);
+				resultado = ((ArchivoIndice*)archivo)->escribirBloque(buffer, numBloque);
 				
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
+				
+				delete[] buffer;
 			}break;
 			
 			case OperacionesCapas::FISICA_ELIMINAR_NODO:			
@@ -128,24 +138,23 @@
 				pipe.parametro(3, &numBloque);
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				
-				datos = new char[tamBloque + 1];
+				buffer = new char[tamBloque*sizeof(char) + 1];
 				
 				//Lectura del bucket dentro del archivo.
-				resultado = ((ArchivoIndiceHash*)archivo)->leerBloque(datos, numBloque);
-				*(datos + tamBloque + 1) = 0;
-				buffer = datos;
-				
+				resultado = ((ArchivoIndiceHash*)archivo)->leerBloque(buffer, numBloque);
+						
 				//Envio de datos a traves del pipe.
-				pipe.escribir(buffer);
+				pipe.escribir(buffer, tamBloque);
 				
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
 				
-				delete[] datos;
+				delete[] buffer;
 			}break;
 				
 			case OperacionesCapas::FISICA_ESCRIBIR_BUCKET:
 			{
+				buffer = new char[tamBloque*sizeof(char)];
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				
 				//Obtencion del bucket a escribir a traves del pipe.
@@ -153,14 +162,17 @@
 				
 				//Escritura del bucket a disco.
 				//Se obtiene la posicion donde fue escrito.
-				numBloque = ((ArchivoIndiceHash*)archivo)->escribirBloque(buffer.c_str());
+				numBloque = ((ArchivoIndiceHash*)archivo)->escribirBloque(buffer);
 				
 				//Se envia la nueva posicion del nodo.
-				pipe.escribir(numBloque);												
+				pipe.escribir(numBloque);				
+				
+				delete[] buffer;
 			}break;
 							
 			case OperacionesCapas::FISICA_MODIFICAR_BUCKET:
 			{
+				buffer = new char[tamBloque*sizeof(char)];
 				pipe.parametro(3, &numBloque);
 				
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
@@ -169,7 +181,7 @@
 				pipe.leer(tamBloque, buffer);
 				
 				//Escritura del bucket a disco en la posicion pasada por parametro.
-				resultado = ((ArchivoIndiceHash*)archivo)->escribirBloque(buffer.c_str(), numBloque);
+				resultado = ((ArchivoIndiceHash*)archivo)->escribirBloque(buffer, numBloque);
 				
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
@@ -196,11 +208,9 @@
 				unsigned int* buckets = NULL;
 				
 				((ArchivoIndiceHash*)archivo)->leerTabla(&tamanio, buckets);
-			
-				buffer = (char*) buckets;
 				
 				pipe.escribir(tamanio);
-				pipe.escribir(buffer);	
+				pipe.escribir((char*)buckets, tamanio*sizeof(unsigned int));	
 			}break;
 				
 			case OperacionesCapas::FISICA_ESCRIBIR_TABLA_HASH:
@@ -210,11 +220,13 @@
 				unsigned int* buckets = NULL;
 				
 				pipe.leer(&tamanio);
-				pipe.leer(sizeof(unsigned int)*tamanio, buffer);
 				
-				buckets = (unsigned int*) buffer.c_str();
+				buckets = new unsigned int[tamanio];
+				pipe.leer(sizeof(unsigned int)*tamanio, (char*)buckets);
 				
 				((ArchivoIndiceHash*)archivo)->escribirTabla(tamanio, buckets);
+				
+				delete[] buckets;
 			}break;
 			
 			case OperacionesCapas::FISICA_ESCRIBIR_NODO_DOBLE:
@@ -266,10 +278,49 @@
 			
 			
 			}
+			
 		}else resultado = ResFisica::CANT_ARGUMENTOS_INVALIDA;
 		
-		return resultado;		
+		return resultado;	
+		
+		*/
+		
+		/*
+		IndiceEnteroGriegoManager* indiceManager = (IndiceEnteroGriegoManager*) IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::GRIEGO, 0, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BP, 512, 0, "datos");
+		
+		Clave* clave = new ClaveEntera(4, 123, 56);
+		int num = indiceManager->escribirBloque(bloque);
+		
+		cout << "Te la ensarte en este numero: " << num << endl;
+		
+		delete bloque;
+		BloqueIndice* bloque = new NodoBPlus(213, 0, clave, 512);		
+		
+		*/
+		
+	
+		IndiceEnteroGriegoManager* indiceManager = (IndiceEnteroGriegoManager*) IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::GRIEGO, 0, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BP, 512, 0, "datos");
+		
+		//Clave* clave = NULL;
+		BloqueIndice* bloque = new NodoBPlus();		
+		
+		indiceManager->leerBloque(0, bloque);
+		
+		cout << "getesplibr" << ((NodoBPlus*)bloque)->getEspacioLibre() << endl;
+		cout << "getrefnod" << ((NodoBPlus*)bloque)->getRefNodo() << endl;
+		cout << "getnivelx" << ((NodoBPlus*)bloque)->getNivel() << endl;
+		cout << "gettam" << ((NodoBPlus*)bloque)->getTamanio() << endl;
+						
+		//clave = ((NodoBPlus*)bloque)->obtenerPrimeraClave();
+		
+		//cout << "debe ser algun num claveeeee: " << *((int *)clave->getValor());
+		
+		delete bloque;	
+		
+		
 	}
+
+
 	
 			
 		

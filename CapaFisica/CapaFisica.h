@@ -6,6 +6,8 @@
 #include "../Common/ResFisica.h"
 #include "../Common/OperacionesCapas.h"
 #include "../ComuDatos/ComuDatos.h"
+#include "../CapaIndices/Common/IndiceManagerFactory.h"
+#include "../CapaIndices/BPlus/NodoBPlus.h"
 #include <string>
 
 using namespace std;

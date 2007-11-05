@@ -67,9 +67,7 @@ class IndiceManager
 		 * dependiendo del tipo de bloque (nodo arbol B+, nodo B*, bucket de hash).
 		 * Utiliza ComuDatos para comunicarse con la Capa Fisica.
 		 */
-		virtual int leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido) = 0;
-		
-		//virtual int leerBloqueDoble(unsigned int numeroBloque, BloqueIndice* bloqueLeido) = 0;
+		virtual int leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido) = 0;		
 
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y escribir
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
@@ -82,19 +80,11 @@ class IndiceManager
 		 */
 		virtual int escribirBloque(unsigned short numBloque, BloqueIndice* bloqueModif) = 0;
 		
-		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y
-		 * escribir dos bloques consecutivos en disco. Empleado para la escritura
-		 * especial de una raiz de Arbol B*.
-		 */
-		//virtual int escribirBloqueDoble(BloqueIndice* bloqueModif) = 0;
-		//virtual int escribirBloqueDoble(unsigned short numBloque, BloqueIndice* bloqueModif) = 0;
-		
 		/*Agrega una referencia en el archivo de bloques liberados al
 		 * bloque que se quiere eliminar
 		 */
 		virtual int eliminarBloque(unsigned short posicion) = 0;
-		//virtual int eliminarBloqueDoble(unsigned short posicion) = 0;
-		
+
 
 	///////////////////////////////////////////////////////////////////////
 	// Getters/Setters
@@ -160,8 +150,9 @@ class IndiceArbolManager : public IndiceManager
 		/*Header del Nodo*/
 		struct HeaderNodo{
 			unsigned char nivel;
-			unsigned short espacioLibre;
 			unsigned int refNodo;	
+			unsigned short espacioLibre;
+			
 		}; 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -198,7 +189,10 @@ class IndiceArbolManager : public IndiceManager
 		 */
 		virtual int eliminarBloque(unsigned short posicion);
 		
-		
+		virtual int eliminarBloqueDoble(unsigned short posicion);
+		virtual int escribirBloqueDoble(BloqueIndice* bloqueNuevo);
+		virtual int escribirBloqueDoble(unsigned short numBloque, BloqueIndice* bloqueModif);
+		virtual int leerBloqueDoble(unsigned short numBloque, BloqueIndice* bloqueLeido);
 		
 		/*Exportar el archivo de Indice
 		 */
@@ -634,8 +628,6 @@ class IndiceVariableRomanoManager: public IndiceSecundarioManager
 // Nombre: IndiceCompuestoGriegoManager 
 //		   (Implementa archivo de indices primarios de clave compuesta).
 ///////////////////////////////////////////////////////////////////////////
-
-//TODO Implementar IndiceCompuestoRomano!!
 
 class IndiceCompuestoGriegoManager: public IndiceArbolManager
 {

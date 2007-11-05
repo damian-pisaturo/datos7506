@@ -68,14 +68,14 @@
 			    this->archivo.write(static_cast<const char*>(bloque), this->tamBloque);			  
 			    
 			    //Chequea si se ha producido un error 
-			    if (this->archivo.fail())
+			    if (this->archivo.fail())			    
 			      resultado = ResFisica::ERROR_ESCRITURA;
 			    else
 			    	 this->archivo.flush();
 		    }else
 			  //El archivo no se encuentra abierto
 			  resultado = ResFisica::NO_ABIERTO;
-
+	
 			return resultado;
 		}	
 
@@ -92,7 +92,7 @@
 				if (this->archivo.fail()){
 					this->archivo.clear();
 					resultado = ResFisica::ERROR_LECTURA;
-				} 
+				}
 			}else
 			  //El archivo no se encuentra abierto
 			  resultado = ResFisica::NO_ABIERTO;
@@ -133,7 +133,7 @@
 		{
 			char resultado = ResFisica::OK;
 
-			if (this->size() > (posicion + 1)*this->tamBloque){
+			if (this->size() >= (posicion + 1)*this->tamBloque){
 				//Verifica que el archivo esté abierto
 				if (this->archivo.is_open()) {
 					//Mueve la posición actual según sea el tamano del bloque
@@ -152,7 +152,7 @@
 	
 		void ArchivoBase::posicionarseFin()
 		{
-			this->archivo.seekg(0,ios::end);
+			this->archivo.seekg(0,ios_base::end);
 		}
 		
 		long ArchivoBase::size()
