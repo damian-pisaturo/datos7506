@@ -9,6 +9,8 @@
 //			de indices utilizados).
 ///////////////////////////////////////////////////////////////////////////
 
+typedef list<int> ListaTipos;
+
 class TipoIndices
 {
 	public:

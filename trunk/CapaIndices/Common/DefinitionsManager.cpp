@@ -146,6 +146,8 @@ void DefinitionsManager::cargarTiposIndices() {
 	estructTipoIndice.tipoIndice = TipoIndices::GRIEGO;
 	estructTipoIndice.tipoEstructura = TipoIndices::HASH;
 	estructTipoIndice.tamanioBloque = 4096;
+	estructTipoIndice.tipoClave = TipoDatos::TIPO_ENTERO;
+	estructTipoIndice.nombreArchivo = "persona1.hash";
 	
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("DNI");
@@ -161,6 +163,8 @@ void DefinitionsManager::cargarTiposIndices() {
 	estructTipoIndice.tipoIndice = TipoIndices::ROMANO;
 	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BS;
 	estructTipoIndice.tamanioBloque = 1024;
+	estructTipoIndice.tipoClave = TipoDatos::TIPO_COMPUESTO;
+	estructTipoIndice.nombreArchivo = "persona1.bstar";
 	
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("FECHANACIMIENTO");
@@ -176,6 +180,8 @@ void DefinitionsManager::cargarTiposIndices() {
 	estructTipoIndice.tipoIndice = TipoIndices::ROMANO;
 	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BP;
 	estructTipoIndice.tamanioBloque = 2048;
+	estructTipoIndice.tipoClave = TipoDatos::TIPO_COMPUESTO;
+	estructTipoIndice.nombreArchivo = "persona1.bplus";
 	
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("NOMBRE");
@@ -196,6 +202,8 @@ void DefinitionsManager::cargarTiposIndices() {
 	estructTipoIndice.tipoIndice = TipoIndices::GRIEGO;
 	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BS;
 	estructTipoIndice.tamanioBloque = 2048;
+	estructTipoIndice.tipoClave = TipoDatos::TIPO_COMPUESTO;
+	estructTipoIndice.nombreArchivo = "pelicula1.bstar";
 	
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("TITULO");
@@ -212,6 +220,8 @@ void DefinitionsManager::cargarTiposIndices() {
 	estructTipoIndice.tipoIndice = TipoIndices::ROMANO;
 	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BP;
 	estructTipoIndice.tamanioBloque = 1024;
+	estructTipoIndice.tipoClave = TipoDatos::TIPO_CHAR;
+	estructTipoIndice.nombreArchivo = "pelicula1.bplus";
 	
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("GENERO");
@@ -259,6 +269,20 @@ DefinitionsManager::ListaValoresAtributos* DefinitionsManager::getListaValoresAt
 	
 	return listaValoresAtributos;
 	
+}
+
+ListaTipos* DefinitionsManager::getListaTipos(const string &nombreTipo) {
+	
+	ListaTipos *listaTipos = new ListaTipos();
+	
+	ListaTiposAtributos *listaTiposAtributos = this->mapaTiposAtributos[nombreTipo];
+	
+	ListaTiposAtributos::const_iterator iter;
+	
+	for (iter = listaTiposAtributos->begin(); iter != listaTiposAtributos->end(); ++iter)
+		listaTipos->push_back(iter->tipo);
+	
+	return listaTipos;
 }
 
 
