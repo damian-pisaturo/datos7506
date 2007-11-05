@@ -270,7 +270,7 @@ DefinitionsManager::ListaValoresAtributos* DefinitionsManager::getListaValoresAt
 	return listaValoresAtributos;
 	
 }
-
+ 
 ListaTipos* DefinitionsManager::getListaTipos(const string &nombreTipo) {
 	
 	ListaTipos *listaTipos = new ListaTipos();

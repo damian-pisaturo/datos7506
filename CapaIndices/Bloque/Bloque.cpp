@@ -283,7 +283,7 @@ int Bloque::altaRegistro(const list<nodoLista>& listaParam,char *registro){
 		insertarRegistro(registro,offsetEspLibre,longReg); 
 		return OK;	
 	}
-	return OVERFLOW;
+	return SOBREFLUJO;
 }
 	
 /*
@@ -480,7 +480,7 @@ int Bloque::modificarRegistro(const list<nodoLista>& listaParam, unsigned short 
 	memcpy(&offsetEspLibre,datos,Tamanios::TAMANIO_ESPACIO_LIBRE);
 	
 	if ((getTamanioBloque()-offsetEspLibre + longRegOrig)<longReg )
-		return OVERFLOW;
+		return SOBREFLUJO;
 	bajaRegistro(listaParam,clavePrimaria);
 	altaRegistro(listaParam,registro);
 	return OK;

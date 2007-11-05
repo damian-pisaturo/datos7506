@@ -26,11 +26,14 @@ Tabla::Tabla()
 	tamanio = 1;
 }
 
-Tabla::Tabla(char* nombreArchivo, IndiceHashManager* arch)
+Tabla::Tabla(char* nombreArchivo, IndiceHashManager* arch, unsigned int tamBucket)
 {
 	archivo = arch;
 	archivo->leerTabla(&this->tamanio,this->nroBucket);
-	
+	// Si la tabla no existe, en tamanio devuelve 0.
+	// En ese caso, se crea una tabla.
+	if (tamanio == 0)
+		this->crear(nombreArchivo,tamBucket);
 }
 
 Tabla::~Tabla()
@@ -52,11 +55,16 @@ Tabla::~Tabla()
 void Tabla::crear(char* nombreArchivo, unsigned int tamanioBloque)
 {
 	this->tamanio = 1;
-	//TODO: Preguntar a Nico por posicion
+	
+	// Setea en la posición 0 de la tabla al bucket 0.
 	this->setNroBucket(0,0);
-	// Crea un archivo de datos, y un archivo para la tabla.
+	
+	// Crea un archivo de datos con un bucket vacío y lo escribe a disco.
 	Bucket * bucket = new Bucket(0, 1, tamanioBloque);
 	archivo->escribirBloque(bucket);
+	
+	// Escribe la tabla a disco.
+	archivo->escribirTabla(this->tamanio,this->nroBucket);
 }
 
 /*

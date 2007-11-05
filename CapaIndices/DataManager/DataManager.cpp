@@ -13,6 +13,7 @@ DataManager::~DataManager()
 
 void DataManager::crearRegistroAlta(DefinitionsManager::ListaValoresAtributos &listaVA,
 									DefinitionsManager::ListaTiposAtributos &listaTipos) {
+	
 	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTipos.begin();
 	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
 	int tipo; //Indica si el tipo de campo del registro es variable o fijo
@@ -96,25 +97,47 @@ unsigned short DataManager::getTamanioRegistro(DefinitionsManager::ListaTiposAtr
 		else{
 			// Le sumo los bytes que contendran la longitud del registro
 			tamanioRegistro = sizeof(unsigned short);
+			unsigned short tamanioRegOriginal = sizeof(unsigned short);
 			// Itero la listas para ir obteniendo la longitud del registro
 			for(++itTipos ;itTipos != listaTiposAtributos.end(); ++itTipos,++itValoresAtributos){
 				regAttribute = *itTipos;
 				tipo = regAttribute.tipo;
 				
-				if(tipo == TipoDatos::TIPO_ENTERO)
+				
+				if(tipo == TipoDatos::TIPO_ENTERO){
 					tamanioRegistro += sizeof(int);
-				else if(tipo == TipoDatos::TIPO_FECHA)
+					tamanioRegOriginal += sizeof(int);
+				}
+				
+				
+				else if(tipo == TipoDatos::TIPO_FECHA){
 					tamanioRegistro += sizeof(ClaveFecha::TFECHA);
+					tamanioRegOriginal += sizeof(ClaveFecha::TFECHA);
+				}
 				
-				else if(tipo == TipoDatos::TIPO_FLOAT)
+				else if(tipo == TipoDatos::TIPO_FLOAT){
 				  	tamanioRegistro += sizeof(float);
+				  	tamanioRegOriginal += sizeof(float);
+				}
 				
-				else if(tipo == TipoDatos::TIPO_SHORT)
+				else if(tipo == TipoDatos::TIPO_SHORT){
 					tamanioRegistro +=sizeof(short);
-			
+					tamanioRegOriginal += sizeof(short);
+				}
+				else if(tipo == TipoDatos::TIPO_CHAR){
+					tamanioRegistro += sizeof(char);
+					tamanioRegOriginal += sizeof(char);
+				}
 				else if(tipo == TipoDatos::TIPO_STRING){
 					// Obtengo la longitud del campo variable
-					unsigned short longCampoVariable =  campoRegistro.size();
+					unsigned short longCampoVariable;
+					
+					
+					if (*itValoresAtributos != "")
+						longCampoVariable = itValoresAtributos->size();
+					else
+						longCampoVariable = (unsigned short)*(registro + tamanioRegOriginal);
+					
 					// le sumo al tamanio la longitud del string mas los dos bytes que indicaran la longitud del mismo
 					tamanioRegistro += sizeof(unsigned short) + longCampoVariable;
 
@@ -127,20 +150,26 @@ unsigned short DataManager::getTamanioRegistro(DefinitionsManager::ListaTiposAtr
 			
 		}
 		return tamanioRegistro;
-	}
+}
 
 
 void DataManager::crearRegistroModificacion(DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
 											DefinitionsManager::ListaValoresAtributos &listaVA,
 											DefinitionsManager::ListaClaves &listaClaves){
+	
 	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
 	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
 	
-	//ComuDatos 
+	char *registroModificado;
+	unsigned short offsetToProxCampo = 0;
 	
+	unsigned char longRegModificado = getTamanioRegistro(listaTiposAtributos,listaVA);
+	
+	registroModificado = new char[longRegModificado];
+	
+	++itTipos;
 	
 }
-
 
 int DataManager::insertar(const string& nombreTipo, const DefinitionsManager::ListaValoresAtributos* listaVA,
 				 		  const DefinitionsManager::ListaTiposAtributos* listaTipos) {
@@ -149,19 +178,16 @@ int DataManager::insertar(const string& nombreTipo, const DefinitionsManager::Li
 	
 }
 
-
 int DataManager::eliminar(const string& nombreTipo, DefinitionsManager::ListaClaves* listaClaves) {
 	
 	return 0;
 	
 }
 
-
 int DataManager::modificar(const string& nombreTipo, const DefinitionsManager::ListaValoresAtributos* listaVA,
 			  			   const DefinitionsManager::ListaTiposAtributos* listaTipos,
 			  			   DefinitionsManager::ListaClaves* listaClaves) {
 	
 	return 0;
-	
 }
 

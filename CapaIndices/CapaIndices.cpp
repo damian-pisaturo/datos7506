@@ -10,7 +10,7 @@
 
 using namespace std;
 
-typedef vector<Indice*> VectorIndices;
+
 
 
 void crearIndice(const string &nombreTipo, VectorIndices &vectorIndicesPersona,
@@ -20,7 +20,6 @@ void crearIndice(const string &nombreTipo, VectorIndices &vectorIndicesPersona,
 
 int main(int argc, char** argv) {
 	  	
-	ParserOperaciones parserOperaciones(argv[1]);
 
 	if (argc < 2) return ERROR;
 	
@@ -29,6 +28,7 @@ int main(int argc, char** argv) {
 	
 	//Para probar esta capa hay cargadas definiciones de dos tipos (Persona y Pelicula)
 	
+	// Se crean los indices para los registros de tipo persona.
 	DefinitionsManager::ListaTiposIndices* listaTiposIndices;
 	
 	listaTiposIndices = defManager.getListaTiposIndices("PERSONA");
@@ -47,10 +47,28 @@ int main(int argc, char** argv) {
 		
 		tipoIndice = nodoListaIndices.estructTipoIndice.tipoEstructura;
 		
-		crearIndice("PERSONA", vectorIndicesPersona, nodoListaIndices.estructTipoIndice, defManager);
+		crearIndice("PERSONA", vectorIndicesPersona, nodoListaIndices.estructTipoIndice,defManager);
 		
 	}
 	
+	// Se crean los índices para los registros de tipo Pelicula.
+	listaTiposIndices = defManager.getListaTiposIndices("PELICULA");
+		
+	
+	VectorIndices vectorIndicesPelicula;
+	
+	for (DefinitionsManager::ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
+		iter != listaTiposIndices->end(); ++iter) {
+		
+		nodoListaIndices = *iter;
+		
+		tipoIndice = nodoListaIndices.estructTipoIndice.tipoEstructura;
+		
+		crearIndice("PELICULA", vectorIndicesPelicula, nodoListaIndices.estructTipoIndice,defManager);
+	}
+		
+	ParserOperaciones parserOperaciones(argv[1], vectorIndicesPersona,vectorIndicesPelicula);
+	//TODO: modificar parser.
 	
 }
  
@@ -61,6 +79,7 @@ void crearIndice(const string &nombreTipo, VectorIndices &vectorIndicesPersona,
 				DefinitionsManager &defManager) {
 	
 	Indice* indice;
+	DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	
 	switch (estructura.tipoEstructura) {
 	
@@ -72,11 +91,10 @@ void crearIndice(const string &nombreTipo, VectorIndices &vectorIndicesPersona,
 			vectorIndicesPersona.push_back(indice);
 			break;
 			
-		
-	
-	
-	}
-	
+		case TipoIndices::HASH:
+			indice = new IndiceHash(*listaTiposAtributos,estructura.tamanioBloque,estructura.nombreArchivo);
+			vectorIndicesPersona.push_back(indice);
+	}	
 }
 
 /*

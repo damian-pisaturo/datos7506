@@ -41,7 +41,7 @@ public:
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 	Tabla();
-	Tabla(char* nombreArchivo, IndiceHashManager* archivo);
+	Tabla(char* nombreArchivo, IndiceHashManager* archivo,unsigned int tamBucket);
 	virtual ~Tabla();
 	
 	///////////////////////////////////////////////////////////////////////
