@@ -670,7 +670,7 @@ void Bloque::setTamanioBloque(unsigned int tam)
 	tamanio = tam;
 }
 
-const char * Bloque::getDatos()
+char * Bloque::getDatos()
 {
 	return datos;
 }
