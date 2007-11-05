@@ -112,7 +112,7 @@ public:
 	/*
 	 * Devuelve un puntero al contenido del bloque.
 	 **/
-	char * getDatos();
+	const char * getDatos();
 	
 	/*
 	 * Asigna el contenido al bloque.

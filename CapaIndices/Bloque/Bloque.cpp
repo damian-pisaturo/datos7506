@@ -54,6 +54,7 @@ bool Bloque::buscarRegistro(const list<nodoLista>& listaParam, void **clavePrima
 	// Se obtiene la cantidad de registros dentro del bloque.
 	unsigned short cantRegistros;
 	memcpy(&cantRegistros,&datos[2],Tamanios::TAMANIO_LONGITUD);
+	
 	unsigned char cantClaves;
 	unsigned char clavesChequeadas;
 	unsigned char clavesIguales;
@@ -124,15 +125,18 @@ bool Bloque::buscarRegistro(const list<nodoLista>& listaParam, void **clavePrima
 				   
 				// Si es pk, se obtiene el campo en sí.
 				if(pk == "true"){
-					campo = getRegisterAtribute(registro,offsetToProxCampo,longCampo);
-					// Se compara si las claves son iguales.
-					if(strcmp((char*)clavePrimaria[clavesChequeadas],campo) == 0){
-			   			*offsetReg = offsetToReg;
-			   			clavesIguales++;
-			   		}
-					clavesChequeadas++;
-			   		delete []campo;
-			   	}
+					campo = new char[longCampo +1];
+		   			memcpy(campo,&registro[offsetToProxCampo],longCampo);
+		   			*(campo + longCampo) = 0;
+		   			// Se compara si las claves son iguales.
+		   			if(strcmp((char*)clavePrimaria[clavesChequeadas],campo) == 0){
+		   				*offsetReg = offsetToReg;
+		   				clavesIguales++;
+		   			}		
+		   			clavesChequeadas++;
+		   			delete[]campo;	
+				}
+			
 		   		// Se setea el nuevo offset del próximo campo para la siguiente iteración.
 		   		offsetToProxCampo += longCampo;
 		   }
@@ -174,8 +178,9 @@ bool Bloque::buscarRegistro(const list<nodoLista>& listaParam, void **clavePrima
 		   }
 		   else if (tipo == TipoDatos::TIPO_CHAR){
 			   if(pk == "true"){
-				   campo = new char[1];
+				   campo = new char[2];
 				   campo[0] = registro[offsetToProxCampo];
+				   *(campo +1) = 0;
 				   if(campo[0] == ((char*)clavePrimaria[clavesChequeadas])[0]){
 					   *offsetReg = offsetToReg;
 					   clavesIguales++;
@@ -300,7 +305,6 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void **clavePrimaria
 	string pk;
 	bool checkPk;
 	unsigned short longCampo;
-	char *campo;
 	int campoNumericoInt;
 	float campoNumerico;
 	unsigned short campoShort;
@@ -321,6 +325,7 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void **clavePrimaria
 	
 	// Se obtiene la cantidad de claves primarias.
 	cantClaves = regAtribute.cantClaves;
+
 	int i = 1 ;
 	// Mientras no se borre al registro y haya más registros..
 	while( (i<cantRegistros + 1) && (!registroBorrado) ){
@@ -355,15 +360,18 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void **clavePrimaria
 		   tipo = regAtribute.tipo;
 		   //Obtengo el indicador de clave primaria
 		   pk = regAtribute.pk;
-		   
 		   if(tipo == TipoDatos::TIPO_STRING){
+			   
 			   //obtengo la longitud del campo variable
 			   memcpy(&longCampo,&registro[offsetToProxCampo],Tamanios::TAMANIO_LONGITUD);
 			   offsetToProxCampo += Tamanios::TAMANIO_LONGITUD;
 		   		//Si es pk, me preocupo por obtener el campo en si
+				
 		   		if(pk == "true"){
-		   			campo = getRegisterAtribute(registro,offsetToProxCampo,longCampo);
-		   		
+		   			char* campo = new char[longCampo +1];
+		   			memcpy(campo,&registro[offsetToProxCampo],longCampo);
+		   			*(campo + longCampo) = 0;
+		   			
 		   			if(strcmp((char*)clavePrimaria[clavesChequeadas],campo) == 0)	
 		   				clavesIguales++;
 		   			
@@ -407,12 +415,15 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam,void **clavePrimaria
 		   }
 		   else if (tipo == TipoDatos::TIPO_CHAR){
 			   if(pk == "true"){
-				   campo = new char[1];
+				   char* campo = new char[2];
 				   campo[0] = registro[offsetToProxCampo];
-				   if(campo[0] == ((char*)clavePrimaria[clavesChequeadas])[0])
-					   clavesIguales++;
+				   // Agrega el '\0'
+				   *(campo + 1) = 0;
 				   
-				   clavesChequeadas++;
+	 			   if(campo[0] == ((char*)clavePrimaria[clavesChequeadas])[0])
+					   clavesIguales++;  
+				   
+	 			   clavesChequeadas++;
 				   delete[]campo;	   
 			   }
 			   offsetToProxCampo += sizeof(char);
@@ -647,6 +658,8 @@ unsigned short Bloque::getTamanioRegistros(const list<nodoLista>& listaParam,cha
 	return longReg;
 }
 
+
+
 unsigned int Bloque::getTamanioBloque()
 {
 	return tamanio;
@@ -657,7 +670,7 @@ void Bloque::setTamanioBloque(unsigned int tam)
 	tamanio = tam;
 }
 
-char * Bloque::getDatos()
+const char * Bloque::getDatos()
 {
 	return datos;
 }

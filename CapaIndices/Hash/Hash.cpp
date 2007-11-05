@@ -45,7 +45,7 @@ Hash::~Hash()
  * Si el registro es variable "registro" contendrá su longitud en los 
  * primeros bytes.
  **/
-int Hash::insertarRegistro(char* registro, char* clave)
+int Hash::insertarRegistro(char* registro, void ** clave)
 {	
 	// Se aplica la función de hash para saber en que bucket se debe insertar.
 	int posicion = aplicarHash(clave) % tabla->getTamanio();
@@ -58,7 +58,7 @@ int Hash::insertarRegistro(char* registro, char* clave)
 	
 	// Se busca si el registro ya existe.
 	unsigned short aux;
-	if (bucket->buscarRegistro(listaParam, (void*)clave, &aux))
+	if (bucket->buscarRegistro(listaParam, (void**)clave, &aux))
 	{
 		delete bucket;
 		// ya existe un registro con esa clave.
@@ -117,7 +117,7 @@ int Hash::insertarRegistro(char* registro, char* clave)
  * En caso de que el bucket quede vacío, se considera la posibilidad de 
  * disminuir el tamaño de la tabla de hash.
  **/
-int Hash::eliminarRegistro(char* clave)
+int Hash::eliminarRegistro(void **clave)
 {
 	// Se aplica la función de hash para ver en que bucket se debe buscar el
 	// registro a eliminar.
@@ -142,7 +142,7 @@ int Hash::eliminarRegistro(char* clave)
 	// Primero se verifica que el registro que se encuentra en el bucket efectivamente sea
 	// el que se quiere eliminar.
 	unsigned short aux;
-	if (bucket->buscarRegistro(listaParam, (void *) clave,&aux))
+	if (bucket->buscarRegistro(listaParam, (void **)clave, &aux))
 	{	
 		// Si el tamaño de dispersión del bucket coincide con el tamaño de la tabla, se elimina el bucket.
 		if (bucket->getTamDispersion() == tabla->getTamanio())
@@ -186,10 +186,11 @@ int Hash::eliminarRegistro(char* clave)
 /*
  * Este método aplica una función de dispersión a la clave.
  **/ 
-int Hash::aplicarHash(char *clave)
+int Hash::aplicarHash(void **clave)
 {
 	int aux = 0;
-	int valorHash = hashInterno(clave);
+	char* claveSerializada = serializarClave(clave);
+	int valorHash = hashInterno(claveSerializada);
 	int ultimoBit;
 	
 	// Doy vuelta los bits, y tomo los 5 menos significativos.
@@ -231,8 +232,14 @@ void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
 {
 	unsigned short longReg;
 	unsigned short offsetReg = bucket->getOffsetToRegs();
-	char * datos = bucket->getDatos();
-	char * clave;
+	const char * datos = bucket->getDatos();
+	
+	// Hay que hacer una copia que no sea const de datos.
+	char* copiaDatos = new char[archivo->getTamanioBloque() + 1];
+	memcpy(copiaDatos,datos,archivo->getTamanioBloque());
+	*(copiaDatos + 1)= 0;
+	
+	void **clave;
 	int posicion;
 	unsigned int nroBucket;
 	
@@ -243,10 +250,10 @@ void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
 	for(int i = 0; i< bucket->getCantRegs(); i++)
 	{
 		// Obtengo el tamaño del registro.	
-		longReg = bucket->getTamanioRegistros(listaParam,&datos[offsetReg]);
+		longReg = bucket->getTamanioRegistros(listaParam,&copiaDatos[offsetReg]);
 		
 		// Obtengo la clave primaria.
-		clave = bucket->getClavePrimaria(listaParam, &datos[offsetReg]);
+		clave = bucket->getClavePrimaria(listaParam, &copiaDatos[offsetReg]);
 		
 		posicion = aplicarHash(clave) % tabla->getTamanio(); 
 		nroBucket = tabla->getNroBucket(posicion);
@@ -254,12 +261,12 @@ void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
 		// Se decide en cual de los 2 buckets se inserta el registro.
 		if (nroBucket == nuevoBucket->getNroBloque())
 		{
-			nuevoBucket->altaRegistro(listaParam,&datos[offsetReg]);
+			nuevoBucket->altaRegistro(listaParam,&copiaDatos[offsetReg]);
 			nuevoBucket->incrementarCantRegistros();
 		}
 		else
 		{
-			bucketAux->altaRegistro(listaParam,&datos[offsetReg]);
+			bucketAux->altaRegistro(listaParam,&copiaDatos[offsetReg]);
 			bucketAux->incrementarCantRegistros();
 		}
 		
@@ -312,23 +319,111 @@ bool Hash::esRegistroVariable()
  * Recupera un registro a partir de una clave 
  **/
 
-bool Hash::recuperarRegistro(list<nodoLista> listaParam,void *clave, char *registro){
+bool Hash::recuperarRegistro(void **clave, char *registro){
 	// Se aplica la función de hash para ver en que bucket se debe buscar el
 	// registro a recuperar.
-	//int posicion = aplicarHash((char*)clave) % tabla->getTamanio();
-	//unsigned int nroBucket = tabla->getNroBucket(posicion);
+	int posicion = aplicarHash(clave) % tabla->getTamanio();
+	unsigned int nroBucket = tabla->getNroBucket(posicion);
 		
 	// Se levanta dicho bucket.
-	//Bucket * bucket = new Bucket(archivo, nroBucket);	
-	//unsigned short offsetToReg;
-	//Si encuentro el registro buscado tengo el offset al registro en offsetToReg
-	//if (bucket->buscarRegistro(listaParam, (void *)clave,&offsetToReg)){	
-		//unsigned short longReg;	
-		//longReg = getTamanioRegistros(listaParam,bucket->getDatos[offsetToReg]);
-		//memcpy(&longRegOrig,&datos[offsetReg],Tamanios::TAMANIO_LONGITUD);
+	Bucket * bucket = new Bucket(archivo, nroBucket);	
+	unsigned short offsetToReg;
+	
+	// Si no encuentro el registro buscado devuelvo false. Pero si lo encuentro,
+	// tengo el offset al mismo en offsetToReg.
+	if (!(bucket->buscarRegistro(listaParam, clave,&offsetToReg)))
+		return false;
+	
+	unsigned short longReg;	
+	const char *datos = bucket->getDatos();
+	
+	// Hay que hacer una copia que no sea const de datos.
+	char* copiaDatos = new char[archivo->getTamanioBloque() + 1];
+	memcpy(copiaDatos,datos,archivo->getTamanioBloque());
+	*(copiaDatos + 1)= 0;
+	
+		// Obtiene la longitud.
+	longReg = bucket->getTamanioRegistros(listaParam,&copiaDatos[offsetToReg]);
 
-		return true;
-	//}	
-	//else return false;
+	
+	list<nodoLista>::const_iterator it;
+	it = listaParam.begin();
+	
+	if (it->tipo == TipoDatos::TIPO_VARIABLE){
+		registro = new char[Tamanios::TAMANIO_LONGITUD + longReg];
+		memcpy(registro,&datos[offsetToReg],Tamanios::TAMANIO_LONGITUD + longReg);
+	}
+	else{
+		registro = new char[longReg];
+		memcpy(registro,&datos[offsetToReg],longReg);
+	}
+	return true;
+}
+
+char* Hash::serializarClave(void** claveVoid)
+{
+	list<nodoLista>::const_iterator it;
+	it = listaParam.begin();
+	
+	int tipo;
+	
+	unsigned char cantClaves = it->cantClaves;
+	
+	// En este vector se pondrá la longitud de cada clave.
+	int* vectorTamanios = new int[cantClaves];
+	int tamanio = 0;
+	
+	for(unsigned char i=0; i<cantClaves; i++)
+	{
+		it++;
+		tipo = it->tipo;
+		switch(tipo){
+		
+		case TipoDatos::TIPO_BOOL:
+			vectorTamanios[i] = sizeof(bool);
+			tamanio += sizeof(bool);
+			break;
+		case TipoDatos::TIPO_CHAR:
+			vectorTamanios[i] = sizeof(char);
+			tamanio += sizeof(char);
+			break;
+		case TipoDatos::TIPO_SHORT:
+			vectorTamanios[i] = sizeof(short int);
+			tamanio += sizeof(short int);
+			break;
+		case TipoDatos::TIPO_ENTERO:
+			vectorTamanios[i] = sizeof(int);
+			tamanio += sizeof(int);
+			break;
+		case TipoDatos::TIPO_FLOAT:
+			vectorTamanios[i] = sizeof(float);
+			tamanio += sizeof(float);
+			break;
+		case TipoDatos::TIPO_FECHA:
+			vectorTamanios[i] = sizeof(ClaveFecha::TFECHA);
+			tamanio += sizeof(ClaveFecha::TFECHA);
+			break;
+		case TipoDatos::TIPO_STRING:
+			vectorTamanios[i] = strlen((char*)claveVoid[i]);
+			tamanio += vectorTamanios[i];
+			break;
+		}
+	}
+		
+	char* clave = new char[tamanio + 1];
+	unsigned char posicion = 0;
+	
+	for(unsigned char i=0; i<cantClaves; i++){
+		
+		memcpy(&clave[posicion], claveVoid[i],vectorTamanios[i]);
+		posicion += vectorTamanios[i];
+	}
+	
+	*(clave + tamanio) = 0;
+	
+	delete []vectorTamanios;
+	
+	return clave;
 		
 }
+
