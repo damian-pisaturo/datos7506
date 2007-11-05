@@ -82,10 +82,10 @@ bool ParserOperaciones::ejecutarOperaciones(){
 					dataManager.insertar(nombreTipo, defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos), defManager.getListaTiposAtributos(nombreTipo) );
 					break;
 				case 'B': 
-			//		dataManager.eliminar(nombreTipo, listaClaves);
+					dataManager.eliminar(nombreTipo, &listaClaves);
 					break;
 				case 'M': 
-			//		dataManager.modificar(nombreTipo, defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos), defManager.getListaTiposAtributos(nombreTipo), listaClaves);
+					dataManager.modificar(nombreTipo, defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos), defManager.getListaTiposAtributos(nombreTipo), &listaClaves);
 					break;
 				default:
 					return false;
