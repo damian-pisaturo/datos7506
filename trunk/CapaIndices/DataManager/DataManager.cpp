@@ -115,11 +115,11 @@ unsigned short DataManager::getTamanioRegistro(ListaTiposAtributos listaTiposAtr
 					// Obtengo la longitud del campo variable
 					unsigned short longCampoVariable =  campoRegistro.size();
 					// le sumo al tamanio la longitud del string mas los dos bytes que indicaran la longitud del mismo
-					tamanioRegistro = sizeof(unsigned short) + longCampoVariable;
+					tamanioRegistro += sizeof(unsigned short) + longCampoVariable;
 
 				}
 				else if(tipo == TipoDatos::TIPO_BOOL)
-					tamanioRegistro = sizeof(bool);
+					tamanioRegistro += sizeof(bool);
 				
 				
 			}
@@ -129,4 +129,11 @@ unsigned short DataManager::getTamanioRegistro(ListaTiposAtributos listaTiposAtr
 	}
 
 
-
+void DataManager::crearRegistroModificacion(ListaTiposAtributos listaTiposAtributos, ListaValoresAtributos listaVA,ListaClaves listaClaves){
+	ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
+	ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
+	
+	//ComuDatos 
+	
+	
+}

@@ -33,7 +33,11 @@ public:
 	int modificar(const string& nombreTipo, const ListaValoresAtributos* listaVA, const ListaTiposAtributos* listaTipos, ListaClaves* listaClaves);
 	
 	void crearRegistroAlta(ListaValoresAtributos listaVA,ListaTiposAtributos listaTiposAtributos);
-	//void crearRegistroModificacion(ListaTiposAtributos listaTiposAtributos, ListaClaves listaClaves);
+	
+	/*
+	 * Crea un registro a partir de modificaciones de otro 
+	 **/
+	void crearRegistroModificacion(ListaTiposAtributos listaTiposAtributos, ListaValoresAtributos listaVA,ListaClaves listaClaves);
 private:
 	// Registro que se genera para realizar un alta o modificacion en disco
 	char *registro;
