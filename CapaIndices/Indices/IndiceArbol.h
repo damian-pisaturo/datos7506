@@ -5,8 +5,9 @@
 #include "../BStar/BStarTree.h"
 #include "../BPlus/BPlusTree.h"
 #include "../Common/IndiceManagerFactory.h"
+#include "Indice.h"
 
-class IndiceArbol {
+class IndiceArbol: public Indice {
 	
 	private:
 		

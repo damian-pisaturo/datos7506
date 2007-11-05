@@ -29,6 +29,8 @@ class DefinitionsManager {
 			unsigned char tipoIndice;
 			unsigned char tipoEstructura;
 			unsigned short tamanioBloque;
+			int tipoClave;
+			string nombreArchivo;
 		} EstructTipoIndice;
 		
 		typedef struct _nodoListaIndices {
@@ -52,6 +54,8 @@ class DefinitionsManager {
 		virtual ~DefinitionsManager();
 		
 		ListaTiposAtributos* getListaTiposAtributos(const string &nombreTipo);
+		
+		ListaTipos* getListaTipos(const string &nombreTipo);
 		
 		//Devuelve una lista con los valores de los atributos ordenados segun el archivo de definiciones.
 		//Si 'insercion == true' significa que la lista de valores de atributos se utilizara en una alta,

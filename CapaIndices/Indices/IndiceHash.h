@@ -4,8 +4,9 @@
 #include "../Hash/Hash.h"
 #include "../Manager/IndiceManager.h"
 #include "../Common/IndiceManagerFactory.h"
+#include "Indice.h"
 
-class IndiceHash {
+class IndiceHash : Indice {
 	
 	private:
 	
@@ -17,9 +18,9 @@ class IndiceHash {
 		virtual ~IndiceHash();
 			
 		
-		int insertarRegistro(char *registro, char *clave);
+		int insertarRegistro(char *registro, void **clave);
 		
-		int eliminarRegistro(char *clave);
+		int eliminarRegistro(void **clave);
 		
 		
 };
