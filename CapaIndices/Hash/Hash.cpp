@@ -372,41 +372,44 @@ char* Hash::serializarClave(void** claveVoid)
 	// En este vector se pondrá la longitud de cada clave.
 	int* vectorTamanios = new int[cantClaves];
 	int tamanio = 0;
+	int i = 0;  // recorre las posiciones del vectorTamanios.
 	
-	for(unsigned char i=0; i<cantClaves; i++)
-	{
-		it++;
+	for( ++it ;it != listaParam.end() ; ++it){
 		tipo = it->tipo;
-		switch(tipo){
-		
-		case TipoDatos::TIPO_BOOL:
-			vectorTamanios[i] = sizeof(bool);
-			tamanio += sizeof(bool);
-			break;
-		case TipoDatos::TIPO_CHAR:
-			vectorTamanios[i] = sizeof(char);
-			tamanio += sizeof(char);
-			break;
-		case TipoDatos::TIPO_SHORT:
-			vectorTamanios[i] = sizeof(short int);
-			tamanio += sizeof(short int);
-			break;
-		case TipoDatos::TIPO_ENTERO:
-			vectorTamanios[i] = sizeof(int);
-			tamanio += sizeof(int);
-			break;
-		case TipoDatos::TIPO_FLOAT:
-			vectorTamanios[i] = sizeof(float);
-			tamanio += sizeof(float);
-			break;
-		case TipoDatos::TIPO_FECHA:
-			vectorTamanios[i] = sizeof(ClaveFecha::TFECHA);
-			tamanio += sizeof(ClaveFecha::TFECHA);
-			break;
-		case TipoDatos::TIPO_STRING:
-			vectorTamanios[i] = strlen((char*)claveVoid[i]);
-			tamanio += vectorTamanios[i];
-			break;
+		if (it->pk == "true"){
+			
+			switch(tipo){
+			
+			case TipoDatos::TIPO_BOOL:
+				vectorTamanios[i] = sizeof(bool);
+				tamanio += sizeof(bool);
+				break;
+			case TipoDatos::TIPO_CHAR:
+				vectorTamanios[i] = sizeof(char);
+				tamanio += sizeof(char);
+				break;
+			case TipoDatos::TIPO_SHORT:
+				vectorTamanios[i] = sizeof(short int);
+				tamanio += sizeof(short int);
+				break;
+			case TipoDatos::TIPO_ENTERO:
+				vectorTamanios[i] = sizeof(int);
+				tamanio += sizeof(int);
+				break;
+			case TipoDatos::TIPO_FLOAT:
+				vectorTamanios[i] = sizeof(float);
+				tamanio += sizeof(float);
+				break;
+			case TipoDatos::TIPO_FECHA:
+				vectorTamanios[i] = sizeof(ClaveFecha::TFECHA);
+				tamanio += sizeof(ClaveFecha::TFECHA);
+				break;
+			case TipoDatos::TIPO_STRING:
+				vectorTamanios[i] = strlen((char*)claveVoid[i]);
+				tamanio += vectorTamanios[i];
+				break;
+			}
+			i++;
 		}
 	}
 		
