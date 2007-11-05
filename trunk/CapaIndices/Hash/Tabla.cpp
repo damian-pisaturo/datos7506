@@ -35,6 +35,7 @@ Tabla::Tabla(char* nombreArchivo, IndiceHashManager* arch)
 
 Tabla::~Tabla()
 {
+	archivo->escribirTabla(this->tamanio,this->nroBucket);
 	if(nroBucket)
 		delete[] nroBucket;
 }
