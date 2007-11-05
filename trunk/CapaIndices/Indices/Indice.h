@@ -1,12 +1,12 @@
 #ifndef INDICE_H_
 #define INDICE_H_
 
-//#include "IndiceArbol.h"
-//#include "IndiceHash.h"
+#include "../Common/DefinitionsManager.h"
+#include <map>
 
 class Indice;
 
-#include <vector>
+typedef std::map<DefinitionsManager::ListaNombresClaves, Indice*> MapaIndices;
 
 typedef std::vector<Indice*> VectorIndices;
 

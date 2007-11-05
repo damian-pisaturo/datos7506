@@ -12,7 +12,6 @@ ParserOperaciones::~ParserOperaciones() {
 }
 
 bool ParserOperaciones::ejecutarOperaciones(){
-	char linea[MAX_LINEA];
 	string lineaStr;
 	DefinitionsManager defManager;
 	DataManager dataManager;
@@ -20,8 +19,7 @@ bool ParserOperaciones::ejecutarOperaciones(){
 	
 	while (!archivo.fail()){
 		leyendoClaves = false;
-		archivo.getline(linea, MAX_LINEA); 
-		lineaStr = linea;
+		getline(archivo, lineaStr);
 		
 		if (lineaStr.size() != 0){
 		
@@ -80,15 +78,18 @@ bool ParserOperaciones::ejecutarOperaciones(){
 						return false;
 				}
 			}
-			switch(lineaStr[0]){
+			switch(lineaStr[0]) {
 				case 'A':
-					dataManager.insertar(nombreTipo, defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos), defManager.getListaTiposAtributos(nombreTipo) );
+					//Llamada al indice correspondiente
+					//dataManager.insertar(nombreTipo, defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos), defManager.getListaTiposAtributos(nombreTipo) );
 					break;
-				case 'B': 
-					dataManager.eliminar(nombreTipo, &listaClaves);
+				case 'B':
+					//llamada al indice correspondiente
+					//dataManager.eliminar(nombreTipo, &listaClaves);
 					break;
-				case 'M': 
-					dataManager.modificar(nombreTipo, defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos), defManager.getListaTiposAtributos(nombreTipo), &listaClaves);
+				case 'M':
+					//Llamada al indice correspondiente
+					//dataManager.modificar(nombreTipo, defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos), defManager.getListaTiposAtributos(nombreTipo), &listaClaves);
 					break;
 				default:
 					return false;

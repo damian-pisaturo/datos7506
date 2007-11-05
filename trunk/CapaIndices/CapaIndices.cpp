@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
 		
 		tipoIndice = nodoListaIndices.estructTipoIndice.tipoEstructura;
 		
-	crearIndice("PERSONA", vectorIndicesPersona, nodoListaIndices.estructTipoIndice,defManager);
+		crearIndice("PERSONA", vectorIndicesPersona, nodoListaIndices.estructTipoIndice,defManager);
 		
 	}
 	
@@ -66,8 +66,8 @@ int main(int argc, char** argv) {
 		crearIndice("PELICULA", vectorIndicesPelicula, nodoListaIndices.estructTipoIndice,defManager);
 	}
 		
-	ParserOperaciones parserOperaciones(argv[1], vectorIndicesPersona,vectorIndicesPelicula);
-	//TODO: modificar parser.
+	ParserOperaciones parserOperaciones(argv[1], vectorIndicesPersona, vectorIndicesPelicula);
+	//TODO: modificar parser
 	
 }
  
