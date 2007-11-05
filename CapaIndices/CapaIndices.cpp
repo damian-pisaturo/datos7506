@@ -19,8 +19,7 @@ void crearIndice(const string &nombreTipo, VectorIndices &vectorIndicesPersona,
 
 
 int main(int argc, char** argv) {
-	  	
-
+	
 	if (argc < 2) return ERROR;
 	
 	// Se instancia el DefinitionsManager. Esta clase tiene todas las definiciones.
@@ -28,7 +27,7 @@ int main(int argc, char** argv) {
 	
 	//Para probar esta capa hay cargadas definiciones de dos tipos (Persona y Pelicula)
 	
-	// Se crean los indices para los registros de tipo persona.
+	//Se crean los indices para los registros de tipo persona.
 	DefinitionsManager::ListaTiposIndices* listaTiposIndices;
 	
 	listaTiposIndices = defManager.getListaTiposIndices("PERSONA");
@@ -47,7 +46,7 @@ int main(int argc, char** argv) {
 		
 		tipoIndice = nodoListaIndices.estructTipoIndice.tipoEstructura;
 		
-		crearIndice("PERSONA", vectorIndicesPersona, nodoListaIndices.estructTipoIndice,defManager);
+	crearIndice("PERSONA", vectorIndicesPersona, nodoListaIndices.estructTipoIndice,defManager);
 		
 	}
 	
