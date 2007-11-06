@@ -19,12 +19,15 @@ fuentes += ArchivoEL/ArchivoEL.cpp
 fuentes += ArchivoIndice/ArchivoIndice.cpp
 fuentes += ../CapaIndices/Manager/IndiceManager.cpp
 fuentes += ../CapaIndices/Bloque/Bloque.cpp
-fuentes += ../CapaIndices/Common/Nodo.cpp CapaIndices/Common/Clave.cpp
+fuentes += ../CapaIndices/Common/Nodo.cpp
+fuentes += ../CapaIndices/Common/Clave.cpp
 fuentes += ../CapaIndices/Common/SetClaves.cpp
 fuentes += ../CapaIndices/BPlus/NodoBPlus.cpp
 fuentes += ../CapaIndices/BStar/NodoBStar.cpp
-fuentes += ../CapaIndices/Hash/Hash.cpp CapaIndices/Hash/Bucket.cpp
-fuentes += ../CapaIndices/Hash/Tabla.cpp CapaIndices/Hash/RegistroV.cpp
+fuentes += ../CapaIndices/Hash/Hash.cpp
+fuentes += ../CapaIndices/Hash/Bucket.cpp
+fuentes += ../CapaIndices/Hash/Tabla.cpp
+fuentes += ../CapaIndices/Hash/RegistroV.cpp
 fuentes += ../ComuDatos/ComuDatos.cpp
 
 # CONFIGURACION "AVANZADA"
