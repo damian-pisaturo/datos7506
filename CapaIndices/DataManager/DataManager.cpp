@@ -83,8 +83,10 @@ void DataManager::crearRegistroAlta(DefinitionsManager::ListaValoresAtributos &l
 }	
 unsigned short DataManager::getTamanioRegistro(DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
 											   DefinitionsManager::ListaValoresAtributos &listaVA){
+	// Obtengo los iteradores de ambas listas
 	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
 	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
+	
 	unsigned short tamanioRegistro = 0;
 	nodoLista regAttribute = *itTipos;
 	string campoRegistro;
@@ -97,46 +99,34 @@ unsigned short DataManager::getTamanioRegistro(DefinitionsManager::ListaTiposAtr
 		else{
 			// Le sumo los bytes que contendran la longitud del registro
 			tamanioRegistro = sizeof(unsigned short);
-			unsigned short tamanioRegOriginal = sizeof(unsigned short);
+			
 			// Itero la listas para ir obteniendo la longitud del registro
+			// La lista de tipos de atributos se incrementa en un nodo mas ya que le primero contiene informacion 
+			// acerca del registro
 			for(++itTipos ;itTipos != listaTiposAtributos.end(); ++itTipos,++itValoresAtributos){
 				regAttribute = *itTipos;
 				tipo = regAttribute.tipo;
 				
 				
-				if(tipo == TipoDatos::TIPO_ENTERO){
+				if(tipo == TipoDatos::TIPO_ENTERO)
 					tamanioRegistro += sizeof(int);
-					tamanioRegOriginal += sizeof(int);
-				}
 				
-				
-				else if(tipo == TipoDatos::TIPO_FECHA){
+				else if(tipo == TipoDatos::TIPO_FECHA)
 					tamanioRegistro += sizeof(ClaveFecha::TFECHA);
-					tamanioRegOriginal += sizeof(ClaveFecha::TFECHA);
-				}
 				
-				else if(tipo == TipoDatos::TIPO_FLOAT){
+				else if(tipo == TipoDatos::TIPO_FLOAT)
 				  	tamanioRegistro += sizeof(float);
-				  	tamanioRegOriginal += sizeof(float);
-				}
+				  	
+				else if(tipo == TipoDatos::TIPO_SHORT)
+					tamanioRegistro += sizeof(short);
 				
-				else if(tipo == TipoDatos::TIPO_SHORT){
-					tamanioRegistro +=sizeof(short);
-					tamanioRegOriginal += sizeof(short);
-				}
-				else if(tipo == TipoDatos::TIPO_CHAR){
+				else if(tipo == TipoDatos::TIPO_CHAR)
 					tamanioRegistro += sizeof(char);
-					tamanioRegOriginal += sizeof(char);
-				}
+					
 				else if(tipo == TipoDatos::TIPO_STRING){
 					// Obtengo la longitud del campo variable
 					unsigned short longCampoVariable;
-					
-					
-					if (*itValoresAtributos != "")
-						longCampoVariable = itValoresAtributos->size();
-					else
-						longCampoVariable = (unsigned short)*(registro + tamanioRegOriginal);
+					longCampoVariable = itValoresAtributos->size();
 					
 					// le sumo al tamanio la longitud del string mas los dos bytes que indicaran la longitud del mismo
 					tamanioRegistro += sizeof(unsigned short) + longCampoVariable;
