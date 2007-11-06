@@ -12,18 +12,20 @@ extension = cpp
 # descomentar la l�nea (quitarle el '#' del principio).
 # NOTA: No poner cabeceras (.h). 
 
-fuentes = CapaFisica/CapaFisica.cpp
-fuentes += CapaFisica/ArchivoBase/ArchivoBase.cpp
-fuentes += CapaFisica/ArchivoDatos/ArchivoDatos.cpp
-fuentes += CapaFisica/ArchivoEL/ArchivoEL.cpp
-fuentes += CapaFisica/ArchivoIndice/ArchivoIndice.cpp
-fuentes +=  CapaIndices/Manager/IndiceManager.cpp
-fuentes += CapaIndices/Bloque/Bloque.cpp
-fuentes += CapaIndices/Common/Nodo.cpp CapaIndices/Common/Clave.cpp CapaIndices/Common/SetClaves.cpp
-fuentes += CapaIndices/BPlus/NodoBPlus.cpp
-fuentes += CapaIndices/BStar/NodoBStar.cpp
-fuentes += CapaIndices/Hash/Hash.cpp CapaIndices/Hash/Bucket.cpp CapaIndices/Hash/Tabla.cpp CapaIndices/Hash/RegistroV.cpp
-fuentes += ComuDatos/ComuDatos.cpp
+fuentes = CapaFisica.cpp
+fuentes += ArchivoBase/ArchivoBase.cpp
+fuentes += ArchivoDatos/ArchivoDatos.cpp
+fuentes += ArchivoEL/ArchivoEL.cpp
+fuentes += ArchivoIndice/ArchivoIndice.cpp
+fuentes += ../CapaIndices/Manager/IndiceManager.cpp
+fuentes += ../CapaIndices/Bloque/Bloque.cpp
+fuentes += ../CapaIndices/Common/Nodo.cpp CapaIndices/Common/Clave.cpp
+fuentes += ../CapaIndices/Common/SetClaves.cpp
+fuentes += ../CapaIndices/BPlus/NodoBPlus.cpp
+fuentes += ../CapaIndices/BStar/NodoBStar.cpp
+fuentes += ../CapaIndices/Hash/Hash.cpp CapaIndices/Hash/Bucket.cpp
+fuentes += ../CapaIndices/Hash/Tabla.cpp CapaIndices/Hash/RegistroV.cpp
+fuentes += ../ComuDatos/ComuDatos.cpp
 
 # CONFIGURACION "AVANZADA"
 ###########################

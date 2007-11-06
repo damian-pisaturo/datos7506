@@ -10,9 +10,6 @@
 
 using namespace std;
 
-
-
-
 void crearIndice(const string &nombreTipo, VectorIndices &vectorIndicesPersona,
 				const DefinitionsManager::EstructTipoIndice &estructura,
 				DefinitionsManager &defManager);
