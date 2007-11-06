@@ -2,6 +2,7 @@
 #define INDICE_H_
 
 #include "../Common/DefinitionsManager.h"
+#include <vector>
 #include <map>
 
 class Indice;
