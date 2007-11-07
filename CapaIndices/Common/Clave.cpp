@@ -37,7 +37,7 @@
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
 		this->tamanio = sizeof(int) + Tamanios::TAMANIO_REFERENCIA;
-		//Si la clave si insertará en un nodo interno
+		//Si la clave se insertara en un nodo interno
 		//agrego el tamaño de la referencia al hijo derecho
 		if (hijoDer != 0) this->tamanio += Tamanios::TAMANIO_REFERENCIA;
 	}
@@ -900,5 +900,26 @@
 		
 		return tamanioValores;
 		
+	}
+	
+	int ClaveCompuesta::getCantidadClaves() const {
+		
+		ListaClaves* lista = getListaClaves();
+		
+		return lista->size();
+	}
+	
+	void** ClaveCompuesta::getValorParaHash() const {
+		ListaClaves* listaClaves = this->getListaClaves();
+		ListaClaves::iterator iter;
+		int cantidadClaves = getCantidadClaves();
+		void** clave = new void*[cantidadClaves];
+		int i = 0;
+		
+		for (iter = listaClaves->begin(); iter != listaClaves->end(); ++iter){
+			clave[i] = (*iter)->getValor();
+			i++;
+		}	
+		return clave;
 	}
 	

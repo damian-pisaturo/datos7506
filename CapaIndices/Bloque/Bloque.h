@@ -30,14 +30,13 @@ private:
 	//Métodos privados
 	
 	/*
-	 * Organiza el bloque a partir de una modificación dentro del mismo
+	 * Organiza el bloque a luego de una baja dentro del mismo
 	 **/
-	
-	void organizarBloque(int settamDispersionToReg,int longReg);
+	void organizarBloque(int offsetToReg, int longReg);
 	/*
 	 * Inserta un registro dentro del bloque, actualizando el offset a espacio libre
 	 **/
-	void insertarRegistro(char *registro,unsigned short nuevoOffsetEspLibre,unsigned short longitudRegistro);
+	void insertarRegistro(char *registro, unsigned short nuevoOffsetEspLibre, unsigned short longitudRegistro);
 	
 	/*
 	 * Retorna un registro a partir del offset del mismo dentro del bloque
@@ -48,7 +47,7 @@ private:
 	/**
 	 * Retorna un campo específico del registro
 	 * */
-	char* getRegisterAtribute(string registro,int offsetCampo,int longCampo);
+	char* getRegisterAtribute(string registro, int offsetCampo, int longCampo);
 
 	
 public:
@@ -62,7 +61,7 @@ public:
 	///////////////////////////////////////////////////////////////////////
 	// Métodos públicos
 	///////////////////////////////////////////////////////////////////////
-	bool buscarRegistro(const list<nodoLista>& listaParam, void **clavePrimaria, unsigned short* offsetReg);
+	bool buscarRegistro(const list<nodoLista>& listaParam, Clave &clavePrimaria, unsigned short* offsetReg);
 	/*
 	 * Inserta un nuevo registro dentro del bloque
 	 **/
@@ -71,11 +70,12 @@ public:
 	/*
 	 * Elimina un registro del bloque, reorganizando el espacio libre
 	 **/
-	int bajaRegistro(const list <nodoLista>& listaParam,void **clavePrimaria);
+	int bajaRegistro(const list <nodoLista>& listaParam, Clave &clavePrimaria);
 	/*
 	 * Modifica el contenido de un registro.
 	 **/
-	int modificarRegistro(const list<nodoLista>& listaParam, unsigned short longReg,void** clavePrimaria, char* registro);
+	int modificarRegistro(const list<nodoLista>& listaParam, unsigned short longReg,Clave &clavePrimaria, char* registro);
+	
 	
 	
 	/*
@@ -97,7 +97,7 @@ public:
 	/*
 	 * Devuelve la clave primaria de "registro".
 	 **/
-	void**  getClavePrimaria(const list <nodoLista>& listaParam, char* registro);
+	Clave*  getClavePrimaria(const list <nodoLista>& listaParam, char* registro);
 	
 	/*
 	 * Devuelve el tamaño del bloque.

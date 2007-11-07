@@ -45,7 +45,7 @@ Hash::~Hash()
  * Si el registro es variable "registro" contendrá su longitud en los 
  * primeros bytes.
  **/
-int Hash::insertarRegistro(char* registro, void ** clave)
+int Hash::insertarRegistro(char* registro, Clave &clave)
 {	
 	// Se aplica la función de hash para saber en que bucket se debe insertar.
 	int posicion = aplicarHash(clave) % tabla->getTamanio();
@@ -58,7 +58,7 @@ int Hash::insertarRegistro(char* registro, void ** clave)
 	
 	// Se busca si el registro ya existe.
 	unsigned short aux;
-	if (bucket->buscarRegistro(listaParam, (void**)clave, &aux))
+	if (bucket->buscarRegistro(listaParam, clave, &aux))
 	{
 		delete bucket;
 		// ya existe un registro con esa clave.
@@ -117,7 +117,7 @@ int Hash::insertarRegistro(char* registro, void ** clave)
  * En caso de que el bucket quede vacío, se considera la posibilidad de 
  * disminuir el tamaño de la tabla de hash.
  **/
-int Hash::eliminarRegistro(void **clave)
+int Hash::eliminarRegistro(Clave &clave)
 {
 	// Se aplica la función de hash para ver en que bucket se debe buscar el
 	// registro a eliminar.
@@ -142,7 +142,7 @@ int Hash::eliminarRegistro(void **clave)
 	// Primero se verifica que el registro que se encuentra en el bucket efectivamente sea
 	// el que se quiere eliminar.
 	unsigned short aux;
-	if (bucket->buscarRegistro(listaParam, (void **)clave, &aux))
+	if (bucket->buscarRegistro(listaParam, clave, &aux))
 	{	
 		// Si el tamaño de dispersión del bucket coincide con el tamaño de la tabla, se elimina el bucket.
 		if (bucket->getTamDispersion() == tabla->getTamanio())
@@ -183,7 +183,7 @@ int Hash::eliminarRegistro(void **clave)
  * Recupera un registro a partir de una clave 
  **/
 
-bool Hash::recuperarRegistro(void **clave, char *registro){
+bool Hash::recuperarRegistro(Clave &clave, char *registro){
 	// Se aplica la función de hash para ver en que bucket se debe buscar el
 	// registro a recuperar.
 	int posicion = aplicarHash(clave) % tabla->getTamanio();
@@ -231,10 +231,10 @@ bool Hash::recuperarRegistro(void **clave, char *registro){
 /*
  * Este método aplica una función de dispersión a la clave.
  **/ 
-int Hash::aplicarHash(void **clave)
+int Hash::aplicarHash(Clave &clave)
 {
 	int aux = 0;
-	char* claveSerializada = serializarClave(clave);
+	char* claveSerializada = serializarClave(clave.getValorParaHash());
 	int valorHash = hashInterno(claveSerializada);
 	int ultimoBit;
 	
@@ -284,7 +284,7 @@ void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
 	memcpy(copiaDatos,datos,archivo->getTamanioBloque());
 	*(copiaDatos + 1)= 0;
 	
-	void **clave;
+	Clave *clave;
 	int posicion;
 	unsigned int nroBucket;
 	
@@ -300,7 +300,7 @@ void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
 		// Obtengo la clave primaria.
 		clave = bucket->getClavePrimaria(listaParam, &copiaDatos[offsetReg]);
 		
-		posicion = aplicarHash(clave) % tabla->getTamanio(); 
+		posicion = aplicarHash(*clave) % tabla->getTamanio(); 
 		nroBucket = tabla->getNroBucket(posicion);
 		
 		// Se decide en cual de los 2 buckets se inserta el registro.

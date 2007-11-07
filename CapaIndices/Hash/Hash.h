@@ -63,7 +63,7 @@ class Hash
 		 * Si el registro es variable "registro" contendrá su longitud en los 
 		 * primeros bytes.
 		 **/
-		int insertarRegistro(char *registro,void **clave);
+		int insertarRegistro(char *registro,Clave &clave);
 		
 		/* Este método se utiliza para hacer una operación de baja en el archivo.
 		 * Si el registro se puede eliminar devuelve OK, si no existe el registro
@@ -71,12 +71,12 @@ class Hash
 		 * En caso de que el bucket quede vacío, se considera la posibilidad de 
 		 * disminuir el tamaño de la tabla de hash.
 		 **/
-		int eliminarRegistro(void **clave);
+		int eliminarRegistro(Clave &clave);
 	
 		/*
 		 * A partir de una clave recupera un registro 
 		 **/
-		bool recuperarRegistro(void **clave,char *registro); 
+		bool recuperarRegistro(Clave &clave,char *registro); 
 		
 		
 		
@@ -88,7 +88,7 @@ class Hash
 		/*
 		 * Este método aplica una función de dispersión a la clave.
 		 **/
-		int aplicarHash(void **clave);
+		int aplicarHash(Clave &clave);
 		
 		/*
 		 * Método utilizado internamente cuando se aplica la función de dispersión a una clave.
@@ -111,7 +111,7 @@ class Hash
 		bool esRegistroVariable();
 		
 		
-		char* serializarClave(void** claveVoid);
+		char* serializarClave(void** clave);
 
 };
 
