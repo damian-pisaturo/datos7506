@@ -3,6 +3,7 @@
 
 #include "DefinitionsManager.h"
 #include "Clave.h"
+#include <sstream>
 
 class ClaveFactory {
 	
@@ -16,7 +17,7 @@ class ClaveFactory {
 	
 		static ClaveFactory& getInstance() { return instance; }
 		
-		Clave* getClave(const ListaClaves &listaClaves) const;
+		Clave* getClave(const ListaValoresClaves& listaValoresClaves, const ListaTipos& listaTipos) const;
 
 		
 };

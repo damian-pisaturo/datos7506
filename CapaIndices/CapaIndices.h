@@ -4,8 +4,13 @@
 #define OK		0
 #define ERROR	1
 
+#include <iostream>
+#include "Indices/IndiceArbol.h"
+#include "Indices/IndiceHash.h"
 
-int main(int argc, char** argv);
+using namespace std;
+
+int main(int argc, char* argv[]);
 
 
 #endif /*CAPAINDICES_H_*/
