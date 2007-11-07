@@ -16,7 +16,7 @@ bool ParserOperaciones::ejecutarOperaciones(){
 	DefinitionsManager defManager;
 	DataManager dataManager;
 	bool leyendoClaves; // es true si se trata de una modificacion y esta leyendo la parte que contiene la clave o lista de claves 
-	
+	 
 	while (!archivo.fail()){
 		leyendoClaves = false;
 		getline(archivo, lineaStr);

@@ -2,7 +2,7 @@
 ################
 
 # Nombre del ejecutable.
-target = capaIndices
+target = capaMetadata
 
 # Extensi�n de los archivos a compilar (c para C, cpp o cc o cxx para C++).
 extension = cpp
@@ -13,29 +13,10 @@ extension = cpp
 # NOTA: No poner cabeceras (.h). 
 
 fuentes = DataManager/DataManager.cpp
-fuentes += RegisterInfo/RegisterInfo.cpp
-fuentes += Manager/IndiceManager.cpp
-fuentes += Indices/Indice.cpp
-fuentes += Indices/IndiceArbol.cpp
-fuentes += Indices/IndiceHash.cpp
 fuentes += Parser/ParserOperaciones.cpp
-fuentes += Bloque/Bloque.cpp
-fuentes += Common/Nodo.cpp
-fuentes += Common/Clave.cpp
-fuentes += Common/SetClaves.cpp
-fuentes += Common/DefinitionsManager.cpp
-fuentes += Common/IndiceManagerFactory.cpp
-fuentes += BTree/BTree.cpp
-fuentes += BPlus/BPlusTree.cpp
-fuentes += BPlus/NodoBPlus.cpp
-fuentes += BStar/BStarTree.cpp
-fuentes += BStar/NodoBStar.cpp
-fuentes += Hash/Hash.cpp
-fuentes += Hash/Bucket.cpp
-fuentes += Hash/Tabla.cpp
-fuentes += Hash/RegistroV.cpp
+fuentes += ../Common/DefinitionsManager.cpp
 fuentes += ../ComuDatos/ComuDatos.cpp
-fuentes += CapaIndices.cpp
+fuentes += CapaMetadata.cpp
 
 # CONFIGURACION "AVANZADA"
 ###########################
