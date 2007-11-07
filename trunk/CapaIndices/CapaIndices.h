@@ -8,6 +8,7 @@
 #include "Indices/IndiceArbol.h"
 #include "Indices/IndiceHash.h"
 #include "../Common/DefinitionsManager.h"
+#include "../Common/CodigosPipe.h"
 
 using namespace std;
 
