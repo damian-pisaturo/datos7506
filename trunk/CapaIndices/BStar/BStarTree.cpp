@@ -690,8 +690,7 @@ VectorClaves* BStarTree::mergeSplitOverflow(NodoBStar* nodoTarget, NodoBStar* no
 	return vectorClaves;
 }
 
-//Por el momento se utiliza cuando se tiene una raiz con dos hijos y se mergea todo en una unica raiz.
-//En un futuro podria llegar a implementarse para nodos internos.
+//Método utilizado para mergear la raíz con dos hijos
 void BStarTree::merge(NodoBStar* &nodoHijoIzq, NodoBStar* &nodoHijoDer, NodoBStar* nodoPadre) {
 	
 	nodoPadre->setHijoIzq(0);
