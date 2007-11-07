@@ -72,6 +72,8 @@ class Hash
 		 * disminuir el tamaño de la tabla de hash.
 		 **/
 		int eliminarRegistro(Clave &clave);
+		
+		bool modificarRegistro(Clave &claveVieja, Clave &claveNueva, char* registroNuevo);
 	
 		/*
 		 * A partir de una clave recupera un registro 

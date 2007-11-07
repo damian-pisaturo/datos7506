@@ -54,6 +54,6 @@ Clave* IndiceArbol::buscar(Clave &clave, char* registro) const {
  * Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario,
  * la reemplaza por claveNueva y devuelve true.
  **/
-bool IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva) {
+bool IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* registroNuevo) {
 	return bTree->modificar(claveVieja, claveNueva);
 }
