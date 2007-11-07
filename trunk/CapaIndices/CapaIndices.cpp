@@ -1,81 +1,13 @@
 #include "CapaIndices.h"
 
-#include <iostream>
-#include <vector>
-#include "Bloque/Bloque.h"
-#include "Common/DefinitionsManager.h"
-#include "Parser/ParserOperaciones.h"
-#include "Indices/IndiceArbol.h"
-#include "Indices/IndiceHash.h"
-
-using namespace std;
-
-void crearIndice(const string &nombreTipo, VectorIndices &vectorIndicesPersona,
-				const DefinitionsManager::EstructTipoIndice &estructura,
-				DefinitionsManager &defManager);
-
-
-int main(int argc, char** argv) {
-	
-	if (argc < 2) return ERROR;
-	
-	// Se instancia el DefinitionsManager. Esta clase tiene todas las definiciones.
-	DefinitionsManager defManager;
-	
-	//Para probar esta capa hay cargadas definiciones de dos tipos (Persona y Pelicula)
-	
-	//Se crean los indices para los registros de tipo persona.
-	DefinitionsManager::ListaTiposIndices* listaTiposIndices;
-	
-	listaTiposIndices = defManager.getListaTiposIndices("PERSONA");
-	
-	DefinitionsManager::NodoListaIndices nodoListaIndices;
-	
-	VectorIndices vectorIndicesPersona;
-	
-	unsigned char tipoIndice;
-	
-	
-	for (DefinitionsManager::ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
-		iter != listaTiposIndices->end(); ++iter) {
-		
-		nodoListaIndices = *iter;
-		
-		tipoIndice = nodoListaIndices.estructTipoIndice.tipoEstructura;
-		
-		crearIndice("PERSONA", vectorIndicesPersona, nodoListaIndices.estructTipoIndice,defManager);
-		
-	}
-	
-	// Se crean los índices para los registros de tipo Pelicula.
-	listaTiposIndices = defManager.getListaTiposIndices("PELICULA");
-		
-	
-	VectorIndices vectorIndicesPelicula;
-	
-	for (DefinitionsManager::ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
-		iter != listaTiposIndices->end(); ++iter) {
-		
-		nodoListaIndices = *iter;
-		
-		tipoIndice = nodoListaIndices.estructTipoIndice.tipoEstructura;
-		
-		crearIndice("PELICULA", vectorIndicesPelicula, nodoListaIndices.estructTipoIndice,defManager);
-	}
-		
-	ParserOperaciones parserOperaciones(argv[1], vectorIndicesPersona, vectorIndicesPelicula);
-	//TODO: modificar parser
-	
-}
- 
-
-
-void crearIndice(const string &nombreTipo, VectorIndices &vectorIndicesPersona,
-				const DefinitionsManager::EstructTipoIndice &estructura,
+void crearIndice(const string &nombreTipo, MapaIndices &mapaIndices,
+				const DefinitionsManager::NodoListaIndices &nodo,
 				DefinitionsManager &defManager) {
 	
 	Indice* indice;
 	DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	DefinitionsManager::EstructTipoIndice estructura = nodo.estructTipoIndice;
+	
 	
 	switch (estructura.tipoEstructura) {
 	
@@ -84,14 +16,26 @@ void crearIndice(const string &nombreTipo, VectorIndices &vectorIndicesPersona,
 			indice = new IndiceArbol(estructura.tipoIndice, estructura.tamanioBloque, estructura.tipoClave,
 									defManager.getListaTipos(nombreTipo), estructura.tipoEstructura, estructura.tamanioBloque,
 									estructura.nombreArchivo);
-			vectorIndicesPersona.push_back(indice);
 			break;
 			
 		case TipoIndices::HASH:
 			indice = new IndiceHash(*listaTiposAtributos,estructura.tamanioBloque,estructura.nombreArchivo);
-			vectorIndicesPersona.push_back(indice);
 	}	
+	mapaIndices[*(nodo.listaNombresClaves)] = indice;
 }
+
+
+
+int main(int argc, char* argv[]) {
+	
+	ComuDatos comuDatos;
+	
+	
+}
+ 
+
+
+
 
 /*
  * Este codigo es para probar ABM con registros variables.

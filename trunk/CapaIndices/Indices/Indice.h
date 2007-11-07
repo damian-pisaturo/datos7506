@@ -9,6 +9,8 @@ class Indice;
 
 typedef std::map<DefinitionsManager::ListaNombresClaves, Indice*> MapaIndices;
 
+typedef std::map<std::string, MapaIndices*> MapaMapaIndices;
+
 typedef std::vector<Indice*> VectorIndices;
 
 class Indice

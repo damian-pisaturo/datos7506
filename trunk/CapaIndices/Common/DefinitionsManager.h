@@ -25,6 +25,8 @@ class DefinitionsManager {
 		
 		typedef std::list<std::string> ListaNombresClaves;
 		
+		typedef std::list<std::string> ListaValoresClaves;
+		
 		typedef struct _estructTipoIndice {
 			unsigned char tipoIndice;
 			unsigned char tipoEstructura;
@@ -68,6 +70,18 @@ class DefinitionsManager {
 														const MapaValoresAtributos &mapaValoresAtributos);
 		
 		ListaTiposIndices* getListaTiposIndices(const string &nombreTipo);
+		
+		const MapaTiposAtributos& getMapaTiposAtributos() const {
+			return this->mapaTiposAtributos;
+		}
+		
+		const MapaTiposIndices& getMapaTiposIndices() const {
+			return this->mapaTiposIndices;
+		}
+		
+		const MapaNombresAtributos& getMapaNombresAtributos() const {
+			return this->mapaNombresAtributos;
+		}
 		
 	private:
 		//Atributos
