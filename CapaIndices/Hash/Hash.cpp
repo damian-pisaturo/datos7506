@@ -183,7 +183,7 @@ int Hash::eliminarRegistro(Clave &clave)
  * Recupera un registro a partir de una clave 
  **/
 
-bool Hash::recuperarRegistro(Clave &clave, char *registro){
+void Hash::recuperarRegistro(Clave &clave, char *registro){
 	// Se aplica la función de hash para ver en que bucket se debe buscar el
 	// registro a recuperar.
 	int posicion = aplicarHash(clave) % tabla->getTamanio();
@@ -196,7 +196,7 @@ bool Hash::recuperarRegistro(Clave &clave, char *registro){
 	// Si no encuentro el registro buscado devuelvo false. Pero si lo encuentro,
 	// tengo el offset al mismo en offsetToReg.
 	if (!(bucket->buscarRegistro(listaParam, clave,&offsetToReg)))
-		return false;
+		return;
 	
 	unsigned short longReg;	
 	const char *datos = bucket->getDatos();
@@ -221,7 +221,6 @@ bool Hash::recuperarRegistro(Clave &clave, char *registro){
 		registro = new char[longReg];
 		memcpy(registro,&datos[offsetToReg],longReg);
 	}
-	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////

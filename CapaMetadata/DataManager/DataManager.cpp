@@ -159,7 +159,7 @@ void DataManager::crearRegistroModificacion(DefinitionsManager::ListaTiposAtribu
 	unsigned short offsetRegNuevo = 0;
 	unsigned short longRegNuevo;
 	unsigned short longRegViejo;
-svjhsgdhg	
+
 	
 	
 	// Si el tipo de registro es fijo obtengo la longitud de la lista de tipos 

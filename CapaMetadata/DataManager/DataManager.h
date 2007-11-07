@@ -1,10 +1,10 @@
 #ifndef DATAMANAGER_H_
 #define DATAMANAGER_H_
 
-#include "../Common/DefinitionsManager.h"
-#include "../Common/TipoDatos.h"
+#include "../../Common/DefinitionsManager.h"
+#include "../../CapaIndices/Common/TipoDatos.h"
 #include "../../Common/Tamanios.h"
-#include "../Common/Clave.h"
+#include "../../CapaIndices/Common/Clave.h"
 #include <string>
 
 using namespace std;
