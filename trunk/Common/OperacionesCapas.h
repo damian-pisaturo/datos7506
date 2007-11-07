@@ -30,6 +30,12 @@ class OperacionesCapas
 		const static unsigned char FISICA_LEER_DATO            = 19;
 		const static unsigned char FISICA_MODIFICAR_DATO       = 20;
 		const static unsigned char FISICA_ELIMINAR_DATO        = 21;
+		
+		const static unsigned char INDICES_CONSULTAR			= 100;
+		const static unsigned char INDICES_CONSULTAR_EXISTENCIA	= 101;
+		const static unsigned char INDICES_INSERTAR				= 102;
+		const static unsigned char INDICES_ELIMINAR				= 103;
+		const static unsigned char INDICES_MODIFICAR			= 104;
 };
 
 #endif /*OPERACIONESCAPAS_H_*/
