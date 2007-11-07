@@ -97,7 +97,7 @@
 			return resultado;
 		}
 		
-		short ArchivoDatosBloques::leerBloque(void* bloque, unsigned int espacioLibre)
+		short ArchivoDatosBloques::buscarBloque(void* bloque, unsigned int espacioLibre)
 		{
 			short resultado = ResFisica::OK;
 			short posicion = 0;

@@ -28,7 +28,7 @@ IndiceArbol::~IndiceArbol() {
 
 /*
  * Este metodo inserta una clave en un indice.
- **/
+ */
 int IndiceArbol::insertar(Clave *clave, char* registro) {
 	bTree->insertar(clave);
 	return OK;

@@ -41,13 +41,13 @@ class Hash
 	//////////////////////////////////////////////////////////////////////
 		Tabla *tabla;
 		IndiceHashManager* archivo;
-		list<nodoLista> listaParam;
+		ListaNodos* listaParam;
 	
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		Hash(IndiceHashManager* indiceHash, list<nodoLista> lista, char* NombreArchivoTabla,unsigned int tamBucket);
+		Hash(IndiceHashManager* indiceHash, ListaNodos* lista, string nombreArchivoTabla, unsigned int tamBucket);
 		virtual ~Hash();	
 		
 	///////////////////////////////////////////////////////////////////////

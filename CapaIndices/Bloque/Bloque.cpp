@@ -48,7 +48,7 @@ Bloque::~Bloque() {
  * devuelve true y su offset dentro del bloque en "offsetReg"; y si no lo encuentra
  * devuelve false.
  **/
-bool Bloque::buscarRegistro(const list<nodoLista>& listaParam, Clave &clave,
+bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 		unsigned short *offsetReg) {
 
 	void** clavePrimaria = clave.getValorParaHash();
@@ -81,7 +81,7 @@ bool Bloque::buscarRegistro(const list<nodoLista>& listaParam, Clave &clave,
 	short int campoShort;
 
 	int i = 1;
-	it = listaParam.begin();
+	it = listaParam->begin();
 	regAtribute = *it;
 
 	// Se obtiene el tipo de atributo del registro.
@@ -114,7 +114,7 @@ bool Bloque::buscarRegistro(const list<nodoLista>& listaParam, Clave &clave,
 		// Se itera la lista de atributos del registro.
 		// Se arranco del segundo nodo ya que el primero se utiliza para guardar
 		// si el registro es de longitud fija o variable.
-		for (it = (++listaParam.begin()); ((it != listaParam.end())
+		for (it = (++listaParam->begin()); ((it != listaParam->end())
 				&& (!checkPk)); ++it) {
 			regAtribute = *it;
 
@@ -277,7 +277,7 @@ void Bloque::organizarBloque(int offsetToReg, int longReg) {
  * Retorna true si la inserción fue exitosa, o false en caso contrario
  * No comtempla el caso de claves repetidas.
  **/
-int Bloque::altaRegistro(const list<nodoLista>& listaParam, char *registro) {
+int Bloque::altaRegistro(const ListaNodos * listaParam, char *registro) {
 	unsigned short offsetEspLibre;
 	unsigned short longReg;
 
@@ -290,7 +290,7 @@ int Bloque::altaRegistro(const list<nodoLista>& listaParam, char *registro) {
 	//Si el registro tiene espacio dentro del bloque se realiza la inserción.
 	if (verificarEspacioDisponible(longReg, offsetEspLibre)) {
 		list<nodoLista>::const_iterator it;
-		it = listaParam.begin();
+		it = listaParam->begin();
 		// Si el registro es de longitud variable le sumo la cantidad de bytes de la longitud del mismo.
 		if (it->tipo == TipoDatos::TIPO_VARIABLE)
 			longReg += Tamanios::TAMANIO_LONGITUD;
@@ -305,7 +305,7 @@ int Bloque::altaRegistro(const list<nodoLista>& listaParam, char *registro) {
 /*
  * Da de baja dentro del bloque al registro cuya clave es clavePrimaria.
  **/
-int Bloque::bajaRegistro(const list <nodoLista>& listaParam, Clave &clave) {
+int Bloque::bajaRegistro(const ListaNodos *listaParam, Clave &clave) {
 
 	void** clavePrimaria = clave.getValorParaHash();
 	unsigned short offsetToReg = getOffsetToRegs();
@@ -315,7 +315,7 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam, Clave &clave) {
 	unsigned short cantRegistros;
 	bool registroBorrado = false;
 	char *registro;
-	list<nodoLista>::const_iterator it = listaParam.begin();
+	list<nodoLista>::const_iterator it = listaParam->begin();
 	nodoLista regAtribute;
 	int tipoRegistro; // Indica si el registro es variable o fijo
 	int tipo; // Indica el tipo de dato del campo de un registro
@@ -354,7 +354,7 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam, Clave &clave) {
 
 		// Reseteo el iterador en las sucesivas iteraciones a la primera
 		if (i>1)
-			it = listaParam.begin();
+			it = listaParam->begin();
 
 		// Se obtiene la longitud del registro.
 		longReg = getTamanioRegistros(listaParam, &datos[offsetToReg]);
@@ -371,7 +371,7 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam, Clave &clave) {
 		registro = getRegistro(longReg, offsetToReg);
 
 		//Itero la lista de atributos del registro
-		for (++it; ((it != listaParam.end()) && (!checkPk)); ++it) {
+		for (++it; ((it != listaParam->end()) && (!checkPk)); ++it) {
 			regAtribute = *it;
 
 			//Obtengo el tipo de atributo del registro
@@ -487,7 +487,7 @@ int Bloque::bajaRegistro(const list <nodoLista>& listaParam, Clave &clave) {
 	return OK;
 }
 
-int Bloque::modificarRegistro(const list<nodoLista>& listaParam,
+int Bloque::modificarRegistro(const ListaNodos *listaParam,
 		unsigned short longReg, Clave &clavePrimaria, char* registro) {
 
 	unsigned short offsetReg;
@@ -559,7 +559,7 @@ char* Bloque::getRegisterAtribute(string registro, int offsetCampo,
 /*
  * Este método recibe un registro, y retorna su clave primaria en un char*
  **/
-Clave* Bloque::getClavePrimaria(const list <nodoLista>& listaParam, char* registro) {
+Clave* Bloque::getClavePrimaria(const ListaNodos *listaParam, char* registro) {
 	ListaClaves listaClaves;
 	int offsetToProxCampo = 0;
 	list<nodoLista>::const_iterator it;
@@ -575,7 +575,7 @@ Clave* Bloque::getClavePrimaria(const list <nodoLista>& listaParam, char* regist
 	unsigned char cantClaves;
 	unsigned char clavesEncontradas = 0;
 
-	it = listaParam.begin();
+	it = listaParam->begin();
 	regAtribute = *it;
 
 	cantClaves = regAtribute.cantClaves;
@@ -588,7 +588,7 @@ Clave* Bloque::getClavePrimaria(const list <nodoLista>& listaParam, char* regist
 	// Se itera la lista de atributos del registro.
 	// Se arranco del segundo nodo ya que el primero se utiliza para guardar
 	// si el registro es de longitud fija o variable.
-	for (it = (++listaParam.begin()); it != listaParam.end(); ++it) {
+	for (it = (++listaParam->begin()); it != listaParam->end(); ++it) {
 		regAtribute = *it;
 
 		// Se obtiene el tipo de atributo del registro.
@@ -685,9 +685,9 @@ unsigned short Bloque::getOffsetToRegs() {
 /*
  * Devuelve la longitud del registro, sin incluir los 2 bytes de la longitud.
  **/
-unsigned short Bloque::getTamanioRegistros(const list<nodoLista>& listaParam,
+unsigned short Bloque::getTamanioRegistros(const ListaNodos * listaParam,
 		char *registro) {
-	list<nodoLista>::const_iterator it = listaParam.begin();
+	list<nodoLista>::const_iterator it = listaParam->begin();
 	nodoLista regAtribute = *it;
 
 	// Se obtiene el tipo de atributo del registro.

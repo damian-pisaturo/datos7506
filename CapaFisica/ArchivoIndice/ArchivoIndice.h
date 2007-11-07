@@ -73,14 +73,6 @@ class ArchivoIndice : public ArchivoBase
 			}
 };
 
-/*********************** NOCHE EN EL FIJO **********************************
- *       
- *           Hernan D. LetCorchett vs. Nestor "CharGriego" Romano
- * 
- * Musicalizador: DJ Hash
- **************************************************************************/ 
-
-
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
@@ -89,7 +81,7 @@ class ArchivoIndice : public ArchivoBase
 //			claves primarias utilizadas por los indices secundarios).
 ///////////////////////////////////////////////////////////////////////////
 
-class ArchivoLista : ArchivoIndice
+class ArchivoLista : public ArchivoIndice
 {
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -133,7 +125,7 @@ class ArchivoLista : ArchivoIndice
 //			(Permite el manejo de archivos contenedores de los datos
 //			de la tabla de dispersion utilizada en los indices de Hash).
 ///////////////////////////////////////////////////////////////////////////
-class ArchivoTablaHash : ArchivoBase
+class ArchivoTablaHash :public ArchivoBase
 {
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -150,7 +142,7 @@ class ArchivoTablaHash : ArchivoBase
 		 * y numeros de buckets en cada elemento).
 		 */
 		unsigned int obtenerCantElementos();
-		unsigned int* obtenerTabla();
+		unsigned int* obtenerTabla(unsigned int cantidadElementos);
 		
 		/*Actualiza la tabla de dispersion con los datos pasados por 
 		 * parametro (cantidad de elementos y numero de buckets).

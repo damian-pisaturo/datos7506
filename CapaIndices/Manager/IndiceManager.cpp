@@ -157,7 +157,7 @@
 		SetClaves* set = new SetClaves();
 		
 		//Instancia del pipe
-		ComuDatos* pipe = instanciarPipe(/*NOMBRE_CAPA_FISICA*/"datos");
+		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 		
 		//Parametros de inicializacion de la Capa Fisica para
 		//leer un nodo de disco.
@@ -240,10 +240,8 @@
 		HeaderNodo headerNodo;
 		SetClaves* set;
 		
-		//nodoNuevo->actualizarEspacioLibre(this); //NADIE SABIA.
-		
 		//Instancia del pipe
-		ComuDatos* pipe = instanciarPipe(/*NOMBRE_CAPA_FISICA*/"datos");
+		ComuDatos* pipe = instanciarPipe("ernesto"/*NombreCapas::NOMBRE_CAPA_FISICA*/);
 
 		//Parametros de inicializacion de la Capa Fisica para
 		//escribir un nodo en disco.		
@@ -308,8 +306,6 @@
 		//Variables de interpretacion del nodo
 		HeaderNodo headerNodo;
 		SetClaves* set;
-		
-		//nodoNuevo->actualizarEspacioLibre(this); //NADIE SABIA.
 		
 		//Instancia del pipe
 		ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
@@ -415,9 +411,16 @@
 		//punteroAux apunta al inicio del buffer de datos.
 		//Necesario para crear un elemento de tipo string.
 		const char* punteroAux = primerBloque;
-		memcpy(primerBloque, &headerNodo, sizeof(HeaderNodo));
-		data += sizeof(HeaderNodo);
 		
+		memcpy(&headerNodo.nivel, data, sizeof(unsigned char));
+		data += sizeof(unsigned char);
+				
+		memcpy(&headerNodo.refNodo, data, sizeof(unsigned int));
+		data += sizeof(unsigned int);
+		
+		memcpy(&headerNodo.espacioLibre, data, sizeof(unsigned short));
+		data += sizeof(unsigned short);
+
 		//Obtener la lista de claves
 		set = nodoNuevo->getClaves();
 		
@@ -697,13 +700,13 @@
 		{
 			char resultado = 0;
 			Bucket* bucketLeido = static_cast<Bucket*> (bloqueLeido);
-			string buffer;
+			char* buffer = new char[this->getTamanioBloque() + 1];
 			
 			//Variable de interpretacion del bucket
 			HeaderBucket headerBucket;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			ComuDatos* pipe = instanciarPipe("ernesto");
 			
 			//Parametros de ejecucion de la Capa Fisica para leer
 			//un bucket de disco.
@@ -715,12 +718,15 @@
 			//Se lanza el proceso de la capa fisica. 
 			//Se obtiene en buffer el contenido del Bucket solicitado.
 			pipe->lanzar();
-			//pipe->leer(this->getTamanioBloque(), buffer);
+			pipe->leer(this->getTamanioBloque(), buffer);
 			
-			char * data = (char*) buffer.c_str();
 			
-			bucketLeido->setDatos(data);
-			memcpy(&headerBucket, data, sizeof(HeaderBucket));
+			bucketLeido->setDatos(buffer);
+			memcpy(&headerBucket.espLibre,buffer,Tamanios::TAMANIO_ESPACIO_LIBRE);
+			buffer += Tamanios::TAMANIO_ESPACIO_LIBRE;
+			memcpy(&headerBucket.cantRegs,buffer, Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+			buffer += Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+			memcpy(&headerBucket.tamDispersion, buffer, Tamanios::TAMANIO_DISPERSION);
 			
 			bucketLeido->setTamDispersion(headerBucket.tamDispersion);
 			bucketLeido->setEspacioLibre(headerBucket.espLibre);
@@ -728,7 +734,8 @@
 			bucketLeido->setNroBloque(numBucket);
 		
 			pipe->leer(&resultado);		
-			pipe->liberarRecursos();
+			
+			delete pipe;
 			
 			return resultado;						
 		}
@@ -844,10 +851,10 @@
 		
 		void IndiceHashManager::leerTabla(unsigned int* tamanio, unsigned int* buckets)
 		{
-			string bucketsTabla;
+			char* bucketsTabla = NULL;
 						
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			ComuDatos* pipe = instanciarPipe("ernesto");
 			
 			//Parametros de inicializacion de la Capa Fisica para
 			//leer la tabla de dispersion 
@@ -861,11 +868,20 @@
 			//Obtener tamaño de la tabla
 			pipe->leer(tamanio);
 			
-			//Obtener numero de buckets de la tabla
-			//pipe->leer(sizeof(unsigned int)*(*tamanio), bucketsTabla);
-			buckets = (unsigned int*) bucketsTabla.c_str();
+			if(tamanio > 0) {
+				bucketsTabla = new char[sizeof(unsigned int)*(*tamanio)];
+				
+				//Obtener numero de buckets de la tabla
+				pipe->leer(sizeof(unsigned int)*(*tamanio), bucketsTabla);
 			
-			pipe->liberarRecursos();
+				buckets = (unsigned int*) bucketsTabla;
+				
+			}
+			
+			
+			delete pipe;
+			
+			cout<<"sale??"<<endl;
 		}
 		
 		void IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* buckets)

@@ -21,7 +21,7 @@
 ///////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 ///////////////////////////////////////////////////////////////////////
-Hash::Hash(IndiceHashManager *arch, list<nodoLista> lista, char* nombreArchivoTabla, unsigned int tamBucket)
+Hash::Hash(IndiceHashManager *arch, ListaNodos * lista, string nombreArchivoTabla, unsigned int tamBucket)
 {
 	archivo = arch;
 	listaParam = lista;
@@ -32,6 +32,7 @@ Hash::~Hash()
 {
 	delete tabla;
 }
+
 ///////////////////////////////////////////////////////////////////////
 // Metodos publicos
 ///////////////////////////////////////////////////////////////////////
@@ -221,7 +222,7 @@ void Hash::recuperarRegistro(Clave &clave, char *registro){
 
 	
 	list<nodoLista>::const_iterator it;
-	it = listaParam.begin();
+	it = listaParam->begin();
 	
 	if (it->tipo == TipoDatos::TIPO_VARIABLE){
 		registro = new char[Tamanios::TAMANIO_LONGITUD + longReg];
@@ -326,7 +327,7 @@ void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
 		
 		offsetReg += longReg;
 		
-		list<nodoLista>::const_iterator it = listaParam.begin();
+		list<nodoLista>::const_iterator it = listaParam->begin();
 		nodoLista regAtribute = *it;
 		
 		// Se obtiene el tipo de atributo del registro.
@@ -363,7 +364,7 @@ void Hash::dividirDispersion(unsigned int nroBucket)
 bool Hash::esRegistroVariable()
 {
 	list<nodoLista>::const_iterator it;
-	it = listaParam.begin();
+	it = listaParam->begin();
 	
 	if (it->tipo == TipoDatos::TIPO_VARIABLE)
 		return true;
@@ -373,7 +374,7 @@ bool Hash::esRegistroVariable()
 char* Hash::serializarClave(void** claveVoid)
 {
 	list<nodoLista>::const_iterator it;
-	it = listaParam.begin();
+	it = listaParam->begin();
 	
 	int tipo;
 	
@@ -384,7 +385,7 @@ char* Hash::serializarClave(void** claveVoid)
 	int tamanio = 0;
 	int i = 0;  // recorre las posiciones del vectorTamanios.
 	
-	for( ++it ;it != listaParam.end() ; ++it){
+	for( ++it ;it != listaParam->end() ; ++it){
 		tipo = it->tipo;
 		if (it->pk == "true"){
 			

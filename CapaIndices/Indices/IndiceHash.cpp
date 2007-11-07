@@ -1,11 +1,11 @@
 #include "IndiceHash.h"
 
-IndiceHash::IndiceHash(list<nodoLista> &listaParam, unsigned int tamBucket, const string& nombreArchivo) 
+IndiceHash::IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo) 
 :Indice(){
 
 	IndiceHashManager* indiceManager = (IndiceHashManager*) IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
 	
-	hash = new Hash(indiceManager, listaParam, (char*)indiceManager->getNombreArchivo().c_str(), tamBucket);
+	hash = new Hash(indiceManager, listaParam, indiceManager->getNombreArchivo(), tamBucket);
 }
 
 IndiceHash::~IndiceHash() {

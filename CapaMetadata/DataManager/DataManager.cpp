@@ -162,14 +162,14 @@ void DataManager::crearRegistroModificacion(DefinitionsManager::ListaTiposAtribu
 	// Si el tipo de registro es fijo obtengo la longitud de la lista de tipos 
 	if(regAttribute.tipo == TipoDatos::TIPO_FIJO)
 		longRegNuevo = ((unsigned short)atoi(regAttribute.pk.c_str()));
-	// Obtengo el tamaño del nuevo registro, reservo espacio para el msimo y lo genero con las nuevas modificaciones
+	// Obtengo el tamaï¿½o del nuevo registro, reservo espacio para el msimo y lo genero con las nuevas modificaciones
 	else{
 			// Incremento el offset en dos bytes, que son los que ocupan la longitud del registro
 			offsetRegDisco += sizeof(unsigned short);
 			longRegNuevo += sizeof(unsigned short);
 			
 			
-			// Itero las listas para obtener el tamaño del nuevo registro y reservar memoria para el mismo
+			// Itero las listas para obtener el tamaï¿½o del nuevo registro y reservar memoria para el mismo
 			for(++itTipos ;itTipos != listaTiposAtributos.end(); ++itTipos,++itValoresAtributos){
 				regAttribute = *itTipos;
 				tipo = regAttribute.tipo;
@@ -217,7 +217,8 @@ void DataManager::crearRegistroModificacion(DefinitionsManager::ListaTiposAtribu
 	
 	// una vez que ya se la longitud del nuevo registro reservo espacio para el mismo
 	char *registroNuevo = new char [longRegNuevo];
-	this->generarRegistroModificado(registroNuevo,registroEnDisco,longRegNuevo,listaTiposAtributos,listaVA);
+	//TODO Esto no compila ni un poco. Notifiquese al palurdo que commiteo (tambien conocido como Laura "In Vitro" Rodriguez).
+	//this->generarRegistroModificado(registroNuevo,registroEnDisco,longRegNuevo,listaTiposAtributos,listaVA);
 	if(this->registro){
 		delete[] this->registro;
 		this->registro = NULL;
