@@ -319,7 +319,7 @@ void generarRegistroModificado(char *registroNuevo, char *registroViejo, unsigne
 			}else{
 				memcpy(&longCampoVariable,&registroViejo[offsetRegViejo],sizeof(unsigned short));
 			} 
-			memcpy(&registroNuevo[offsetRegNuevo],&longCampoVariable.sizeof(unsigned short));			
+			memcpy(&registroNuevo[offsetRegNuevo],&longCampoVariable,sizeof(unsigned short));			
 			offsetRegNuevo += Tamanios::TAMANIO_LONGITUD;
 			offsetRegViejo += Tamanios::TAMANIO_LONGITUD;
 			break;
