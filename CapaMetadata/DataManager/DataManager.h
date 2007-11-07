@@ -9,6 +9,8 @@
 
 using namespace std;
 
+#define CAMPO_NO_MODIFICADO "" 
+
 class DataManager
 {
 public:
@@ -40,13 +42,21 @@ public:
 	 **/
 	void crearRegistroModificacion(DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
 								   DefinitionsManager::ListaValoresAtributos &listaVA,
-								   DefinitionsManager::ListaClaves &listaClaves);
+								   char *registroEnDisco);
 private:
 	// Registro que se genera para realizar un alta o modificacion en disco
 	char *registro;
-	// Calcula la longitud del registro para reservar memoria para el mismo
+	/*
+	 * Calcula la longitud del registro para reservar memoria para el mismo
+	 * */ 
 	unsigned short getTamanioRegistro(DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
 									  DefinitionsManager::ListaValoresAtributos &listaVA);
+	/*
+	 * Genera  el registro modificado
+	 * */
+	void generarRegistroModificado(char *registroNuevo, char *registroEnDisco, unsigned short longNuevoReg, 
+							  DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
+							  DefinitionsManager::ListaValoresAtributos &listaVA);
 	
 };
 
