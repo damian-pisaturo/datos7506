@@ -28,7 +28,15 @@ void crearIndice(const string &nombreTipo, MapaIndices &mapaIndices,
 
 int main(int argc, char* argv[]) {
 	
-	ComuDatos comuDatos;
+	ComuDatos pipe(argv);
+	
+	unsigned char codOp;
+	string nombreTipo;
+	
+	pipe.parametro(0, &codOp);
+	pipe.parametro(1, nombreTipo);
+	
+	
 	
 	
 }

@@ -1,7 +1,7 @@
 #ifndef INDICE_H_
 #define INDICE_H_
 
-#include "../Common/DefinitionsManager.h"
+#include "../../Common/DefinitionsManager.h"
 #include <vector>
 #include <map>
 

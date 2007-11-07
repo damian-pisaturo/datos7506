@@ -7,6 +7,7 @@
 #include <iostream>
 #include "Indices/IndiceArbol.h"
 #include "Indices/IndiceHash.h"
+#include "../Common/DefinitionsManager.h"
 
 using namespace std;
 
