@@ -15,15 +15,15 @@ IndiceHash::~IndiceHash() {
 /*
  * Este metodo inserta un registro en el indice.
  **/
-int IndiceHash::insertar(Clave &clave, char* registro) {
-	return hash->insertarRegistro(registro, clave);
+int IndiceHash::insertar(Clave *clave, char* registro) {
+	return hash->insertarRegistro(registro, *clave);
 }
 
 /*
  * Este metodo elimina un registro del indice.
  **/
-int IndiceHash::eliminar(Clave &clave) {
-	return hash->eliminarRegistro(clave);
+int IndiceHash::eliminar(Clave *clave) {
+	return hash->eliminarRegistro(*clave);
 }
 
 /*
@@ -31,16 +31,16 @@ int IndiceHash::eliminar(Clave &clave) {
  * Siempre retorna NULL y devuelve el registro de clave "clave"
  * dentro de "registro".
  **/
-Clave* IndiceHash::buscar(Clave &clave, char* registro) const {
-	hash->recuperarRegistro(clave,registro);
+Clave* IndiceHash::buscar(Clave *clave, char* registro) const {
+	hash->recuperarRegistro(*clave,registro);
 	return NULL;
 }
 
 /*
  * Elimina al registro de clave "claveVieja" e inserta al registro "registroNuevo".
  **/
-bool IndiceHash::modificar(Clave &claveVieja, Clave &claveNueva, char* registroNuevo) {
-	return hash->modificarRegistro(claveVieja, claveNueva, registroNuevo);
+bool IndiceHash::modificar(Clave *claveVieja, Clave *claveNueva, char* registroNuevo) {
+	return hash->modificarRegistro(*claveVieja, *claveNueva, registroNuevo);
 }
 
 

@@ -25,19 +25,19 @@ class IndiceArbol: public Indice {
 		/*
 		 * Este metodo inserta una clave en un indice.
 		 **/
-		int insertar(Clave &clave, char* registro = NULL);
+		int insertar(Clave *clave, char* registro = NULL);
 		
 		/*
 		 * Este metodo elimina una clave del indice. 
 		 * Si la encuentra devuelve OK; y si no, devuelve NO_ENCONTRADO.
 		 **/
-		int eliminar(Clave &clave);
+		int eliminar(Clave *clave);
 		
 		/*
 		 * Este metodo busca una clave dentro del indice, y la devuelve con todos
 		 * sus atributos actualizados.
 		 **/
-		Clave* buscar(Clave &clave, char* registro = NULL) const;
+		Clave* buscar(Clave *clave, char* registro = NULL) const;
 		
 		/*
 		 * Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario,
