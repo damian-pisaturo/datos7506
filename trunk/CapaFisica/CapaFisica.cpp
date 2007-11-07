@@ -61,14 +61,9 @@
 				
 				//Lectura del nodo dentro del archivo.
 				resultado = ((ArchivoIndice*)archivo)->leerBloque(buffer, numBloque);
-				
-				for (short i = 0; i < 512; i++)
-							printf("%#10x", buffer[i]);
-				
-				cout << endl;cout << endl;cout << endl;cout << endl;
-						
+										
 				//Envio del resultado de la operacion de lectura.
-				//pipe.escribir(resultado);
+				pipe.escribir(resultado);
 							
 				//if (resultado == ResFisica::OK)
 					//Envio de datos a traves del pipe.
