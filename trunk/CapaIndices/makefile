@@ -12,18 +12,16 @@ extension = cpp
 # descomentar la l�nea (quitarle el '#' del principio).
 # NOTA: No poner cabeceras (.h). 
 
-fuentes = DataManager/DataManager.cpp
 fuentes += RegisterInfo/RegisterInfo.cpp
 fuentes += Manager/IndiceManager.cpp
 fuentes += Indices/Indice.cpp
 fuentes += Indices/IndiceArbol.cpp
 fuentes += Indices/IndiceHash.cpp
-fuentes += Parser/ParserOperaciones.cpp
 fuentes += Bloque/Bloque.cpp
 fuentes += Common/Nodo.cpp
 fuentes += Common/Clave.cpp
 fuentes += Common/SetClaves.cpp
-fuentes += Common/DefinitionsManager.cpp
+fuentes += ../Common/DefinitionsManager.cpp
 fuentes += Common/IndiceManagerFactory.cpp
 fuentes += BTree/BTree.cpp
 fuentes += BPlus/BPlusTree.cpp

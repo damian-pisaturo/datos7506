@@ -17,7 +17,7 @@ using namespace std;
 class ParserOperaciones {
 	
 	private:
-		
+		 
 		ifstream archivo;
 		VectorIndices &indicesPersonas;
 		VectorIndices &indicesPeliculas;
