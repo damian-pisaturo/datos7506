@@ -35,6 +35,10 @@ class IndiceHash :public Indice {
 		 **/
 		Clave* buscar(Clave &clave, char* registro = NULL) const; 
 	
+		/*
+		 * Elimina al registro de clave "claveVieja" e inserta al registro "registroNuevo".
+		 **/
+		bool modificar(Clave &claveVieja, Clave &claveNueva, char* registroNuevo);
 	
 };
 

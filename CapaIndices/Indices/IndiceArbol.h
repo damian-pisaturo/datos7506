@@ -43,7 +43,8 @@ class IndiceArbol: public Indice {
 		 * Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario,
 		 * la reemplaza por claveNueva y devuelve true.
 		 **/
-		bool modificar(Clave* claveVieja, Clave* claveNueva);
+		bool modificar(Clave* claveVieja, Clave* claveNueva, char* registroNuevo = NULL);
+						                       
 		
 };
 

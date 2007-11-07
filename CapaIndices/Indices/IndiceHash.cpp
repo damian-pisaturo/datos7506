@@ -36,6 +36,13 @@ Clave* IndiceHash::buscar(Clave &clave, char* registro) const {
 	return NULL;
 }
 
+/*
+ * Elimina al registro de clave "claveVieja" e inserta al registro "registroNuevo".
+ **/
+bool IndiceHash::modificar(Clave &claveVieja, Clave &claveNueva, char* registroNuevo) {
+	return hash->modificarRegistro(claveVieja, claveNueva, registroNuevo);
+}
+
 
 
 

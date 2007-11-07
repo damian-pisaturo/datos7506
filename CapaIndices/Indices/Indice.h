@@ -45,6 +45,15 @@ class Indice
 		 **/
 		virtual Clave* buscar(Clave &clave, char* registro = NULL) const = 0; 
 		
+		/*
+		 * Devuelve false si claveVieja no se encuentra en el indice. 
+		 * En caso contrario devuelve true; y si es un arbol, la reemplaza 
+		 * por claveNueva; si es un hash reemplaza el viejo registro correspondiente
+		 * a "claveVieja" por "registroNuevo".
+		 **/
+		virtual bool modificar(Clave &claveVieja, Clave &claveNueva,
+				                       char* registroNuevo = NULL) = 0;
+		
 		
 };
 

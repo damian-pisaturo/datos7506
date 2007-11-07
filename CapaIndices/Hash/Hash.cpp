@@ -179,6 +179,16 @@ int Hash::eliminarRegistro(Clave &clave)
 	}
 }
 
+bool Hash::modificarRegistro(Clave &claveVieja, Clave &claveNueva, char* registroNuevo)
+{
+	int result = this->eliminarRegistro(claveVieja);
+	if (result == OK) {
+		this->insertarRegistro(registroNuevo, claveNueva);
+		return true;
+	}
+	return false;
+}
+
 /*
  * Recupera un registro a partir de una clave 
  **/
