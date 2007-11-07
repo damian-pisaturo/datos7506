@@ -28,14 +28,14 @@ class Indice
 		 * Si es un arbol insertara solo una clave, pero si es un hash inserta 
 		 * tambien el registro.
 		 **/
-		virtual int insertar(Clave &clave, char* registro = NULL) = 0;
+		virtual int insertar(Clave *clave, char* registro = NULL) = 0;
 		
 		/*
 		 * Este metodo elimina un elemento del indice.
 		 * Si es un arbol elimina una clave, pero si es un hash elimina un 
 		 * registro.
 		 **/
-		virtual int eliminar(Clave &clave) = 0;
+		virtual int eliminar(Clave *clave) = 0;
 		
 		/*
 		 * Este metodo busca un elemento dentro del indice.
@@ -43,7 +43,7 @@ class Indice
 		 * Si es un hash retorna NULL y devuelve el registro de clave "clave"
 		 * dentro de "registro".
 		 **/
-		virtual Clave* buscar(Clave &clave, char* registro = NULL) const = 0; 
+		virtual Clave* buscar(Clave *clave, char* registro = NULL) const = 0; 
 		
 		/*
 		 * Devuelve false si claveVieja no se encuentra en el indice. 
@@ -51,7 +51,7 @@ class Indice
 		 * por claveNueva; si es un hash reemplaza el viejo registro correspondiente
 		 * a "claveVieja" por "registroNuevo".
 		 **/
-		virtual bool modificar(Clave &claveVieja, Clave &claveNueva,
+		virtual bool modificar(Clave *claveVieja, Clave *claveNueva,
 				                       char* registroNuevo = NULL) = 0;
 		
 		

@@ -21,24 +21,24 @@ class IndiceHash :public Indice {
 		/*
 		 * Este metodo inserta un registro en el indice.
 		 **/
-		int insertar(Clave &clave, char* registro = NULL);
+		int insertar(Clave *clave, char* registro = NULL);
 		
 		/*
 		 * Este metodo elimina un registro del indice.
 		 **/
-		int eliminar(Clave &clave);
+		int eliminar(Clave *clave);
 		
 		/*
 		 * Este metodo busca un registro dentro del indice.
 		 * Siempre retorna NULL y devuelve el registro de clave "clave"
 		 * dentro de "registro".
 		 **/
-		Clave* buscar(Clave &clave, char* registro = NULL) const; 
+		Clave* buscar(Clave *clave, char* registro = NULL) const; 
 	
 		/*
 		 * Elimina al registro de clave "claveVieja" e inserta al registro "registroNuevo".
 		 **/
-		bool modificar(Clave &claveVieja, Clave &claveNueva, char* registroNuevo);
+		bool modificar(Clave *claveVieja, Clave *claveNueva, char* registroNuevo);
 	
 };
 
