@@ -81,7 +81,7 @@ class BPlusTree : public BTree
 		//////////////////////////////////////////////////////////////////////       
     
 		/*Devuelve un nodo con la raiz del arbol*/
-		NodoBPlus* getRaiz() const;
+		NodoBPlus* getRaiz();
 		
 		void insertarInterno(NodoBPlus* &nodoDestino, char* codigo);		
     

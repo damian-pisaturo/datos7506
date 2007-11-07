@@ -53,13 +53,6 @@ Nodo::Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio)
 	this->claves = new SetClaves();
 }
 
-/*
-Nodo::Nodo(ArchivoIndice* archivoIndice, int referencia)
-{	
-	archivoIndice->leer(referencia,this);
-	//this->espacioLibre = archivoIndice->getTamanioNodo()-archivoIndice->getTamanioNodo();		
-}
-*/
 
 Nodo::~Nodo()
 {

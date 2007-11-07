@@ -70,9 +70,6 @@ class Nodo : public BloqueIndice
 		/*Crea el nodo sin setear ninguna clave*/
 		Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio);
 		
-		/*Lee el archivo y crea ese nodo*/
-//		Nodo(ArchivoIndice* archivo, unsigned int referencia);
-		
 		/*Destructor*/
 		virtual ~Nodo();
 		
@@ -103,7 +100,6 @@ class Nodo : public BloqueIndice
 	     */
 		void actualizarEspacioLibre(SetClaves* claves, bool insercion); 
 		void actualizarEspacioLibre(Clave* clave, bool insercion);
-		//void actualizarEspacioLibre(ArchivoIndice* archivo); TODO Esta comentado porque recibe un Archivo (comunicacion con la capa fisica a traves del pipe)
 			
 		/*reemplazarClave()
 		 * Reemplaza la claveVieja del Nodo actual con una copia de 
