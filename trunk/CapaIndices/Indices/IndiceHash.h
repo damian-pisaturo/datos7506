@@ -18,11 +18,11 @@ class IndiceHash :public Indice {
 		virtual ~IndiceHash();
 			
 		
-		int insertarRegistro(char *registro, void **clave);
+		int insertarRegistro(char *registro, Clave &clave);
 		
-		int eliminarRegistro(void **clave);
+		int eliminarRegistro(Clave &clave);
 		
-		bool recuperarRegistro(void **clave, char* registro);
+		bool recuperarRegistro(Clave &clave, char* registro);
 		
 		
 };
