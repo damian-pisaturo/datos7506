@@ -26,18 +26,34 @@ IndiceArbol::~IndiceArbol() {
 	if (bTree) delete bTree;
 }
 
-void IndiceArbol::insertar(Clave* clave) {
-	bTree->insertar(clave);
+/*
+ * Este metodo inserta una clave en un indice.
+ **/
+int IndiceArbol::insertar(Clave &clave, char* registro) {
+	bTree->insertar(&clave);
+	return OK;
 }
 
-bool IndiceArbol::eliminar(Clave* clave) {
-	return bTree->eliminar(clave);
+/*
+ * Este metodo elimina una clave del indice. 
+ * Si la encuentra devuelve OK; y si no, devuelve NO_ENCONTRADO.
+ **/
+int IndiceArbol::eliminar(Clave &clave) {
+	return (int)!bTree->eliminar(&clave);
 }
 
-Clave* IndiceArbol::buscar(Clave* clave) const {
-	return bTree->buscar(clave);
+/*
+ * Este metodo busca una clave dentro del indice, y la devuelve con todos
+ * sus atributos actualizados.
+ **/
+Clave* IndiceArbol::buscar(Clave &clave, char* registro) const {
+	return bTree->buscar(&clave);
 }
 
+/*
+ * Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario,
+ * la reemplaza por claveNueva y devuelve true.
+ **/
 bool IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva) {
 	return bTree->modificar(claveVieja, claveNueva);
 }

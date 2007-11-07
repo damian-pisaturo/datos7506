@@ -76,7 +76,7 @@ class Hash
 		/*
 		 * A partir de una clave recupera un registro 
 		 **/
-		bool recuperarRegistro(Clave &clave,char *registro); 
+		void recuperarRegistro(Clave &clave,char *registro); 
 		
 		
 		

@@ -12,16 +12,30 @@ IndiceHash::~IndiceHash() {
 	if (hash) delete hash;
 }
 
-int IndiceHash::insertarRegistro(char *registro, Clave &clave) {
+/*
+ * Este metodo inserta un registro en el indice.
+ **/
+int IndiceHash::insertar(Clave &clave, char* registro) {
 	return hash->insertarRegistro(registro, clave);
 }
-		
-int IndiceHash::eliminarRegistro(Clave &clave) {
+
+/*
+ * Este metodo elimina un registro del indice.
+ **/
+int IndiceHash::eliminar(Clave &clave) {
 	return hash->eliminarRegistro(clave);
 }
 
-bool IndiceHash::recuperarRegistro(Clave &clave, char* registro) {
-	return hash->recuperarRegistro(clave,registro);
+/*
+ * Este metodo busca un registro dentro del indice.
+ * Siempre retorna NULL y devuelve el registro de clave "clave"
+ * dentro de "registro".
+ **/
+Clave* IndiceHash::buscar(Clave &clave, char* registro) const {
+	hash->recuperarRegistro(clave,registro);
+	return NULL;
 }
+
+
 
 

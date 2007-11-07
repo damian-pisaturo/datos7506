@@ -15,16 +15,27 @@ class IndiceHash :public Indice {
 		
 	public:
 		IndiceHash(list<nodoLista> &listaParam, unsigned int tamBucket, const string& nombreArchivo);
-		virtual ~IndiceHash();
-			
-		
-		int insertarRegistro(char *registro, Clave &clave);
-		
-		int eliminarRegistro(Clave &clave);
-		
-		bool recuperarRegistro(Clave &clave, char* registro);
+		virtual ~IndiceHash();	
 		
 		
+		/*
+		 * Este metodo inserta un registro en el indice.
+		 **/
+		int insertar(Clave &clave, char* registro = NULL);
+		
+		/*
+		 * Este metodo elimina un registro del indice.
+		 **/
+		int eliminar(Clave &clave);
+		
+		/*
+		 * Este metodo busca un registro dentro del indice.
+		 * Siempre retorna NULL y devuelve el registro de clave "clave"
+		 * dentro de "registro".
+		 **/
+		Clave* buscar(Clave &clave, char* registro = NULL) const; 
+	
+	
 };
 
 #endif /*INDICEHASH_H_*/
