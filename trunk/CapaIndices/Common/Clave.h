@@ -137,6 +137,13 @@ class Clave
 		{
 			return this->hijoDer;
 		}
+		
+		virtual void** getValorParaHash() const
+		{
+			void** valor = new void*[1];
+			valor[0] = this->getValor();
+			return valor;
+		}
 }; //Fin clase Clave (Abstracta)
 
 
@@ -541,6 +548,8 @@ class ClaveCompuesta: public Clave
 		//Devuelve la lista de claves simples que componen esta clave
 		ListaClaves* getListaClaves() const;
 		
+		void** getValorParaHash() const;
+		
 	private:
 		//Método para liberar la memoria utilizada por la lista y por todas las claves
 		//que contiene
@@ -548,6 +557,8 @@ class ClaveCompuesta: public Clave
 		
 		//Método que calcula el tamaño total de todos los valores de las claves de la lista.
 		unsigned int calcularTamanioValoresClaves(const ListaClaves& listaClaves) const;
+		
+		int getCantidadClaves() const;
 
 }; //Fin clase ClaveCompuesta.
 
