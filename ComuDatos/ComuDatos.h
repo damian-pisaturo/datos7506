@@ -53,6 +53,7 @@
 	 	//! Obtiene el valor de la posición indicada 
 		char parametro(unsigned int posParametro, string &parametro);
 		char parametro(unsigned int posParametro, int* parametro);
+		char parametro(unsigned int posParametro, unsigned char &parametro);
 					 
 	 	//! Retorna el descriptor de archivo (tipo open, read, write) del canal de comunicación
 		//! para lectura.

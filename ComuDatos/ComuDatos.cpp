@@ -149,6 +149,19 @@ char ComuDatos::parametro(unsigned int posParametro, int* parametro)
 	return resultado;
 }
 
+char ComuDatos::parametro(unsigned int posParametro, unsigned char &parametro)
+{	
+	char resultado = SIN_ERROR;
+	
+	if (posParametro < this->parametrosProceso.size())
+		parametro = (this->parametrosProceso[posParametro])[0];
+	else
+		resultado = FIN_PARAMETROS;	
+	
+	return resultado;
+}
+
+
 int ComuDatos::fd_leer()
 {
 	return this->fd_pipeH;

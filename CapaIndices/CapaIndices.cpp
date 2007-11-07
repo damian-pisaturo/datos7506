@@ -31,14 +31,35 @@ int main(int argc, char* argv[]) {
 	ComuDatos pipe(argv);
 	
 	unsigned char codOp;
-	string nombreTipo;
+	string nombreTipo, buffer;
+	unsigned int tamanioBuffer;
 	
-	pipe.parametro(0, &codOp);
+	pipe.parametro(0, codOp);
 	pipe.parametro(1, nombreTipo);
 	
+	//Leo el tamanio del buffer a recibir
+	pipe.leer(&tamanioBuffer);
 	
+	char *bufferPipe = new char[tamanioBuffer];
 	
+	//Leo los datos provenientes de la capa de metadata
+	pipe.leer(tamanioBuffer, bufferPipe);
 	
+	buffer = bufferPipe;
+	
+	string::size_type posAnterior = 0, posActual = 0;
+	DefinitionsManager::ListaValoresClaves listaValoresClaves;
+	
+	while (posAnterior != string::npos) {
+		posActual = buffer.find(COD_FIN_CLAVE);
+		if (posActual != string::npos)
+			listaValoresClaves.push_back(buffer.substr(posAnterior, posActual - posAnterior));
+		posAnterior = posActual;
+	}
+	
+	//falta terminar de procesar el bloque de datos
+	
+	delete[] bufferPipe;
 }
  
 
