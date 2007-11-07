@@ -53,7 +53,7 @@ class ArchivoBase
 		ArchivoBase(string nombre, unsigned short tamBloque);
 		
 		/*Cierra el archivo*/
-		~ArchivoBase();
+		virtual ~ArchivoBase();
 	
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos

@@ -19,7 +19,7 @@ RegisterInfo::RegisterInfo()
 	parameterList.push_back(nodo);
 	
 	nodo.tipo = TipoDatos::TIPO_STRING;
-	nodo.pk = "true";
+	nodo.pk = "false";
 	
 	parameterList.push_back(nodo);
 	
@@ -36,7 +36,7 @@ RegisterInfo::~RegisterInfo()
 
 void RegisterInfo::insertarElemento(){}
 
-ListaNodos RegisterInfo::getParameterList(){
+ListaNodos* RegisterInfo::getParameterList(){
 	
-	return this->parameterList; 
+	return &this->parameterList; 
 }

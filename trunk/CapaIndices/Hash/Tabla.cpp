@@ -26,7 +26,7 @@ Tabla::Tabla()
 	tamanio = 1;
 }
 
-Tabla::Tabla(char* nombreArchivo, IndiceHashManager* arch, unsigned int tamBucket)
+Tabla::Tabla(string nombreArchivo, IndiceHashManager* arch, unsigned int tamBucket)
 {
 	archivo = arch;
 	archivo->leerTabla(&this->tamanio,this->nroBucket);
@@ -52,7 +52,7 @@ Tabla::~Tabla()
  * Pide a la capa física la creación de un archivo de datos con 1 solo bucket, 
  * y un archivo con la tabla.
  **/
-void Tabla::crear(char* nombreArchivo, unsigned int tamanioBloque)
+void Tabla::crear(string nombreArchivo, unsigned int tamanioBloque)
 {
 	this->tamanio = 1;
 	

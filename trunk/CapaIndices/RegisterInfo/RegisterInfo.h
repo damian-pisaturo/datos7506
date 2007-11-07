@@ -40,7 +40,7 @@ public:
 	RegisterInfo();
 	virtual ~RegisterInfo();
 	void setParameterList();
-	ListaNodos getParameterList();
+	ListaNodos* getParameterList();
 	void setLongitudRegistro(int longitud);
 	int getLongitudRegistro();
 	void insertarElemento();

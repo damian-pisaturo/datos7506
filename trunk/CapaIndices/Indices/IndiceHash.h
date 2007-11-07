@@ -14,7 +14,7 @@ class IndiceHash :public Indice {
 		
 		
 	public:
-		IndiceHash(list<nodoLista> &listaParam, unsigned int tamBucket, const string& nombreArchivo);
+		IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo);
 		virtual ~IndiceHash();	
 		
 		

@@ -218,17 +218,16 @@
 			 
 			 //Posicionarse al comienzo del archivo
 			 this->posicionarse(0);
-			 
+			
 			 //Obtener el primer dato entero de la tabla
 			 this->leer(&cantElementos);
 			 
 			 return cantElementos; 
 		 }
 		 
-		 unsigned int* ArchivoTablaHash::obtenerTabla()
+		 unsigned int* ArchivoTablaHash::obtenerTabla(unsigned int cantElementos)
 		 {
-			 unsigned int* tabla = NULL;
-			 unsigned int cantElementos = obtenerCantElementos();			 
+			 unsigned int* tabla = NULL;			 
 			 
 			 if (cantElementos > 0){
 			 	tabla = new unsigned int[cantElementos + 1];
@@ -289,7 +288,8 @@
 		ArchivoIndiceHash::ArchivoIndiceHash(string nombreArchivo, unsigned short tamBucket):
 			ArchivoIndice(nombreArchivo, tamBucket)
 			{
-				archivoTabla = new ArchivoTablaHash(nombreArchivo + ".nfo");
+				cout<< "cout de los q me gustan a mi"<<endl;
+				archivoTabla = new ArchivoTablaHash(nombreArchivo + ".tlb");
 			}
 		
 		 ArchivoIndiceHash::~ArchivoIndiceHash() { }
@@ -300,8 +300,10 @@
 				
 		void ArchivoIndiceHash::leerTabla(unsigned short* cantElem, unsigned int* elementos)
 		{			
+			
 			*cantElem = this->archivoTabla->obtenerCantElementos();
-			elementos = this->archivoTabla->obtenerTabla();
+
+			elementos = this->archivoTabla->obtenerTabla(*cantElem);
 		}
 		
 		void ArchivoIndiceHash::escribirTabla(unsigned short cantElem, unsigned int* elementos)
