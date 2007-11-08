@@ -155,7 +155,8 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaNombresClaves->push_back("DNI");
 	
 	listaTipos = new ListaTipos();
-	listaTipos->push_back(TipoDatos::TIPO_ENTERO);
+	int tipo = TipoDatos::TIPO_ENTERO;
+	listaTipos->push_back(tipo);
 	
 	nodoListaIndices.estructTipoIndice = estructTipoIndice;
 	nodoListaIndices.listaNombresClaves = listaNombresClaves;
@@ -177,8 +178,10 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaNombresClaves->push_back("NOMBRE");
 	
 	listaTipos = new ListaTipos();
-	listaTipos->push_back(TipoDatos::TIPO_FECHA);
-	listaTipos->push_back(TipoDatos::TIPO_STRING);
+	tipo = TipoDatos::TIPO_FECHA;
+	listaTipos->push_back(tipo);
+	tipo = TipoDatos::TIPO_STRING;
+	listaTipos->push_back(tipo);
 	
 	nodoListaIndices.estructTipoIndice = estructTipoIndice;
 	nodoListaIndices.listaNombresClaves = listaNombresClaves;
@@ -199,8 +202,10 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaNombresClaves->push_back("FECHANACIMIENTO");
 	
 	listaTipos = new ListaTipos();
-	listaTipos->push_back(TipoDatos::TIPO_STRING);
-	listaTipos->push_back(TipoDatos::TIPO_FECHA);
+	tipo = TipoDatos::TIPO_STRING;
+	listaTipos->push_back(tipo);
+	tipo = TipoDatos::TIPO_FECHA;
+	listaTipos->push_back(tipo);
 	
 	nodoListaIndices.estructTipoIndice = estructTipoIndice;
 	nodoListaIndices.listaNombresClaves = listaNombresClaves;
@@ -226,8 +231,9 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaNombresClaves->push_back("DIRECTOR");
 	
 	listaTipos = new ListaTipos();
-	listaTipos->push_back(TipoDatos::TIPO_STRING);
-	listaTipos->push_back(TipoDatos::TIPO_STRING);
+	tipo = TipoDatos::TIPO_STRING;
+	listaTipos->push_back(tipo);
+	listaTipos->push_back(tipo);
 	
 	nodoListaIndices.estructTipoIndice = estructTipoIndice;
 	nodoListaIndices.listaNombresClaves = listaNombresClaves;
@@ -248,7 +254,8 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaNombresClaves->push_back("GENERO");
 	
 	listaTipos = new ListaTipos();
-	listaTipos->push_back(TipoDatos::TIPO_CHAR);
+	tipo = TipoDatos::TIPO_CHAR;
+	listaTipos->push_back(tipo);
 	
 	nodoListaIndices.estructTipoIndice = estructTipoIndice;
 	nodoListaIndices.listaNombresClaves = listaNombresClaves;
