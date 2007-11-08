@@ -24,6 +24,7 @@ DefinitionsManager::~DefinitionsManager() {
 		for (ListaTiposIndices::iterator iterLista = listaTiposIndices->begin();
 			iterLista != listaTiposIndices->end(); ++iterLista) {
 			delete (*iterLista).listaNombresClaves;
+			delete (*iterLista).listaTipos;
 		}
 		delete listaTiposIndices;
 	}
@@ -137,6 +138,7 @@ void DefinitionsManager::cargarTiposIndices() {
 
 	EstructTipoIndice estructTipoIndice;
 	ListaNombresClaves* listaNombresClaves = NULL;
+	ListaTipos* listaTipos = NULL;
 	NodoListaIndices nodoListaIndices;
 	ListaTiposIndices* listaTiposIndices = NULL;
 	
@@ -152,8 +154,12 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("DNI");
 	
+	listaTipos = new ListaTipos();
+	listaTipos->push_back(TipoDatos::TIPO_ENTERO);
+	
 	nodoListaIndices.estructTipoIndice = estructTipoIndice;
 	nodoListaIndices.listaNombresClaves = listaNombresClaves;
+	nodoListaIndices.listaTipos = listaTipos;
 	
 	listaTiposIndices = new ListaTiposIndices();
 	listaTiposIndices->push_back(nodoListaIndices);
@@ -170,8 +176,13 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaNombresClaves->push_back("FECHANACIMIENTO");
 	listaNombresClaves->push_back("NOMBRE");
 	
+	listaTipos = new ListaTipos();
+	listaTipos->push_back(TipoDatos::TIPO_FECHA);
+	listaTipos->push_back(TipoDatos::TIPO_STRING);
+	
 	nodoListaIndices.estructTipoIndice = estructTipoIndice;
 	nodoListaIndices.listaNombresClaves = listaNombresClaves;
+	nodoListaIndices.listaTipos = listaTipos;
 	
 	listaTiposIndices->push_back(nodoListaIndices);
 	
@@ -187,8 +198,13 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaNombresClaves->push_back("NOMBRE");
 	listaNombresClaves->push_back("FECHANACIMIENTO");
 	
+	listaTipos = new ListaTipos();
+	listaTipos->push_back(TipoDatos::TIPO_STRING);
+	listaTipos->push_back(TipoDatos::TIPO_FECHA);
+	
 	nodoListaIndices.estructTipoIndice = estructTipoIndice;
 	nodoListaIndices.listaNombresClaves = listaNombresClaves;
+	nodoListaIndices.listaTipos = listaTipos;
 	
 	listaTiposIndices->push_back(nodoListaIndices);
 	
@@ -209,8 +225,13 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaNombresClaves->push_back("TITULO");
 	listaNombresClaves->push_back("DIRECTOR");
 	
+	listaTipos = new ListaTipos();
+	listaTipos->push_back(TipoDatos::TIPO_STRING);
+	listaTipos->push_back(TipoDatos::TIPO_STRING);
+	
 	nodoListaIndices.estructTipoIndice = estructTipoIndice;
 	nodoListaIndices.listaNombresClaves = listaNombresClaves;
+	nodoListaIndices.listaTipos = listaTipos;
 	
 	listaTiposIndices = new ListaTiposIndices();
 	listaTiposIndices->push_back(nodoListaIndices);
@@ -226,8 +247,12 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("GENERO");
 	
+	listaTipos = new ListaTipos();
+	listaTipos->push_back(TipoDatos::TIPO_CHAR);
+	
 	nodoListaIndices.estructTipoIndice = estructTipoIndice;
 	nodoListaIndices.listaNombresClaves = listaNombresClaves;
+	nodoListaIndices.listaTipos = listaTipos;
 	
 	listaTiposIndices->push_back(nodoListaIndices);
 	
