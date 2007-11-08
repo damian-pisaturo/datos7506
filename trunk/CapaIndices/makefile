@@ -31,7 +31,6 @@ fuentes += BStar/NodoBStar.cpp
 fuentes += Hash/Hash.cpp
 fuentes += Hash/Bucket.cpp
 fuentes += Hash/Tabla.cpp
-fuentes += Hash/RegistroV.cpp
 fuentes += ../ComuDatos/ComuDatos.cpp
 fuentes += CapaIndices.cpp
 

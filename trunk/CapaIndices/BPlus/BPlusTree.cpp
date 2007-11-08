@@ -29,32 +29,25 @@
 // Contructor/Destructor
 //////////////////////////////////////////////////////////////////////
 BPlusTree::BPlusTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
-	: BTree(indiceManager, tamanioNodo) 
-{
-	//TODO Sotodounonabo menosotro (Menotti). No pregunta. Signo.
-	this->nodoRaiz = NULL; 
-	//Esto esta verdaderamente (vergonzosamente mal, añade Tif).
-	//Tira de palurdos atucanada (segun Tif, los que son atucanados son los palurdos y no la tira en si misma... pero yo no coincido),
-	//tienen que levantar la raiz de disco en vez de igualarla a NULL. Si no, siempre tavacioche.  
+	: BTree(indiceManager, tamanioNodo) {
+	
+	this->nodoRaiz = NULL;
 	this->nodoActual = NULL;
 }
 
 
-BPlusTree::~BPlusTree() 
-{
+BPlusTree::~BPlusTree() {
 	if (this->nodoRaiz) delete nodoRaiz;
 	if (this->nodoActual) delete nodoActual;
 }
 
 
-NodoBPlus* BPlusTree::getRaiz() const
+NodoBPlus* BPlusTree::getRaiz()
 {
-	//TODO CHE, DEJENSE DE ROMPER LOS WORKSPACES Y PONGANSE A LABURAR !
-	
 	//Lee el primer registro del archivo -> la raiz
-	//TODO Cargar la raiz desde disco!!
-	//return new NodoBPlus(archivoIndice, 0);
-	return NULL;
+	this->nodoRaiz = new NodoBPlus(0, 0, this->tamanioNodo);
+	indiceManager.leerBloque(0, this->nodoRaiz);
+	return this->nodoRaiz;
 }
 
 
@@ -62,11 +55,11 @@ void BPlusTree::primero()
 {
 	if (this->vacio()) return;
 	
-	/*El nodo actual termina siendo el primer nodo hoja del arbol B+
-	(para recorridos)*/	
+	//El nodo actual termina siendo el primer nodo hoja del arbol B+
+	//(para recorridos)
 	this->nodoActual = this->nodoRaiz;
 	unsigned int refHijoIzq;
-	/*Busco hasta la hoja*/
+	//Busco hasta la hoja
 	while(this->nodoActual->getNivel() != 0){
 		refHijoIzq =  this->nodoActual->getHijoIzq();
 		if (this->nodoActual != this->nodoRaiz) delete this->nodoActual;
@@ -84,9 +77,7 @@ void BPlusTree::insertar(Clave* clave)
 		
 		this->nodoRaiz = new NodoBPlus(0, 0, clave, this->tamanioNodo);
 		
-		//TODO Cherevisenesto (Ernesto No Pincha)
-		//TODO Tifi dice que tienen que borrar los comentarios que hago.
-		this->indiceManager.escribirBloque(this->nodoRaiz);
+		indiceManager.escribirBloque(this->nodoRaiz);
 		
 	} else {
 		
@@ -120,17 +111,16 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 			SetClaves* setClavesDerecho = nodoDestino->splitB(nodoDestino->getTamanioMinimo());
 			Clave* clavePromocionada = (*(setClavesDerecho->begin()))->copiar();
 			NodoBPlus* nuevoNodoDerecho = new NodoBPlus(clavePromocionada->getHijoDer(), nodoDestino->getNivel(), this->tamanioNodo);
-			
 			nuevoNodoDerecho->setClaves(setClavesDerecho);
 			indiceManager.escribirBloque(nuevoNodoDerecho);
 			clavePromocionada->setHijoDer(nuevoNodoDerecho->getPosicionEnArchivo());
-			
 			NodoBPlus* nuevaRaiz = new NodoBPlus(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1, this->tamanioNodo);
-			//TODO escritura de la raiz
+			//Se escribe la nueva raíz
+			indiceManager.escribirBloque(0, nuevaRaiz);
 			nodoDestino->setHnoDer(nuevoNodoDerecho->getPosicionEnArchivo());
-			
+			//Se actualiza nodoDestino
+			indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
 			delete nuevoNodoDerecho;
-			
 			this->nodoRaiz = nuevaRaiz; //No se libera la memoria ocupada por el nodo raíz, ya que siempre
 										//lo tenemos cargado en memoria.
 			*codigo = Codigo::MODIFICADO;
@@ -193,11 +183,11 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 		if (!nodoPadre) {//nodoTarget es el nodo raíz, no se chequea underflow.
 			*codigo = Codigo::MODIFICADO;
 			if (nodoTarget->getCantidadClaves() == 0) {
-				//TODO Se "elimina" la raíz de disco.
+				indiceManager.eliminarBloque(nodoTarget->getPosicionEnArchivo());
 				//La memoria utilizada por el nodo se libera al final del método eliminar
 				this->nodoRaiz = NULL;
 			} else {
-				//TODO Escritura de la raíz
+				indiceManager.escribirBloque(nodoTarget->getPosicionEnArchivo(), nodoTarget);
 			}
 		} else {
 		
@@ -274,7 +264,11 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 					if (nodoHnoDer) this->merge(nodoTarget, nodoHnoDer, nodoPadre->obtenerPrimeraClave());
 					else this->merge(nodoTarget, nodoHnoIzq, nodoPadre->obtenerPrimeraClave());
 					this->nodoRaiz = (NodoBPlus*)nodoTarget->copiar();
-					//TODO Reemplazar la raíz vieja por la nueva
+					this->nodoRaiz->setPosicionEnArchivo(0);
+					//Se escribe la nueva raiz
+					indiceManager.escribirBloque(this->nodoRaiz->getPosicionEnArchivo(), this->nodoRaiz);
+					//Se elimina de disco el bloque que ocupaba nodoTarget
+					indiceManager.eliminarBloque(nodoTarget->getPosicionEnArchivo());
 				} else {
 					
 					if (nodoHnoDer) {
