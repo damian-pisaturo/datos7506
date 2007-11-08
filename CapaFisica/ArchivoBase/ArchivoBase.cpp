@@ -132,7 +132,7 @@
 		char ArchivoBase::posicionarse(unsigned short posicion)
 		{
 			char resultado = ResFisica::OK;
-			cout<<"me muevo a: "<<posicion<<endl;
+			
 			if (this->size() >= (posicion + 1)*this->tamBloque){
 				//Verifica que el archivo esté abierto
 				if (this->archivo.is_open()) {
@@ -145,7 +145,7 @@
 				}else
 					resultado = ResFisica::NO_ABIERTO;
 			}else
-				resultado = ResFisica::ERROR_LECTURA;
+				resultado = ResFisica::ERROR_POSICION;
 			
 			return resultado;
 		}

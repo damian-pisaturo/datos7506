@@ -23,24 +23,37 @@
 ///////////////////////////////////////////////////////////////////////
 Tabla::Tabla()
 {
-	tamanio = 1;
+	this->tamanio = 1;
 }
 
 Tabla::Tabla(string nombreArchivo, IndiceHashManager* arch, unsigned int tamBucket)
 {
-	archivo = arch;
-	archivo->leerTabla(&this->tamanio,this->nroBucket);
-	// Si la tabla no existe, en tamanio devuelve 0.
-	// En ese caso, se crea una tabla.
-	if (tamanio == 0)
-		this->crear(nombreArchivo,tamBucket);
+	unsigned int tamTabla = 0;
+	unsigned int * numerosTabla = NULL;
+	
+	if (arch){
+		this->archivo = arch;
+		this->archivo->leerTabla(&tamTabla, numerosTabla);
+		
+		// Si la tabla no existe, en tamanio devuelve 0.
+		// En ese caso, se crea una tabla.
+		if (tamTabla == 0) {
+			cout<<"Llama a crear tabla en leerTabla"<<endl;
+			this->crear(nombreArchivo, tamBucket);
+		}else{
+			cout<<"La tabla ya existia !!!!!!!!!!!!"<<endl;
+			this->tamanio = tamTabla;
+			this->nroBucket = numerosTabla;
+		}
+	}
 }
 
 Tabla::~Tabla()
 {
-	archivo->escribirTabla(this->tamanio,this->nroBucket);
-	if(nroBucket)
-		delete[] nroBucket;
+	this->archivo->escribirTabla(this->tamanio,this->nroBucket);
+	
+	if(this->nroBucket)
+		delete[] this->nroBucket;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -56,15 +69,20 @@ void Tabla::crear(string nombreArchivo, unsigned int tamanioBloque)
 {
 	this->tamanio = 1;
 	
+	if (!this->nroBucket)
+		this->nroBucket = new unsigned int[this->tamanio];
+	
 	// Setea en la posición 0 de la tabla al bucket 0.
 	this->setNroBucket(0,0);
 	
+	cout << "Se va a crear un bucket"<<endl;
+	
 	// Crea un archivo de datos con un bucket vacío y lo escribe a disco.
 	Bucket * bucket = new Bucket(0, 1, tamanioBloque);
-	archivo->escribirBloque(bucket);
+	this->archivo->escribirBloque(bucket);
 	
 	// Escribe la tabla a disco.
-	archivo->escribirTabla(this->tamanio,this->nroBucket);
+	this->archivo->escribirTabla(this->tamanio,this->nroBucket);
 }
 
 /*
@@ -115,13 +133,14 @@ unsigned int Tabla::buscarBucketIgualDispersion(int posicion,unsigned short tamD
 	
 	// Se calcula la posicion del bucket que tiene igual dispersión. (Su buddy Bucket).
 	int posicionNueva = posicion - tamDispersion;
+	
 	if (posicionNueva < 0)
 		posicionNueva = posicion + tamDispersion;
 	
 	// Se obtiene su número de bucket.
 	unsigned int nroBucket = getNroBucket(posicionNueva);
 	
-	return(nroBucket);
+	return nroBucket;
 }
 
 /* 
@@ -130,7 +149,7 @@ unsigned int Tabla::buscarBucketIgualDispersion(int posicion,unsigned short tamD
  **/
 unsigned int Tabla::getNroBucket(int posicionTabla)
 {
-	return nroBucket[posicionTabla];
+	return this->nroBucket[posicionTabla];
 }
 
 /*
@@ -139,7 +158,7 @@ unsigned int Tabla::getNroBucket(int posicionTabla)
  **/
 void Tabla::setNroBucket(int posicion, unsigned int nro)
 {
-	nroBucket[posicion] = nro;
+	this->nroBucket[posicion] = nro;
 }
 
 /*
@@ -147,7 +166,7 @@ void Tabla::setNroBucket(int posicion, unsigned int nro)
  **/
 unsigned int Tabla::getTamanio()
 {
-	return tamanio;
+	return this->tamanio;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -161,7 +180,7 @@ unsigned int Tabla::getTamanio()
  **/
 void Tabla::reducirTabla()
 {
-	tamanio = tamanio/2;
+	tamanio = (getTamanio()/2);
 	unsigned int* tabla = new unsigned int [getTamanio()];
 	for (unsigned int i=0; i< (getTamanio());i++)
 		tabla[i] = getNroBucket(i);
@@ -180,12 +199,12 @@ void Tabla::duplicarTabla(){
 	unsigned int * nroBuckets = new unsigned int[tamanio*2];
 	
 	// Se copia 2 veces el contenido de la lista actual.
-	memcpy(nroBuckets,nroBucket,tamanio);
-	memcpy(&nroBuckets[tamanio],nroBucket,tamanio);
+	memcpy(nroBuckets,this->nroBucket,tamanio);
+	memcpy(&nroBuckets[tamanio],this->nroBucket,tamanio);
 	
 	// Se actualiza la tabla.
-	delete nroBucket;
-	nroBucket = nroBuckets;
+	delete this->nroBucket;
+	this->nroBucket = nroBuckets;
 	
 	// Se actualiza el tamaño de la tabla.
 	tamanio *= 2;

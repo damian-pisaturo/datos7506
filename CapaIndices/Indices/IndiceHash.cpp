@@ -5,7 +5,8 @@ IndiceHash::IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const str
 
 	IndiceHashManager* indiceManager = (IndiceHashManager*) IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
 	
-	hash = new Hash(indiceManager, listaParam, indiceManager->getNombreArchivo(), tamBucket);
+	cout << "creo el hash"<< endl;
+	hash = new Hash(indiceManager, listaParam, nombreArchivo, tamBucket);
 }
 
 IndiceHash::~IndiceHash() {

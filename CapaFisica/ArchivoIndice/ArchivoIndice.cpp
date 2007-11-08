@@ -200,12 +200,18 @@
 	///////////////////////////////////////////////////////////////////////
 		ArchivoTablaHash::ArchivoTablaHash(string nombreArchivo):
 			ArchivoBase(nombreArchivo, sizeof(unsigned int))
-			{
-				//Escribe una cantidad de elementos inicial igual
-				//a cero.
-				unsigned int cantElementos = 0;
-				this->escribir(&cantElementos);
+		{
+			//Escribe una cantidad de elementos inicial igual
+			//a cero, si la tabla se crea por primera vez, y un
+			//elemento inicial.
+			if (this->size() == 0){
+				unsigned int valorNulo = 0;
+				this->escribir(&valorNulo);
+				this->posicionarseFin();
+				this->escribir(&valorNulo);				
 			}
+	
+		}
 		
 		ArchivoTablaHash::~ArchivoTablaHash() { }
 		 
@@ -221,7 +227,7 @@
 			
 			 //Obtener el primer dato entero de la tabla
 			 this->leer(&cantElementos);
-			 
+			
 			 return cantElementos; 
 		 }
 		 
@@ -260,16 +266,16 @@
 			 
 			 //Posicionarse en el segundo atributo entero
 			 //(primer elemento de la tabla)
-			 resultado = this->posicionarse(1);
-			 
+			resultado = this->posicionarse(1);
+			
+			 cout << "El resutlado es " << (int)resultado << endl;
 			 //Recorrer todos los elementos de tabla y
 			 //almacenarlos a disco.
-			 if (resultado == ResFisica::OK)
-				 for (unsigned int i = 0; ( (i < cantElem) && (resultado == ResFisica::OK) ); i++){
-					 resultado = this->escribir(tabla + i);
-					 if (resultado == ResFisica::OK)
-						 resultado = this->posicionarse(i + 2);
-				 }
+			 for (unsigned int i = 0; ( (i < cantElem) && (resultado == ResFisica::OK) ); i++){
+				 resultado = this->escribir(tabla + i);
+				 if (resultado == ResFisica::OK)
+					 resultado = this->posicionarse(i + 2);
+			 }
 			 
 			 return resultado;			 
 		 }
@@ -288,7 +294,6 @@
 		ArchivoIndiceHash::ArchivoIndiceHash(string nombreArchivo, unsigned short tamBucket):
 			ArchivoIndice(nombreArchivo, tamBucket)
 			{
-				cout<< "cout de los q me gustan a mi"<<endl;
 				archivoTabla = new ArchivoTablaHash(nombreArchivo + ".tlb");
 			}
 		

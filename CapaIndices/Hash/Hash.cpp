@@ -25,6 +25,7 @@ Hash::Hash(IndiceHashManager *arch, ListaNodos * lista, string nombreArchivoTabl
 {
 	archivo = arch;
 	listaParam = lista;
+	
 	tabla = new Tabla(nombreArchivoTabla, archivo,tamBucket);
 }
 
@@ -48,37 +49,55 @@ Hash::~Hash()
  **/
 int Hash::insertarRegistro(char* registro, Clave &clave)
 {	
+	cout << "Estamos ensartando un registro!"<<endl;
 	// Se aplica la función de hash para saber en que bucket se debe insertar.
+	cout << "Tamanio de la tabla :" << tabla->getTamanio() << endl;
+	
 	int posicion = aplicarHash(clave) % tabla->getTamanio();
 	
 	// Se obtiene el bucket donde hay que insertar el registro.
 	int numBucket = tabla->getNroBucket(posicion);
 	
 	// Levanta un bucket ya existente del disco y carga sus datos.
-	Bucket * bucket = new Bucket(archivo,numBucket);
+	Bucket * bucket = new Bucket(archivo, numBucket);
+	
+	cout<<"hice el new"<<endl;
 	
 	// Se busca si el registro ya existe.
 	unsigned short aux;
+	
+	cout << "busco si el reg ya existe"<< endl;
 	if (bucket->buscarRegistro(listaParam, clave, &aux))
 	{
+		cout<<"existe!"<<endl;
 		delete bucket;
+		
 		// ya existe un registro con esa clave.
 		return DUPLICATED; 
 	}
 	
+	cout << "No existe. Lo inserto."<< endl;
+	
 	// Se obtiene la longitud del registro independientemente de si es variable o fija.
-	unsigned short longReg = bucket->getTamanioRegistros(listaParam,registro);
+	unsigned short longReg = bucket->getTamanioRegistros(listaParam, registro);
 	
 	// si el registro es variable se agrega a su longitud los bytes que contienen la misma.
 	if (esRegistroVariable())
 		longReg += Tamanios::TAMANIO_LONGITUD;
+	
+	cout<<"hay espacio para insertar?"<<endl;
 	if (bucket->verificarEspacioDisponible(longReg,bucket->getEspacioLibre()))
 	{
+		cout<<"si.. hago alta"<<endl;
 		// Da de alta el registro en el bloque y persiste en disco.
 		bucket->altaRegistro(listaParam,registro);
 		bucket->incrementarCantRegistros();
 		bucket->actualizarEspLibre();
+		cout<<"escribo a disco"<<endl;
 		archivo->escribirBloque(numBucket, bucket);
+		
+		delete bucket;
+		return OK;
 	}
 	else
 	// Hay OVERFLOW
@@ -104,12 +123,11 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 
 		delete bucket;
 		delete nuevoBucket;
+		
 		// Intenta nuevamente la inserción del registro.
 		int result = insertarRegistro(registro, clave);
 		return result;
 	}
-	delete bucket;
-	return OK;
 }
 
 /* Este método se utiliza para hacer una operación de baja en el archivo.
@@ -244,8 +262,11 @@ void Hash::recuperarRegistro(Clave &clave, char *registro){
 int Hash::aplicarHash(Clave &clave)
 {
 	int aux = 0;
-	char* claveSerializada = serializarClave(clave.getValorParaHash());
+	void ** claveHash = clave.getValorParaHash();
+	char* claveSerializada = serializarClave(claveHash);
+	
 	int valorHash = hashInterno(claveSerializada);
+	
 	int ultimoBit;
 	
 	// Doy vuelta los bits, y tomo los 5 menos significativos.
@@ -256,6 +277,10 @@ int Hash::aplicarHash(Clave &clave)
 		aux = aux | ultimoBit;
 		valorHash = valorHash >> 1;
 	}
+	
+	delete[] claveSerializada;
+	delete[] claveHash;
+	
 	return aux;
 }
 
@@ -368,6 +393,7 @@ bool Hash::esRegistroVariable()
 	
 	if (it->tipo == TipoDatos::TIPO_VARIABLE)
 		return true;
+	
 	return false;
 }
 
@@ -376,6 +402,7 @@ char* Hash::serializarClave(void** claveVoid)
 	list<nodoLista>::const_iterator it;
 	it = listaParam->begin();
 	
+	cout << "estoy en serializar clave"<< endl;
 	int tipo;
 	
 	unsigned char cantClaves = it->cantClaves;
@@ -425,14 +452,15 @@ char* Hash::serializarClave(void** claveVoid)
 	}
 		
 	char* clave = new char[tamanio + 1];
+	cout<<"tamanio en serializar: "<< tamanio<<endl;
 	unsigned char posicion = 0;
 	
 	for(unsigned char i=0; i<cantClaves; i++){
-		
 		memcpy(&clave[posicion], claveVoid[i],vectorTamanios[i]);
 		posicion += vectorTamanios[i];
 	}
 	
+	cout << "cant Claves: "<<(int)cantClaves<<endl;
 	*(clave + tamanio) = 0;
 	
 	delete []vectorTamanios;
