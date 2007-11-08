@@ -1,6 +1,6 @@
 #ifndef REGISTERINFO_H_
 #define REGISTERINFO_H_
-#include "../Common/TipoDatos.h"
+#include "../../Common/TipoDatos.h"
 
 
 #include <list>
