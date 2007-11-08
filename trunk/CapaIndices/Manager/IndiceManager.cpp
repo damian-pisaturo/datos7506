@@ -241,7 +241,7 @@
 		SetClaves* set;
 		
 		//Instancia del pipe
-		ComuDatos* pipe = instanciarPipe("ernesto"/*NombreCapas::NOMBRE_CAPA_FISICA*/);
+		ComuDatos* pipe = instanciarPipe("ernesto"/*NOMBRE_CAPA_FISICA*/);
 
 		//Parametros de inicializacion de la Capa Fisica para
 		//escribir un nodo en disco.		
@@ -718,8 +718,7 @@
 			//Se lanza el proceso de la capa fisica. 
 			//Se obtiene en buffer el contenido del Bucket solicitado.
 			pipe->lanzar();
-			pipe->leer(this->getTamanioBloque(), buffer);
-			
+			pipe->leer(this->getTamanioBloque(), buffer);			
 			
 			bucketLeido->setDatos(buffer);
 			memcpy(&headerBucket.espLibre,buffer,Tamanios::TAMANIO_ESPACIO_LIBRE);
@@ -732,8 +731,8 @@
 			bucketLeido->setEspacioLibre(headerBucket.espLibre);
 			bucketLeido->setCantRegs(headerBucket.cantRegs);
 			bucketLeido->setNroBloque(numBucket);
-		
-			pipe->leer(&resultado);		
+			
+			pipe->leer(&resultado);
 			
 			delete pipe;
 			
@@ -745,11 +744,11 @@
 			char resultado = 0;
 			Bucket* bucketLeido = static_cast<Bucket*> (nuevoBloque);
 			
-			//Variables de escritura del buffer
-			string buffer;
+			//Variable de escritura del buffer
+			char* data = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			ComuDatos* pipe = instanciarPipe(/*NOMBRE_CAPA_FISICA*/"ernesto");
 			
 			//Parametros de ejecucion de la Capa Fisica para escribir un
 			//bucket a disco.
@@ -758,16 +757,13 @@
 			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bucket
 			
 			//Se lanza el proceso de la capa fisica. 
+			cout << "Lanzando el pipe para escribir bucket" << endl;
 			pipe->lanzar();
 			
-			//TODO Chequear que getDatos() devuelve el char* tal cual se va a meter a disco.
+			data = bucketLeido->getDatos();
 			
-			char* data = bucketLeido->getDatos();
-			*(data + this->getTamanioBloque() + 1) = 0;
-			
-			//Grabar el buffer en el archivo.
-			buffer = data;
-		//	pipe->escribir(buffer);
+			//Grabar el buffer en el archivo
+			pipe->escribir(data, this->getTamanioBloque());
 			
 			//Obtener nueva posicion del bucket en el archivo. 
 			unsigned short numBucket = 0;
@@ -777,7 +773,6 @@
 			bucketLeido->setNroBloque(numBucket);
 			
 			pipe->liberarRecursos();
-			delete[] data;
 			
 			return resultado;
 		}
@@ -788,10 +783,10 @@
 			Bucket* bucketLeido = static_cast<Bucket*> (bloqueModif);
 			
 			//Variables de escritura del buffer
-			string buffer;
+			char* buffer = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			ComuDatos* pipe = instanciarPipe(/*NOMBRE_CAPA_FISICA*/"ernesto");
 			
 			//Parametros de ejecucion de la Capa Fisica para modificar
 			//un bucket en disco.
@@ -803,14 +798,10 @@
 			//Se lanza el proceso de la capa fisica. 
 			pipe->lanzar();
 			
-			//TODO Chequear que getDatos() devuelve el char* tal cual se va a meter a disco.
-			
-			char* data = bucketLeido->getDatos();
-			*(data + this->getTamanioBloque() + 1) = 0;
+			buffer = bucketLeido->getDatos();
 			
 			//Grabar el buffer en el archivo.
-			buffer = data;
-			//pipe->escribir(buffer);
+			pipe->escribir(buffer, this->getTamanioBloque());
 	
 			//Setear en el bucket la posicion donde se grabo.
 			bucketLeido->setNroBloque(numBucket);
@@ -820,7 +811,6 @@
 			pipe->leer(&resultado);
 			
 			pipe->liberarRecursos();
-			delete[] data;
 			
 			return resultado;
 		}
@@ -830,7 +820,7 @@
 			char resultado = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			ComuDatos* pipe = instanciarPipe("ernesto"/*NOMBRE_CAPA_FISICA*/);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//eliminar un bucket de disco.
@@ -872,24 +862,22 @@
 				bucketsTabla = new char[sizeof(unsigned int)*(*tamanio)];
 				
 				//Obtener numero de buckets de la tabla
-				pipe->leer(sizeof(unsigned int)*(*tamanio), bucketsTabla);
+				unsigned int sizeTabla = (sizeof(unsigned int))*(*tamanio) ;
+				pipe->leer(sizeTabla, bucketsTabla);
 			
 				buckets = (unsigned int*) bucketsTabla;
 				
-			}
-			
+			}			
 			
 			delete pipe;
-			
-			cout<<"sale??"<<endl;
 		}
 		
 		void IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* buckets)
 		{
-			string bucketsTabla;
+			char* bucketsTabla = NULL;
 									
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			ComuDatos* pipe = instanciarPipe(/*NOMBRE_CAPA_FISICA*/"ernesto");
 			
 			//Parametros de inicializacion de la Capa Fisica para
 			//actualizar la tabla de dispersion 
@@ -906,7 +894,7 @@
 			bucketsTabla = (char*) buckets;
 			
 			//Enviar el contenido de la tabla por el pipe.
-			//pipe->escribir(bucketsTabla);
+			pipe->escribir(bucketsTabla, this->getTamanioBloque());
 			
 			pipe->liberarRecursos();			
 		}

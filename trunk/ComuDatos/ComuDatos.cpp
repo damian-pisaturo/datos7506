@@ -51,7 +51,8 @@ ComuDatos::ComuDatos(char** argv)
 //! parametros tiene que ser NULL o tener un puntero a NULL en el último lugar del vector.
 void ComuDatos::lanzar()
 {
-	char** argumentos = new char*[this->parametrosProceso.size()+CORRIMIENTOARGUMENTO+1];
+	unsigned int paramSize = this->parametrosProceso.size();
+	char** argumentos = new char*[paramSize + CORRIMIENTOARGUMENTO + 1];
 	
 	if (this->nombreProceso.length() == 0)
 	{
@@ -74,13 +75,13 @@ void ComuDatos::lanzar()
 	argumentos[0] = (char*) malloc (sizeof(char)*(this->nombreProceso.length()+1));
 	strcpy(argumentos[0], this->nombreProceso.c_str());
 	
-	for(unsigned int i=3; i<(this->parametrosProceso.size()+CORRIMIENTOARGUMENTO); i++)
+	for(unsigned int i=3; i<(paramSize + CORRIMIENTOARGUMENTO); i++)
 	{
 		argumentos[i] = (char*) malloc (sizeof(char)*(this->parametrosProceso.at(i-CORRIMIENTOARGUMENTO).length()+1));
 		strcpy(argumentos[i], this->parametrosProceso.at(i-CORRIMIENTOARGUMENTO).c_str());
 	}
 	
-	argumentos[this->parametrosProceso.size()+CORRIMIENTOARGUMENTO] = NULL;
+	argumentos[paramSize + CORRIMIENTOARGUMENTO] = NULL;
 	
 	this->id_procesoHijo = fork();
 
@@ -91,6 +92,12 @@ void ComuDatos::lanzar()
 
 	this->fd_pipeH = open(pipeLee.c_str(), O_RDONLY);
 	this->fd_pipeP = open(pipeEscribe.c_str(), O_WRONLY);
+	
+//	for(unsigned int i=0; i<(paramSize + CORRIMIENTOARGUMENTO); i++){
+//		free(argumentos[i]);
+//	}
+//	
+//	delete[] argumentos;
 }
 
 void ComuDatos::ejecutable(string nombreEjecutable)
@@ -246,7 +253,7 @@ char ComuDatos::escribir(char enviarDato)
 char ComuDatos::leer(unsigned int cantidad, char* s)
 {
 	char resultado = SIN_ERROR;
-	
+
 	if (cantidad <= TOPE_ENVIAR_STRING){		
 		char leo[TOPE_ENVIAR_STRING];
 		read(this->fd_pipeH, leo, cantidad);
@@ -305,9 +312,9 @@ void ComuDatos::liberarRecursos()
 {
 	if (this->nombreProceso.length() > 0)
 	{
-		string nombre = this->nombreProceso + "_ComuDatosH";
-		
+		string nombre = this->nombreProceso + "_ComuDatosH";		
 		unlink(nombre.c_str());
+		
 		nombre = this->nombreProceso + "_ComuDatosP";
 		unlink(nombre.c_str());
 	}

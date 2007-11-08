@@ -141,7 +141,7 @@ class Clave
 		virtual void** getValorParaHash() const
 		{
 			void** valor = new void*[1];
-			valor[0] = this->getValor();
+	 		valor[0] = this->getValor();
 			return valor;
 		}
 }; //Fin clase Clave (Abstracta)

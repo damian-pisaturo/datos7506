@@ -22,23 +22,34 @@
 // Constructor/Destructor
 ///////////////////////////////////////////////////////////////////////
 
+/* Crea un Bloque vacio
+ */
+Bloque::Bloque() 
+{
+	datos = NULL;
+	tamanio = 0;
+	numero = 0;
+}
+
+
 /**
  * Este constructor recibe el número de bloque dentro del archivo, y el tamaño del 
  * bloque medido en bytes.
  */
-Bloque::Bloque(unsigned int numeroBloque, unsigned int tamanioBloque) {
+Bloque::Bloque(unsigned int numeroBloque, unsigned int tamanioBloque) 
+{
 	numero = numeroBloque;
 	tamanio = tamanioBloque;
-	datos = new char[tamanio];
-	unsigned short espLibre = Tamanios::TAMANIO_ESPACIO_LIBRE
-			+ Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+	datos = new char[tamanioBloque];
+	unsigned short espLibre = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 	unsigned short cantRegs = 0;
 	memcpy(datos, &espLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
 	memcpy(&datos[Tamanios::TAMANIO_ESPACIO_LIBRE], &cantRegs,
 			Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 }
 
-Bloque::~Bloque() {
+Bloque::~Bloque() 
+{
 	if (datos)
 		delete [] datos;
 }
@@ -49,82 +60,96 @@ Bloque::~Bloque() {
  * devuelve false.
  **/
 bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
-		unsigned short *offsetReg) {
-
+		unsigned short *offsetReg) 
+{
+	cout << "Buscando el registro..."<< endl;
 	void** clavePrimaria = clave.getValorParaHash();
-
+	
+	cout << "El valor de la clave primaria a buscar es: "<< *((int*)clavePrimaria[0]) << endl;
+	
 	// Obtengo el offset a los registros
-	int offsetToReg = getOffsetToRegs();
-	int offsetToProxCampo;
+	int offsetToReg       = this->getOffsetToRegs();
+	int offsetToProxCampo = 0;
 
 	// Se obtiene la cantidad de registros dentro del bloque.
 	unsigned short cantRegistros;
-	memcpy(&cantRegistros, &datos[2], Tamanios::TAMANIO_LONGITUD);
+	memcpy(&cantRegistros, &(this->datos[2]), Tamanios::TAMANIO_LONGITUD);
 
-	unsigned char cantClaves;
-	unsigned char clavesChequeadas;
-	unsigned char clavesIguales;
+	unsigned char cantClaves       = 0;
+	unsigned char clavesChequeadas = 0;
+	unsigned char clavesIguales    = 0;
 	bool encontrado = false;
-	bool checkPk; // Indica si ya reviso la clave primaria del registro.
-	char *registro;
-	list<nodoLista>::const_iterator it;
-	nodoLista regAtribute;
-	int tipo; //Indica si el tipo de campo del registro es variable o fijo
-	int tipoDeRegistro; // Indica si el registro es variable o fijo
+	bool checkPk    = false; // Indica si ya reviso la clave primaria del registro.
+	char *registro  = NULL;
+	ListaNodos::const_iterator it;
+	nodoLista regAttribute;
+	int tipo           = 0; //Indica si el tipo de campo del registro es variable o fijo
+	int tipoDeRegistro = 0; // Indica si el registro es variable o fijo
 	string pk;
-	unsigned short longRegistro;
-	unsigned short longCampo;
-	unsigned short bytesLong = 0;
-	char *campo;
-	float campoNumerico;
-	int campoNumericoInt;
-	short int campoShort;
+	unsigned short longRegistro = 0;
+	unsigned short longCampo    = 0;
+	unsigned short bytesLong    = 0;
+	
+	//Valores de los distintos tipos
+	//de campos existentes.
+	char *campo          = NULL;
+	float campoNumerico  = 0;
+	int campoNumericoInt = 0;
+	short campoShort     = 0;
 
 	int i = 1;
 	it = listaParam->begin();
-	regAtribute = *it;
+	regAttribute = *it;
 
 	// Se obtiene el tipo de atributo del registro.
-	tipoDeRegistro = regAtribute.tipo;
+	tipoDeRegistro = regAttribute.tipo;
 	// Se obtiene la cantidad de claves primarias.
-	cantClaves = regAtribute.cantClaves;
+	cantClaves = regAttribute.cantClaves;
 
+	cout << "Comenzando a recorrer "<< cantRegistros << " registros." << endl;
+	
 	// Mientras haya mas registros y no lo haya encontrado.
-	while ( (i<cantRegistros + 1) && (!encontrado)) {
+	while ( (i < cantRegistros + 1) && (!encontrado)) {
 		// Resetea los atributos que sirven para el control de la busqueda dentro de un registro.
 		offsetToProxCampo = 0;
-		checkPk = false;
-		clavesChequeadas = 0;
-		clavesIguales = 0;
+		checkPk           = false;
+		clavesChequeadas  = 0;
+		clavesIguales     = 0;
 
 		if (tipoDeRegistro == TipoDatos::TIPO_VARIABLE) {
 			bytesLong = Tamanios::TAMANIO_LONGITUD;
 			//Se obtiene la longitud del registro.
-			memcpy(&longRegistro, &datos[offsetToReg],
+			memcpy(&longRegistro, &(this->datos[offsetToReg]),
 					Tamanios::TAMANIO_LONGITUD);
+			
+			// TODO Esta jodita aca no levanta la longitud del registro.
+			// Chequeen esto, palurdas estoicas !
+			cout << "Obtengo la longitud del registro: "<< longRegistro << " bytes." << endl;
 		} else
 			// Se obtiene la longitud del registro.
 			// En este caso la longitud del registro fijo viene dada en el primer nodo de la lista
 			// en pk.
-			longRegistro = ((unsigned short)atoi(regAtribute.pk.c_str()));
+			longRegistro = ((unsigned short)atoi(regAttribute.pk.c_str()));
 
 		// Se obtiene el registro (sin incluir la longitud del mismo)
-		registro = getRegistro(longRegistro, offsetToReg + bytesLong);
+		registro = this->getRegistro(longRegistro, offsetToReg + bytesLong);
 
 		// Se itera la lista de atributos del registro.
 		// Se arranco del segundo nodo ya que el primero se utiliza para guardar
 		// si el registro es de longitud fija o variable.
+		cout << "Comienzo a recorrer los atributos..."<< endl;
 		for (it = (++listaParam->begin()); ((it != listaParam->end())
 				&& (!checkPk)); ++it) {
-			regAtribute = *it;
+			regAttribute = *it;
 
 			// Se obtiene el tipo de atributo del registro.
-			tipo = regAtribute.tipo;
+			tipo = regAttribute.tipo;
 
 			// Se obtiene el indicador de clave primaria.
-			pk = regAtribute.pk;
+			pk = regAttribute.pk;
 
 			if (tipo == TipoDatos::TIPO_STRING) {
+				//cout << "  - Atributo tipo STRING"<< endl;
 				// Se obtiene la longitud del campo variable.
 				memcpy(&longCampo, &registro[offsetToProxCampo],
 						Tamanios::TAMANIO_LONGITUD);
@@ -143,23 +168,26 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 						clavesIguales++;
 					}
 					clavesChequeadas++;
+					
 					delete[]campo;
 				}
 
 				// Se setea el nuevo offset del próximo campo para la siguiente iteración.
 				offsetToProxCampo += longCampo;
 			} else if (tipo == TipoDatos::TIPO_ENTERO) {
-
+				
 				if (pk == "true") {
+					//cout << "  - Atributo tipo ENTERO (pk)"<< endl;
 					memcpy(&campoNumericoInt, &registro[offsetToProxCampo],
 							sizeof(int));
+					//cout << "clavesChequeadas: "<< (int)clavesChequeadas << endl;
 					if (campoNumericoInt
 							== *((int*)clavePrimaria[clavesChequeadas])) {
 						*offsetReg = offsetToReg;
 						clavesIguales++;
 					}
 					clavesChequeadas++;
-				}
+				}//else cout << "  - Atributo tipo ENTERO"<< endl;
 				offsetToProxCampo += sizeof(int);
 			} else if (tipo == TipoDatos::TIPO_SHORT) {
 				if (pk == "true") {
@@ -219,6 +247,7 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 				offsetToProxCampo += sizeof(ClaveFecha::TFECHA);
 			}
 			if (clavesChequeadas == cantClaves) {
+				//cout << "Chequeadas todas las claves primarias."<< endl;
 				checkPk = true;
 				if (clavesChequeadas == clavesIguales)
 					encontrado = true;
@@ -230,9 +259,7 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 		delete []registro;
 	}
 
-	if (!encontrado)
-		return false;
-	return true;
+	return encontrado;
 }
 
 /*
@@ -717,6 +744,9 @@ char * Bloque::getDatos() {
 }
 
 void Bloque::setDatos(char* data) {
+	if (datos)
+		delete[] datos;
+	
 	datos = data;
 }
 

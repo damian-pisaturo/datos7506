@@ -9,7 +9,7 @@ RegisterInfo::RegisterInfo()
 	//El primer nodo de la lista indica si el registro es variable o no.
 	nodo.tipo = TipoDatos::TIPO_VARIABLE;
 	nodo.pk = "9";
-	nodo.cantClaves = 2;
+	nodo.cantClaves = 1;
 	
 	parameterList.push_back(nodo);
 	

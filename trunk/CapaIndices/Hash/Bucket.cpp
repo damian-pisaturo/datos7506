@@ -26,9 +26,12 @@
  * Este constructor inicia un bloque preexistente levantandolo desde el archivo.
  */
 Bucket::Bucket(IndiceManager* indiceHash, unsigned int nroBucket):
-	Bloque(nroBucket,indiceHash->getTamanioBloque())
+	Bloque()
 {
-	indiceHash->leerBloque(nroBucket, this); 
+	cout << "constructor bucket q lee de archivo"<< endl;
+	indiceHash->leerBloque(nroBucket, this);
+	this->setTamanioBloque(indiceHash->getTamanioBloque());
+	this->setNroBloque(nroBucket);
 }
 
 /*
@@ -36,6 +39,7 @@ Bucket::Bucket(IndiceManager* indiceHash, unsigned int nroBucket):
  **/
 Bucket::Bucket(unsigned int nroBucket,unsigned short tamDisp,unsigned int tamanioBloque):
 	Bloque(nroBucket,tamanioBloque){
+	cout << "constructor bucket q crea en memoria."<< endl;
 	tamDispersion = tamDisp;
 	cantRegs = 0;
 	//Los primeros 6 bytes se usan para guardar esplibre, cantRegs y tamDispersion.

@@ -11,7 +11,7 @@
 #include <list>
 
 #include "../../Common/Tamanios.h"
-#include "../Common/TipoDatos.h"
+#include "../../Common/TipoDatos.h"
 #include "../RegisterInfo/RegisterInfo.h"
 #include "../Common/Clave.h"
 

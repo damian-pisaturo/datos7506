@@ -29,7 +29,7 @@
 #include "../Common/SetClaves.h"
 #include "../../ComuDatos/ComuDatos.h"
 #include "../../Common/NombresCapas.h"
-#include "../Common/TipoDatos.h"
+#include "../../Common/TipoDatos.h"
 #include "../Common/TipoIndices.h"
 #include "../../Common/OperacionesCapas.h"
 

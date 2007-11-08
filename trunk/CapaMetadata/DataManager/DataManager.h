@@ -2,7 +2,7 @@
 #define DATAMANAGER_H_
 
 #include "../../Common/DefinitionsManager.h"
-#include "../../CapaIndices/Common/TipoDatos.h"
+#include "../../Common/TipoDatos.h"
 #include "../../Common/Tamanios.h"
 #include "../../CapaIndices/Common/Clave.h"
 #include <string>
