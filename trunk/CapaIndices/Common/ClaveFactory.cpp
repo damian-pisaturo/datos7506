@@ -21,45 +21,45 @@ Clave* ClaveFactory::getClave(const ListaValoresClaves& listaValoresClaves, cons
 				bool valor;
 				conversor >> valor;
 				conversor.clear();
-				clave = new ClaveBoolean(valor, 0, 0);
+				clave = new ClaveBoolean(valor);
 				break;
 			case TipoDatos::TIPO_CHAR:
 				conversor << *iterLV;
 				char valor;
 				conversor >> valor;
 				conversor.clear();
-				clave = new ClaveChar(valor, 0, 0);
+				clave = new ClaveChar(valor);
 				break;
 			case TipoDatos::TIPO_SHORT:
 				conversor << *iterLV;
 				short valor;
 				conversor >> valor;
 				conversor.clear();
-				clave = new ClaveShort(valor, 0, 0);
+				clave = new ClaveShort(valor);
 				break;
 			case TipoDatos::TIPO_ENTERO:
 				conversor << *iterLV;
 				int valor;
 				conversor >> valor;
 				conversor.clear();
-				clave = new ClaveEntera(valor, 0, 0);
+				clave = new ClaveEntera(valor);
 				break;
 			case TipoDatos::TIPO_FLOAT:
 				conversor << *iterLV;
 				float valor;
 				conversor >> valor;
 				conversor.clear();
-				clave = new ClaveReal(valor, 0, 0);
+				clave = new ClaveReal(valor);
 				break;
 			case TipoDatos::TIPO_FECHA:
 				conversor << *iterLV;
 				ClaveFecha::TFECHA valor;
 				conversor >> valor;
 				conversor.clear();
-				clave = new ClaveFecha(valor, 0, 0);
+				clave = new ClaveFecha(valor);
 				break;
 			case TipoDatos::TIPO_STRING:
-				clave = new ClaveVariable(*iterLV, 0, 0);
+				clave = new ClaveVariable(*iterLV);
 				break;
 				
 		}

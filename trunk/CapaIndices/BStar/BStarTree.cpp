@@ -22,7 +22,7 @@ void BStarTree::insertar(Clave* clave) {
 		
 		this->nodoRaiz = new NodoBStar(0, 0, clave, this->tamanioRaiz);
 		
-		indiceManager.escribirBloque(this->nodoRaiz);
+		((IndiceArbolManager&)indiceManager).escribirBloqueDoble(this->nodoRaiz);
 		
 	} else {
 		
@@ -46,7 +46,9 @@ void BStarTree::insertar(Clave* clave) {
 void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 	
 	if (*codigo == Codigo::MODIFICADO){
-		indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+		if (*nodoDestino == *(this->nodoRaiz))
+			((IndiceArbolManager&)indiceManager).escribirBloqueDoble(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+		else indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
 	}
 	else if ( *codigo == Codigo::OVERFLOW ){
 		//Puntero a la clave del nodo padre que se encuentra entre nodoDestino y su hermano izq
@@ -67,9 +69,11 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 			NodoBStar* nuevoNodoDerecho = new NodoBStar(clavePromocionada->getHijoDer(), nodoDestino->getNivel(), this->tamanioNodo);
 			nuevoNodoDerecho->setClaves(setClavesDerecho);
 			indiceManager.escribirBloque(nuevoNodoDerecho);
+			//Se actualiza nodoDestino
+			indiceManager.escribirBloque(nodoDestino); //Busca una nueva posicion para el nodoDestino (hijo izq de la raiz)
 			clavePromocionada->setHijoDer(nuevoNodoDerecho->getPosicionEnArchivo());
-			NodoBStar* nuevaRaiz = new NodoBStar(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1, this->tamanioRaiz);
-			//TODO escritura especial de la raiz
+			NodoBStar* nuevaRaiz = new NodoBStar(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1, clavePromocionada, this->tamanioRaiz);
+			((IndiceArbolManager&)indiceManager).escribirBloqueDoble(0, nuevaRaiz);
 			delete nuevoNodoDerecho;
 			this->nodoRaiz = nuevaRaiz; //No se libera la memoria ocupada por el nodo raíz, ya que siempre
 										//lo tenemos cargado en memoria.
@@ -151,7 +155,7 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 				if (nodoHnoDer) delete nodoHnoDer;
 				if (nodoHnoIzq) delete nodoHnoIzq;
 				
-				//Llamada recursiva para chequear overflow en el padre
+				//Llamada recursiva para chequear overflow en el padre. Si no hay overflow, lo escribe en disco.
 				insertarInterno(nodoPadre, codigo);
 			}
 			
@@ -213,7 +217,9 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
 
 	if (*codigo == Codigo::MODIFICADO) {
 		//Se actualizar en disco el nodo modificado.
-		indiceManager.escribirBloque(nodoTarget->getPosicionEnArchivo(), nodoTarget);
+		if (*nodoTarget == *(this->nodoRaiz))
+			((IndiceArbolManager&)indiceManager).escribirBloqueDoble(nodoTarget->getPosicionEnArchivo(), nodoTarget);
+		else ((IndiceArbolManager&)indiceManager).escribirBloque(nodoTarget->getPosicionEnArchivo(), nodoTarget);
 	} else if (*codigo == Codigo::UNDERFLOW) {
 		
 		//Puntero a la clave del nodo padre que se encuentra entre nodoTarget y su hermano izq
@@ -238,10 +244,10 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
 			if (nodoTarget->getCantidadClaves() == 0) {
 				//Se "elimina" la raíz de disco.
 				//La memoria utilizada por el nodo se libera al final del método eliminar
-				indiceManager.eliminarBloque(nodoTarget->getPosicionEnArchivo());
+				((IndiceArbolManager&)indiceManager).eliminarBloqueDoble(nodoTarget->getPosicionEnArchivo());
 				this->nodoRaiz = NULL;
 			} else {
-				//TODO Escritura especial de la raíz
+				((IndiceArbolManager&)indiceManager).escribirBloqueDoble(nodoTarget->getPosicionEnArchivo(), nodoTarget);
 			}
 		} else{
 		
@@ -434,6 +440,11 @@ void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodo
 	nodoPadre->insertarClave(clavePromocionada, &codigo);
 	
 	nodoDestino->insertarClave(clavePadre, &codigo);
+	
+	//Se actualizan los nodos
+	indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+	indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	indiceManager.escribirBloque(nodoHnoDer->getPosicionEnArchivo(), nodoHnoDer);
 
 }
 
@@ -459,7 +470,12 @@ void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPa
 	clavePromocionada->setHijoDer(nodoDestino->getPosicionEnArchivo());
 	nodoPadre->insertarClave(clavePromocionada, &codigo);
 	
-	nodoDestino->insertarClave(clavePadre, &codigo);	
+	nodoDestino->insertarClave(clavePadre, &codigo);
+	
+	//Se actualizan los nodos
+	indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+	indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	indiceManager.escribirBloque(nodoHnoIzq->getPosicionEnArchivo(), nodoHnoIzq);
 	
 }
 
@@ -487,6 +503,11 @@ void BStarTree::recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodo
 	nodoDestino->insertarClave(clavePadre, &codigo);
 
 	delete setIntercambio;
+	
+	//Se actualizan los nodos en disco
+	indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+	indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	indiceManager.escribirBloque(nodoHnoDer->getPosicionEnArchivo(), nodoHnoDer);
 		
 }
 
@@ -515,6 +536,11 @@ void BStarTree::recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* no
 	nodoDestino->insertarClave(clavePadre, &codigo);
 
 	delete setIntercambio;
+	
+	//Se actualizan los nodos en disco
+	indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+	indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	indiceManager.escribirBloque(nodoHnoIzq->getPosicionEnArchivo(), nodoHnoIzq);
 	
 }
 
@@ -699,7 +725,7 @@ void BStarTree::merge(NodoBStar* &nodoHijoIzq, NodoBStar* &nodoHijoDer, NodoBSta
 	
 	nodoPadre->merge(nodoHijoIzq, nodoHijoDer, NULL, NULL);
 	
-	//TODO Escritura especial de la raíz
+	((IndiceArbolManager&)indiceManager).escribirBloqueDoble(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 
 	//Se elimina de disco a los nodos nodoHijoDer y nodoHijoIzq
 	indiceManager.eliminarBloque(nodoHijoIzq->getPosicionEnArchivo());

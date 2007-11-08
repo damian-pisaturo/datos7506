@@ -506,7 +506,7 @@ bool Nodo::tieneUnderflow() const {
 
 
 SetClaves* Nodo::splitB(unsigned short minClaves) {
-	return (this->getClaves()->splitBPlus(minClaves));
+	return (this->getClaves()->splitBPlus(minClaves, this->getTamanioEspacioClaves()));
 }
 
 

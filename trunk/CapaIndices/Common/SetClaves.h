@@ -32,7 +32,7 @@ class SetClaves : public set<Clave*, Comparador> {
 		//El conjunto devuelto contiene las claves mayores.
 		//Recibe la minima cantidad de claves (en bytes) que debe tener
 		//cada conjunto.
-		SetClaves* splitBPlus(unsigned short minClaves);
+		SetClaves* splitBPlus(unsigned short minClaves, unsigned short maxClaves);
 		
 		//Este metodo divide al conjunto actual en tres 2/3 llenos.
 		//Devuelve un vector con punteros a los otros conjuntos creados.
@@ -40,7 +40,7 @@ class SetClaves : public set<Clave*, Comparador> {
 		//claves a promocionar.
 		//Recibe la minima cantidad de claves (en bytes) que debe tener
 		//cada conjunto.
-		VectorConjuntos* splitBStar(unsigned short minClaves);
+		VectorConjuntos* splitBStar(unsigned short minClaves, unsigned short maxClaves);
 		
 		//Este metodo fusiona este conjunto con un conjunto hermano
 		//y con una clave padre.
