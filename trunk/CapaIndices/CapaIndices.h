@@ -9,7 +9,8 @@
 #include "Indices/IndiceHash.h"
 #include "../Common/DefinitionsManager.h"
 #include "../Common/CodigosPipe.h"
-
+#include "../Common/OperacionesCapas.h"
+ 
 using namespace std;
 
 int main(int argc, char* argv[]);

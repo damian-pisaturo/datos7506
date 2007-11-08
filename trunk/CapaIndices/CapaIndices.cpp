@@ -1,34 +1,72 @@
 #include "CapaIndices.h"
 
-void crearIndice(const string &nombreTipo, MapaIndices &mapaIndices,
-				const DefinitionsManager::NodoListaIndices &nodo,
-				DefinitionsManager &defManager) {
+void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
+				  DefinitionsManager &defManager) {
 	
 	Indice* indice;
+	unsigned char tipoIndice;
+	DefinitionsManager::EstructTipoIndice estructura;
+	DefinitionsManager::NodoListaIndices nodoListaIndices;
+	DefinitionsManager::ListaTiposIndices *listaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
 	DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-	DefinitionsManager::EstructTipoIndice estructura = nodo.estructTipoIndice;
-	
-	
-	switch (estructura.tipoEstructura) {
-	
-		case TipoIndices::ARBOL_BP:
-		case TipoIndices::ARBOL_BS:	
-			indice = new IndiceArbol(estructura.tipoIndice, estructura.tamanioBloque, estructura.tipoClave,
-									defManager.getListaTipos(nombreTipo), estructura.tipoEstructura, estructura.tamanioBloque,
-									estructura.nombreArchivo);
-			break;
+	for (DefinitionsManager::ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
+		iter != listaTiposIndices->end(); ++iter) {
+		
+		nodoListaIndices = *iter;
+		estructura = nodoListaIndices.estructTipoIndice;
+		tipoIndice = estructura.tipoEstructura;
 			
-		case TipoIndices::HASH:
-			indice = new IndiceHash(listaTiposAtributos, estructura.tamanioBloque, estructura.nombreArchivo);
-	}	
-	mapaIndices[*(nodo.listaNombresClaves)] = indice;
+		switch (tipoIndice) {
+			
+			case TipoIndices::ARBOL_BP:
+			case TipoIndices::ARBOL_BS:	
+				indice = new IndiceArbol(estructura.tipoIndice, estructura.tamanioBloque, estructura.tipoClave,
+										defManager.getListaTipos(nombreTipo), estructura.tipoEstructura, estructura.tamanioBloque,
+										estructura.nombreArchivo);
+				break;
+				
+			case TipoIndices::HASH:
+				indice = new IndiceHash(listaTiposAtributos, estructura.tamanioBloque, estructura.nombreArchivo);
+		}
+		
+		mapaIndices[*(nodoListaIndices.listaNombresClaves)] = indice;
+		
+	}
+	
 }
 
 
-void procesarOperacion(unsigned char codOp, const string &nombreTipo,
-					   const DefinitionsManager::ListaValoresClaves &listaValoresClaves, char *bloqueDatos) {
+char procesarOperacion(unsigned char codOp, const string &nombreTipo,
+					   const DefinitionsManager::ListaNombresClaves &listaNombresClaves,
+					   const DefinitionsManager::ListaValoresClaves &listaValoresClaves,
+					   char *bloqueDatos, char* &bloqueRetorno,
+					   DefinitionsManager &defManager) {
 	
+	MapaIndices mapaIndices;
 	
+	switch(codOp) {
+		case OperacionesCapas::INDICES_CONSULTAR:
+			crearIndices(nombreTipo, mapaIndices, defManager);
+			break;
+		case OperacionesCapas::INDICES_CONSULTAR_EXISTENCIA:
+			break;
+		case OperacionesCapas::INDICES_BUSCAR_ESPACIO_LIBRE:
+			break;
+		case OperacionesCapas::INDICES_INSERTAR:
+			//Llamada al indice correspondiente
+			//dataManager.insertar(nombreTipo, defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos), defManager.getListaTiposAtributos(nombreTipo) );
+			break;
+		case OperacionesCapas::INDICES_ELIMINAR:
+			//llamada al indice correspondiente
+			//dataManager.eliminar(nombreTipo, &listaClaves);
+			break;
+		case OperacionesCapas::INDICES_MODIFICAR:
+			//Llamada al indice correspondiente
+			//dataManager.modificar(nombreTipo, defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos), defManager.getListaTiposAtributos(nombreTipo), &listaClaves);			
+			break;
+	}
+	
+	return 0;
 	
 }
 
@@ -76,7 +114,12 @@ int main(int argc, char* argv[]) {
 	
 	//posAnterior queda cargado con la posición donde comienza el bloque de datos (si es que hay)
 	
-	procesarOperacion(codOp, nombreTipo, listaValoresClaves, bufferPipe + posAnterior);
+	DefinitionsManager defManager;
+	char* bloqueRetorno = NULL;
+	char resultado;
+	
+//	procesarOperacion(codOp, nombreTipo, listaNombresClaves, listaValoresClaves,
+//					  bufferPipe + posAnterior, bloqueRetorno, defManager);
 	
 	
 	

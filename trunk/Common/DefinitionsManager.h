@@ -3,6 +3,7 @@
 
 #include "../CapaIndices/RegisterInfo/RegisterInfo.h"
 #include "../CapaIndices/Common/TipoIndices.h"
+#include "../CapaIndices/Common/TipoDatos.h"
 #include <list>
 #include <map>
 
@@ -38,6 +39,7 @@ class DefinitionsManager {
 		typedef struct _nodoListaIndices {
 			EstructTipoIndice estructTipoIndice;
 			ListaNombresClaves* listaNombresClaves;
+			ListaTipos* listaTipos;
 		} NodoListaIndices;
 		
 		typedef std::list<NodoListaIndices> ListaTiposIndices;
