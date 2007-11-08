@@ -3,7 +3,7 @@
 
 #include "../CapaIndices/RegisterInfo/RegisterInfo.h"
 #include "../CapaIndices/Common/TipoIndices.h"
-#include "../CapaIndices/Common/TipoDatos.h"
+#include "TipoDatos.h"
 #include <list>
 #include <map>
 

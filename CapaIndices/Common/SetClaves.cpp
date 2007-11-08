@@ -20,7 +20,7 @@ Clave* SetClaves::findClave(Clave* clave) const {
 	
 }
 
-SetClaves* SetClaves::splitBPlus(unsigned short minClaves) {
+SetClaves* SetClaves::splitBPlus(unsigned short minClaves, unsigned short maxClaves) {
 	
 	//minClaves contiene la cantidad minima de claves (en bytes) que debe
 	//contener cada conjunto.
@@ -28,8 +28,12 @@ SetClaves* SetClaves::splitBPlus(unsigned short minClaves) {
 	SetClaves* conjClavesMayores = new SetClaves();
 	SetClaves::iterator iter = this->begin();
 	
-	for(unsigned short i = 0; (iter != this->end()) && (i < minClaves); ++iter)
+	unsigned short i;
+	
+	for(i = 0; (iter != this->end()) && (i < minClaves); ++iter)
 		i += (*iter)->getTamanioEnDisco();
+	
+	if (i > maxClaves) --iter;
 	
 	for (SetClaves::iterator iterMayores = iter;
 		iterMayores != this->end(); ++iterMayores)
@@ -40,7 +44,7 @@ SetClaves* SetClaves::splitBPlus(unsigned short minClaves) {
 	return conjClavesMayores;
 }
 
-VectorConjuntos* SetClaves::splitBStar(unsigned short minClaves) {
+VectorConjuntos* SetClaves::splitBStar(unsigned short minClaves, unsigned short maxClaves) {
 	
 	VectorConjuntos* vectorConj = new VectorConjuntos();
 	SetClaves* nuevoConj;
@@ -56,8 +60,9 @@ VectorConjuntos* SetClaves::splitBStar(unsigned short minClaves) {
 		for (iter = this->begin();
 			(iter != this->end()) && (tamanioAcumulado < minClaves);
 			++iter) {
-			nuevoConj->insert(*iter);
 			tamanioAcumulado += (*iter)->getTamanioEnDisco();
+			if (tamanioAcumulado <= maxClaves)
+				nuevoConj->insert(*iter);
 		}
 		
 		if (iter != this->end()) nuevoConj->insert(*iter);

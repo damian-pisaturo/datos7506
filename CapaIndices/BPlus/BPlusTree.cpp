@@ -427,6 +427,10 @@ Clave* BPlusTree::split(NodoBPlus* nodoTarget) {
 	}
 	
 	clavePromocionada->setHijoDer(nuevoNodo->getPosicionEnArchivo());
+	
+	//Actualizo nodoTarget
+	indiceManager.escribirBloque(nodoTarget->getPosicionEnArchivo(), nodoTarget);
+	
 	delete nuevoNodo;
 	
 	return clavePromocionada;
@@ -491,6 +495,11 @@ void BPlusTree::pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodo
 		nodoDestino->recibir(setIntercambio);
 		delete setIntercambio;
 	}
+	
+	//Se actualizan los nodos en disco
+	indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+	indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	indiceManager.escribirBloque(nodoHnoDer->getPosicionEnArchivo(), nodoHnoDer);
 
 }
 
@@ -536,6 +545,11 @@ void BPlusTree::pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPa
 		nodoDestino->recibir(setIntercambio);
 		delete setIntercambio;
 	}
+
+	//Se actualizan los nodos en disco
+	indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+	indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	indiceManager.escribirBloque(nodoHnoIzq->getPosicionEnArchivo(), nodoHnoIzq);
 	
 }
 

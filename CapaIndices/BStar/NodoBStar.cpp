@@ -32,7 +32,7 @@ unsigned short NodoBStar::getTamanioEnDisco() const {
 
 
 VectorConjuntos* NodoBStar::split(){
-	return this->getClaves()->splitBStar(this->getTamanioMinimo());
+	return this->getClaves()->splitBStar(this->getTamanioMinimo(), this->getTamanioEspacioClaves());
 }
 
 
