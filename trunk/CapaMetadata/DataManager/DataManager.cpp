@@ -43,7 +43,7 @@ void DataManager::crearRegistroAlta(DefinitionsManager::ListaValoresAtributos &l
 			offsetToCampo += sizeof(int);
 		}
 		else if(tipo == TipoDatos::TIPO_FECHA){
-			ClaveFecha::TFECHA *fecha = (ClaveFecha::TFECHA*)campoRegistro.c_str();
+ 			ClaveFecha::TFECHA *fecha = (ClaveFecha::TFECHA*)campoRegistro.c_str();
 			memcpy(&registro[offsetToCampo],fecha,sizeof(ClaveFecha::TFECHA));
 			offsetToCampo += sizeof(ClaveFecha::TFECHA);
 		}
@@ -317,12 +317,33 @@ void generarRegistroModificado(char *registroNuevo, char *registroViejo, unsigne
 			unsigned short longCampoVariable;
 			if (estaModificado){
 				longCampoVariable = valorModificado.size(); 								
+				// Guardo la longitud del campo variable en los dos bytes anteriores al dato
+				memcpy(&registroNuevo[offsetRegNuevo],&longCampoVariable,sizeof(unsigned short));
+				//Incremento el offset en dos bytes
+				offsetRegNuevo += sizeof(unsigned short);
+				// Guardo el campo variable
+				memcpy(&registroNuevo[offsetRegNuevo],valorModificado.c_str(),longCampoVariable);
+				// Incremento el offset del registro nuevo
+				offsetRegNuevo += longCampoVariable;
+				
+				// Movimientos en el registro viejo
+				memcpy(&longCampoVariable,&registroViejo[offsetRegViejo],sizeof(unsigned short));
+				// Incremento el offset para apuntar al proximo campo por si lo tengo que guardar en el registro nuevo
+				offsetRegViejo += sizeof(unsigned short) + longCampoVariable;
+				
 			}else{
 				memcpy(&longCampoVariable,&registroViejo[offsetRegViejo],sizeof(unsigned short));
-			} 
-			memcpy(&registroNuevo[offsetRegNuevo],&longCampoVariable,sizeof(unsigned short));			
-			offsetRegNuevo += Tamanios::TAMANIO_LONGITUD;
-			offsetRegViejo += Tamanios::TAMANIO_LONGITUD;
+				// Incremento el offset en dos bytes que corresponden a la longitud del campo variable
+				offsetRegViejo += sizeof(unsigned short);
+				// Guardo la longitud del campo variable en el registro nuevo
+				memcpy(&registroNuevo[offsetRegNuevo],&longCampoVariable,sizeof(unsigned short));
+				offsetRegNuevo += sizeof(unsigned short);
+				// Guardo el campo variable
+				memcpy(&registroNuevo[offsetRegNuevo],&registroViejo[offsetRegViejo],longCampoVariable);
+				offsetRegNuevo += longCampoVariable;
+				offsetRegViejo += longCampoVariable;
+			}
+				
 			break;
 		case TipoDatos::TIPO_SHORT:
 			if (estaModificado){
