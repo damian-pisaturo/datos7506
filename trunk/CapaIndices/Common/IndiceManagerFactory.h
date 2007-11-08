@@ -2,7 +2,7 @@
 #define INDICEMANAGERFACTORY_H_
 
 #include "../Manager/IndiceManager.h"
-#include "TipoDatos.h"
+#include "../../Common/TipoDatos.h"
 
 class IndiceManagerFactory {
 	private:
