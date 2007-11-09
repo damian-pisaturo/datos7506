@@ -21,6 +21,7 @@ class Tamanios
 		static const unsigned char TAMANIO_LONGITUD			  = sizeof(unsigned short);
 		static const unsigned char TAMANIO_CANTIDAD_REGISTROS = sizeof(unsigned short);
 		static const unsigned char TAMANIO_DISPERSION		  = sizeof(unsigned short);
+		static const unsigned char TAMANIO_FECHA			  = sizeof(unsigned short) + 2*sizeof(unsigned char);
 };
 
 #endif /*TAMANIOS_H*/

@@ -30,20 +30,37 @@ Bucket::Bucket(IndiceManager* indiceHash, unsigned int nroBucket):
 {
 	cout << "constructor bucket q lee de archivo"<< endl;
 	indiceHash->leerBloque(nroBucket, this);
+	cout<< "paso el leer bloque"<<endl; 
 	this->setTamanioBloque(indiceHash->getTamanioBloque());
 	this->setNroBloque(nroBucket);
+	this->setOffsetADatos(Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + 
+				   Tamanios::TAMANIO_DISPERSION);
 }
 
 /*
  * Constructor utilizado para crear un bucket nuevo en memoria y no acceder a disco 
  **/
-Bucket::Bucket(unsigned int nroBucket,unsigned short tamDisp,unsigned int tamanioBloque):
-	Bloque(nroBucket,tamanioBloque){
+Bucket::Bucket(unsigned int nroBucket,unsigned short tamDisp,unsigned int tamanioBloque)
+:Bloque(nroBucket,tamanioBloque){
+	
 	cout << "constructor bucket q crea en memoria."<< endl;
 	tamDispersion = tamDisp;
 	cantRegs = 0;
+	char* datos = getDatos();
+	
 	//Los primeros 6 bytes se usan para guardar esplibre, cantRegs y tamDispersion.
-	this->setEspacioLibre(Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION);
+	unsigned short eLibre = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + 
+	  						Tamanios::TAMANIO_DISPERSION; 
+	this->setEspacioLibre(eLibre);
+	
+	memcpy(datos,&eLibre,Tamanios::TAMANIO_ESPACIO_LIBRE);
+
+	// El primer registro se encontrará donde esta el espacio libre al momento de la creación del bucket.
+	this->setOffsetADatos(eLibre);
+
+	// Actualiza el tamaño de dispersión dentro de la tira de bytes.
+	memcpy(&datos[Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS],&tamDisp,
+		   Tamanios::TAMANIO_DISPERSION);
 }
 
 Bucket::~Bucket()
@@ -64,12 +81,6 @@ void Bucket::setTamDispersion(unsigned short tDisp)
 unsigned short Bucket::getTamDispersion()
 {
 	return tamDispersion;
-}
-
-unsigned short Bucket::getOffsetToRegs()
-{
-	unsigned short aux = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION;
-	return aux;
 }
 
 void Bucket::setCantRegs(unsigned short cRegs)
@@ -99,8 +110,9 @@ void Bucket::actualizarEspLibre()
 {
 	unsigned short espLibre;
 	memcpy(&espLibre,getDatos(),Tamanios::TAMANIO_ESPACIO_LIBRE);
-	setEspacioLibre(espLibre);
+		   setEspacioLibre(espLibre);
 }
+
 
 
 

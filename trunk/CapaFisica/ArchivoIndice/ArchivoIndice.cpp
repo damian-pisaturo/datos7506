@@ -263,7 +263,7 @@
 		 {
 			 char resultado = ResFisica::OK;
 			 unsigned int cantElem = this->obtenerCantElementos();
-			 
+			 			 
 			 //Posicionarse en el segundo atributo entero
 			 //(primer elemento de la tabla)
 			resultado = this->posicionarse(1);
@@ -278,7 +278,7 @@
 			 }
 			 
 			 return resultado;			 
-		 }
+		 } 
 		
 ///////////////////////////////////////////////////////////////////////////
 // Clase

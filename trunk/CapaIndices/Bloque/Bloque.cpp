@@ -17,18 +17,20 @@
 //		- Rodriguez, Maria Laura.
 ///////////////////////////////////////////////////////////////////////////
 #include "Bloque.h"
-
 ///////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 ///////////////////////////////////////////////////////////////////////
 
-/* Crea un Bloque vacio
- */
+/* 
+ * Crea un Bloque vacio.
+ * Sirve para levantar bloques de disco sin pisar su información.
+ **/
 Bloque::Bloque() 
 {
 	datos = NULL;
 	tamanio = 0;
 	numero = 0;
+	offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 }
 
 
@@ -41,11 +43,17 @@ Bloque::Bloque(unsigned int numeroBloque, unsigned int tamanioBloque)
 	numero = numeroBloque;
 	tamanio = tamanioBloque;
 	datos = new char[tamanioBloque];
-	unsigned short espLibre = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+	offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+	
+	// Inicializa el offset a espacio libre dentro del bloque.
+	unsigned short espLibre = offsetADatos;
 	unsigned short cantRegs = 0;
+	
+	// Se incluyen en el bloque es sí, el offset a espacio libre, y
+	// la cantidad de registros. 
 	memcpy(datos, &espLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
 	memcpy(&datos[Tamanios::TAMANIO_ESPACIO_LIBRE], &cantRegs,
-			Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+		   Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 }
 
 Bloque::~Bloque() 
@@ -60,20 +68,18 @@ Bloque::~Bloque()
  * devuelve false.
  **/
 bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
-		unsigned short *offsetReg) 
+							unsigned short *offsetReg) 
 {
 	cout << "Buscando el registro..."<< endl;
 	void** clavePrimaria = clave.getValorParaHash();
 	
-	cout << "El valor de la clave primaria a buscar es: "<< *((int*)clavePrimaria[0]) << endl;
-	
 	// Obtengo el offset a los registros
-	int offsetToReg       = this->getOffsetToRegs();
+	int offsetToReg       = getOffsetADatos();
 	int offsetToProxCampo = 0;
 
 	// Se obtiene la cantidad de registros dentro del bloque.
 	unsigned short cantRegistros;
-	memcpy(&cantRegistros, &(this->datos[2]), Tamanios::TAMANIO_LONGITUD);
+	memcpy(&cantRegistros, &(this->datos[Tamanios::TAMANIO_ESPACIO_LIBRE]), Tamanios::TAMANIO_LONGITUD);
 
 	unsigned char cantClaves       = 0;
 	unsigned char clavesChequeadas = 0;
@@ -105,11 +111,14 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 	tipoDeRegistro = regAttribute.tipo;
 	// Se obtiene la cantidad de claves primarias.
 	cantClaves = regAttribute.cantClaves;
+	string a;
+	cin>> a;
 
 	cout << "Comenzando a recorrer "<< cantRegistros << " registros." << endl;
-	
 	// Mientras haya mas registros y no lo haya encontrado.
 	while ( (i < cantRegistros + 1) && (!encontrado)) {
+		cout << "A: Comenzando a recorrer "<< cantRegistros << " registros." << endl;
+
 		// Resetea los atributos que sirven para el control de la busqueda dentro de un registro.
 		offsetToProxCampo = 0;
 		checkPk           = false;
@@ -137,7 +146,7 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 		// Se itera la lista de atributos del registro.
 		// Se arranco del segundo nodo ya que el primero se utiliza para guardar
 		// si el registro es de longitud fija o variable.
-		cout << "Comienzo a recorrer los atributos..."<< endl;
+	//	cout << "Comienzo a recorrer los atributos..."<< endl;
 		for (it = (++listaParam->begin()); ((it != listaParam->end())
 				&& (!checkPk)); ++it) {
 			regAttribute = *it;
@@ -149,7 +158,7 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 			pk = regAttribute.pk;
 
 			if (tipo == TipoDatos::TIPO_STRING) {
-				//cout << "  - Atributo tipo STRING"<< endl;
+				cout << "  - Atributo tipo STRING"<< endl;
 				// Se obtiene la longitud del campo variable.
 				memcpy(&longCampo, &registro[offsetToProxCampo],
 						Tamanios::TAMANIO_LONGITUD);
@@ -177,17 +186,17 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 			} else if (tipo == TipoDatos::TIPO_ENTERO) {
 				
 				if (pk == "true") {
-					//cout << "  - Atributo tipo ENTERO (pk)"<< endl;
+					cout << "  - Atributo tipo ENTERO (pk)"<< endl;
 					memcpy(&campoNumericoInt, &registro[offsetToProxCampo],
 							sizeof(int));
-					//cout << "clavesChequeadas: "<< (int)clavesChequeadas << endl;
+				
 					if (campoNumericoInt
 							== *((int*)clavePrimaria[clavesChequeadas])) {
 						*offsetReg = offsetToReg;
 						clavesIguales++;
 					}
 					clavesChequeadas++;
-				}//else cout << "  - Atributo tipo ENTERO"<< endl;
+				}else cout << "  - Atributo tipo ENTERO"<< endl;
 				offsetToProxCampo += sizeof(int);
 			} else if (tipo == TipoDatos::TIPO_SHORT) {
 				if (pk == "true") {
@@ -231,11 +240,9 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 			} else if (tipo == TipoDatos::TIPO_FECHA) {
 				if (pk == "true") {
 					ClaveFecha::TFECHA fecha;
-					memcpy(&fecha, &registro[offsetToProxCampo],
-							sizeof(ClaveFecha::TFECHA));
+					memcpy(&fecha, &registro[offsetToProxCampo],Tamanios::TAMANIO_FECHA);
 					ClaveFecha::TFECHA clave;
-					memcpy(&clave, clavePrimaria[clavesChequeadas],
-							sizeof(ClaveFecha::TFECHA));
+					memcpy(&clave, clavePrimaria[clavesChequeadas], Tamanios::TAMANIO_FECHA);
 
 					if ((fecha.anio == clave.anio)&&(fecha.mes == clave.mes)
 							&&(fecha.dia == clave.dia)) {
@@ -244,7 +251,7 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 					}
 					clavesChequeadas++;
 				}
-				offsetToProxCampo += sizeof(ClaveFecha::TFECHA);
+				offsetToProxCampo += Tamanios::TAMANIO_FECHA;
 			}
 			if (clavesChequeadas == cantClaves) {
 				//cout << "Chequeadas todas las claves primarias."<< endl;
@@ -253,7 +260,7 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 					encontrado = true;
 			}
 		}
-
+		i++;
 		//La próxima iteración se levantará la longitud del registro siguiente
 		offsetToReg += bytesLong + longRegistro;
 		delete []registro;
@@ -335,7 +342,7 @@ int Bloque::altaRegistro(const ListaNodos * listaParam, char *registro) {
 int Bloque::bajaRegistro(const ListaNodos *listaParam, Clave &clave) {
 
 	void** clavePrimaria = clave.getValorParaHash();
-	unsigned short offsetToReg = getOffsetToRegs();
+	unsigned short offsetToReg = offsetADatos;
 	unsigned short offsetToProxCampo = 0;
 
 	unsigned short longReg;
@@ -479,18 +486,16 @@ int Bloque::bajaRegistro(const ListaNodos *listaParam, Clave &clave) {
 			} else if (tipo == TipoDatos::TIPO_FECHA) {
 				if (pk == "true") {
 					ClaveFecha::TFECHA fecha;
-					memcpy(&fecha, &registro[offsetToProxCampo],
-							sizeof(ClaveFecha::TFECHA));
+					memcpy(&fecha, &registro[offsetToProxCampo], Tamanios::TAMANIO_FECHA);
 					ClaveFecha::TFECHA clave;
-					memcpy(&clave, clavePrimaria[clavesChequeadas],
-							sizeof(ClaveFecha::TFECHA));
+					memcpy(&clave, clavePrimaria[clavesChequeadas],Tamanios::TAMANIO_FECHA);
 
 					if ((fecha.anio == clave.anio)&&(fecha.mes == clave.mes)
 							&&(fecha.dia == clave.dia))
 						clavesIguales++;
 					clavesChequeadas++;
 				}
-				offsetToProxCampo += sizeof(ClaveFecha::TFECHA);
+				offsetToProxCampo += Tamanios::TAMANIO_FECHA;
 			}
 			if (clavesChequeadas == cantClaves) {
 				checkPk = true;
@@ -690,7 +695,7 @@ Clave* Bloque::getClavePrimaria(const ListaNodos *listaParam, char* registro) {
 				clavesEncontradas++;
 			}
 			else
-				offsetToProxCampo += sizeof(ClaveFecha::TFECHA);
+				offsetToProxCampo += Tamanios::TAMANIO_FECHA;
 		}
 	}
 	if (cantClaves == 1){
@@ -699,14 +704,6 @@ Clave* Bloque::getClavePrimaria(const ListaNodos *listaParam, char* registro) {
 	}
 	
 	return new ClaveCompuesta(listaClaves);
-}
-
-/*
- * Retorna el offset al primer registro del bloque.
- **/
-unsigned short Bloque::getOffsetToRegs() {
-	return (Tamanios::TAMANIO_ESPACIO_LIBRE
-			+ Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 }
 
 /*
@@ -758,3 +755,10 @@ void Bloque::setNroBloque(unsigned int num) {
 	numero = num;
 }
 
+unsigned short Bloque::getOffsetADatos() const {
+	return offsetADatos;
+}
+
+void Bloque::setOffsetADatos(unsigned short offset){
+	offsetADatos = offset;
+}

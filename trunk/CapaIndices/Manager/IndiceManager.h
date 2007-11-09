@@ -261,7 +261,7 @@ class IndiceHashManager : public IndiceManager
 		 * numero de buckets igual a 'tamanio', reservando el 
 		 * espacio necesario.
 		 */
-		void leerTabla(unsigned int* tamanio, unsigned int* buckets);
+		void leerTabla(unsigned int* tamanio, unsigned int* &buckets);
 
 };
 
