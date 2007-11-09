@@ -690,8 +690,9 @@ Clave* Bloque::getClavePrimaria(const ListaNodos *listaParam, char* registro) {
 				offsetToProxCampo += sizeof(unsigned char);
 				memcpy(&f.dia,&registro[offsetToProxCampo],sizeof(unsigned char));
 				offsetToProxCampo += sizeof(unsigned char);
-				
-				listaClaves.push_back(new ClaveFecha(&f));
+
+				ClaveFecha claveFecha(f);
+				listaClaves.push_back(&claveFecha);
 				clavesEncontradas++;
 			}
 			else
