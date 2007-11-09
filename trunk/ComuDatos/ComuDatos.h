@@ -15,7 +15,7 @@
 #include <iostream>
 #include <vector>
  
-#define TOPE_ENVIAR_STRING 1024
+#define TOPE_ENVIAR_STRING 4096
 #define FIN_PARAMETROS '\1'
 #define EXCEDE_TOPE '\3'
 #define SIN_ERROR '\2'
