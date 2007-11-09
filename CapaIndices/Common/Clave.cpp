@@ -532,10 +532,10 @@
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 
-	ClaveFecha::ClaveFecha(fecha* clave, unsigned int referencia,
+	ClaveFecha::ClaveFecha(const TFECHA &clave, unsigned int referencia,
 											unsigned int hijoDer)
 	{
-		this->setValor(clave);
+		this->setValor(new TFECHA(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
 		this->tamanio = sizeof(fecha) + Tamanios::TAMANIO_REFERENCIA;
@@ -557,7 +557,7 @@
 	Clave* ClaveFecha::copiar()
 	{
 		fecha* clave = (fecha*)this->getValor();
-		return new ClaveFecha(clave,this->getReferencia(), this->getHijoDer());
+		return new ClaveFecha(*clave, this->getReferencia(), this->getHijoDer());
 	}
 
 	char ClaveFecha::comparar(Clave* otraClave)

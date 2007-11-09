@@ -10,6 +10,7 @@
 #include "../Common/DefinitionsManager.h"
 #include "../Common/CodigosPipe.h"
 #include "../Common/OperacionesCapas.h"
+//#include "Common/ClaveFactory.h"
  
 using namespace std;
 

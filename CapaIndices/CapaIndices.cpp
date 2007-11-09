@@ -7,8 +7,8 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 	unsigned char tipoIndice;
 	DefinitionsManager::EstructTipoIndice estructura;
 	DefinitionsManager::NodoListaIndices nodoListaIndices;
-	DefinitionsManager::ListaTiposIndices *listaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
-	DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	const DefinitionsManager::ListaTiposIndices *listaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
+	const DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	for (DefinitionsManager::ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
 		iter != listaTiposIndices->end(); ++iter) {
 		
@@ -20,18 +20,28 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 			
 			case TipoIndices::ARBOL_BP:
 			case TipoIndices::ARBOL_BS:	
-				indice = new IndiceArbol(estructura.tipoIndice, estructura.tamanioBloque, estructura.tipoClave,
-										defManager.getListaTipos(nombreTipo), estructura.tipoEstructura, estructura.tamanioBloque,
-										estructura.nombreArchivo);
+//				indice = new IndiceArbol(estructura.tipoIndice, estructura.tamanioBloque, estructura.tipoClave,
+//										defManager.getListaTipos(nombreTipo), estructura.tipoEstructura, estructura.tamanioBloque,
+//										estructura.nombreArchivo);
 				break;
 				
 			case TipoIndices::HASH:
-				indice = new IndiceHash(listaTiposAtributos, estructura.tamanioBloque, estructura.nombreArchivo);
+//				indice = new IndiceHash(listaTiposAtributos, estructura.tamanioBloque, estructura.nombreArchivo);
+				break;
 		}
 		
 		mapaIndices[*(nodoListaIndices.listaNombresClaves)] = indice;
 		
 	}
+	
+}
+
+
+void destruirIndices(MapaIndices &mapaIndices) {
+
+	for (MapaIndices::iterator iter = mapaIndices.begin();
+		iter != mapaIndices.end(); ++iter)
+		delete iter->second;
 	
 }
 
@@ -42,9 +52,15 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo,
 					   char *bloqueDatos, const ComuDatos &pipe, DefinitionsManager &defManager) {
 	
 	MapaIndices mapaIndices;
+	unsigned char tipoIndice;
+	Clave* clave;
+	Indice* indice;
 	
 	//Se crean los indices correspondientes al tipo 'nombreTipo'
 	crearIndices(nombreTipo, mapaIndices, defManager);
+	indice = mapaIndices[listaNombresClaves];
+	tipoIndice = indice->getTipo();
+	clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *(defManager.getListaTiposClaves(nombreTipo, listaNombresClaves)));
 	
 	switch(codOp) {
 		case OperacionesCapas::INDICES_CONSULTAR:
@@ -67,6 +83,8 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo,
 			//dataManager.modificar(nombreTipo, defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos), defManager.getListaTiposAtributos(nombreTipo), &listaClaves);			
 			break;
 	}
+	
+	destruirIndices(mapaIndices);
 	
 	return 0;
 	

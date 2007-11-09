@@ -19,8 +19,12 @@ typedef std::vector<Indice*> VectorIndices;
 
 class Indice
 {
+	protected:
+		unsigned char tipoIndice;
+		
 	public:
 		Indice();
+		
 		virtual ~Indice();
 		
 		/*
@@ -53,6 +57,8 @@ class Indice
 		 **/
 		virtual bool modificar(Clave *claveVieja, Clave *claveNueva,
 				                       char* registroNuevo = NULL) = 0;
+		
+		unsigned char getTipo() const { return this->tipoIndice; }
 		
 		
 };

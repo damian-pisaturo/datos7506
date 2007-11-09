@@ -1,7 +1,7 @@
 #ifndef CLAVEFACTORY_H_
 #define CLAVEFACTORY_H_
 
-#include "DefinitionsManager.h"
+#include "../../Common/DefinitionsManager.h"
 #include "Clave.h"
 #include <sstream>
 
@@ -15,10 +15,11 @@ class ClaveFactory {
 	public:
 		virtual ~ClaveFactory() {}
 	
-		static ClaveFactory& getInstance() { return instance; }
+		static const ClaveFactory& getInstance() { return instance; }
 		
-		Clave* getClave(const ListaValoresClaves& listaValoresClaves, const ListaTipos& listaTipos) const;
+		Clave* getClave(const DefinitionsManager::ListaValoresClaves& listaValoresClaves, const ListaTipos& listaTipos) const;
 
+		Clave* getClave(const DefinitionsManager::ListaClaves& listaValoresClaves, const ListaNodos& listaNodos) const;
 		
 };
 
