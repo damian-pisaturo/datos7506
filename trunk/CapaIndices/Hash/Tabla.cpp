@@ -217,6 +217,8 @@ void Tabla::duplicarTabla(){
 	
 	// Se actualiza el tamaño de la tabla.
 	tamanio *= 2;
+	
+	cout << "la tabla ya se duplico!"<< endl;
 }
 
 /*
@@ -226,16 +228,17 @@ void Tabla::duplicarTabla(){
  **/
 void Tabla::actualizarReferencias(unsigned short tamDispActualizado, int posicion, unsigned int nuevoNroBucket){
 	
+	cout << "entre a actualizar referencias!"<<endl;
 	// Se va saltando de a "tamDispActualizado" posiciones a partir de "posicion" en la tabla
 	// haciendo que se apunte a nuevoNroBucket.
 
-	int i;
+	unsigned int i;
 	// Se recorre desde posicion para arriba.
-	for(i = posicion;i >= 0;i -= tamDispActualizado)
+	for(i = posicion;i >= 0; i -= tamDispActualizado)
 		nroBucket[i] = nuevoNroBucket;
 	
 	// Se recorre desde posicion para abajo.
-	for(i = posicion; (unsigned)i<tamanio;i += tamDispActualizado)
+	for(i = posicion; i < tamanio; i += tamDispActualizado)
 		nroBucket[i] = nuevoNroBucket;
 }
 

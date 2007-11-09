@@ -717,7 +717,6 @@
 		
 		int IndiceHashManager::escribirBloque(BloqueIndice* nuevoBloque)
 		{
-			char resultado = 0;
 			Bucket* bucketLeido = static_cast<Bucket*> (nuevoBloque);
 			
 			//Variable de escritura del buffer
@@ -749,7 +748,7 @@
 			
 			pipe->liberarRecursos();
 			
-			return resultado;
+			return numBucket;
 		}
 		
 		int IndiceHashManager::escribirBloque(unsigned short numBucket, BloqueIndice* bloqueModif)
@@ -876,10 +875,8 @@
 			bucketsTabla = (char*) buckets;
 			
 			//Enviar el contenido de la tabla por el pipe.
-			cout << "tamanioBloque: "<< this->getTamanioBloque()<<endl;
-			
-			pipe->escribir(bucketsTabla, this->getTamanioBloque());
-			
+			cout << "a ver si es esto: "<<((int*)bucketsTabla)[0]<<endl;
+			pipe->escribir(bucketsTabla, tamanio*sizeof(int));
 			pipe->liberarRecursos();			
 		}
 

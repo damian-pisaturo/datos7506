@@ -101,7 +101,7 @@ class Hash
 		 * Este método se encarga de redistribuir los registros contenidos en bucket 
 		 * entre este mismo y bucketNuevo.
 		 **/
-		void redistribuirElementos(Bucket *bucket, Bucket *bucketNuevo);
+		void redistribuirElementos(Bucket* &bucket, Bucket* &bucketNuevo);
 		
 		/*
 		 * Este método se engarga de dividir el tamaño de dispersión del bucket nroBucket
