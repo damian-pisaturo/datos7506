@@ -47,7 +47,11 @@ class Indice
 		 * Si es un hash retorna NULL y devuelve el registro de clave "clave"
 		 * dentro de "registro".
 		 **/
-		virtual Clave* buscar(Clave *clave, char* registro = NULL) const = 0; 
+		virtual Clave* buscar(Clave *clave, char* registro = NULL) const = 0;
+		
+		//Método que busca una clave secundaria. Si la encuentra devuelve en setClavesPrimarias
+		//una lista con las claves primarias correspondientes a esa clave secundaria.
+		virtual Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const = 0;
 		
 		/*
 		 * Devuelve false si claveVieja no se encuentra en el indice. 
@@ -57,6 +61,11 @@ class Indice
 		 **/
 		virtual bool modificar(Clave *claveVieja, Clave *claveNueva,
 				                       char* registroNuevo = NULL) = 0;
+		
+		//Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
+		//para insertar un nuevo registro de tamaño 'tamRegistro'
+		virtual char buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos,
+										 unsigned int &nroBloque) = 0;
 		
 		unsigned char getTipo() const { return this->tipoIndice; }
 		

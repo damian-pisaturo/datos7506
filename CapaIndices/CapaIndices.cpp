@@ -50,12 +50,18 @@ void destruirIndices(MapaIndices &mapaIndices) {
 char procesarOperacion(unsigned char codOp, const string &nombreTipo,
 					   const DefinitionsManager::ListaNombresClaves &listaNombresClaves,
 					   const DefinitionsManager::ListaValoresClaves &listaValoresClaves,
-					   char *bloqueDatos, const ComuDatos &pipe, DefinitionsManager &defManager) {
+					   char *bloqueDatos, ComuDatos &pipe, DefinitionsManager &defManager) {
 	
 	MapaIndices mapaIndices;
 	unsigned char tipoIndice;
-	Clave* clave;
+	Clave *clave, *claveResultante = NULL;
 	Indice* indice;
+	//Posibles valores de retorno de las funciones de los índices
+	//TODO Ver si hay que reservar memoria para el bloque de datos
+	char* bloqueDatosAEnviar;
+	SetClaves* setClavesPrimarias; //Conjunto de claves primarias (indice secundario)
+	unsigned int nroBloque = 0; //Variable utilizada para almacenar el número de bloque
+								//en el cual se debe insertar un resgistro
 	
 	//Se crean los indices correspondientes al tipo 'nombreTipo'
 	crearIndices(nombreTipo, mapaIndices, defManager);
@@ -65,23 +71,44 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo,
 	
 	switch(codOp) {
 		case OperacionesCapas::INDICES_CONSULTAR:
-			
+			if (tipoIndice == TipoIndices::GRIEGO) //Indice Primario
+				claveResultante = indice->buscar(clave, bloqueDatosAEnviar);
+			else //Indice Secundario
+				claveResultante = indice->buscar(clave, setClavesPrimarias);
+			//TODO Enviar a la capa de metadata el bloque de datos o la lista de claves primarias
 			break;
 		case OperacionesCapas::INDICES_CONSULTAR_EXISTENCIA:
-			break;
-		case OperacionesCapas::INDICES_BUSCAR_ESPACIO_LIBRE:
+			claveResultante = indice->buscar(clave);
+			if (claveResultante) {
+				//TODO Avisar a la capa de metadata que se encontró la clave
+			} else {
+				//TODO Avisar a la capa de metadata que no se encontró la clave
+			}
 			break;
 		case OperacionesCapas::INDICES_INSERTAR:
-			//Llamada al indice correspondiente
-			//dataManager.insertar(nombreTipo, defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos), defManager.getListaTiposAtributos(nombreTipo) );
+			unsigned short tamRegistro;
+			//TODO Leer del pipe el tamaño del registro
+			//Se busca un bloque que contenga espacio suficiente para insertar el nuevo registro
+			indice->buscarBloqueDestino(tamRegistro, bloqueDatosAEnviar, nroBloque);
+			pipe.escribir(nroBloque);
+			//TODO Ver donde metemos el tamaño del bloque
+			pipe.escribir(bloqueDatosAEnviar, 4096);
+			//Recibo el bloque con el registro insertado
+			pipe.leer(4096, bloqueDatosAEnviar);
+			clave->setReferencia(nroBloque);
+			indice->insertar(clave, bloqueDatosAEnviar);
+			//TODO Actualizar los indices secundarios :S
 			break;
 		case OperacionesCapas::INDICES_ELIMINAR:
-			//llamada al indice correspondiente
-			//dataManager.eliminar(nombreTipo, &listaClaves);
+			indice->eliminar(clave);
+			//TODO Actualizar los indices secundarios (no es obligatorio)
 			break;
 		case OperacionesCapas::INDICES_MODIFICAR:
-			//Llamada al indice correspondiente
-			//dataManager.modificar(nombreTipo, defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos), defManager.getListaTiposAtributos(nombreTipo), &listaClaves);			
+			//TODO Ver si se trata de una clave primaria o secundaria
+			//TODO Leer del pipe el bloque con los datos modificados
+			//TODO Comprobar si se modificaron atributos que componen alguna clave
+			Clave* claveNueva;
+			indice->modificar(clave, claveNueva, bloqueDatosAEnviar);
 			break;
 	}
 	
@@ -149,7 +176,7 @@ int main(int argc, char* argv[]) {
 					  				   bufferPipe + posAnterior, pipe, defManager);
 	
 	
-	
+	//TODO Enviar resultado a la capa de metadata!
 	
 	
 	//PRUEBA DEL MINI PARSER
