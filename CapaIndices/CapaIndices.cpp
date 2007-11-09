@@ -86,9 +86,6 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos 
 		}
 	}
 	
-	//posAnterior queda cargado con la posición donde comienza el bloque de datos (si es que hay)
-	
-	
 	MapaIndices mapaIndices;
 	unsigned char tipoIndice;
 	Clave *clave, *claveResultante = NULL;
