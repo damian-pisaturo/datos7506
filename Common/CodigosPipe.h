@@ -1,9 +1,14 @@
 #ifndef CODIGOSPIPE_H_
 #define CODIGOSPIPE_H_
 
-#define BUFFER_SIZE				1024
 
-#define COD_FIN_CLAVE			(char)1
-#define COD_FIN_BLOQUE			(char)2
+class CodigosPipe {
+
+	public:
+		static const unsigned short BUFFER_SIZE = 1024;
+		static const char COD_FIN_CLAVE 		= -1;
+		static const char COD_FIN_BLOQUE		= -2;
+	
+};
 
 #endif /*CODIGOSPIPE_H_*/

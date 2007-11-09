@@ -12,7 +12,7 @@ extension = cpp
 # descomentar la l�nea (quitarle el '#' del principio).
 # NOTA: No poner cabeceras (.h). 
 
-fuentes += RegisterInfo/RegisterInfo.cpp
+fuentes = RegisterInfo/RegisterInfo.cpp
 fuentes += Manager/IndiceManager.cpp
 fuentes += Indices/Indice.cpp
 fuentes += Indices/IndiceArbol.cpp

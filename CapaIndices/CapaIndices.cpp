@@ -39,14 +39,16 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 char procesarOperacion(unsigned char codOp, const string &nombreTipo,
 					   const DefinitionsManager::ListaNombresClaves &listaNombresClaves,
 					   const DefinitionsManager::ListaValoresClaves &listaValoresClaves,
-					   char *bloqueDatos, char* &bloqueRetorno,
-					   DefinitionsManager &defManager) {
+					   char *bloqueDatos, const ComuDatos &pipe, DefinitionsManager &defManager) {
 	
 	MapaIndices mapaIndices;
 	
+	//Se crean los indices correspondientes al tipo 'nombreTipo'
+	crearIndices(nombreTipo, mapaIndices, defManager);
+	
 	switch(codOp) {
 		case OperacionesCapas::INDICES_CONSULTAR:
-			crearIndices(nombreTipo, mapaIndices, defManager);
+			
 			break;
 		case OperacionesCapas::INDICES_CONSULTAR_EXISTENCIA:
 			break;
@@ -77,7 +79,7 @@ int main(int argc, char* argv[]) {
 	
 	unsigned char codOp;
 	string nombreTipo, buffer;
-	unsigned int tamanioBuffer;
+	unsigned short tamanioBuffer, bytesLeidos = 0;
 	
 	pipe.parametro(0, codOp);
 	pipe.parametro(1, nombreTipo);
@@ -85,18 +87,25 @@ int main(int argc, char* argv[]) {
 	//Leo el tamanio del buffer a recibir
 	pipe.leer(&tamanioBuffer);
 	
-//	tamanioBuffer = 20;
 	char *bufferPipe = new char[tamanioBuffer+1];
 	
 	//Leo los datos provenientes de la capa de metadata
-	pipe.leer(tamanioBuffer, bufferPipe);
+	if (tamanioBuffer <= CodigosPipe::BUFFER_SIZE)
+		pipe.leer(tamanioBuffer, bufferPipe);
+	else {
+		while (bytesLeidos < tamanioBuffer) {
+			pipe.leer(CodigosPipe::BUFFER_SIZE, bufferPipe + bytesLeidos);
+			bytesLeidos += CodigosPipe::BUFFER_SIZE;
+		}
+	}
+	
 	bufferPipe[tamanioBuffer] = 0;
 	
 	//HARDCODEO A MANO PARA PROBAR
 	strcpy(bufferPipe,"clave1");
-	bufferPipe[6] = COD_FIN_CLAVE;
+	bufferPipe[6] = CodigosPipe::COD_FIN_CLAVE;
 	strcpy(bufferPipe+7,"clave2");
-	bufferPipe[13] = COD_FIN_CLAVE;
+	bufferPipe[13] = CodigosPipe::COD_FIN_CLAVE;
 	strcpy(bufferPipe+14,"bloque");
 	//FIN HARDCODEO
 	
@@ -105,7 +114,7 @@ int main(int argc, char* argv[]) {
 	DefinitionsManager::ListaValoresClaves listaValoresClaves;
 	
 	while (posActual != string::npos) {
-		posActual = buffer.find(COD_FIN_CLAVE, posAnterior);
+		posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
 		if (posActual != string::npos) {
 			listaValoresClaves.push_back(buffer.substr(posAnterior, posActual - posAnterior));
 			posAnterior = posActual + 1;
@@ -115,11 +124,10 @@ int main(int argc, char* argv[]) {
 	//posAnterior queda cargado con la posición donde comienza el bloque de datos (si es que hay)
 	
 	DefinitionsManager defManager;
-	char* bloqueRetorno = NULL;
-	char resultado;
-	
-//	procesarOperacion(codOp, nombreTipo, listaNombresClaves, listaValoresClaves,
-//					  bufferPipe + posAnterior, bloqueRetorno, defManager);
+	//Ver si la lista de nombres claves se recibe por el pipe o si se hardcodea en el DefManager
+	DefinitionsManager::ListaNombresClaves listaNombresClaves;
+	char resultado = procesarOperacion(codOp, nombreTipo, listaNombresClaves, listaValoresClaves,
+					  				   bufferPipe + posAnterior, pipe, defManager);
 	
 	
 	
@@ -137,6 +145,5 @@ int main(int argc, char* argv[]) {
 	
 	delete[] bufferPipe;
 	
-	pipe.liberarRecursos();
 }
  
