@@ -39,11 +39,15 @@ class IndiceArbol: public Indice {
 		 **/
 		Clave* buscar(Clave *clave, char* registro = NULL) const;
 		
+		Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const;
+		
 		/*
 		 * Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario,
 		 * la reemplaza por claveNueva y devuelve true.
 		 **/
 		bool modificar(Clave* claveVieja, Clave* claveNueva, char* registroNuevo = NULL);
+		
+		char buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque);
 						                       
 		
 };

@@ -33,12 +33,16 @@ class IndiceHash :public Indice {
 		 * Siempre retorna NULL y devuelve el registro de clave "clave"
 		 * dentro de "registro".
 		 **/
-		Clave* buscar(Clave *clave, char* registro = NULL) const; 
+		Clave* buscar(Clave *clave, char* registro = NULL) const;
+		
+		Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const;
 	
 		/*
 		 * Elimina al registro de clave "claveVieja" e inserta al registro "registroNuevo".
 		 **/
 		bool modificar(Clave *claveVieja, Clave *claveNueva, char* registroNuevo);
+		
+		char buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque);
 	
 };
 

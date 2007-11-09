@@ -3,9 +3,7 @@
 IndiceArbol::IndiceArbol(unsigned char tipoIndice, unsigned short tamBloqueLista,
 						 int tipoDato, ListaTipos* listaTipos,
 						 unsigned char tipoEstructura, unsigned short tamNodo,
-						 const string& nombreArchivo)
-:Indice()
-{
+						 const string& nombreArchivo) {
 	
 	IndiceManager* indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(tipoIndice, tamBloqueLista, tipoDato, listaTipos, 
 																					   tipoEstructura, tamNodo, 0, nombreArchivo);
@@ -59,4 +57,18 @@ Clave* IndiceArbol::buscar(Clave *clave, char* registro) const {
  **/
 bool IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* registroNuevo) {
 	return bTree->modificar(claveVieja, claveNueva);
+}
+
+
+char IndiceArbol::buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque) {
+	
+	//TODO Llamar al método de Nico...
+	return 0;
+}
+
+
+Clave* IndiceArbol::buscar(Clave* clave, SetClaves* &setClavesPrimarias) const {
+	
+	//TODO Lamar al método de Nico...
+	return 0;
 }

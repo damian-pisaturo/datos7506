@@ -1,7 +1,6 @@
 #include "IndiceHash.h"
 
-IndiceHash::IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo)
-: Indice() {
+IndiceHash::IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo) {
 
 	IndiceHashManager* indiceManager = (IndiceHashManager*) IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
 	
@@ -46,5 +45,15 @@ bool IndiceHash::modificar(Clave *claveVieja, Clave *claveNueva, char* registroN
 }
 
 
+char IndiceHash::buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque) {
+	
+	//TODO Llamar al método de Nico
+	return 0;
+}
 
 
+Clave* IndiceHash::buscar(Clave* clave, SetClaves* &setClavesPrimarias) const {
+	
+	//TODO Lamar al método de Nico...
+	return 0;
+}
