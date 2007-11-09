@@ -247,7 +247,7 @@
 			 return tabla;
 		 }
 		 
-		 char ArchivoTablaHash::escribirCantElementos(unsigned short cantElem)
+		 char ArchivoTablaHash::escribirCantElementos(unsigned int cantElem)
 		 {	
 			 char resultado = this->posicionarse(0);
 			 
@@ -268,14 +268,12 @@
 			 //(primer elemento de la tabla)
 			resultado = this->posicionarse(1);
 			
-			 cout << "El resutlado es " << (int)resultado << endl;
 			 //Recorrer todos los elementos de tabla y
 			 //almacenarlos a disco.
-			 for (unsigned int i = 0; ( (i < cantElem) && (resultado == ResFisica::OK) ); i++){
+			 for (unsigned int i = 0; ( (i < cantElem) && (resultado == ResFisica::OK) ); i++)
 				 resultado = this->escribir(tabla + i);
-				 if (resultado == ResFisica::OK)
-					 resultado = this->posicionarse(i + 2);
-			 }
+				 //if (resultado == ResFisica::OK)
+					 //resultado = this->posicionarse(i + 2);
 			 
 			 return resultado;			 
 		 } 
@@ -303,15 +301,13 @@
 	//	Metodos publicos
 	///////////////////////////////////////////////////////////////////////
 				
-		void ArchivoIndiceHash::leerTabla(unsigned short* cantElem, unsigned int* elementos)
+		void ArchivoIndiceHash::leerTabla(unsigned int* cantElem, unsigned int* &elementos)
 		{			
-			
 			*cantElem = this->archivoTabla->obtenerCantElementos();
-
 			elementos = this->archivoTabla->obtenerTabla(*cantElem);
 		}
 		
-		void ArchivoIndiceHash::escribirTabla(unsigned short cantElem, unsigned int* elementos)
+		void ArchivoIndiceHash::escribirTabla(unsigned int cantElem, unsigned int* elementos)
 		{
 			this->archivoTabla->escribirCantElementos(cantElem);
 			this->archivoTabla->escribirTabla(elementos);			

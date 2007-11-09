@@ -70,7 +70,6 @@ Bloque::~Bloque()
 bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 							unsigned short *offsetReg) 
 {
-	cout << "Buscando el registro..."<< endl;
 	void** clavePrimaria = clave.getValorParaHash();
 	
 	// Obtengo el offset a los registros
@@ -111,13 +110,9 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 	tipoDeRegistro = regAttribute.tipo;
 	// Se obtiene la cantidad de claves primarias.
 	cantClaves = regAttribute.cantClaves;
-	string a;
-	cin>> a;
 
-	cout << "Comenzando a recorrer "<< cantRegistros << " registros." << endl;
 	// Mientras haya mas registros y no lo haya encontrado.
 	while ( (i < cantRegistros + 1) && (!encontrado)) {
-		cout << "A: Comenzando a recorrer "<< cantRegistros << " registros." << endl;
 
 		// Resetea los atributos que sirven para el control de la busqueda dentro de un registro.
 		offsetToProxCampo = 0;
@@ -131,9 +126,6 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 			memcpy(&longRegistro, &(this->datos[offsetToReg]),
 					Tamanios::TAMANIO_LONGITUD);
 			
-			// TODO Esta jodita aca no levanta la longitud del registro.
-			// Chequeen esto, palurdas estoicas !
-			cout << "Obtengo la longitud del registro: "<< longRegistro << " bytes." << endl;
 		} else
 			// Se obtiene la longitud del registro.
 			// En este caso la longitud del registro fijo viene dada en el primer nodo de la lista
@@ -146,7 +138,6 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 		// Se itera la lista de atributos del registro.
 		// Se arranco del segundo nodo ya que el primero se utiliza para guardar
 		// si el registro es de longitud fija o variable.
-	//	cout << "Comienzo a recorrer los atributos..."<< endl;
 		for (it = (++listaParam->begin()); ((it != listaParam->end())
 				&& (!checkPk)); ++it) {
 			regAttribute = *it;
@@ -158,7 +149,7 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 			pk = regAttribute.pk;
 
 			if (tipo == TipoDatos::TIPO_STRING) {
-				cout << "  - Atributo tipo STRING"<< endl;
+
 				// Se obtiene la longitud del campo variable.
 				memcpy(&longCampo, &registro[offsetToProxCampo],
 						Tamanios::TAMANIO_LONGITUD);
@@ -186,7 +177,6 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 			} else if (tipo == TipoDatos::TIPO_ENTERO) {
 				
 				if (pk == "true") {
-					cout << "  - Atributo tipo ENTERO (pk)"<< endl;
 					memcpy(&campoNumericoInt, &registro[offsetToProxCampo],
 							sizeof(int));
 				
@@ -196,7 +186,7 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 						clavesIguales++;
 					}
 					clavesChequeadas++;
-				}else cout << "  - Atributo tipo ENTERO"<< endl;
+				}
 				offsetToProxCampo += sizeof(int);
 			} else if (tipo == TipoDatos::TIPO_SHORT) {
 				if (pk == "true") {
@@ -254,7 +244,6 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 				offsetToProxCampo += Tamanios::TAMANIO_FECHA;
 			}
 			if (clavesChequeadas == cantClaves) {
-				//cout << "Chequeadas todas las claves primarias."<< endl;
 				checkPk = true;
 				if (clavesChequeadas == clavesIguales)
 					encontrado = true;
@@ -265,7 +254,7 @@ bool Bloque::buscarRegistro(const ListaNodos *listaParam, Clave &clave,
 		offsetToReg += bytesLong + longRegistro;
 		delete []registro;
 	}
-
+	
 	return encontrado;
 }
 
@@ -318,11 +307,8 @@ int Bloque::altaRegistro(const ListaNodos * listaParam, char *registro) {
 	// Se obtiene la longitud del registro, no incluye los bytes de longitud del mismo.
 	longReg = getTamanioRegistros(listaParam, registro);
 	
-	cout << "longReg en altaRegistro: " << longReg << endl;
-	
 	// Se obtiene el offset al espacio libre.
 	memcpy(&offsetEspLibre, datos, Tamanios::TAMANIO_LONGITUD);
-	cout << "offsetEspLIbre en altaRegistro: " << offsetEspLibre << endl;
 
 	//Si el registro tiene espacio dentro del bloque se realiza la inserción.
 	if (verificarEspacioDisponible(longReg, offsetEspLibre)) {
@@ -333,7 +319,7 @@ int Bloque::altaRegistro(const ListaNodos * listaParam, char *registro) {
 		if (it->tipo == TipoDatos::TIPO_VARIABLE)
 			longReg += Tamanios::TAMANIO_LONGITUD;
 
-		// registro incluye su longitud en los primeros 2 bytes.
+		// Registro incluye su longitud en los primeros 2 bytes.
 		insertarRegistro(registro, offsetEspLibre, longReg);
 		
 		return OK;
@@ -544,15 +530,19 @@ int Bloque::modificarRegistro(const ListaNodos *listaParam,
 
 	if ((getTamanioBloque()-offsetEspLibre + longRegOrig)<longReg)
 		return SOBREFLUJO;
+	
 	bajaRegistro(listaParam, clavePrimaria);
 	altaRegistro(listaParam, registro);
+	
 	return OK;
 }
 
+
+/*
+ * Devuelve true si se puede insertar un registro de longitud "longReg".
+ * De lo contrario devuelve false.
+ **/
 bool Bloque::verificarEspacioDisponible(unsigned short longReg, unsigned short offsetEspLibre) {
-	
-	//TODO getTamanioBloque() devuelve DOS
-	cout << "tamanio bloque en verificarEsp--todo eso: " << getTamanioBloque() << endl;
 	return ( (getTamanioBloque() - offsetEspLibre) > longReg);
 }
 
