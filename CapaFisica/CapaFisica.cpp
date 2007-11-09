@@ -24,9 +24,9 @@
 //			llamadas de la Capa de Indices).
 ///////////////////////////////////////////////////////////////////////////
 
-/*
+/*				
 	int main(int argc, char**argv)
-	{
+	{						
 		char resultado = ResFisica::OK;
 		
 		if (argc > 3){
@@ -423,8 +423,8 @@
 		cout<<"saliendo de la capa fisica... erneszto"<<endl;
 		return resultado;		
 	}	
-*/
 
+*/
 #include "../CapaIndices/Indices/IndiceHash.h"
  
 int main(int estaRePedanticEsto, char** hinchaPelotas)
@@ -436,7 +436,7 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	Indice *manuColoquio = new IndiceHash(regInfo->getParameterList(),tam,nom);	
 	
 	int entero1 = 25;
-	char* cadena = new char[5];
+	char* cadena = new char[24];
 	strcpy(cadena, "HOLA");
 	unsigned short longCadena = 4;
 	int entero2 = 55;
@@ -445,11 +445,11 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	char *registro = new char [tamReg + 2];
 
 	//Insercion registro numero 0
-	memcpy(registro,&tamReg,Tamanios::TAMANIO_LONGITUD);
-	memcpy(registro + 2,&entero1,sizeof(int));
-	memcpy(registro + 6,&longCadena,Tamanios::TAMANIO_LONGITUD);
-	memcpy(registro + 8,cadena,longCadena);
-	memcpy(registro + 12,&entero2,sizeof(int));	
+	memcpy(registro,&tamReg, Tamanios::TAMANIO_LONGITUD);
+	memcpy(registro + 2,&entero1, sizeof(int));
+	memcpy(registro + 6,&longCadena, Tamanios::TAMANIO_LONGITUD);
+	memcpy(registro + 8,cadena, longCadena);
+	memcpy(registro + 12,&entero2, sizeof(int));	
 	
 	cout << "Insertando primer registro" << endl;
 	manuColoquio->insertar(new ClaveEntera(55),registro);
@@ -462,55 +462,58 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	strcpy(cadena, "TIFI");
 	entero2 = 122;
 	
-	memcpy(reg, &tamReg,Tamanios::TAMANIO_LONGITUD);
-	memcpy(reg + 2,  &entero1,sizeof(int));
-	memcpy(reg + 6,  &longCadena,Tamanios::TAMANIO_LONGITUD);
-	memcpy(reg + 8,  cadena,longCadena);
-	memcpy(reg + 12, &entero2,sizeof(int));	
+	memcpy(reg, &tamReg, Tamanios::TAMANIO_LONGITUD);
+	memcpy(reg + 2,  &entero1, sizeof(int));
+	memcpy(reg + 6,  &longCadena, Tamanios::TAMANIO_LONGITUD);
+	memcpy(reg + 8,  cadena, longCadena);
+	memcpy(reg + 12, &entero2, sizeof(int));	
 	
 	cout << "Insertando segundo registro" << endl;
 	manuColoquio->insertar(new ClaveEntera(122),reg);
 	
 	delete[] reg;
 	
-//	//Insercion registro numero 2
-//	tamReg   = 17; 
-//	registro = new char[tamReg + 2];
-//	
-//	entero1 = 1010;
-//	strcpy(cadena, "INVITRO");
-//	longCadena = 7;
-//	entero2 = 33;
-//		
-//	memcpy(registro,&tamReg,Tamanios::TAMANIO_LONGITUD);
-//	memcpy(registro + 2,  &entero1,sizeof(int));
-//	memcpy(registro + 6,  &longCadena,Tamanios::TAMANIO_LONGITUD);
-//	memcpy(registro + 8,  cadena,longCadena);
-//	memcpy(registro + 15, &entero2,sizeof(int));
-//		
-//	manuColoquio->insertar(new ClaveEntera(33),registro);
-//	
-//	delete[] registro;
-//	
-//	//Insercion registro numero 3
-//	tamReg   = 28; 
-//	registro = new char[tamReg + 2];
-//		
-//	entero1 = 222;
-//	strcpy(cadena, "CORNELIO SAAVEDRA");
-//	longCadena = 17;
-//	entero2 = 555;
-//		
-//	memcpy(registro,&tamReg,Tamanios::TAMANIO_LONGITUD);
-//	memcpy(registro + 2,  &entero1,sizeof(int));
-//	memcpy(registro + 6,  &longCadena,Tamanios::TAMANIO_LONGITUD);
-//	memcpy(registro + 8,  cadena,longCadena);
-//	memcpy(registro + 25, &entero2,sizeof(int));
-//	
-//	manuColoquio->insertar(new ClaveEntera(555),registro);
-//	
-//	delete[] registro;
+	//Insercion registro numero 2
+	tamReg   = 17; 
+	registro = new char[tamReg + 2];
 	
+	entero1 = 1010;
+	strcpy(cadena, "INVITRO");
+	longCadena = 7;
+	entero2 = 33;
+		
+	memcpy(registro,&tamReg,Tamanios::TAMANIO_LONGITUD);
+	memcpy(registro + 2,  &entero1,sizeof(int));
+	memcpy(registro + 6,  &longCadena,Tamanios::TAMANIO_LONGITUD);
+	memcpy(registro + 8,  cadena,longCadena);
+	memcpy(registro + 15, &entero2,sizeof(int));
+		
+	manuColoquio->insertar(new ClaveEntera(33),registro);
+	
+	delete[] registro;
+	
+	//Insercion registro numero 3
+	tamReg   = 27; 
+	registro = new char[tamReg + 2];
+		
+	entero1 = 222;
+	strcpy(cadena, "CORNELIO SAAVEDRA");
+	longCadena = 17;
+	entero2 = 555;
+//		
+	memcpy(registro,&tamReg,Tamanios::TAMANIO_LONGITUD);
+	memcpy(registro + 2,  &entero1,sizeof(int));
+	memcpy(registro + 6,  &longCadena,Tamanios::TAMANIO_LONGITUD);
+	memcpy(registro + 8,  cadena,longCadena);
+	memcpy(registro + 25, &entero2,sizeof(int));
+	
+	manuColoquio->insertar(new ClaveEntera(555),registro);
+	
+	for (int i = 1; i<16; i++)
+		manuColoquio->insertar(new ClaveEntera(55 + i),registro);
+		
+	
+	delete[] registro;
 	delete manuColoquio;
 	delete[] cadena;	
 	delete regInfo;
@@ -519,3 +522,10 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	
 	return 0;
 }
+
+
+
+
+
+
+

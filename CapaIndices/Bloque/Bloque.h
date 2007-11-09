@@ -23,9 +23,10 @@ private:
 	////////////////////////////////////////////////////////////////
 	// Atributos
 	////////////////////////////////////////////////////////////////
-	unsigned int numero;
-	unsigned int tamanio;
-	char *datos;
+	unsigned int numero;		// Representa al numero de bloque dentro del archivo.
+	unsigned int tamanio;		// Es el tamaño del bloque en bytes.
+	unsigned int offsetADatos;	// Es el offset al primer registro del bloque.
+	char *datos;				// Es una cadena de bytes tal cual se persiste en disco.
 	
 	//Métodos privados
 	
@@ -61,7 +62,14 @@ public:
 	///////////////////////////////////////////////////////////////////////
 	// Métodos públicos
 	///////////////////////////////////////////////////////////////////////
+
+	/*
+	 * Busca al registro de clave "clavePrimaria".
+	 * Si lo encuentra devuelve true y el offset al registro en "offsetReg"; de lo contrario, 
+	 * devuelve false.
+	 **/
 	bool buscarRegistro(const ListaNodos *listaParam, Clave &clavePrimaria, unsigned short* offsetReg);
+	
 	/*
 	 * Inserta un nuevo registro dentro del bloque
 	 **/
@@ -71,17 +79,12 @@ public:
 	 * Elimina un registro del bloque, reorganizando el espacio libre
 	 **/
 	int bajaRegistro(const ListaNodos *listaParam, Clave &clavePrimaria);
+	
 	/*
 	 * Modifica el contenido de un registro.
 	 **/
-	int modificarRegistro(const ListaNodos *listaParam, unsigned short longReg,Clave &clavePrimaria, char* registro);
-	
-	
-	
-	/*
-	 * Devuelve el offset al primer registro del bloque.
-	 **/
-	virtual unsigned short getOffsetToRegs();
+	int modificarRegistro(const ListaNodos *listaParam, unsigned short longReg,Clave &clavePrimaria, 
+						  char* registro);
 	
 	/*
 	 * Verifica que el registro a insertar tiene espacio dentro del bloque
@@ -129,6 +132,10 @@ public:
 	 **/
 	void setNroBloque(unsigned int num);
 	
+	unsigned short getOffsetADatos() const;
+	
+	void setOffsetADatos(unsigned short offset);
+
 };
 
 #endif /*BLOQUE_H_*/

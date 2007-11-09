@@ -70,7 +70,6 @@ public:
 // Metodos publicos
 ///////////////////////////////////////////////////////////////////////
 		
-	unsigned short getOffsetToRegs();
 	void setTamDispersion(unsigned short tDisp);
 	unsigned short getTamDispersion();
 	void setCantRegs(unsigned short cRegs);

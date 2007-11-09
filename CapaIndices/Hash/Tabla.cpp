@@ -35,14 +35,15 @@ Tabla::Tabla(string nombreArchivo, IndiceHashManager* arch, unsigned int tamBuck
 		this->archivo = arch;
 		this->archivo->leerTabla(&tamTabla, numerosTabla);
 		
+		if (numerosTabla[0] == 0) cout << "Tengo cero" << endl;
 		// Si la tabla no existe, en tamanio devuelve 0.
 		// En ese caso, se crea una tabla.
 		if (tamTabla == 0) {
-			cout<<"Llama a crear tabla en leerTabla"<<endl;
+			cout<<"Llama a Tabla::crear"<<endl;
 			this->crear(nombreArchivo, tamBucket);
 		}else{
 			cout<<"La tabla ya existia !!!!!!!!!!!!"<<endl;
-			this->tamanio = tamTabla;
+			this->tamanio = tamTabla; 
 			this->nroBucket = numerosTabla;
 		}
 	}
@@ -92,7 +93,8 @@ void Tabla::crear(string nombreArchivo, unsigned int tamanioBloque)
  **/
 void Tabla::reorganizarTabla(unsigned short tamDispActualizado, int posicion, unsigned int nuevoNroBucket){
 	
-	if((tamDispActualizado/2)== tamanio){
+	if((tamDispActualizado/2) == tamanio){
+		cout <<"el tamanio de la tabla es igual al tam de dispersion--> duplico"<<endl;
 		duplicarTabla();
 		nroBucket[posicion] = nuevoNroBucket;
 	}
@@ -167,6 +169,13 @@ void Tabla::setNroBucket(int posicion, unsigned int nro)
 unsigned int Tabla::getTamanio()
 {
 	return this->tamanio;
+}
+
+/*
+* Devuelve el contenido de la tabla.
+**/
+unsigned int* Tabla::getContenido(){
+	return this->nroBucket;
 }
 
 ///////////////////////////////////////////////////////////////////////

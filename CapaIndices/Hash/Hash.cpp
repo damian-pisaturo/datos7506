@@ -55,23 +55,28 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 	
 	int posicion = aplicarHash(clave) % tabla->getTamanio();
 	
+	cout<< "posicion tabla: "<<posicion<<endl;
+	
+	
 	// Se obtiene el bucket donde hay que insertar el registro.
 	int numBucket = tabla->getNroBucket(posicion);
+	
+	cout<<"nro bloque a insertar: "<<numBucket<<endl;
 	
 	// Levanta un bucket ya existente del disco y carga sus datos.
 	Bucket * bucket = new Bucket(archivo, numBucket);
 	
-	cout<<"hice el new"<<endl;
+	cout<<"levante el bucket de disco"<<endl;
 	
 	// Se busca si el registro ya existe.
 	unsigned short aux;
 	
 	cout << "busco si el reg ya existe"<< endl;
-	if (bucket->buscarRegistro(listaParam, clave, &aux))
+	if (bucket->Bloque::buscarRegistro(listaParam, clave, &aux))
 	{
 		cout<<"existe!"<<endl;
 		delete bucket;
-		
+		cout<<"termino el insertar"<<endl;
 		// ya existe un registro con esa clave.
 		return DUPLICATED; 
 	}
@@ -97,30 +102,43 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 		archivo->escribirBloque(numBucket, bucket);
 		
 		delete bucket;
+		cout<<"hace delete de bucket"<<endl;
 		return OK;
 	}
 	else
 	// Hay OVERFLOW
 	// Si el registro no entra en el bucket hay que crear un nuevo bucket.
 	{
+		cout<<"OVERFLOW!!!!!!!!no hay espacio.."<<endl;
 		// Se duplica el tamaño de dispersión del bucket que se divide.
 		bucket->setTamDispersion(bucket->getTamDispersion()*2);
 		
 		// Se crea un nuevo bucket vacío. Se devuelve en numBucketNuevo el número del mismo. 
 		unsigned int numBucketNuevo = 0;
+		
+		// Se crea un bucket vacío en memoria y se lo graba en disco.
 		Bucket * nuevoBucket = new Bucket(numBucketNuevo,bucket->getTamDispersion(),archivo->getTamanioBloque());
 		numBucketNuevo = archivo->escribirBloque(nuevoBucket);
 		
 		// Duplica la tabla o actualiza sus referencias dependiendo del tamaño de dispersión 
 		// (ya duplicado) del bucket donde se produjo overflow.
-		tabla->reorganizarTabla(bucket->getTamDispersion(), posicion, numBucketNuevo); 
+		cout << "llamo a duplicar la tabla."<<endl;
+		cout <<"numero del bucket nuevo: "<< nuevoBucket->getNroBloque()<<endl;
+		tabla->reorganizarTabla(bucket->getTamDispersion(), posicion, nuevoBucket->getNroBloque()); 
 		
 		redistribuirElementos(bucket,nuevoBucket);
 		
 		// Guarda en disco la redistribución de los elementos.
 		archivo->escribirBloque(numBucket, bucket);
-		archivo->escribirBloque(numBucketNuevo, nuevoBucket);
-
+		archivo->escribirBloque(nuevoBucket->getNroBloque(), nuevoBucket);
+		
+		cout<< "tamanioTabla:" << tabla->getTamanio() <<endl;
+		cout<< "contenido 0 :" << (tabla->getContenido())[0]<<endl;
+		cout<< "contenido 1 :" << (tabla->getContenido())[1]<<endl;
+		cout<< "escribo la tabla"<<endl;
+		archivo->escribirTabla(tabla->getTamanio(),tabla->getContenido());
+		cout<<"termine de escribir la tabla"<<endl;
+		
 		delete bucket;
 		delete nuevoBucket;
 		
@@ -311,7 +329,7 @@ int Hash::hashInterno(char* clave)
 void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
 {
 	unsigned short longReg;
-	unsigned short offsetReg = bucket->getOffsetToRegs();
+	unsigned short offsetReg = bucket->getOffsetADatos();
 	const char * datos = bucket->getDatos();
 	
 	// Hay que hacer una copia que no sea const de datos.

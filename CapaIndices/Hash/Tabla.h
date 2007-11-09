@@ -91,6 +91,11 @@ public:
 	 * Devuelve la cantidad de entradas de la tabla.
 	 **/
 	unsigned int getTamanio();
+	
+	/*
+	 * Devuelve el contenido de la tabla.
+	 **/
+	unsigned int* getContenido();
 
 private:
 	///////////////////////////////////////////////////////////////////////

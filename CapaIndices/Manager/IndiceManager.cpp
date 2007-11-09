@@ -721,6 +721,7 @@
 			pipe->leer(this->getTamanioBloque(), buffer);			
 			
 			bucketLeido->setDatos(buffer);
+			
 			memcpy(&headerBucket.espLibre,buffer,Tamanios::TAMANIO_ESPACIO_LIBRE);
 			buffer += Tamanios::TAMANIO_ESPACIO_LIBRE;
 			memcpy(&headerBucket.cantRegs,buffer, Tamanios::TAMANIO_CANTIDAD_REGISTROS);
@@ -735,7 +736,6 @@
 			pipe->leer(&resultado);
 			
 			delete pipe;
-			
 			return resultado;						
 		}
 		
@@ -839,7 +839,7 @@
 			return resultado;
 		}
 		
-		void IndiceHashManager::leerTabla(unsigned int* tamanio, unsigned int* buckets)
+		void IndiceHashManager::leerTabla(unsigned int* tamanio, unsigned int* &buckets)
 		{
 			char* bucketsTabla = NULL;
 						
@@ -856,26 +856,33 @@
 			pipe->lanzar();
 			
 			//Obtener tamaño de la tabla
-			pipe->leer(tamanio);
+			pipe->leer(tamanio);			
 			
 			if(tamanio > 0) {
-				bucketsTabla = new char[sizeof(unsigned int)*(*tamanio)];
+				unsigned int sizeTabla = (sizeof(unsigned int))*(*tamanio);
+
+				bucketsTabla = new char[sizeTabla];
 				
-				//Obtener numero de buckets de la tabla
-				unsigned int sizeTabla = (sizeof(unsigned int))*(*tamanio) ;
-				pipe->leer(sizeTabla, bucketsTabla);
+				//Obtener datos de la tabla				
+				pipe->leer(sizeTabla, bucketsTabla);				
+			}
 			
-				buckets = (unsigned int*) bucketsTabla;
-				
-			}			
-			
+			buckets = (unsigned int*) bucketsTabla;				
 			delete pipe;
+			
+			cout << "deleteo el pipe"<< endl;
+			cout <<"contenido buckets: "<< buckets[0]<< endl;
 		}
 		
 		void IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* buckets)
 		{
 			char* bucketsTabla = NULL;
-									
+								
+			cout<< "tamanio: "<< tamanio<<endl;
+			cout << "contenido[0]: "<< buckets[0]<<endl;
+			
+			cout << "contenido[1]: "<< buckets[1]<<endl;
+			
 			//Instancia del pipe
 			ComuDatos* pipe = instanciarPipe(/*NOMBRE_CAPA_FISICA*/"ernesto");
 			
@@ -894,6 +901,8 @@
 			bucketsTabla = (char*) buckets;
 			
 			//Enviar el contenido de la tabla por el pipe.
+			cout << "tamanioBloque: "<< this->getTamanioBloque()<<endl;
+			
 			pipe->escribir(bucketsTabla, this->getTamanioBloque());
 			
 			pipe->liberarRecursos();			
