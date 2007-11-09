@@ -7,12 +7,14 @@ DataManager::DataManager()
 
 DataManager::~DataManager()
 {
-	if(this->registro)
+	if(this->registro){
+		delete[] registro;
 		this->registro = NULL;
+	}
 }
 
-void DataManager::crearRegistroAlta(DefinitionsManager::ListaValoresAtributos &listaVA,
-									DefinitionsManager::ListaTiposAtributos &listaTipos) {
+void DataManager::crearRegistroAlta(const DefinitionsManager::ListaValoresAtributos &listaVA,
+									const DefinitionsManager::ListaTiposAtributos &listaTipos) {
 	
 	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTipos.begin();
 	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
@@ -81,8 +83,8 @@ void DataManager::crearRegistroAlta(DefinitionsManager::ListaValoresAtributos &l
 	}
 	this->registro = registro;
 }	
-unsigned short DataManager::getTamanioRegistro(DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
-											   DefinitionsManager::ListaValoresAtributos &listaVA){
+unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
+											   const DefinitionsManager::ListaValoresAtributos &listaVA){
 	// Obtengo los iteradores de ambas listas
 	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
 	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
@@ -145,8 +147,8 @@ unsigned short DataManager::getTamanioRegistro(DefinitionsManager::ListaTiposAtr
  *  Genera un nuevo registro con los cambios pedidos en la modificacion
  *  Una vez que ya lo geenra lo setea en el atributo registro de dataManager
  * */
-void DataManager::crearRegistroModificacion(DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
-											DefinitionsManager::ListaValoresAtributos &listaVA,
+void DataManager::crearRegistroModificacion(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
+											const DefinitionsManager::ListaValoresAtributos &listaVA,
 											char *registroEnDisco){
 	// Obtengo los iteradores de ambas listas
 	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
@@ -162,15 +164,15 @@ void DataManager::crearRegistroModificacion(DefinitionsManager::ListaTiposAtribu
 	// Si el tipo de registro es fijo obtengo la longitud de la lista de tipos 
 	if(regAttribute.tipo == TipoDatos::TIPO_FIJO)
 		longRegNuevo = ((unsigned short)atoi(regAttribute.pk.c_str()));
-	// Obtengo el tama�o del nuevo registro, reservo espacio para el msimo y lo genero con las nuevas modificaciones
+	// Obtengo el tamanio del nuevo registro, reservo espacio para el msimo y lo genero con las nuevas modificaciones
 	else{
 			// Incremento el offset en dos bytes, que son los que ocupan la longitud del registro
 			offsetRegDisco += sizeof(unsigned short);
 			longRegNuevo += sizeof(unsigned short);
 			
 			
-			// Itero las listas para obtener el tama�o del nuevo registro y reservar memoria para el mismo
-			for(++itTipos ;itTipos != listaTiposAtributos.end(); ++itTipos,++itValoresAtributos){
+			// Itero las listas para obtener el tamanio del nuevo registro y reservar memoria para el mismo
+			for(++itTipos; itTipos != listaTiposAtributos.end(); ++itTipos, ++itValoresAtributos){
 				regAttribute = *itTipos;
 				tipo = regAttribute.tipo;
 				
@@ -179,8 +181,8 @@ void DataManager::crearRegistroModificacion(DefinitionsManager::ListaTiposAtribu
 					offsetRegDisco += sizeof(int);
 				}
 				else if(tipo == TipoDatos::TIPO_FECHA){
-					longRegNuevo += sizeof(ClaveFecha::TFECHA);
-					offsetRegDisco += sizeof(ClaveFecha::TFECHA);
+					longRegNuevo += sizeof(unsigned short) + 2*sizeof(unsigned char);
+					offsetRegDisco += sizeof(unsigned short) + 2*sizeof(unsigned char);
 				}
 				else if(tipo == TipoDatos::TIPO_FLOAT){
 					longRegNuevo += sizeof(float);
@@ -210,15 +212,18 @@ void DataManager::crearRegistroModificacion(DefinitionsManager::ListaTiposAtribu
 					 else
 						longRegNuevo += longCampoVariable;
 				}
-				else if(tipo == TipoDatos::TIPO_BOOL)
-					longRegNuevo += sizeof(bool);				
+				else if(tipo == TipoDatos::TIPO_BOOL){
+					longRegNuevo += sizeof(bool);
+					offsetRegDisco += sizeof(bool);
+				}
+									
 			}
 	}
 	
 	// una vez que ya se la longitud del nuevo registro reservo espacio para el mismo
 	char *registroNuevo = new char [longRegNuevo];
-	//TODO Esto no compila ni un poco. Notifiquese al palurdo que commiteo (tambien conocido como Laura "In Vitro" Rodriguez).
-	//this->generarRegistroModificado(registroNuevo,registroEnDisco,longRegNuevo,listaTiposAtributos,listaVA);
+	
+	this->generarRegistroModificado(registroNuevo,registroEnDisco,longRegNuevo,listaTiposAtributos,listaVA);
 	if(this->registro){
 		delete[] this->registro;
 		this->registro = NULL;
@@ -229,9 +234,9 @@ void DataManager::crearRegistroModificacion(DefinitionsManager::ListaTiposAtribu
 /*
  * Genera el nuevo registro con las modificaciones correspondientes
  * */
-void generarRegistroModificado(char *registroNuevo, char *registroViejo, unsigned short longNuevoReg, 
-							   DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
-		   					   DefinitionsManager::ListaValoresAtributos &listaVA
+void DataManager::generarRegistroModificado(char *registroNuevo, char *registroViejo, unsigned short longNuevoReg, 
+							   const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
+		   					   const DefinitionsManager::ListaValoresAtributos &listaVA
 		   					  ){
 	// Obtengo los iteradores de ambas listas
 	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
@@ -242,7 +247,6 @@ void generarRegistroModificado(char *registroNuevo, char *registroViejo, unsigne
 	string valorModificado;
 	nodoLista regAttribute = *itTipos;
 	int tipo = regAttribute.tipo;
-	void *campo;
 	
 	// Si el registro es variable guardo la longitud del mismo en los primeros dos bytes
 	if(tipo == TipoDatos::TIPO_VARIABLE){
@@ -257,40 +261,41 @@ void generarRegistroModificado(char *registroNuevo, char *registroViejo, unsigne
 		valorModificado = *itValoresAtributos;
 		bool estaModificado  = (valorModificado != CAMPO_NO_MODIFICADO);
 		
-		campo = &registroViejo[offsetRegViejo];	
-		
 		switch (tipo){
 		
 		case TipoDatos::TIPO_ENTERO:
-			if (estaModificado)
-				// Si el campo debe ser modificado, obtiene el nuevo valor.
-				*((int*)campo) = atoi(valorModificado.c_str());	
-			
-			memcpy(&registroNuevo[offsetRegNuevo],campo,sizeof(int));
-			
+			if (estaModificado){
+				int entero = atoi(valorModificado.c_str());
+				memcpy(&registroNuevo[offsetRegNuevo],&entero,sizeof(int));
+			}
+			else
+				memcpy(&registroNuevo[offsetRegNuevo],&registroViejo[offsetRegViejo],sizeof(int));
+			// Muevo los punteros del registro	
 			offsetRegNuevo += sizeof(int);
 			offsetRegViejo += sizeof(int);
 			
 			break;		
 		case TipoDatos::TIPO_BOOL:
 			if (estaModificado){
-				if (valorModificado == "TRUE") *((bool*)campo) = true;
-				else *((bool*)campo) = false;
-			}
+				bool booleano;
+				if (valorModificado == "TRUE") booleano = true;
+				else booleano = false;
+				memcpy(&registroNuevo[offsetRegNuevo], &booleano, sizeof(bool));
+			}else
+				memcpy(&registroNuevo[offsetRegNuevo], &registroViejo[offsetRegViejo], sizeof(bool));
 			
-			memcpy(&registroNuevo[offsetRegNuevo],campo,sizeof(bool));
-			
+			// Muevo los punteros del registro
 			offsetRegNuevo += sizeof(bool);
 			offsetRegViejo += sizeof(bool);
 			
 			break;		
 		case TipoDatos::TIPO_CHAR:
 			if (estaModificado)
-				// Si el campo debe ser modificado, obtiene el nuevo valor.
-				*((char*)campo) = valorModificado[0]; 						
+				memcpy(&registroNuevo[offsetRegNuevo],valorModificado.c_str(),sizeof(char));
+			else
+				memcpy(&registroNuevo[offsetRegNuevo],&registroViejo[offsetRegViejo],sizeof(char));
 			
-			memcpy(&registroNuevo[offsetRegNuevo],campo,sizeof(char));
-			
+			// Muevo los punteros del registro
 			offsetRegNuevo += sizeof(char);
 			offsetRegViejo += sizeof(char);
 			
@@ -298,20 +303,28 @@ void generarRegistroModificado(char *registroNuevo, char *registroViejo, unsigne
 
 		case TipoDatos::TIPO_FECHA:
 			if (estaModificado){
-				//TODO: IMPLEMENTAR!
-				//int valor = 0;
+				string subStr = valorModificado.substr(0, 4);
+				unsigned short anio = atoi(subStr.c_str());
+				memcpy(&registroNuevo[offsetRegNuevo], &anio, sizeof(unsigned short));
+				offsetRegNuevo += sizeof(unsigned short);
 				
-			
-				// Si el campo debe ser modificado, obtiene el nuevo valor.
-				//*((char*)campo) = valorModificado[0];
+				subStr = valorModificado.substr(4, 2);
+				unsigned char mes = atoi(subStr.c_str());
+				memcpy(&registroNuevo[offsetRegNuevo], &mes, sizeof(unsigned char));
+				offsetRegNuevo += sizeof(unsigned char);
+				
+				subStr = valorModificado.substr(6, 2);
+				unsigned char dia = atoi(subStr.c_str());
+				memcpy(&registroNuevo[offsetRegNuevo], &dia, sizeof(unsigned char));
+				offsetRegNuevo += sizeof(unsigned char);
+			}
+			else{
+				memcpy(&registroNuevo[offsetRegNuevo], &registroViejo[offsetRegViejo], sizeof(unsigned short) + 2*sizeof(unsigned char));
+				offsetRegNuevo += sizeof(unsigned short) + 2*sizeof(unsigned char);
 			}
 			
-			//memcpy(&registroNuevo[offsetRegNuevo],campo,sizeof(char));
-			
-			//offsetRegNuevo += sizeof(int);
-			//offsetRegViejo += sizeof(int);
-			
-						
+			offsetRegViejo += sizeof(unsigned short) + 2*sizeof(unsigned char);
+		
 			break;
 		case TipoDatos::TIPO_STRING:
 			unsigned short longCampoVariable;
@@ -347,12 +360,14 @@ void generarRegistroModificado(char *registroNuevo, char *registroViejo, unsigne
 			break;
 		case TipoDatos::TIPO_SHORT:
 			if (estaModificado){
-													
-			}else{
+				short valorShort = atoi(valorModificado.c_str());
+				// Guardo el valor modificado en el registro nuevo 
+				memcpy(&registroNuevo[offsetRegNuevo],&valorShort,sizeof(short));
+			}else
+				memcpy(&registroNuevo[offsetRegNuevo],&registroViejo[offsetRegViejo],sizeof(short));
 				
-			}
-			break;
-		default:
+			offsetRegNuevo += sizeof(short);
+			offsetRegViejo += sizeof(short);
 			
 			break;
 		}
@@ -361,23 +376,36 @@ void generarRegistroModificado(char *registroNuevo, char *registroViejo, unsigne
 	
 }
 
-int DataManager::insertar(const string& nombreTipo, const DefinitionsManager::ListaValoresAtributos* listaVA,
-				 		  const DefinitionsManager::ListaTiposAtributos* listaTipos) {
+int DataManager::insertar(const DefinitionsManager::ListaValoresAtributos* listaVA,
+				 		  const DefinitionsManager::ListaTiposAtributos* listaTipos, Bloque* bloque) {
 	
-	return 0;
-	
-}
-
-int DataManager::eliminar(const string& nombreTipo, DefinitionsManager::ListaClaves* listaClaves) {
-	
-	return 0;
+	this->crearRegistroAlta(*listaVA, *listaTipos);
+	return bloque->altaRegistro(listaTipos, this->registro); 
 	
 }
 
-int DataManager::modificar(const string& nombreTipo, const DefinitionsManager::ListaValoresAtributos* listaVA,
+int DataManager::eliminar(DefinitionsManager::ListaClaves* listaClaves,
+						  const DefinitionsManager::ListaTiposAtributos* listaTipos, Bloque* bloque) {
+	
+	return bloque->bajaRegistro(listaTipos, *ClaveFactory::getInstance().getClave(*listaClaves, *listaTipos));
+	
+}
+
+int DataManager::modificar(const DefinitionsManager::ListaValoresAtributos* listaVA,
 			  			   const DefinitionsManager::ListaTiposAtributos* listaTipos,
-			  			   DefinitionsManager::ListaClaves* listaClaves) {
+			  			   DefinitionsManager::ListaClaves* listaClaves, Bloque* bloque,
+			  			   char* registroEnDisco) {
 	
-	return 0;
+	this->crearRegistroModificacion(*listaTipos, *listaVA, registroEnDisco);
+	unsigned short longReg;
+	nodoLista nodo = *(listaTipos->begin());
+	// Si el registro es fijo, obtengo la longitud del primer nodo de la lista de tipos.
+	if (nodo.tipo == TipoDatos::TIPO_FIJO)
+		longReg = atoi(nodo.pk.c_str());
+	else
+		memcpy(&longReg, this->registro, sizeof(unsigned short));
+	
+	return bloque->modificarRegistro(listaTipos, longReg, *ClaveFactory::getInstance().getClave(*listaClaves, *listaTipos), this->registro ); 
+
 }
 
