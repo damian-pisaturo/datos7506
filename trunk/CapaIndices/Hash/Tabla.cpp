@@ -35,13 +35,15 @@ Tabla::Tabla(string nombreArchivo, IndiceHashManager* arch, unsigned int tamBuck
 		this->archivo = arch;
 		this->archivo->leerTabla(&tamTabla, numerosTabla);
 		
-		if (numerosTabla[0] == 0) cout << "Tengo cero" << endl;
+		cout<< "tamanioTabla:" << tamTabla <<endl;
+		cout<< "posicion 0 --> Bloque n°: " << numerosTabla[0]<<endl;
+		cout<< "posicion 1 --> Bloque n°: " << numerosTabla[1]<<endl;
+		
 		// Si la tabla no existe, en tamanio devuelve 0.
 		// En ese caso, se crea una tabla.
-		if (tamTabla == 0) {
-			cout<<"Llama a Tabla::crear"<<endl;
+		if (tamTabla == 0) 
 			this->crear(nombreArchivo, tamBucket);
-		}else{
+		else{
 			cout<<"La tabla ya existia !!!!!!!!!!!!"<<endl;
 			this->tamanio = tamTabla; 
 			this->nroBucket = numerosTabla;
@@ -51,6 +53,10 @@ Tabla::Tabla(string nombreArchivo, IndiceHashManager* arch, unsigned int tamBuck
 
 Tabla::~Tabla()
 {
+	cout<< "tamanioTabla:" << this->tamanio <<endl;
+	cout<< "nroBucket 0 :" << (this->nroBucket)[0]<<endl;
+	cout<< "nroBucket 1 :" << (this->nroBucket)[1]<<endl;
+			
 	this->archivo->escribirTabla(this->tamanio,this->nroBucket);
 	
 	if(this->nroBucket)

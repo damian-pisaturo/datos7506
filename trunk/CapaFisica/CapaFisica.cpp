@@ -23,8 +23,8 @@
 //			(Funcion main() para la Capa Fisica que interpreta las
 //			llamadas de la Capa de Indices).
 ///////////////////////////////////////////////////////////////////////////
-/*
 
+/*
 	int main(int argc, char**argv)
 	{						
 		char resultado = ResFisica::OK;
@@ -74,9 +74,7 @@
 			
 			//Escritura de un nodo de arbol
 			case OperacionesCapas::FISICA_ESCRIBIR_NODO:
-			{		
-				cout << "Te escribo la raiz, Ernesto" << endl;
-				
+			{	
 				archivo = new ArchivoIndice(nombreArchivo, tamBloque);
 				buffer = new char[tamBloque*sizeof(char) + 1];
 								
@@ -125,7 +123,6 @@
 						
 			case OperacionesCapas::FISICA_LEER_BUCKET:
 			{				
-				cout << "========Capa Fisica: LEER BUCKET=======" << endl;
 				//Obtencion del tamaño del bucket y su numero
 				//dentro del archivo.				
 				pipe.parametro(3, &numBloque);
@@ -134,61 +131,47 @@
 				buffer = new char[tamBloque*sizeof(char) + 1];
 				
 				//Lectura del bucket dentro del archivo.
-				cout << "Llamada a leerBloque()" << endl;
 				resultado = ((ArchivoIndiceHash*)archivo)->leerBloque(buffer, numBloque);
 						
 				//Envio de datos a traves del pipe.
-				cout << "Envio del bucket por el pipe" << endl;
 				pipe.escribir(buffer, tamBloque);
 				
 				//Envio del resultado de la operacion a traves del pipe.
-				cout << "Devuelvo el resultado: " << (int)resultado << endl;
 				pipe.escribir(resultado);
-				cout << "========FIN: LEER BUCKET=======" << endl;
+	
 			}break;
 				
 			case OperacionesCapas::FISICA_ESCRIBIR_BUCKET:
-			{
-				cout << "========Capa Fisica: ESCRIBIR BUCKET=======" << endl;
-				
+			{				
 				buffer = new char[tamBloque*sizeof(char)];
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				
 				// Obtencion del bucket a escribir a traves del pipe.
-				cout << "Obtener bloque a traves del pipe" << endl;
 				pipe.leer(tamBloque, buffer);
 				
 				// Escritura del bucket a disco.
 				// Se obtiene la posicion donde fue escrito.
-				cout << "Llamada a escribirBloque()" << endl;
 				numBloque = ((ArchivoIndiceHash*)archivo)->escribirBloque(buffer);
 				
 				// Se envia la nueva posicion del nodo.
-				cout << "Envio el numero de bucket donde fue insertado: " << numBloque << endl;
 				pipe.escribir(numBloque);				
-				cout << "========FIN: ESCRIBIR BUCKET=======" << endl;
 			}break;
 							
 			case OperacionesCapas::FISICA_MODIFICAR_BUCKET:
 			{
-				cout << "========Capa Fisica: MODIFICAR BUCKET=======" << endl;
 				buffer = new char[tamBloque*sizeof(char)];
 				pipe.parametro(3, &numBloque);
 				
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				
 				//Obtencion del bucket a escribir a traves del pipe.
-				cout << "Obtener bloque a traves del pipe" << endl;
 				pipe.leer(tamBloque, buffer);
 				
 				//Escritura del bucket a disco en la posicion pasada por parametro.
-				cout << "Llamada a escribirBloque()" << endl;
 				resultado = ((ArchivoIndiceHash*)archivo)->escribirBloque(buffer, numBloque);
 				
 				//Envio del resultado de la operacion a traves del pipe.
-				cout << "Envio el resultado de la modificacion por el pipe: " <<(int)resultado<< endl;
 				pipe.escribir(resultado);
-				cout <<"========FIN: MODIFICAR BUCKET=======" << endl;
 			}break;
 							
 			case OperacionesCapas::FISICA_ELIMINAR_BUCKET:
@@ -207,57 +190,37 @@
 			
 			case OperacionesCapas::FISICA_LEER_TABLA_HASH:
 			{	
-				cout <<"========Capa Fisica: LEER TABLA HASH=======" << endl;
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
-				unsigned short tamanio = 0;
+				unsigned int tamanio  = 0;
 				unsigned int* buckets = NULL;
 				
-				cout <<"Llamada a leerTabla()" << endl;
 				((ArchivoIndiceHash*)archivo)->leerTabla(&tamanio, buckets);
 								
 				pipe.escribir(tamanio);
-				cout <<"Envio del tamanio de la tabla a traves del pipe: " << tamanio << endl;
 				
 				if (tamanio > 0)
-					pipe.escribir((char*)buckets, tamanio*sizeof(unsigned int));
-				
-				cout <<"Envio de la tabla a traves del pipe" << endl;
-				
-				if (!buckets)
-					cout<<"Tabla vacia (NULL)."<<endl;
-				else
-					cout<<"Tabla existente ("<< tamanio << "elementos)"<<endl;
-				
+					pipe.escribir((char*)buckets, tamanio*sizeof(unsigned int));					
+						
 				if (buckets)
 					delete[] buckets;
-				
-				cout <<"========FIN: LEER TABLA=======" << endl;
 	
 			}break;
 				
 			case OperacionesCapas::FISICA_ESCRIBIR_TABLA_HASH:
 			{
-				cout <<"========Capa Fisica: ESCRIBIR TABLA HASH=======" << endl;
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
-				unsigned short tamanio = 0;
+				unsigned int tamanio = 0;
 				unsigned int* buckets = NULL;
 								
 				pipe.leer(&tamanio);
-				cout <<"Obtencion del tamanio a traves del pipe: " << tamanio <<endl;
 				
 				buckets = new unsigned int[tamanio];
 				pipe.leer(sizeof(unsigned int)*tamanio, (char*)buckets);
 				
-				cout << "La tabla contiene:" << endl;
-				for (char i = 0; i < tamanio; i++)
-					cout <<  buckets[i]<< endl;
-				
-				cout <<"Llamada a escribirTabla()" <<endl;
 				((ArchivoIndiceHash*)archivo)->escribirTabla(tamanio, buckets);
 				
 				if (buckets)
 					delete[] buckets;
-				cout <<"========FIN: ESCRIBIR TABLA HASH=======" << endl;
 			}break;
 			
 			case OperacionesCapas::FISICA_ESCRIBIR_NODO_DOBLE:
@@ -419,12 +382,10 @@
 				delete archivo;
 			
 		}else resultado = ResFisica::CANT_ARGUMENTOS_INVALIDA;
-		
-		cout<<"saliendo de la capa fisica... erneszto"<<endl;
+	
 		return resultado;		
-	}	
+	}
 */
-
 
 
 #include "../CapaIndices/Indices/IndiceHash.h"
@@ -453,7 +414,8 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	memcpy(registro + 8,cadena, longCadena);
 	memcpy(registro + 12,&entero2, sizeof(int));	
 	
-	cout << "Insertando primer registro" << endl;
+	cout << endl;
+	cout << "Insertando registro 0" << endl;
 	manuColoquio->insertar(new ClaveEntera(55),registro);
 	
 	delete[] registro;
@@ -470,7 +432,8 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	memcpy(reg + 8,  cadena, longCadena);
 	memcpy(reg + 12, &entero2, sizeof(int));	
 	
-	cout << "Insertando segundo registro" << endl;
+	cout << endl;
+	cout << "Insertando registro 1 (Clave " << entero2 << ")" << endl;
 	manuColoquio->insertar(new ClaveEntera(122),reg);
 	
 	delete[] reg;
@@ -489,7 +452,9 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	memcpy(registro + 6,  &longCadena,Tamanios::TAMANIO_LONGITUD);
 	memcpy(registro + 8,  cadena,longCadena);
 	memcpy(registro + 15, &entero2,sizeof(int));
-		
+	
+	cout << endl;
+	cout << "Insertando registro 2 (Clave " << entero2 << ")" << endl;
 	manuColoquio->insertar(new ClaveEntera(33),registro);
 	
 	delete[] registro;
@@ -509,11 +474,18 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	memcpy(registro + 8,  cadena,longCadena);
 	memcpy(registro + 25, &entero2,sizeof(int));
 	
+	cout << endl;
+	cout << "Insertando registro 3 (Clave " << entero2 << ")" << endl;
 	manuColoquio->insertar(new ClaveEntera(555),registro);
 	
 	for (int i = 1; i<16; i++) {
 		entero2 = 55 + i;
 		memcpy(registro + 25, &entero2,sizeof(int));
+		
+		cout << endl;
+		cout << "Insertando registro " << i + 3 << " (Clave " << entero2 << ")" << endl;
+			
+			
 		manuColoquio->insertar(new ClaveEntera(55 + i),registro);
 	}
 	
@@ -526,4 +498,3 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	
 	return 0;
 }
-

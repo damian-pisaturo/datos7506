@@ -49,23 +49,16 @@ Hash::~Hash()
  **/
 int Hash::insertarRegistro(char* registro, Clave &clave)
 {	
-	cout << "Estamos ensartando un registro!"<<endl;
-	// Se aplica la función de hash para saber en que bucket se debe insertar.
-	cout << "Tamanio de la tabla :" << tabla->getTamanio() << endl;
-	
+
+	// Se aplica la función de hash para saber en que bucket se debe insertar.	
 	int posicion = aplicarHash(clave) % tabla->getTamanio();
 	
-	cout<< "posicion tabla: "<<posicion<<endl;
 	
 	// Se obtiene el bucket donde hay que insertar el registro.
 	int numBucket = tabla->getNroBucket(posicion);
-	
-	cout<<"nro bloque a insertar: "<<numBucket<<endl;
-	
+	cout << "deberia estar en la posicion "<< posicion << "de la tabla, lo q es bloque" <<numBucket<<endl;
 	// Levanta un bucket ya existente del disco y carga sus datos.
 	Bucket * bucket = new Bucket(archivo, numBucket);
-	
-	cout<<"levante el bucket de disco"<<endl;
 	
 	// Se busca si el registro ya existe.
 	unsigned short aux;
@@ -75,7 +68,6 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 	{
 		cout<<"existe!"<<endl;
 		delete bucket;
-		cout<<"termino el insertar"<<endl;
 		// ya existe un registro con esa clave.
 		return DUPLICATED; 
 	}
@@ -97,11 +89,10 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 		bucket->altaRegistro(listaParam,registro);
 		bucket->incrementarCantRegistros();
 		bucket->actualizarEspLibre();
-		cout<<"escribo a disco"<<endl;
 		archivo->escribirBloque(numBucket, bucket);
 		
 		delete bucket;
-		cout<<"hace delete de bucket"<<endl;
+	
 		return OK;
 	}
 	else
@@ -131,20 +122,12 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 		archivo->escribirBloque(bucket->getNroBloque(), bucket);
 		archivo->escribirBloque(nuevoBucket->getNroBloque(), nuevoBucket);		
 		
-		cout<< "tamanioTabla:" << tabla->getTamanio() <<endl;
-		cout<< "contenido 0 :" << (tabla->getContenido())[0]<<endl;
-		cout<< "contenido 1 :" << (tabla->getContenido())[1]<<endl;
-		cout<< "escribo la tabla"<<endl;
-		
-		//archivo->escribirTabla(tabla->getTamanio(),tabla->getContenido());
-		//cout<<"termine de escribir la tabla"<<endl;
-		
 		delete bucket;
 		delete nuevoBucket;
 		
 		// Intenta nuevamente la inserción del registro.
-		//int result = insertarRegistro(registro, clave);
-		return 0;
+		return insertarRegistro(registro, clave);
+		
 	}
 }
 
@@ -336,33 +319,26 @@ void Hash::redistribuirElementos(Bucket* &bucket, Bucket* &nuevoBucket)
 	int posicion = 0;
 	unsigned int nroBucket = 0;
 	
-	cout << "!!!!!!!!!!!!!!!!!!!!!!!tamanio de bucket aux: " << bucket->getTamanioBloque() << endl;
 	// Se crea un bucket auxiliar para poner los registros que deberían quedar en bucket.
-	Bucket * bucketAux = new Bucket(bucket->getNroBloque(),bucket->getTamanioBloque(),bucket->getTamDispersion());
+	Bucket * bucketAux = new Bucket(bucket->getNroBloque(),bucket->getTamDispersion(), bucket->getTamanioBloque());
 	
-	cout << "cantidad de registros = "<< bucket->getCantRegs()<<endl;
 	ListaNodos::const_iterator it = listaParam->begin();
 	nodoLista regAtribute = *it;
 	
 	// Se obtiene el tipo de atributo del registro.
 	int tipo = regAtribute.tipo;
 
-	int l = 0;
 	// Se recorren los registros reubicándolos.
 	for(int i = 0; i< bucket->getCantRegs(); i++)
 	{		
 		// Obtengo el tamaño del registro.	
 		longReg = bucket->getTamanioRegistros(listaParam,&datos[offsetReg]);
-		cout << "tamaño del registro: "<< longReg <<endl;
 		
 		// Obtengo la clave primaria.
 		clave = bucket->getClavePrimaria(listaParam, &datos[offsetReg]);
-		cout << "valorClave: "<< *((int*)clave->getValor())<<endl;
 		
 		posicion = aplicarHash(*clave) % tabla->getTamanio(); 
-		cout << "posicion: "<< posicion<<endl;
 		nroBucket = tabla->getNroBucket(posicion);
-		cout << "numBloques: "<<nroBucket<<endl;
 		
 		// Se decide en cual de los 2 buckets se inserta el registro.
 		if (nroBucket == nuevoBucket->getNroBloque())
@@ -372,9 +348,7 @@ void Hash::redistribuirElementos(Bucket* &bucket, Bucket* &nuevoBucket)
 		}
 		else
 		{
-			l = bucketAux->altaRegistro(listaParam, &datos[offsetReg]);
-			if(l == SOBREFLUJO) cout << "NO ESTOY METIENDO NADA EN BUCKETAUX!" << endl;
-			
+			bucketAux->altaRegistro(listaParam, &datos[offsetReg]);
 			bucketAux->incrementarCantRegistros();
 		}
 		

@@ -149,7 +149,7 @@ class ArchivoTablaHash :public ArchivoBase
 		 * escribirTabla() asume que una llamada previa a escribirCantElementos()
 		 * escribio en el archivo la cantidad de elementos correcta que debe insertar.
 		 */
-		char escribirCantElementos(unsigned short cantElem);
+		char escribirCantElementos(unsigned int cantElem);
 		char escribirTabla(unsigned int* tabla);	
 		
 }; /*Fin clase ArchivoTablaHash*/
@@ -173,12 +173,12 @@ class ArchivoIndiceHash : public ArchivoIndice
 			/* Devuelve en cantElem la cantidad de elementos de la tabla
 			 * de dispersion y en elementos sus valores.
 			 */
-			void leerTabla(unsigned short* cantElem, unsigned int* elementos);
+			void leerTabla(unsigned int* cantElem, unsigned int* &elementos);
 			
 			/* Actualiza el contenido del archivo de tabla de dispersion
 			 * con los elementos pasados por parametros.
 			 */
-			void escribirTabla(unsigned short cantElem, unsigned int* elementos);			
+			void escribirTabla(unsigned int cantElem, unsigned int* elementos);			
 			
 };
 

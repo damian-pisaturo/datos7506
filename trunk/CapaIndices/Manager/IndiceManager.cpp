@@ -841,21 +841,20 @@
 				pipe->leer(sizeTabla, bucketsTabla);				
 			}
 			
-			buckets = (unsigned int*) bucketsTabla;				
-			delete pipe;
+			buckets = (unsigned int*) bucketsTabla;	
 			
-			cout << "deleteo el pipe"<< endl;
-			cout <<"contenido buckets: "<< buckets[0]<< endl;
+			cout << "Lo que lei del archivo eeeees...." << endl;
+			cout<< "tamanioTabla:" << *tamanio <<endl;							
+			cout<< "posicion 0 --> Bloque n°: " << buckets[0]<<endl;
+			cout<< "posicion 1 --> Bloque n°: " << buckets[1]<<endl;
+
+			delete pipe;
+	
 		}
 		
 		void IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* buckets)
 		{
 			char* bucketsTabla = NULL;
-								
-			cout<< "tamanio: "<< tamanio<<endl;
-			cout << "contenido[0]: "<< buckets[0]<<endl;
-			
-			cout << "contenido[1]: "<< buckets[1]<<endl;
 			
 			//Instancia del pipe
 			ComuDatos* pipe = instanciarPipe(/*NOMBRE_CAPA_FISICA*/"ernesto");
@@ -875,8 +874,8 @@
 			bucketsTabla = (char*) buckets;
 			
 			//Enviar el contenido de la tabla por el pipe.
-			cout << "a ver si es esto: "<<((int*)bucketsTabla)[0]<<endl;
-			pipe->escribir(bucketsTabla, tamanio*sizeof(int));
+			pipe->escribir(bucketsTabla, tamanio*sizeof(unsigned int));
+			
 			pipe->liberarRecursos();			
 		}
 
