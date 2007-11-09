@@ -63,8 +63,8 @@ void ComuDatos::lanzar()
 	string pipeLee = this->nombreProceso + "_ComuDatosH";
 	string pipeEscribe = this->nombreProceso + "_ComuDatosP";
 	
-	mkfifo(pipeLee.c_str(), 0666);
-	mkfifo(pipeEscribe.c_str(), 0666);
+//	mkfifo(pipeLee.c_str(), 0666);
+//	mkfifo(pipeEscribe.c_str(), 0666);
 	
 	// Parametro 1 lectura y 2 escritura hijo.
 	argumentos[1] = (char*) malloc (sizeof(char)*pipeEscribe.length()+1);
@@ -83,7 +83,7 @@ void ComuDatos::lanzar()
 	
 	argumentos[paramSize + CORRIMIENTOARGUMENTO] = NULL;
 	
-	this->id_procesoHijo = fork();
+//	this->id_procesoHijo = fork();
 
 	if (this->id_procesoHijo > 0)
 	{
@@ -193,7 +193,7 @@ char ComuDatos::escribir(int enviarDato)
 {
 	char resultado = SIN_ERROR;
 	
-	if (sizeof(enviarDato) < TOPE_ENVIAR_STRING)
+	if (sizeof(enviarDato) <= TOPE_ENVIAR_STRING)
 	{
 		write(this->fd_pipeP, &enviarDato, sizeof(int));
 	}else resultado = EXCEDE_TOPE;
@@ -205,7 +205,7 @@ char ComuDatos::escribir(short enviarDato)
 {
 	char resultado = SIN_ERROR;
 	
-	if (sizeof(enviarDato) < TOPE_ENVIAR_STRING)
+	if (sizeof(enviarDato) <= TOPE_ENVIAR_STRING)
 	{
 		write(this->fd_pipeP, &enviarDato, sizeof(short));
 	}else resultado = EXCEDE_TOPE;
@@ -217,7 +217,7 @@ char ComuDatos::escribir(unsigned short enviarDato)
 {
 	char resultado = SIN_ERROR;
 	
-	if (sizeof(enviarDato) < TOPE_ENVIAR_STRING)
+	if (sizeof(enviarDato) <= TOPE_ENVIAR_STRING)
 	{
 		write(this->fd_pipeP, &enviarDato, sizeof(unsigned short));
 	}else resultado = EXCEDE_TOPE;
@@ -229,7 +229,7 @@ char ComuDatos::escribir(unsigned int enviarDato)
 {
 	char resultado = SIN_ERROR;
 	
-	if (sizeof(enviarDato) < TOPE_ENVIAR_STRING)
+	if (sizeof(enviarDato) <= TOPE_ENVIAR_STRING)
 	{
 		write(this->fd_pipeP, &enviarDato, sizeof(unsigned int));
 	}else resultado = EXCEDE_TOPE;
@@ -241,7 +241,7 @@ char ComuDatos::escribir(char enviarDato)
 {
 	char resultado = SIN_ERROR;
 	
-	if (sizeof(enviarDato) < TOPE_ENVIAR_STRING)
+	if (sizeof(enviarDato) <= TOPE_ENVIAR_STRING)
 	{
 		write(this->fd_pipeP, &enviarDato, sizeof(char));
 	}else resultado = EXCEDE_TOPE;
