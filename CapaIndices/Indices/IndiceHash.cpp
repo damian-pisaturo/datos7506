@@ -1,11 +1,10 @@
 #include "IndiceHash.h"
 
-IndiceHash::IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo) 
-:Indice(){
+IndiceHash::IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo)
+: Indice(listaParam, tamBucket, nombreArchivo) {
 
 	IndiceHashManager* indiceManager = (IndiceHashManager*) IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
 	
-	cout << "creo el hash"<< endl;
 	hash = new Hash(indiceManager, listaParam, nombreArchivo, tamBucket);
 	
 	this->tipoIndice = TipoIndices::GRIEGO;

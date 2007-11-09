@@ -15,8 +15,8 @@ class IndiceHash :public Indice {
 		
 	public:
 		IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo);
-		virtual ~IndiceHash();	
 		
+		virtual ~IndiceHash();
 		
 		/*
 		 * Este metodo inserta un registro en el indice.
