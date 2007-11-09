@@ -934,7 +934,7 @@
 			}
 			
 			//Escritura del tamanio de la lista (cantidad de claves a almacenar)
-			pipe->escribir(setClaves->size());
+			pipe->escribir((int)setClaves->size());
 			
 			//Escritura de la lista al archivo.
 			pipe->escribir(bufferClaves, this->getTamanioBloqueLista());
@@ -980,7 +980,7 @@
 			}
 			
 			//Escritura de la cantidad de claves en la lista
-			pipe->escribir(setClaves->size());
+			pipe->escribir((int)setClaves->size());
 			
 			//Escritura de la lista al archivo.
 			pipe->escribir(bufferClaves, this->getTamanioBloqueLista());
@@ -1741,9 +1741,18 @@
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceFechaRomanoManager::IndiceFechaRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice):
+		IndiceFechaRomanoManager::IndiceFechaRomanoManager(unsigned int tamNodo, const string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice):
 			 IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice)
 		{ }
+		
+	
+	//////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	//////////////////////////////////////////////////////////////////////	
+		SetClaves* IndiceFechaRomanoManager::leerListaClaves(unsigned int posicion)
+		{
+			return NULL;
+		}
 		
 	//////////////////////////////////////////////////////////////////////
 	// Metodos privados
@@ -2150,7 +2159,7 @@
 				}
 				
 				//Escritura de la cantidad de claves en la lista
-				pipe->escribir(setClaves->size());
+				pipe->escribir((int)setClaves->size());
 				
 				//Escritura de la lista al archivo.
 				pipe->escribir(bufferClaves, this->getTamanioBloqueLista());
@@ -2206,7 +2215,7 @@
 				}
 				
 				//Escritura de la cantidad de claves en la lista
-				pipe->escribir(setClaves->size());
+				pipe->escribir((int)setClaves->size());
 				
 				//Escritura de la lista al archivo.
 				pipe->escribir(bufferClaves, this->getTamanioBloqueLista());

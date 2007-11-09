@@ -1,7 +1,7 @@
 #include "IndiceHash.h"
 
 IndiceHash::IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo)
-: Indice(listaParam, tamBucket, nombreArchivo) {
+: Indice() {
 
 	IndiceHashManager* indiceManager = (IndiceHashManager*) IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
 	

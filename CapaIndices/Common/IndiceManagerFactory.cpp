@@ -45,6 +45,7 @@ IndiceManager* IndiceManagerFactory::getIndiceManager(unsigned char tipoIndice, 
 				case TipoDatos::TIPO_BOOL:
 					//TODO Implementar IndiceBooleanRomanoManager
 					//return new IndiceBooleanRomanoManager(tamNodo, nombreArchivo, tamBloqueLista, tipoEstructura);
+					break;
 				case TipoDatos::TIPO_FLOAT:
 					return new IndiceRealRomanoManager(tamNodo, nombreArchivo, tamBloqueLista, tipoEstructura);
 				case TipoDatos::TIPO_FECHA:
