@@ -47,10 +47,47 @@ void destruirIndices(MapaIndices &mapaIndices) {
 }
 
 
-char procesarOperacion(unsigned char codOp, const string &nombreTipo,
-					   const DefinitionsManager::ListaNombresClaves &listaNombresClaves,
-					   const DefinitionsManager::ListaValoresClaves &listaValoresClaves,
-					   char *bloqueDatos, ComuDatos &pipe, DefinitionsManager &defManager) {
+char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe) {
+	
+	string buffer(""), auxStr("");
+	unsigned short tamanioBuffer = 0, bytesLeidos = 0;
+	DefinitionsManager defManager;
+	DefinitionsManager::ListaNombresClaves listaNombresClaves;
+	DefinitionsManager::ListaValoresClaves listaValoresClaves;
+	string::size_type posAnterior = 0, posActual = 0, posSeparador = 0;
+	
+	//Leo el tamanio del buffer a recibir
+	pipe.leer(&tamanioBuffer);
+	
+	char *bufferPipe = new char[tamanioBuffer+1];
+	
+	//Leo los datos provenientes de la capa de metadata
+	if (tamanioBuffer <= CodigosPipe::BUFFER_SIZE)
+		pipe.leer(tamanioBuffer, bufferPipe);
+	else {
+		while (bytesLeidos < tamanioBuffer) {
+			pipe.leer(CodigosPipe::BUFFER_SIZE, bufferPipe + bytesLeidos);
+			bytesLeidos += CodigosPipe::BUFFER_SIZE;
+		}
+	}
+	 
+	bufferPipe[tamanioBuffer] = 0;
+	buffer = bufferPipe;
+	
+	//Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes (NOMBRE_CLAVE=VALOR_CLAVE)
+	while (posActual != string::npos) {
+		posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
+		if (posActual != string::npos) {
+			auxStr = buffer.substr(posAnterior, posActual - posAnterior); //En auxStr tengo NOMBRE_CLAVE=VALOR_CLAVE
+			posSeparador = auxStr.find(SEPARADOR);
+			listaNombresClaves.push_back(auxStr.substr(0, posSeparador));
+			listaValoresClaves.push_back(auxStr.substr(posSeparador));
+			posAnterior = posActual + 1;
+		}
+	}
+	
+	//posAnterior queda cargado con la posición donde comienza el bloque de datos (si es que hay)
+	
 	
 	MapaIndices mapaIndices;
 	unsigned char tipoIndice;
@@ -114,6 +151,8 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo,
 	
 	destruirIndices(mapaIndices);
 	
+	delete[] bufferPipe;
+	
 	return 0;
 	
 }
@@ -122,74 +161,35 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo,
 int main(int argc, char* argv[]) {
 	
 	ComuDatos pipe(argv);
-	
 	unsigned char codOp;
-	string nombreTipo, buffer;
-	unsigned short tamanioBuffer, bytesLeidos = 0;
+	string nombreTipo;
 	
 	pipe.parametro(0, codOp);
 	pipe.parametro(1, nombreTipo);
 	
-	//Leo el tamanio del buffer a recibir
-	pipe.leer(&tamanioBuffer);
-	
-	char *bufferPipe = new char[tamanioBuffer+1];
-	
-	//Leo los datos provenientes de la capa de metadata
-	if (tamanioBuffer <= CodigosPipe::BUFFER_SIZE)
-		pipe.leer(tamanioBuffer, bufferPipe);
-	else {
-		while (bytesLeidos < tamanioBuffer) {
-			pipe.leer(CodigosPipe::BUFFER_SIZE, bufferPipe + bytesLeidos);
-			bytesLeidos += CodigosPipe::BUFFER_SIZE;
-		}
-	}
-	
-	bufferPipe[tamanioBuffer] = 0;
-	
-	//HARDCODEO A MANO PARA PROBAR
-	strcpy(bufferPipe,"clave1");
-	bufferPipe[6] = CodigosPipe::COD_FIN_CLAVE;
-	strcpy(bufferPipe+7,"clave2");
-	bufferPipe[13] = CodigosPipe::COD_FIN_CLAVE;
-	strcpy(bufferPipe+14,"bloque");
-	//FIN HARDCODEO
-	
-	buffer = bufferPipe;
-	string::size_type posAnterior = 0, posActual = 0;
-	DefinitionsManager::ListaValoresClaves listaValoresClaves;
-	
-	while (posActual != string::npos) {
-		posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
-		if (posActual != string::npos) {
-			listaValoresClaves.push_back(buffer.substr(posAnterior, posActual - posAnterior));
-			posAnterior = posActual + 1;
-		}
-	}
-	
-	//posAnterior queda cargado con la posición donde comienza el bloque de datos (si es que hay)
-	
-	DefinitionsManager defManager;
-	//Ver si la lista de nombres claves se recibe por el pipe o si se hardcodea en el DefManager
-	DefinitionsManager::ListaNombresClaves listaNombresClaves;
-	char resultado = procesarOperacion(codOp, nombreTipo, listaNombresClaves, listaValoresClaves,
-					  				   bufferPipe + posAnterior, pipe, defManager);
-	
+	char resultado = procesarOperacion(codOp, nombreTipo, pipe);
 	
 	//TODO Enviar resultado a la capa de metadata!
-	
-	
-	//PRUEBA DEL MINI PARSER
-	for (DefinitionsManager::ListaValoresClaves::iterator iter = listaValoresClaves.begin();
-	iter != listaValoresClaves.end(); ++iter)
-		cout << *iter << endl;
-	
-	if (posAnterior != string::npos)
-		cout << bufferPipe + posAnterior << endl;
-	else cout << "no se recibio bloque" << endl;
-	//FIN PRUEBA MINI PARSER
-	
-	delete[] bufferPipe;
+	pipe.escribir(resultado);
 	
 }
- 
+
+/*
+//HARDCODEO A MANO PARA PROBAR
+strcpy(bufferPipe,"clave1");
+bufferPipe[6] = CodigosPipe::COD_FIN_CLAVE;
+strcpy(bufferPipe+7,"clave2");
+bufferPipe[13] = CodigosPipe::COD_FIN_CLAVE;
+strcpy(bufferPipe+14,"bloque");
+//FIN HARDCODEO
+
+//PRUEBA DEL MINI PARSER
+for (DefinitionsManager::ListaValoresClaves::iterator iter = listaValoresClaves.begin();
+iter != listaValoresClaves.end(); ++iter)
+	cout << *iter << endl;
+
+if (posAnterior != string::npos)
+	cout << bufferPipe + posAnterior << endl;
+else cout << "no se recibio bloque" << endl;
+//FIN PRUEBA MINI PARSER
+*/

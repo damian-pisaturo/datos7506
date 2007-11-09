@@ -1,8 +1,9 @@
 #ifndef CAPAINDICES_H_
 #define CAPAINDICES_H_
 
-#define OK		0
-#define ERROR	1
+#define OK			0
+#define ERROR		1
+#define SEPARADOR	'='
 
 #include <iostream>
 #include "Indices/IndiceArbol.h"
