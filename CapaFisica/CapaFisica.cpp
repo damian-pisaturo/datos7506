@@ -23,8 +23,8 @@
 //			(Funcion main() para la Capa Fisica que interpreta las
 //			llamadas de la Capa de Indices).
 ///////////////////////////////////////////////////////////////////////////
+/*
 
-/*				
 	int main(int argc, char**argv)
 	{						
 		char resultado = ResFisica::OK;
@@ -423,8 +423,10 @@
 		cout<<"saliendo de la capa fisica... erneszto"<<endl;
 		return resultado;		
 	}	
-
 */
+
+
+
 #include "../CapaIndices/Indices/IndiceHash.h"
  
 int main(int estaRePedanticEsto, char** hinchaPelotas)
@@ -500,7 +502,7 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	strcpy(cadena, "CORNELIO SAAVEDRA");
 	longCadena = 17;
 	entero2 = 555;
-//		
+		
 	memcpy(registro,&tamReg,Tamanios::TAMANIO_LONGITUD);
 	memcpy(registro + 2,  &entero1,sizeof(int));
 	memcpy(registro + 6,  &longCadena,Tamanios::TAMANIO_LONGITUD);
@@ -509,9 +511,11 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	
 	manuColoquio->insertar(new ClaveEntera(555),registro);
 	
-	for (int i = 1; i<16; i++)
+	for (int i = 1; i<16; i++) {
+		entero2 = 55 + i;
+		memcpy(registro + 25, &entero2,sizeof(int));
 		manuColoquio->insertar(new ClaveEntera(55 + i),registro);
-		
+	}
 	
 	delete[] registro;
 	delete manuColoquio;
@@ -522,10 +526,4 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	
 	return 0;
 }
-
-
-
-
-
-
 

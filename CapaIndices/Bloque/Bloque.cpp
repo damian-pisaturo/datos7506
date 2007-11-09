@@ -312,27 +312,33 @@ void Bloque::organizarBloque(int offsetToReg, int longReg) {
  * No comtempla el caso de claves repetidas.
  **/
 int Bloque::altaRegistro(const ListaNodos * listaParam, char *registro) {
-	unsigned short offsetEspLibre;
-	unsigned short longReg;
+	unsigned short offsetEspLibre = 0;
+	unsigned short longReg = 0;
 
 	// Se obtiene la longitud del registro, no incluye los bytes de longitud del mismo.
 	longReg = getTamanioRegistros(listaParam, registro);
-
+	
+	cout << "longReg en altaRegistro: " << longReg << endl;
+	
 	// Se obtiene el offset al espacio libre.
 	memcpy(&offsetEspLibre, datos, Tamanios::TAMANIO_LONGITUD);
+	cout << "offsetEspLIbre en altaRegistro: " << offsetEspLibre << endl;
 
 	//Si el registro tiene espacio dentro del bloque se realiza la inserción.
 	if (verificarEspacioDisponible(longReg, offsetEspLibre)) {
-		list<nodoLista>::const_iterator it;
+		ListaNodos::const_iterator it;
 		it = listaParam->begin();
+		
 		// Si el registro es de longitud variable le sumo la cantidad de bytes de la longitud del mismo.
 		if (it->tipo == TipoDatos::TIPO_VARIABLE)
 			longReg += Tamanios::TAMANIO_LONGITUD;
 
 		// registro incluye su longitud en los primeros 2 bytes.
 		insertarRegistro(registro, offsetEspLibre, longReg);
+		
 		return OK;
 	}
+	
 	return SOBREFLUJO;
 }
 
@@ -543,14 +549,11 @@ int Bloque::modificarRegistro(const ListaNodos *listaParam,
 	return OK;
 }
 
-bool Bloque::verificarEspacioDisponible(int longReg, int offsetEspLibre) {
-	int espacioDisponible;
-
-	espacioDisponible = getTamanioBloque() - offsetEspLibre;
-	if (espacioDisponible < longReg)
-		return false;
-	else
-		return true;
+bool Bloque::verificarEspacioDisponible(unsigned short longReg, unsigned short offsetEspLibre) {
+	
+	//TODO getTamanioBloque() devuelve DOS
+	cout << "tamanio bloque en verificarEsp--todo eso: " << getTamanioBloque() << endl;
+	return ( (getTamanioBloque() - offsetEspLibre) > longReg);
 }
 
 void Bloque::insertarRegistro(char *registro, unsigned short offsetEspLibre,

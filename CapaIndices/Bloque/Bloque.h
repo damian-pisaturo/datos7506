@@ -90,7 +90,7 @@ public:
 	 * Verifica que el registro a insertar tiene espacio dentro del bloque
 	 * Retorna "true" en caso de que haya espacio y "false" en caso contrario
 	 **/
-	bool verificarEspacioDisponible(int longReg,int offsetEspLibre);
+	bool verificarEspacioDisponible(unsigned short longReg, unsigned short offsetEspLibre);
 	
 	/*
 	 * Devuelve la longitud del registro, ya sea de longitud fija o varaible.

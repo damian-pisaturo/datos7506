@@ -57,7 +57,6 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 	
 	cout<< "posicion tabla: "<<posicion<<endl;
 	
-	
 	// Se obtiene el bucket donde hay que insertar el registro.
 	int numBucket = tabla->getNroBucket(posicion);
 	
@@ -91,7 +90,7 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 		longReg += Tamanios::TAMANIO_LONGITUD;
 	
 	cout<<"hay espacio para insertar?"<<endl;
-	if (bucket->verificarEspacioDisponible(longReg,bucket->getEspacioLibre()))
+	if (bucket->verificarEspacioDisponible(longReg, bucket->getEspacioLibre()))
 	{
 		cout<<"si.. hago alta"<<endl;
 		// Da de alta el registro en el bloque y persiste en disco.
@@ -126,25 +125,26 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 		cout <<"numero del bucket nuevo: "<< nuevoBucket->getNroBloque()<<endl;
 		tabla->reorganizarTabla(bucket->getTamDispersion(), posicion, nuevoBucket->getNroBloque()); 
 		
-		redistribuirElementos(bucket,nuevoBucket);
+		redistribuirElementos(bucket, nuevoBucket);
 		
 		// Guarda en disco la redistribución de los elementos.
-		archivo->escribirBloque(numBucket, bucket);
-		archivo->escribirBloque(nuevoBucket->getNroBloque(), nuevoBucket);
+		archivo->escribirBloque(bucket->getNroBloque(), bucket);
+		archivo->escribirBloque(nuevoBucket->getNroBloque(), nuevoBucket);		
 		
 		cout<< "tamanioTabla:" << tabla->getTamanio() <<endl;
 		cout<< "contenido 0 :" << (tabla->getContenido())[0]<<endl;
 		cout<< "contenido 1 :" << (tabla->getContenido())[1]<<endl;
 		cout<< "escribo la tabla"<<endl;
-		archivo->escribirTabla(tabla->getTamanio(),tabla->getContenido());
-		cout<<"termine de escribir la tabla"<<endl;
+		
+		//archivo->escribirTabla(tabla->getTamanio(),tabla->getContenido());
+		//cout<<"termine de escribir la tabla"<<endl;
 		
 		delete bucket;
 		delete nuevoBucket;
 		
 		// Intenta nuevamente la inserción del registro.
-		int result = insertarRegistro(registro, clave);
-		return result;
+		//int result = insertarRegistro(registro, clave);
+		return 0;
 	}
 }
 
@@ -326,63 +326,70 @@ int Hash::hashInterno(char* clave)
  * Este método se encarga de redistribuir los registros contenidos en bucket 
  * entre este mismo y bucketNuevo.
  **/
-void Hash::redistribuirElementos(Bucket* bucket, Bucket* nuevoBucket)
+void Hash::redistribuirElementos(Bucket* &bucket, Bucket* &nuevoBucket)
 {
-	unsigned short longReg;
+	unsigned short longReg = 0;
 	unsigned short offsetReg = bucket->getOffsetADatos();
-	const char * datos = bucket->getDatos();
+	char * datos = bucket->getDatos();
 	
-	// Hay que hacer una copia que no sea const de datos.
-	char* copiaDatos = new char[archivo->getTamanioBloque() + 1];
-	memcpy(copiaDatos,datos,archivo->getTamanioBloque());
-	*(copiaDatos + 1)= 0;
+	Clave *clave = NULL;
+	int posicion = 0;
+	unsigned int nroBucket = 0;
 	
-	Clave *clave;
-	int posicion;
-	unsigned int nroBucket;
-	
+	cout << "!!!!!!!!!!!!!!!!!!!!!!!tamanio de bucket aux: " << bucket->getTamanioBloque() << endl;
 	// Se crea un bucket auxiliar para poner los registros que deberían quedar en bucket.
 	Bucket * bucketAux = new Bucket(bucket->getNroBloque(),bucket->getTamanioBloque(),bucket->getTamDispersion());
 	
+	cout << "cantidad de registros = "<< bucket->getCantRegs()<<endl;
+	ListaNodos::const_iterator it = listaParam->begin();
+	nodoLista regAtribute = *it;
+	
+	// Se obtiene el tipo de atributo del registro.
+	int tipo = regAtribute.tipo;
+
+	int l = 0;
 	// Se recorren los registros reubicándolos.
 	for(int i = 0; i< bucket->getCantRegs(); i++)
-	{
+	{		
 		// Obtengo el tamaño del registro.	
-		longReg = bucket->getTamanioRegistros(listaParam,&copiaDatos[offsetReg]);
+		longReg = bucket->getTamanioRegistros(listaParam,&datos[offsetReg]);
+		cout << "tamaño del registro: "<< longReg <<endl;
 		
 		// Obtengo la clave primaria.
-		clave = bucket->getClavePrimaria(listaParam, &copiaDatos[offsetReg]);
+		clave = bucket->getClavePrimaria(listaParam, &datos[offsetReg]);
+		cout << "valorClave: "<< *((int*)clave->getValor())<<endl;
 		
 		posicion = aplicarHash(*clave) % tabla->getTamanio(); 
+		cout << "posicion: "<< posicion<<endl;
 		nroBucket = tabla->getNroBucket(posicion);
+		cout << "numBloques: "<<nroBucket<<endl;
 		
 		// Se decide en cual de los 2 buckets se inserta el registro.
 		if (nroBucket == nuevoBucket->getNroBloque())
 		{
-			nuevoBucket->altaRegistro(listaParam,&copiaDatos[offsetReg]);
+			nuevoBucket->altaRegistro(listaParam, &datos[offsetReg]);
 			nuevoBucket->incrementarCantRegistros();
 		}
 		else
 		{
-			bucketAux->altaRegistro(listaParam,&copiaDatos[offsetReg]);
+			l = bucketAux->altaRegistro(listaParam, &datos[offsetReg]);
+			if(l == SOBREFLUJO) cout << "NO ESTOY METIENDO NADA EN BUCKETAUX!" << endl;
+			
 			bucketAux->incrementarCantRegistros();
 		}
 		
 		offsetReg += longReg;
 		
-		list<nodoLista>::const_iterator it = listaParam->begin();
-		nodoLista regAtribute = *it;
-		
-		// Se obtiene el tipo de atributo del registro.
-		int tipo = regAtribute.tipo;
-
 		if(tipo == TipoDatos::TIPO_VARIABLE)
 			offsetReg += Tamanios::TAMANIO_LONGITUD;
 	}
+	
 	bucketAux->actualizarEspLibre();
 	nuevoBucket->actualizarEspLibre();
+	
 	delete bucket;
-	bucket = bucketAux;
+	
+	bucket = bucketAux;	
 }
 
 /*
@@ -420,7 +427,6 @@ char* Hash::serializarClave(void** claveVoid)
 	list<nodoLista>::const_iterator it;
 	it = listaParam->begin();
 	
-	cout << "estoy en serializar clave"<< endl;
 	int tipo;
 	
 	unsigned char cantClaves = it->cantClaves;
@@ -457,8 +463,8 @@ char* Hash::serializarClave(void** claveVoid)
 				tamanio += sizeof(float);
 				break;
 			case TipoDatos::TIPO_FECHA:
-				vectorTamanios[i] = sizeof(ClaveFecha::TFECHA);
-				tamanio += sizeof(ClaveFecha::TFECHA);
+				vectorTamanios[i] = Tamanios::TAMANIO_FECHA;
+				tamanio += Tamanios::TAMANIO_FECHA;
 				break;
 			case TipoDatos::TIPO_STRING:
 				vectorTamanios[i] = strlen((char*)claveVoid[i]);
@@ -470,7 +476,6 @@ char* Hash::serializarClave(void** claveVoid)
 	}
 		
 	char* clave = new char[tamanio + 1];
-	cout<<"tamanio en serializar: "<< tamanio<<endl;
 	unsigned char posicion = 0;
 	
 	for(unsigned char i=0; i<cantClaves; i++){
@@ -478,7 +483,6 @@ char* Hash::serializarClave(void** claveVoid)
 		posicion += vectorTamanios[i];
 	}
 	
-	cout << "cant Claves: "<<(int)cantClaves<<endl;
 	*(clave + tamanio) = 0;
 	
 	delete []vectorTamanios;
