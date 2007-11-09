@@ -269,14 +269,14 @@ void DefinitionsManager::cargarTiposIndices() {
 }
 
 
-DefinitionsManager::ListaTiposAtributos* DefinitionsManager::getListaTiposAtributos(const string &nombreTipo) {
+const DefinitionsManager::ListaTiposAtributos* DefinitionsManager::getListaTiposAtributos(const string &nombreTipo) {
 	
 	return this->mapaTiposAtributos[nombreTipo];
 	
 }
 
 
-DefinitionsManager::ListaValoresAtributos* DefinitionsManager::getListaValoresAtributos(const string &nombreTipo,
+const DefinitionsManager::ListaValoresAtributos* DefinitionsManager::getListaValoresAtributos(const string &nombreTipo,
 																	const MapaValoresAtributos &mapaValoresAtributos) {
 	
 	//Lista a retornar
@@ -303,7 +303,7 @@ DefinitionsManager::ListaValoresAtributos* DefinitionsManager::getListaValoresAt
 	
 }
  
-ListaTipos* DefinitionsManager::getListaTipos(const string &nombreTipo) {
+const ListaTipos* DefinitionsManager::getListaTipos(const string &nombreTipo) {
 	
 	ListaTipos *listaTipos = new ListaTipos();
 	
@@ -318,9 +318,23 @@ ListaTipos* DefinitionsManager::getListaTipos(const string &nombreTipo) {
 }
 
 
-DefinitionsManager::ListaTiposIndices* DefinitionsManager::getListaTiposIndices(const string &nombreTipo) {
+const DefinitionsManager::ListaTiposIndices* DefinitionsManager::getListaTiposIndices(const string &nombreTipo) {
 	
 	return this->mapaTiposIndices[nombreTipo];
 	
 }
 
+
+const ListaTipos* DefinitionsManager::getListaTiposClaves(const string &nombreTipo, const ListaNombresClaves &listaNombresClaves) {
+	
+	ListaTiposIndices *listaTiposIndices = this->mapaTiposIndices[nombreTipo];
+	
+	for (ListaTiposIndices::iterator iter = listaTiposIndices->begin(); iter != listaTiposIndices->end(); ++iter) {
+		
+		if (*((*iter).listaNombresClaves) == listaNombresClaves)
+			return (*iter).listaTipos;
+		
+	}
+	
+	return NULL;
+}

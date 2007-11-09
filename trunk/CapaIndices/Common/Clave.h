@@ -445,17 +445,33 @@ class ClaveFecha: public Clave
 {
 	public:
 		
-		typedef struct TFECHA{
+		typedef struct TFECHA {
+			
 			unsigned short anio;
 			unsigned char mes;
-			unsigned char dia;		
-		}fecha;
+			unsigned char dia;
+			
+			bool crear(unsigned char dia, unsigned char mes, unsigned short anio) {
+				if ((anio > 9999) || (mes > 12) || (dia > 31)) {
+					this->anio = 0;
+					this->mes  = 0;
+					this->dia  = 0;
+					return false;
+				} else {					
+					this->anio = anio;
+					this->mes  = mes;
+					this->dia  = dia;				
+				}
+				return true;
+			}
+			
+		} fecha;
 
 	/////////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	/////////////////////////////////////////////////////////////////////////
-		ClaveFecha(fecha* clave, unsigned int referencia = 0,
-									unsigned int hijoDer = 0);
+		ClaveFecha(const TFECHA &clave, unsigned int referencia = 0,
+										unsigned int hijoDer = 0);
 		virtual ~ClaveFecha();
 
 	/////////////////////////////////////////////////////////////////////////

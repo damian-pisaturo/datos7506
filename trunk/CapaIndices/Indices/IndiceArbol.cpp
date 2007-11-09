@@ -20,6 +20,8 @@ IndiceArbol::IndiceArbol(unsigned char tipoIndice, unsigned short tamBloqueLista
 			bTree = NULL;
 	}
 	
+	this->tipoIndice = tipoIndice;
+	
 }
 
 IndiceArbol::~IndiceArbol() {
