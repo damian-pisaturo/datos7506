@@ -170,8 +170,6 @@ class IndiceArbolManager : public IndiceManager
 		
 		virtual Clave* leerClaveNoHoja(char* &buffer) = 0;
 	
-		/*Escribe una raiz vacia para cuando se crea el archivoIndice*/
-		virtual void escribirRaizVacia();
 
 	public:
 	///////////////////////////////////////////////////////////////////////////
@@ -281,7 +279,7 @@ class IndiceSecundarioManager: public IndiceArbolManager
 	//////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceSecundarioManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamanioBloqueLista, unsigned char tipoIndice);
+		IndiceSecundarioManager(unsigned int tamNodo, const string nombreArchivo, unsigned int tamanioBloqueLista, unsigned char tipoIndice);
 		virtual ~IndiceSecundarioManager();
 
 	//////////////////////////////////////////////////////////////////////
@@ -428,7 +426,7 @@ class IndiceCharGriegoManager: public IndiceArbolManager
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);
 		
-}; //Fin clase ArchivoIndiceCharGriego
+}; //Fin clase IndiceCharGriegoManager
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -482,7 +480,7 @@ class IndiceShortGriegoManager: public IndiceArbolManager
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);
 		
-}; //Fin clase ArchivoIndiceShortGriego
+}; //Fin clase IndiceShortGriegoManager
 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -511,7 +509,7 @@ class IndiceShortRomanoManager: public IndiceSecundarioManager
 		Clave* leerClaveNoHoja(char* &buffer);
 	
 		
-}; //Fin clase ArchivoIndiceShortRomano
+}; //Fin clase IndiceShortRomanoManager
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -557,7 +555,8 @@ class IndiceFechaGriegoManager: public IndiceArbolManager
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
 		IndiceFechaGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
-	
+		virtual ~IndiceFechaGriegoManager() {}
+		
 	private:
 	//////////////////////////////////////////////////////////////////////
 	// Metodos privados
@@ -566,7 +565,8 @@ class IndiceFechaGriegoManager: public IndiceArbolManager
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);	
 		
-}; //Fin clase ArchivoIndiceFechaGriego
+}; //Fin clase IndiceFechaGriegoManager
+
 
 //////////////////////////////////////////////////////////////////////////////
 // Clase
@@ -580,7 +580,8 @@ class IndiceFechaRomanoManager: public IndiceSecundarioManager
 	//////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	//////////////////////////////////////////////////////////////////////		
-		IndiceFechaRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
+		IndiceFechaRomanoManager(unsigned int tamNodo, const string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
+		
 		virtual ~IndiceFechaRomanoManager() {}
 		
 	//////////////////////////////////////////////////////////////////////
@@ -598,7 +599,7 @@ class IndiceFechaRomanoManager: public IndiceSecundarioManager
 		Clave* leerClaveNoHoja(char* &buffer);
 
 	
-}; //Fin clase ArchivoIndiceFechaRomano
+}; //Fin clase IndiceFechaRomanoManager
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase

@@ -23,7 +23,7 @@ class Indice
 		unsigned char tipoIndice;
 		
 	public:
-		Indice(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo) {}
+		Indice() {}
 		
 		virtual ~Indice() {}
 		
