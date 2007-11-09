@@ -7,8 +7,9 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 	unsigned char tipoIndice;
 	DefinitionsManager::EstructTipoIndice estructura;
 	DefinitionsManager::NodoListaIndices nodoListaIndices;
-	const DefinitionsManager::ListaTiposIndices *listaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
-	const DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	DefinitionsManager::ListaTiposIndices *listaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
+	DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	
 	for (DefinitionsManager::ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
 		iter != listaTiposIndices->end(); ++iter) {
 		
@@ -19,14 +20,14 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 		switch (tipoIndice) {
 			
 			case TipoIndices::ARBOL_BP:
-			case TipoIndices::ARBOL_BS:	
-//				indice = new IndiceArbol(estructura.tipoIndice, estructura.tamanioBloque, estructura.tipoClave,
-//										defManager.getListaTipos(nombreTipo), estructura.tipoEstructura, estructura.tamanioBloque,
-//										estructura.nombreArchivo);
+			case TipoIndices::ARBOL_BS:
+				indice = new IndiceArbol(estructura.tipoIndice, estructura.tamanioBloque, estructura.tipoClave,
+										defManager.getListaTipos(nombreTipo), estructura.tipoEstructura, estructura.tamanioBloque,
+										estructura.nombreArchivo);
 				break;
 				
 			case TipoIndices::HASH:
-//				indice = new IndiceHash(listaTiposAtributos, estructura.tamanioBloque, estructura.nombreArchivo);
+				indice = new IndiceHash(listaTiposAtributos, estructura.tamanioBloque, estructura.nombreArchivo);
 				break;
 		}
 		

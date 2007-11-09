@@ -3,8 +3,7 @@
 IndiceArbol::IndiceArbol(unsigned char tipoIndice, unsigned short tamBloqueLista,
 						 int tipoDato, ListaTipos* listaTipos,
 						 unsigned char tipoEstructura, unsigned short tamNodo,
-						 const string& nombreArchivo) 
-:Indice(){
+						 const string& nombreArchivo) {
 	
 	IndiceManager* indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(tipoIndice, tamBloqueLista, tipoDato, listaTipos, 
 																					   tipoEstructura, tamNodo, 0, nombreArchivo);

@@ -23,9 +23,9 @@ class Indice
 		unsigned char tipoIndice;
 		
 	public:
-		Indice();
+		Indice(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo) {}
 		
-		virtual ~Indice();
+		virtual ~Indice() {}
 		
 		/*
 		 * Este metodo inserta un elemento en un indice.

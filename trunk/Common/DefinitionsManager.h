@@ -58,11 +58,11 @@ class DefinitionsManager {
 		
 		virtual ~DefinitionsManager();
 		
-		const ListaTiposAtributos* getListaTiposAtributos(const string &nombreTipo);
+		ListaTiposAtributos* getListaTiposAtributos(const string &nombreTipo);
 		
-		const ListaTipos* getListaTipos(const string &nombreTipo);
+		ListaTipos* getListaTipos(const string &nombreTipo);
 		
-		const ListaTipos* getListaTiposClaves(const string &nombreTipo, const ListaNombresClaves &listaNombresClaves);
+		ListaTipos* getListaTiposClaves(const string &nombreTipo, const ListaNombresClaves &listaNombresClaves);
 		
 		//Devuelve una lista con los valores de los atributos ordenados segun el archivo de definiciones.
 		//Si 'insercion == true' significa que la lista de valores de atributos se utilizara en una alta,
@@ -70,10 +70,10 @@ class DefinitionsManager {
 		//Si 'insercion == false' significa que la lista de valores de atributos se utilizara en una modificacion,
 		//por lo cual el campo 'debeModificar' de cada nodo de la lista que se haya encontrado en el mapa de valores
 		//tendra el valor true, y los nodos que no se encontraron en el mapa tendran el valor false.
-		const ListaValoresAtributos* getListaValoresAtributos(const string &nombreTipo,
+		ListaValoresAtributos* getListaValoresAtributos(const string &nombreTipo,
 															  const MapaValoresAtributos &mapaValoresAtributos);
 		
-		const ListaTiposIndices* getListaTiposIndices(const string &nombreTipo);
+		ListaTiposIndices* getListaTiposIndices(const string &nombreTipo);
 		
 		const MapaTiposAtributos& getMapaTiposAtributos() const {
 			return this->mapaTiposAtributos;

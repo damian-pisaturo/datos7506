@@ -21,7 +21,7 @@ fuentes += Bloque/Bloque.cpp
 fuentes += Common/Nodo.cpp
 fuentes += Common/Clave.cpp
 fuentes += Common/SetClaves.cpp
-fuentes += ../Common/DefinitionsManager.cpp
+fuentes += Common/ClaveFactory.cpp
 fuentes += Common/IndiceManagerFactory.cpp
 fuentes += BTree/BTree.cpp
 fuentes += BPlus/BPlusTree.cpp
@@ -31,6 +31,7 @@ fuentes += BStar/NodoBStar.cpp
 fuentes += Hash/Hash.cpp
 fuentes += Hash/Bucket.cpp
 fuentes += Hash/Tabla.cpp
+fuentes += ../Common/DefinitionsManager.cpp
 fuentes += ../ComuDatos/ComuDatos.cpp
 fuentes += CapaIndices.cpp
 
