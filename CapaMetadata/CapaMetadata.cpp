@@ -10,6 +10,10 @@ int main(int argc, char* argv[]) {
 	
 	//Para probar esta capa hay cargadas definiciones de dos tipos (Persona y Pelicula)
 	
-	ParserOperaciones parserOperaciones(argv[1], mapaMapaIndices);
+	ParserOperaciones parserOperaciones("../operaciones.txt");
+	parserOperaciones.ejecutarOperaciones();
+	
+	return 0;
 	
 }
+
