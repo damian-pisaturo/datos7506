@@ -40,7 +40,9 @@ NodoBPlus::NodoBPlus()
 
 NodoBPlus::NodoBPlus(unsigned int refNodo, unsigned char nivel, Clave* clave,
 		unsigned short tamanio) : Nodo(refNodo, nivel, clave, tamanio)
-{ } 
+{ 
+	this->actualizarEspacioLibre(clave, true);
+} 
 
 /*
 NodoBPlus(unsigned int referencia) : Nodo(referencia)
@@ -117,3 +119,43 @@ bool NodoBPlus::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave
 	
 }
 
+
+void NodoBPlus::actualizarEspacioLibre(Clave* clave, bool insercion)
+{
+	if (insercion){
+/*		cout << "Espacio Libre actual: " << this->getEspacioLibre() << endl;
+		cout << "Espacio Libre que le resto: " << (clave->getTamanioEnDisco()) << endl;
+		*/
+		if (this->getNivel() != 0) this->setEspacioLibre(this->getEspacioLibre() + Tamanios::TAMANIO_REFERENCIA - clave->getTamanioEnDisco());
+		else{
+			cout << "fierita" << endl;
+			this->setEspacioLibre(this->getEspacioLibre() - clave->getTamanioEnDisco());
+		}
+	}
+	else{
+		if (this->getNivel() != 0) this->setEspacioLibre(this->getEspacioLibre() + clave->getTamanioEnDisco() - Tamanios::TAMANIO_REFERENCIA);
+		else this->setEspacioLibre(this->getEspacioLibre() + clave->getTamanioEnDisco());
+	}
+
+}
+
+void NodoBPlus::actualizarEspacioLibre(SetClaves* claves, bool insercion)
+{	
+	unsigned int suma = 0;
+	unsigned int contador = 0;
+	
+	for (SetClaves::iterator iter = claves->begin(); iter != claves->end(); ++iter){
+		suma += (*iter)->getTamanioEnDisco();			
+		++contador;
+	}
+	
+	if (insercion){
+		if (this->getNivel() != 0) this->setEspacioLibre(this->getEspacioLibre() + contador*Tamanios::TAMANIO_REFERENCIA - suma);
+		else this->setEspacioLibre(this->getEspacioLibre() - suma);
+	}
+	else{
+		if (this->getNivel() != 0) this->setEspacioLibre(this->getEspacioLibre() + suma - contador*Tamanios::TAMANIO_REFERENCIA);
+		else this->setEspacioLibre(this->getEspacioLibre() + suma);
+	}
+
+}

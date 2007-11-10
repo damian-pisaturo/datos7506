@@ -83,7 +83,8 @@
 			
 			resultado = this->posicionarse(numBloque);
 			if (resultado == ResFisica::OK)
-				resultado = this->escribir(bloque);			
+				resultado = this->escribir(bloque);	
+			else cout << "No pude posicionarme en el bloque " << numBloque << endl;
 			
 			//Se modifica la entrada correspondiente al bloque 
 			//modificado en el archivo de control de espacio libre.

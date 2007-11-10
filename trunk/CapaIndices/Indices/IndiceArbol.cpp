@@ -1,8 +1,8 @@
 #include "IndiceArbol.h"
 
-IndiceArbol::IndiceArbol(unsigned char tipoIndice, unsigned short tamBloqueLista,
+IndiceArbol::IndiceArbol(const unsigned char tipoIndice, unsigned short tamBloqueLista,
 						 int tipoDato, ListaTipos* listaTipos,
-						 unsigned char tipoEstructura, unsigned short tamNodo,
+						 const unsigned char tipoEstructura, unsigned short tamNodo,
 						 const string& nombreArchivo) {
 	
 	IndiceManager* indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(tipoIndice, tamBloqueLista, tipoDato, listaTipos, 

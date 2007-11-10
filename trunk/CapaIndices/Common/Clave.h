@@ -151,7 +151,7 @@ class Clave
 //contenedor de la STL
 struct Comparador {
   bool operator()(const Clave* c1, const Clave* c2) const {
-    return (*c1 < *c2);
+	  return (*c1 < *c2);
   }
 };
 

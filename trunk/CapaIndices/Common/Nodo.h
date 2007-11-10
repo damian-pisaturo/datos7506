@@ -52,7 +52,7 @@ class Nodo : public BloqueIndice
 		 * 		En nodos hoja, refNodo es 0; en nodos internos
 		 * 		indica offset a hijo izquierdo.
 		 */	
-		
+		unsigned short espacioLibre;
 		unsigned int refNodo;
 		unsigned char nivel;
 		unsigned int posicionEnArchivo;
@@ -98,8 +98,8 @@ class Nodo : public BloqueIndice
 	     * el tamanio de la/s clave/s a insertar, segun sea una
 		 * insercion o una eliminacion.
 	     */
-		void actualizarEspacioLibre(SetClaves* claves, bool insercion); 
-		void actualizarEspacioLibre(Clave* clave, bool insercion);
+		virtual void actualizarEspacioLibre(SetClaves* claves, bool insercion); 
+		virtual void actualizarEspacioLibre(Clave* clave, bool insercion);
 			
 		/*reemplazarClave()
 		 * Reemplaza la claveVieja del Nodo actual con una copia de 
@@ -197,6 +197,7 @@ class Nodo : public BloqueIndice
 		
 		//Método abstracto que devuelve una copia de este nodo
 		virtual Nodo* copiar() const = 0;
+
 		
 	///////////////////////////////////////////////////////////////////////////
 	// Getters/Setters

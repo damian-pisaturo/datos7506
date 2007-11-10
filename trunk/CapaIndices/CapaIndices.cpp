@@ -158,7 +158,7 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos 
 
 int main(int argc, char* argv[]) {
 	
-	ComuDatos pipe(argv);
+/*	ComuDatos pipe(argv);
 	unsigned char codOp;
 	string nombreTipo;
 	
@@ -168,8 +168,20 @@ int main(int argc, char* argv[]) {
 	char resultado = procesarOperacion(codOp, nombreTipo, pipe);
 	
 	//TODO Enviar resultado a la capa de metadata!
-	pipe.escribir(resultado);
+	pipe.escribir(resultado);*/
 	
+	IndiceArbol indice(TipoIndices::GRIEGO, 512, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BP, 512, "locura");
+	
+	indice.insertar(new ClaveEntera(346), NULL);
+	indice.insertar(new ClaveEntera(9870), NULL);
+	indice.insertar(new ClaveEntera(2345), NULL);
+	
+	indice.insertar(new ClaveEntera(123), NULL);
+	indice.insertar(new ClaveEntera(456), NULL);
+	indice.insertar(new ClaveEntera(789), NULL);
+	
+	
+	cout << "Fin Main" << endl;
 }
 
 /*

@@ -6,6 +6,7 @@
 #include "../Manager/IndiceManager.h"
 
 
+
 class BStarTree : public BTree{
 	
 	public:
@@ -13,6 +14,8 @@ class BStarTree : public BTree{
 		BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo);
 		
 		virtual ~BStarTree();
+		
+		NodoBStar* getRaiz();
 		
 		void insertar(Clave* clave);
 		

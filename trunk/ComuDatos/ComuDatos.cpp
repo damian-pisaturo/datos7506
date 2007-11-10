@@ -82,14 +82,14 @@ void ComuDatos::lanzar()
 	}
 	
 	argumentos[paramSize + CORRIMIENTOARGUMENTO] = NULL;
-	
+
 	this->id_procesoHijo = fork();
 
 	if (this->id_procesoHijo > 0)
 	{
 		execv(argumentos[0], argumentos);
 	}
-
+	
 	this->fd_pipeH = open(pipeLee.c_str(), O_RDONLY);
 	this->fd_pipeP = open(pipeEscribe.c_str(), O_WRONLY);
 	
