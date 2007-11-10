@@ -27,7 +27,6 @@ fuentes += ../CapaIndices/BStar/NodoBStar.cpp
 fuentes += ../CapaIndices/Hash/Hash.cpp
 fuentes += ../CapaIndices/Hash/Bucket.cpp
 fuentes += ../CapaIndices/Hash/Tabla.cpp
-fuentes += ../CapaIndices/Hash/RegistroV.cpp
 fuentes += ../ComuDatos/ComuDatos.cpp
 
 # CONFIGURACION "AVANZADA"

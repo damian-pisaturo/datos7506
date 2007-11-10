@@ -4,7 +4,7 @@
 BStarTree::BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
 	: BTree(indiceManager, tamanioNodo) {
 	
-	this->nodoRaiz = NULL;
+	this->getRaiz();
 	this->tamanioRaiz = 4*(tamanioNodo - NodoBStar::getTamanioHeader())/3;
 	this->tamanioRaiz += NodoBStar::getTamanioHeader();
 }
@@ -13,6 +13,14 @@ BStarTree::~BStarTree() {
 	if (this->nodoRaiz) delete nodoRaiz;
 }
 
+NodoBStar* BStarTree::getRaiz()
+{
+	//Lee el primer registro del archivo -> la raiz
+	this->nodoRaiz = new NodoBStar(0, 0, this->tamanioNodo);
+	int resultado = indiceManager.leerBloque(0, this->nodoRaiz);
+	if (resultado != ResFisica::OK) this->nodoRaiz = NULL;
+	return this->nodoRaiz;
+}
 
 void BStarTree::insertar(Clave* clave) {
 	

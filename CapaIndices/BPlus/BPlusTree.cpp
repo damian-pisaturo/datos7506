@@ -31,7 +31,7 @@
 BPlusTree::BPlusTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
 	: BTree(indiceManager, tamanioNodo) {
 	
-	this->nodoRaiz = NULL;
+	this->getRaiz();
 	this->nodoActual = NULL;
 }
 
@@ -46,7 +46,9 @@ NodoBPlus* BPlusTree::getRaiz()
 {
 	//Lee el primer registro del archivo -> la raiz
 	this->nodoRaiz = new NodoBPlus(0, 0, this->tamanioNodo);
-	indiceManager.leerBloque(0, this->nodoRaiz);
+	int resultado = indiceManager.leerBloque(0, this->nodoRaiz);
+	if (resultado != ResFisica::OK) this->nodoRaiz = NULL;
+
 	return this->nodoRaiz;
 }
 
@@ -74,16 +76,12 @@ void BPlusTree::insertar(Clave* clave)
 	if (!clave) return;
 	
 	if (this->vacio()) {
-		
 		this->nodoRaiz = new NodoBPlus(0, 0, clave, this->tamanioNodo);
-		
 		indiceManager.escribirBloque(this->nodoRaiz);
-		
 	} else {
-		
 		//Se busca el nodo hoja donde se debe insertar la clave
 		NodoBPlus* nodoDestino = buscarLugar(clave);
-		
+
 		char codigo;
 		
 		nodoDestino->insertarClave(clave, &codigo);
@@ -92,7 +90,7 @@ void BPlusTree::insertar(Clave* clave)
 		
 		insertarInterno(nodoDestino, &codigo);
 		
-		delete nodoDestino;
+		if (!(*nodoDestino == *(this->nodoRaiz))) delete nodoDestino;
 		
 	}
 }
@@ -107,7 +105,7 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 	else if ( *codigo == Codigo::OVERFLOW ){
 		NodoBPlus* nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
 		
-		if (!nodoPadre){ //nodoDestino es la raiz.
+		if (!nodoPadre){ //nodoDestino es la raiz. 
 			SetClaves* setClavesDerecho = nodoDestino->splitB(nodoDestino->getTamanioMinimo());
 			Clave* clavePromocionada = (*(setClavesDerecho->begin()))->copiar();
 			NodoBPlus* nuevoNodoDerecho = new NodoBPlus(clavePromocionada->getHijoDer(), nodoDestino->getNivel(), this->tamanioNodo);
@@ -367,11 +365,11 @@ NodoBPlus* BPlusTree::buscarLugar(Clave* clave) const {
 
 
 NodoBPlus* BPlusTree::buscarLugarRecursivo(NodoBPlus* nodo, Clave* clave) const {
-	
+
 	NodoBPlus *nuevoNodo = NULL, *auxNodo = NULL;
 	
 	Clave* claveResultante = nodo->buscar(clave);
-		
+
 	if (claveResultante == NULL) {
 		
 		if (nodo->getHijoIzq() == 0) { //Nodo hoja
@@ -399,7 +397,7 @@ NodoBPlus* BPlusTree::buscarLugarRecursivo(NodoBPlus* nodo, Clave* clave) const 
 		}
 		
 	}
-	
+
 	return auxNodo;
 
 }

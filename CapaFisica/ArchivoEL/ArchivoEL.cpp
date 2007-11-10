@@ -35,7 +35,6 @@
 			//booleano.
 			//cout << "Size:" << this->size() << endl;
 			if (this->size() == 0){	
-				cout << "Inserto el primer bool" << endl;
 				bool valor = true;
 				this->agregarRegistro(&valor);				
 			}			
@@ -52,10 +51,7 @@
 			
 			bool a;
 			a = *((bool*)registro);
-			
-			if (a) cout<<"Voy a meter un true" << endl;
-			else cout<<"Voy a meter un false" << endl;
-			
+				
 			return (this->escribir(registro));	
 		}
 		

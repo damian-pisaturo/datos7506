@@ -62,6 +62,10 @@ class NodoBPlus: public Nodo
 		bool puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* clavePadre) const;
 				
 		bool puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* clavePadre) const;
+		
+		void actualizarEspacioLibre(Clave* clave, bool insercion);
+		
+		void actualizarEspacioLibre(SetClaves* claves, bool insercion);
 				
 			
 	//////////////////////////////////////////////////////////////////////

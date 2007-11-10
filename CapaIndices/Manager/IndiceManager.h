@@ -24,6 +24,7 @@
 
 #include <iostream>
 
+#include "../../Common/ResFisica.h"
 #include "../Common/Nodo.h"
 #include "../../Common/Tamanios.h"
 #include "../Common/SetClaves.h"
@@ -32,6 +33,7 @@
 #include "../../Common/TipoDatos.h"
 #include "../Common/TipoIndices.h"
 #include "../../Common/OperacionesCapas.h"
+
 
 using namespace std;
 
