@@ -23,6 +23,7 @@
 #include "../../Common/NombresCapas.h"
 #include "../../Common/OperacionesCapas.h"
 #include "../../Common/CodigosPipe.h"
+#include "../../ComuDatos/ComuDatos.h"
 
 using namespace std;
 

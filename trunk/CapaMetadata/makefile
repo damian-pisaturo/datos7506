@@ -14,6 +14,9 @@ extension = cpp
 
 fuentes = DataManager/DataManager.cpp
 fuentes += Parser/ParserOperaciones.cpp
+fuentes += ../CapaIndices/Bloque/Bloque.cpp
+fuentes += ../CapaIndices/Common/Clave.cpp
+fuentes += ../CapaIndices/Common/ClaveFactory.cpp
 fuentes += ../Common/DefinitionsManager.cpp
 fuentes += ../ComuDatos/ComuDatos.cpp
 fuentes += CapaMetadata.cpp

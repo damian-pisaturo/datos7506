@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[]) {
 	
-	if (argc < 2) return ERROR;
+	if (argc < 2) return 1;
 		
 	// Se instancia el DefinitionsManager. Esta clase tiene todas las definiciones.
 	DefinitionsManager defManager;
