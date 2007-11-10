@@ -128,17 +128,18 @@
 				pipe.parametro(3, &numBloque);
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				
-				buffer = new char[tamBloque*sizeof(char) + 1];
+				buffer = new char[tamBloque*sizeof(char)];
 				
 				//Lectura del bucket dentro del archivo.
 				resultado = ((ArchivoIndiceHash*)archivo)->leerBloque(buffer, numBloque);
-						
-				//Envio de datos a traves del pipe.
-				pipe.escribir(buffer, tamBloque);
 				
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
-	
+				
+				if (resultado == ResFisica::OK)
+					//Envio de datos a traves del pipe.
+					pipe.escribir(buffer, tamBloque);
+				
 			}break;
 				
 			case OperacionesCapas::FISICA_ESCRIBIR_BUCKET:
@@ -190,9 +191,6 @@
 			
 			case OperacionesCapas::FISICA_LEER_TABLA_HASH:
 			{	
-				cout << "Creando archivo " << nombreArchivo << endl;
-				cout << "Tamanio bloque: " << tamBloque << endl;
-				
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				unsigned int tamanio  = 0;
 				unsigned int* buckets = NULL;
@@ -388,17 +386,16 @@
 	
 		return resultado;		
 	}
-
 */
+
 
 #include "../CapaIndices/Indices/IndiceHash.h"
  
 int main(int estaRePedanticEsto, char** hinchaPelotas)
 {	
-	cout << "PINCHA" << endl;
 	RegisterInfo* regInfo = new RegisterInfo();
 	
-	string nom = "ernesto";
+	string nom = "capaFisica";
 	unsigned int tam = 512;
 	Indice *manuColoquio = new IndiceHash(regInfo->getParameterList(),tam,nom);	
 	
@@ -420,7 +417,7 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	memcpy(registro + 12,&entero2, sizeof(int));	
 	
 	cout << endl;
-	cout << "Insertando registro 0" << endl;
+	cout << "Insertando registro 0 (Clave " << entero2 << ")" << "...OK!" << endl;
 	manuColoquio->insertar(new ClaveEntera(55),registro);
 	
 	delete[] registro;
@@ -428,7 +425,7 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	//Insercion registro numero 1
 	char* reg = new char[tamReg + 2];
 	entero1 = 10;
-	strcpy(cadena, "TIFI");
+	strcpy(cadena, "FOCA");
 	entero2 = 122;
 	
 	memcpy(reg, &tamReg, Tamanios::TAMANIO_LONGITUD);
@@ -437,8 +434,7 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	memcpy(reg + 8,  cadena, longCadena);
 	memcpy(reg + 12, &entero2, sizeof(int));	
 	
-	cout << endl;
-	cout << "Insertando registro 1 (Clave " << entero2 << ")" << endl;
+	cout << "Insertando registro 1 (Clave " << entero2 << ")" << "...OK!" << endl;
 	manuColoquio->insertar(new ClaveEntera(122),reg);
 	
 	delete[] reg;
@@ -458,8 +454,7 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	memcpy(registro + 8,  cadena,longCadena);
 	memcpy(registro + 15, &entero2,sizeof(int));
 	
-	cout << endl;
-	cout << "Insertando registro 2 (Clave " << entero2 << ")" << endl;
+	cout << "Insertando registro 2 (Clave " << entero2 << ")" << "...OK!" << endl;
 	manuColoquio->insertar(new ClaveEntera(33),registro);
 	
 	delete[] registro;
@@ -479,31 +474,94 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	memcpy(registro + 8,  cadena,longCadena);
 	memcpy(registro + 25, &entero2,sizeof(int));
 	
-	cout << endl;
-	cout << "Insertando registro 3 (Clave " << entero2 << ")" << endl;
+	cout << "Insertando registro 3 (Clave " << entero2 << ")" << "...OK!" << endl;
 	manuColoquio->insertar(new ClaveEntera(555),registro);
 	
+	Clave* clave = NULL;
 	
 	for (int i = 1; i<16; i++) {
 		entero2 = 55 + i;
 		memcpy(registro + 25, &entero2,sizeof(int));
 		
-		cout << endl;
-		cout << "Insertando registro " << i + 3 << " (Clave " << entero2 << ")" << endl;			
-			
-		manuColoquio->insertar(new ClaveEntera(55 + i),registro);
+		cout << "Insertando registro " << i + 3 << " (Clave " << entero2 << ")";			
+		
+		clave = new ClaveEntera(55 + i);
+		manuColoquio->insertar(clave, registro);
+		cout << "...OK!"<< endl;
+		delete clave;
 	}
 	
+	// Eliminacion
+	cout << endl;
+	cout << "Eliminando registro de clave 33...";
+	clave = new ClaveEntera(33);
+	manuColoquio->eliminar(clave);
+	cout << "OK!"<< endl;
+	delete clave;
 	
+	cout << "Eliminando registro de clave 122...";
+	clave = new ClaveEntera(60);
+	manuColoquio->eliminar(clave);
+	cout << "OK!" << endl;
+	delete clave;	
+
+	cout << "Eliminando registro de clave 555...";
+	clave = new ClaveEntera(68);
+	manuColoquio->eliminar(clave);
+	cout << "OK!" << endl;
+	delete clave;
+	
+	cout << "Eliminando registro de clave 56...";		
+	clave = new ClaveEntera(56);
+	manuColoquio->eliminar(clave);
+	cout << "OK!" << endl;
+	delete clave;
+
+	cout << "Eliminando registro de clave 57...";		
+	clave = new ClaveEntera(57);
+	manuColoquio->eliminar(clave);
+	cout << "OK!" << endl;
+	delete clave;
+
+	cout << "Eliminando registro de clave 58...";
+	clave = new ClaveEntera(122);
+	manuColoquio->eliminar(clave);
+	cout << "OK!" << endl;
+	delete clave;
+
+	cout << "Eliminando registro de clave 59...";
+	clave = new ClaveEntera(64);
+	manuColoquio->eliminar(clave);
+	cout << "OK!" << endl;
+	delete clave;
+
+	cout << "Eliminando registro de clave 64...";
+	clave = new ClaveEntera(64);
+	manuColoquio->eliminar(clave);
+	cout << "OK!" << endl;
+	delete clave;
+	
+	cout << "Eliminando registro de clave 65...";
+	clave = new ClaveEntera(65);
+	manuColoquio->eliminar(clave);
+	cout << "OK!" << endl;
+	delete clave;		
+	
+	cout << "Eliminando registro de clave 66...";
+	clave = new ClaveEntera(66);
+	manuColoquio->eliminar(clave);
+	cout << "OK!" << endl;
+	delete clave;
+
+		
 	delete[] registro;
 	delete manuColoquio;
 	delete[] cadena;	
 	delete regInfo;
 	
-	cout << "==========FIN APLICACION==========";
+	cout << "==========FIN APLICACION==========" << endl;
 	
 	return 0;
 }
-
 
 

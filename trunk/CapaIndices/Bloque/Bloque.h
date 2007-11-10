@@ -1,7 +1,7 @@
 #ifndef BLOQUE_H_
 #define BLOQUE_H_
  
-#define OK 				0
+#define BLOQUE_OK    	0
 #define NO_ENCONTRADO 	1
 #define SOBREFLUJO		2
 

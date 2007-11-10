@@ -23,7 +23,7 @@
 #include "Tabla.h"
 #include "Bucket.h"
 
-#define OK	 		0
+#define HASH_OK		0
 #define FAIL	 	1
 #define DUPLICATED	2
 
@@ -47,7 +47,7 @@ class Hash
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		Hash(IndiceHashManager* indiceHash, ListaNodos* lista, string nombreArchivoTabla, unsigned int tamBucket);
+		Hash(IndiceHashManager* indiceHash, ListaNodos* lista, unsigned int tamBucket);
 		virtual ~Hash();	
 		
 	///////////////////////////////////////////////////////////////////////

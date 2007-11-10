@@ -25,8 +25,8 @@
 /**
  * Este constructor inicia un bloque preexistente levantandolo desde el archivo.
  */
-Bucket::Bucket(IndiceManager* indiceHash, unsigned int nroBucket):
-	Bloque()
+Bucket::Bucket(IndiceManager* indiceHash, unsigned int nroBucket)
+:Bloque()
 {
 	indiceHash->leerBloque(nroBucket, this);
 	
