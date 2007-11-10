@@ -6,6 +6,10 @@
 #define SEPARATOR_ATRIBUTOS ","
 #define ASIGNACION_ATRIBUTOS "="
 
+#define OK 				0
+#define NO_ENCONTRADO 	1
+#define SOBREFLUJO		2
+
 #include <string>
 #include <iostream>
 #include <fstream>
