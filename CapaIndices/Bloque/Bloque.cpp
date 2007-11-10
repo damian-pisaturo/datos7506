@@ -322,7 +322,7 @@ int Bloque::altaRegistro(const ListaNodos * listaParam, char *registro) {
 		// Registro incluye su longitud en los primeros 2 bytes.
 		insertarRegistro(registro, offsetEspLibre, longReg);
 		
-		return OK;
+		return BLOQUE_OK;
 	}
 	
 	return SOBREFLUJO;
@@ -508,7 +508,7 @@ int Bloque::bajaRegistro(const ListaNodos *listaParam, Clave &clave) {
 	}
 	if (!registroBorrado)
 		return NO_ENCONTRADO;
-	return OK;
+	return BLOQUE_OK;
 }
 
 int Bloque::modificarRegistro(const ListaNodos *listaParam,
@@ -534,7 +534,7 @@ int Bloque::modificarRegistro(const ListaNodos *listaParam,
 	bajaRegistro(listaParam, clavePrimaria);
 	altaRegistro(listaParam, registro);
 	
-	return OK;
+	return BLOQUE_OK;
 }
 
 

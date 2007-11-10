@@ -21,12 +21,12 @@
 ///////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 ///////////////////////////////////////////////////////////////////////
-Hash::Hash(IndiceHashManager *arch, ListaNodos * lista, string nombreArchivoTabla, unsigned int tamBucket)
+Hash::Hash(IndiceHashManager *arch, ListaNodos * lista, unsigned int tamBucket)
 {
 	archivo = arch;
 	listaParam = lista;
 	
-	tabla = new Tabla(nombreArchivoTabla, archivo,tamBucket);
+	tabla = new Tabla(archivo,tamBucket);
 }
 
 Hash::~Hash()
@@ -40,7 +40,7 @@ Hash::~Hash()
 
 /*
  * Este método se utiliza para hacer una operación de alta en el archivo.
- * Si el registro se puede insertar devuelve OK; si ya existe un registro
+ * Si el registro se puede insertar devuelve HASH_OK; si ya existe un registro
  * con la misma clave, devuelve DUPLICATED.
  * En caso de que el registro no entre en el bucket correspondiente, se 
  * toman las medidas necesarias para hacer extensible la función de hash.
@@ -56,23 +56,19 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 	
 	// Se obtiene el bucket donde hay que insertar el registro.
 	int numBucket = tabla->getNroBucket(posicion);
-	cout << "deberia estar en la posicion "<< posicion << "de la tabla, lo q es bloque" <<numBucket<<endl;
+	
 	// Levanta un bucket ya existente del disco y carga sus datos.
 	Bucket * bucket = new Bucket(archivo, numBucket);
 	
 	// Se busca si el registro ya existe.
 	unsigned short aux;
 	
-	cout << "busco si el reg ya existe"<< endl;
 	if (bucket->Bloque::buscarRegistro(listaParam, clave, &aux))
 	{
-		cout<<"existe!"<<endl;
 		delete bucket;
 		// ya existe un registro con esa clave.
 		return DUPLICATED; 
 	}
-	
-	cout << "No existe. Lo inserto."<< endl;
 	
 	// Se obtiene la longitud del registro independientemente de si es variable o fija.
 	unsigned short longReg = bucket->getTamanioRegistros(listaParam, registro);
@@ -81,10 +77,8 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 	if (esRegistroVariable())
 		longReg += Tamanios::TAMANIO_LONGITUD;
 	
-	cout<<"hay espacio para insertar?"<<endl;
 	if (bucket->verificarEspacioDisponible(longReg, bucket->getEspacioLibre()))
 	{
-		cout<<"si.. hago alta"<<endl;
 		// Da de alta el registro en el bloque y persiste en disco.
 		bucket->altaRegistro(listaParam,registro);
 		bucket->incrementarCantRegistros();
@@ -93,13 +87,12 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 		
 		delete bucket;
 	
-		return OK;
+		return HASH_OK;
 	}
 	else
 	// Hay OVERFLOW
 	// Si el registro no entra en el bucket hay que crear un nuevo bucket.
 	{
-		cout<<"OVERFLOW!!!!!!!!no hay espacio.."<<endl;
 		// Se duplica el tamaño de dispersión del bucket que se divide.
 		bucket->setTamDispersion(bucket->getTamDispersion()*2);
 		
@@ -112,8 +105,6 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 		
 		// Duplica la tabla o actualiza sus referencias dependiendo del tamaño de dispersión 
 		// (ya duplicado) del bucket donde se produjo overflow.
-		cout << "llamo a duplicar la tabla."<<endl;
-		cout <<"numero del bucket nuevo: "<< nuevoBucket->getNroBloque()<<endl;
 		tabla->reorganizarTabla(bucket->getTamDispersion(), posicion, nuevoBucket->getNroBloque()); 
 		
 		redistribuirElementos(bucket, nuevoBucket);
@@ -132,7 +123,7 @@ int Hash::insertarRegistro(char* registro, Clave &clave)
 }
 
 /* Este método se utiliza para hacer una operación de baja en el archivo.
- * Si el registro se puede eliminar devuelve OK, si no existe el registro
+ * Si el registro se puede eliminar devuelve HASH_OK, si no existe el registro
  * a eliminar, se devuelve NO_ENCONTRADO.
  * En caso de que el bucket quede vacío, se considera la posibilidad de 
  * disminuir el tamaño de la tabla de hash.
@@ -166,21 +157,26 @@ int Hash::eliminarRegistro(Clave &clave)
 	{	
 		// Si el tamaño de dispersión del bucket coincide con el tamaño de la tabla, se elimina el bucket.
 		if (bucket->getTamDispersion() == tabla->getTamanio())
-		{			
+		{				
+			//bucket->bajaRegistro(listaParam, clave);
+			//archivo->escribirBloque(nroBucket, bucket);
+			
 			// Se llama a marcar al bucket como vacío en el archivo.
 			archivo->eliminarBloque(nroBucket);
 			
 			// Se renueva la referencia de la tabla que antes apuntaba al bucket que se eliminó.
 			unsigned int nroBucket2 = tabla->buscarBucketIgualDispersion(posicion, bucket->getTamDispersion());
-			tabla->setNroBucket(posicion,nroBucket2);
+		
 			
+			tabla->setNroBucket(posicion,nroBucket2);
+		
 			// Se actualiza el tamaño de dispersión del bloque y se lo guarda en archivo.
 			dividirDispersion(nroBucket2);
 			
 			// En caso de que deba realizarse una reducción a la mitad del tamaño de la tabla se lo hace.
 			tabla->considerarReduccion();
 			delete bucket;
-			return OK;
+			return HASH_OK;
 		}
 		else
 		{
@@ -202,7 +198,7 @@ int Hash::eliminarRegistro(Clave &clave)
 bool Hash::modificarRegistro(Clave &claveVieja, Clave &claveNueva, char* registroNuevo)
 {
 	int result = this->eliminarRegistro(claveVieja);
-	if (result == OK) {
+	if (result == HASH_OK) {
 		this->insertarRegistro(registroNuevo, claveNueva);
 		return true;
 	}
@@ -377,8 +373,8 @@ void Hash::dividirDispersion(unsigned int nroBucket)
 	
 	// Se divide el tamaño de dispersión.
 	bucket->setTamDispersion(bucket->getTamDispersion()/2);
-	
 	archivo->escribirBloque(nroBucket, bucket);
+	
 	delete bucket;
 }
 

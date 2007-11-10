@@ -60,11 +60,12 @@
 				//en el archivo de espacio libre.
 				archivoEL->agregarRegistro(&valor);
 				
+				cout << "Todos los bloques ocupados. Agrego nuevo valor al archivo de control" << endl;
 				//Se agrega nueva entrada booleana al archivo de control
 				//de espacio libre.
 				//valor = true;
 				//archivoEL->agregarRegistro(&valor);
-			}else{
+			}else{ 
 				this->posicionarse(bloqueLibre);
 				archivoEL->modificarRegistro(&valor, bloqueLibre);
 			}
@@ -83,8 +84,7 @@
 			
 			resultado = this->posicionarse(numBloque);
 			if (resultado == ResFisica::OK)
-				resultado = this->escribir(bloque);	
-			else cout << "No pude posicionarme en el bloque " << numBloque << endl;
+				resultado = this->escribir(bloque);			
 			
 			//Se modifica la entrada correspondiente al bloque 
 			//modificado en el archivo de control de espacio libre.

@@ -49,9 +49,6 @@
 		{					
 			this->posicionarseFin();
 			
-			bool a;
-			a = *((bool*)registro);
-				
 			return (this->escribir(registro));	
 		}
 		

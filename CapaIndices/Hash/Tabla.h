@@ -41,7 +41,7 @@ public:
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 	Tabla();
-	Tabla(string nombreArchivo, IndiceHashManager* archivo,unsigned int tamBucket);
+	Tabla(IndiceHashManager* archivo,unsigned int tamBucket);
 	virtual ~Tabla();
 	
 	///////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ public:
 	 * Pide a la capa física la creación de un archivo de datos con 1 solo bucket, 
 	 * y un archivo con la tabla.
 	 **/
-	void crear(string nombreArchivo, unsigned int tamanioBloque);
+	void crear(unsigned int tamanioBloque);
 	
 	/*
 	 * Este método reorganiza la tabla luego de una inserción que haya provocado un overflow.

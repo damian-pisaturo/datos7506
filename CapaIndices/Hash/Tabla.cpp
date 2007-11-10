@@ -26,10 +26,11 @@ Tabla::Tabla()
 	this->tamanio = 1;
 }
 
-Tabla::Tabla(string nombreArchivo, IndiceHashManager* arch, unsigned int tamBucket)
+Tabla::Tabla( IndiceHashManager* arch, unsigned int tamBucket)
 {
 	unsigned int tamTabla = 0;
 	unsigned int * numerosTabla = NULL;
+	
 	
 	if (arch){
 		this->archivo = arch;
@@ -38,9 +39,8 @@ Tabla::Tabla(string nombreArchivo, IndiceHashManager* arch, unsigned int tamBuck
 		// Si la tabla no existe, en tamanio devuelve 0.
 		// En ese caso, se crea una tabla.
 		if (tamTabla == 0) 
-			this->crear(nombreArchivo, tamBucket);
+			this->crear( tamBucket);
 		else{
-			cout<<"La tabla ya existia !!!!!!!!!!!!"<<endl;
 			this->tamanio = tamTabla; 
 			this->nroBucket = numerosTabla;
 		}
@@ -64,7 +64,7 @@ Tabla::~Tabla()
  * Pide a la capa física la creación de un archivo de datos con 1 solo bucket, 
  * y un archivo con la tabla.
  **/
-void Tabla::crear(string nombreArchivo, unsigned int tamanioBloque)
+void Tabla::crear( unsigned int tamanioBloque)
 {
 	this->tamanio = 1;
 	
@@ -90,7 +90,6 @@ void Tabla::crear(string nombreArchivo, unsigned int tamanioBloque)
 void Tabla::reorganizarTabla(unsigned short tamDispActualizado, int posicion, unsigned int nuevoNroBucket){
 	
 	if((tamDispActualizado/2) == tamanio){
-		cout <<"el tamanio de la tabla es igual al tam de dispersion--> duplico"<<endl;
 		duplicarTabla();
 		nroBucket[posicion] = nuevoNroBucket;
 	}
@@ -187,7 +186,7 @@ void Tabla::reducirTabla()
 {
 	tamanio = (getTamanio()/2);
 	unsigned int* tabla = new unsigned int [getTamanio()];
-	for (unsigned int i=0; i< (getTamanio());i++)
+	for (unsigned int i=0; i < getTamanio(); i++)
 		tabla[i] = getNroBucket(i);
 	
 	delete[] nroBucket;
@@ -222,18 +221,18 @@ void Tabla::duplicarTabla(){
  * de la tabla de dispersión.
  **/
 void Tabla::actualizarReferencias(unsigned short tamDispActualizado, int posicion, unsigned int nuevoNroBucket){
-	
-	cout << "entre a actualizar referencias!"<<endl;
+
 	// Se va saltando de a "tamDispActualizado" posiciones a partir de "posicion" en la tabla
 	// haciendo que se apunte a nuevoNroBucket.
-
-	unsigned int i;
+	
+	int i = 0;
+	
 	// Se recorre desde posicion para arriba.
-	for(i = posicion;i >= 0; i -= tamDispActualizado)
+	for(i = posicion; i >= 0; i -= tamDispActualizado)
 		nroBucket[i] = nuevoNroBucket;
 	
 	// Se recorre desde posicion para abajo.
-	for(i = posicion; i < tamanio; i += tamDispActualizado)
+	for(i = posicion; i < (int)tamanio; i += tamDispActualizado)
 		nroBucket[i] = nuevoNroBucket;
 }
 
