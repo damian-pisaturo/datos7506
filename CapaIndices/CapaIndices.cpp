@@ -56,6 +56,17 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos 
 	DefinitionsManager::ListaValoresClaves listaValoresClaves;
 	string::size_type posAnterior = 0, posActual = 0, posSeparador = 0;
 	
+	MapaIndices mapaIndices;
+	unsigned char tipoIndice;
+	Clave *clave, *claveResultante = NULL;
+	Indice* indice;
+	//Posibles valores de retorno de las funciones de los índices
+	//TODO Ver si hay que reservar memoria para el bloque de datos
+	char* bloqueDatosAEnviar;
+	SetClaves* setClavesPrimarias; //Conjunto de claves primarias (indice secundario)
+	unsigned int nroBloque = 0; //Variable utilizada para almacenar el número de bloque
+								//en el cual se debe insertar un registro
+	
 	//Leo el tamanio del buffer a recibir
 	pipe.leer(&tamanioBuffer);
 	
@@ -86,16 +97,6 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos 
 		}
 	}
 	
-	MapaIndices mapaIndices;
-	unsigned char tipoIndice;
-	Clave *clave, *claveResultante = NULL;
-	Indice* indice;
-	//Posibles valores de retorno de las funciones de los índices
-	//TODO Ver si hay que reservar memoria para el bloque de datos
-	char* bloqueDatosAEnviar;
-	SetClaves* setClavesPrimarias; //Conjunto de claves primarias (indice secundario)
-	unsigned int nroBloque = 0; //Variable utilizada para almacenar el número de bloque
-								//en el cual se debe insertar un resgistro
 	
 	//Se crean los indices correspondientes al tipo 'nombreTipo'
 	crearIndices(nombreTipo, mapaIndices, defManager);
