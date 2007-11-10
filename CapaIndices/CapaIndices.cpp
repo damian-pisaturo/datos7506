@@ -158,7 +158,7 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos 
 
 int main(int argc, char* argv[]) {
 	
-/*	ComuDatos pipe(argv);
+	ComuDatos pipe(argv);
 	unsigned char codOp;
 	string nombreTipo;
 	
@@ -168,38 +168,19 @@ int main(int argc, char* argv[]) {
 	char resultado = procesarOperacion(codOp, nombreTipo, pipe);
 	
 	//TODO Enviar resultado a la capa de metadata!
-	pipe.escribir(resultado);*/
+	pipe.escribir(resultado);
 	
+	/* MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
 	IndiceArbol indice(TipoIndices::GRIEGO, 512, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BP, 512, "locura");
 	
 	indice.insertar(new ClaveEntera(346), NULL);
 	indice.insertar(new ClaveEntera(9870), NULL);
 	indice.insertar(new ClaveEntera(2345), NULL);
-	
 	indice.insertar(new ClaveEntera(123), NULL);
 	indice.insertar(new ClaveEntera(456), NULL);
 	indice.insertar(new ClaveEntera(789), NULL);
-	
-	
+
 	cout << "Fin Main" << endl;
+	*/
 }
 
-/*
-//HARDCODEO A MANO PARA PROBAR
-strcpy(bufferPipe,"clave1");
-bufferPipe[6] = CodigosPipe::COD_FIN_CLAVE;
-strcpy(bufferPipe+7,"clave2");
-bufferPipe[13] = CodigosPipe::COD_FIN_CLAVE;
-strcpy(bufferPipe+14,"bloque");
-//FIN HARDCODEO
-
-//PRUEBA DEL MINI PARSER
-for (DefinitionsManager::ListaValoresClaves::iterator iter = listaValoresClaves.begin();
-iter != listaValoresClaves.end(); ++iter)
-	cout << *iter << endl;
-
-if (posAnterior != string::npos)
-	cout << bufferPipe + posAnterior << endl;
-else cout << "no se recibio bloque" << endl;
-//FIN PRUEBA MINI PARSER
-*/

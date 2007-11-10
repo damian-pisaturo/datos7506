@@ -127,10 +127,7 @@ void NodoBPlus::actualizarEspacioLibre(Clave* clave, bool insercion)
 		cout << "Espacio Libre que le resto: " << (clave->getTamanioEnDisco()) << endl;
 		*/
 		if (this->getNivel() != 0) this->setEspacioLibre(this->getEspacioLibre() + Tamanios::TAMANIO_REFERENCIA - clave->getTamanioEnDisco());
-		else{
-			cout << "fierita" << endl;
-			this->setEspacioLibre(this->getEspacioLibre() - clave->getTamanioEnDisco());
-		}
+		else this->setEspacioLibre(this->getEspacioLibre() - clave->getTamanioEnDisco());
 	}
 	else{
 		if (this->getNivel() != 0) this->setEspacioLibre(this->getEspacioLibre() + clave->getTamanioEnDisco() - Tamanios::TAMANIO_REFERENCIA);
