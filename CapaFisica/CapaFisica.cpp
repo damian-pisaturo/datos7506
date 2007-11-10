@@ -23,10 +23,10 @@
 //			(Funcion main() para la Capa Fisica que interpreta las
 //			llamadas de la Capa de Indices).
 ///////////////////////////////////////////////////////////////////////////
+
 /*
 	int main(int argc, char**argv)
 	{			
-		cout << "CAPA FISICA" << endl;
 		char resultado = ResFisica::OK;
 		
 		if (argc > 3){
@@ -198,9 +198,6 @@
 				unsigned int* buckets = NULL;
 				
 				((ArchivoIndiceHash*)archivo)->leerTabla(&tamanio, buckets);
-				
-				cout << "Leyendo tabla hash" << nombreArchivo << endl;
-				cout << "Tamanio tabla: " << tamanio << endl;
 								
 				pipe.escribir(tamanio);
 				
@@ -486,6 +483,7 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	cout << "Insertando registro 3 (Clave " << entero2 << ")" << endl;
 	manuColoquio->insertar(new ClaveEntera(555),registro);
 	
+	
 	for (int i = 1; i<16; i++) {
 		entero2 = 55 + i;
 		memcpy(registro + 25, &entero2,sizeof(int));
@@ -495,6 +493,7 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 			
 		manuColoquio->insertar(new ClaveEntera(55 + i),registro);
 	}
+	
 	
 	delete[] registro;
 	delete manuColoquio;

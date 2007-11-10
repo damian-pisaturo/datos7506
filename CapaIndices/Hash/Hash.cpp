@@ -398,7 +398,7 @@ bool Hash::esRegistroVariable()
 
 char* Hash::serializarClave(void** claveVoid)
 {
-	list<nodoLista>::const_iterator it;
+	ListaNodos::const_iterator it;
 	it = listaParam->begin();
 	
 	int tipo;

@@ -34,11 +34,7 @@ Tabla::Tabla(string nombreArchivo, IndiceHashManager* arch, unsigned int tamBuck
 	if (arch){
 		this->archivo = arch;
 		this->archivo->leerTabla(&tamTabla, numerosTabla);
-		
-		cout<< "tamanioTabla:" << tamTabla <<endl;
-		cout<< "posicion 0 --> Bloque n°: " << numerosTabla[0]<<endl;
-		cout<< "posicion 1 --> Bloque n°: " << numerosTabla[1]<<endl;
-		
+				
 		// Si la tabla no existe, en tamanio devuelve 0.
 		// En ese caso, se crea una tabla.
 		if (tamTabla == 0) 
@@ -52,11 +48,7 @@ Tabla::Tabla(string nombreArchivo, IndiceHashManager* arch, unsigned int tamBuck
 }
 
 Tabla::~Tabla()
-{
-	cout<< "tamanioTabla:" << this->tamanio <<endl;
-	cout<< "nroBucket 0 :" << (this->nroBucket)[0]<<endl;
-	cout<< "nroBucket 1 :" << (this->nroBucket)[1]<<endl;
-			
+{	
 	this->archivo->escribirTabla(this->tamanio,this->nroBucket);
 	
 	if(this->nroBucket)
@@ -81,8 +73,6 @@ void Tabla::crear(string nombreArchivo, unsigned int tamanioBloque)
 	
 	// Setea en la posición 0 de la tabla al bucket 0.
 	this->setNroBucket(0,0);
-	
-	cout << "Se va a crear un bucket"<<endl;
 	
 	// Crea un archivo de datos con un bucket vacío y lo escribe a disco.
 	Bucket * bucket = new Bucket(0, 1, tamanioBloque);
@@ -200,7 +190,7 @@ void Tabla::reducirTabla()
 	for (unsigned int i=0; i< (getTamanio());i++)
 		tabla[i] = getNroBucket(i);
 	
-	delete nroBucket;
+	delete[] nroBucket;
 	nroBucket = tabla;
 }
 
@@ -218,13 +208,12 @@ void Tabla::duplicarTabla(){
 	memcpy(&nroBuckets[tamanio],this->nroBucket,tamanio);
 	
 	// Se actualiza la tabla.
-	delete this->nroBucket;
+	delete[] this->nroBucket;
 	this->nroBucket = nroBuckets;
 	
 	// Se actualiza el tamaño de la tabla.
 	tamanio *= 2;
 	
-	cout << "la tabla ya se duplico!"<< endl;
 }
 
 /*
