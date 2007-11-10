@@ -38,15 +38,15 @@ public:
 				  DefinitionsManager::ListaClaves* listaClaves, Bloque* bloque,
 				  char* registroEnDisco);
 	
-
-private:
-	// Registro que se genera para realizar un alta o modificacion en disco
-	char *registro;
 	/*
 	 * Calcula la longitud del registro para reservar memoria para el mismo
 	 * */ 
 	unsigned short getTamanioRegistro(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
 									  const DefinitionsManager::ListaValoresAtributos &listaVA);
+
+private:
+	// Registro que se genera para realizar un alta o modificacion en disco
+	char *registro;
 	/*
 	 * Genera  el registro modificado
 	 * */
