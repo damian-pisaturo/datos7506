@@ -23,10 +23,10 @@
 //			(Funcion main() para la Capa Fisica que interpreta las
 //			llamadas de la Capa de Indices).
 ///////////////////////////////////////////////////////////////////////////
-
 /*
 	int main(int argc, char**argv)
-	{						
+	{			
+		cout << "CAPA FISICA" << endl;
 		char resultado = ResFisica::OK;
 		
 		if (argc > 3){
@@ -190,11 +190,17 @@
 			
 			case OperacionesCapas::FISICA_LEER_TABLA_HASH:
 			{	
+				cout << "Creando archivo " << nombreArchivo << endl;
+				cout << "Tamanio bloque: " << tamBloque << endl;
+				
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				unsigned int tamanio  = 0;
 				unsigned int* buckets = NULL;
 				
 				((ArchivoIndiceHash*)archivo)->leerTabla(&tamanio, buckets);
+				
+				cout << "Leyendo tabla hash" << nombreArchivo << endl;
+				cout << "Tamanio tabla: " << tamanio << endl;
 								
 				pipe.escribir(tamanio);
 				
@@ -385,18 +391,20 @@
 	
 		return resultado;		
 	}
-*/
 
+*/
 
 #include "../CapaIndices/Indices/IndiceHash.h"
  
 int main(int estaRePedanticEsto, char** hinchaPelotas)
 {	
+	cout << "PINCHA" << endl;
 	RegisterInfo* regInfo = new RegisterInfo();
 	
 	string nom = "ernesto";
 	unsigned int tam = 512;
 	Indice *manuColoquio = new IndiceHash(regInfo->getParameterList(),tam,nom);	
+	
 	
 	int entero1 = 25;
 	char* cadena = new char[24];
@@ -483,8 +491,7 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 		memcpy(registro + 25, &entero2,sizeof(int));
 		
 		cout << endl;
-		cout << "Insertando registro " << i + 3 << " (Clave " << entero2 << ")" << endl;
-			
+		cout << "Insertando registro " << i + 3 << " (Clave " << entero2 << ")" << endl;			
 			
 		manuColoquio->insertar(new ClaveEntera(55 + i),registro);
 	}
@@ -498,3 +505,6 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	
 	return 0;
 }
+
+
+

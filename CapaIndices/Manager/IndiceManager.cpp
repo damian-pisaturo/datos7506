@@ -827,6 +827,7 @@
 			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño de un bucket en disco.
 			
 			//Se lanza el proceso de la capa fisica. 
+			cout << "voy a lanzar el pipe"<< endl;
 			pipe->lanzar();
 			
 			//Obtener tamaño de la tabla
