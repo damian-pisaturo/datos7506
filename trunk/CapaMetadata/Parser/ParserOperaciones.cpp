@@ -18,8 +18,7 @@ string ParserOperaciones::generarPrototipoClave(DefinitionsManager::ListaClaves 
 	return clave;
 }
 
-ParserOperaciones::ParserOperaciones(const string &nombreArchivo, MapaMapaIndices mapaMapaIndices)
-									: mapaMapaIndices(mapaMapaIndices) {
+ParserOperaciones::ParserOperaciones(const string &nombreArchivo) {
 	archivo.open(nombreArchivo.c_str());
 }
 

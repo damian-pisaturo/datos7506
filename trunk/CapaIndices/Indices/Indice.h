@@ -3,6 +3,7 @@
 
 #include "../../Common/DefinitionsManager.h"
 #include "../Common/Clave.h"
+#include "../Common/SetClaves.h"
 #include <vector>
 #include <map>
 

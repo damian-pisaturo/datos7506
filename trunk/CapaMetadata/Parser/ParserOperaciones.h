@@ -15,7 +15,6 @@
 #include <fstream>
 #include <list>
 
-#include "../../ComuDatos/ComuDatos.cpp"
 #include "../../Common/DefinitionsManager.h"
 #include "../DataManager/DataManager.h"
 #include "../../CapaIndices/Indices/Indice.h"
@@ -24,6 +23,7 @@
 #include "../../Common/NombresCapas.h"
 #include "../../Common/OperacionesCapas.h"
 #include "../../Common/CodigosPipe.h"
+
 using namespace std;
 
 class ParserOperaciones {
@@ -31,10 +31,9 @@ class ParserOperaciones {
 	private:
 		 
 		ifstream archivo;
-		MapaMapaIndices mapaMapaIndices;
 	
 	public:
-		ParserOperaciones(const string &nombreArchivo, MapaMapaIndices mapaMapaIndices);
+		ParserOperaciones(const string &nombreArchivo);
 		virtual ~ParserOperaciones();
 		
 		//Devuelve false cuando se encuentra con una operacion que no entiende como ejecutar.
