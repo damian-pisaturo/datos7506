@@ -175,18 +175,19 @@ int main(int argc, char* argv[]) {
 	
 	//TODO Enviar resultado a la capa de metadata!
 	pipe.escribir(resultado);
-	
-	/* MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
+	/*
+	// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
 	IndiceArbol indice(TipoIndices::GRIEGO, 512, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BP, 512, "locura");
 	
-	indice.insertar(new ClaveEntera(346), NULL);
-	indice.insertar(new ClaveEntera(9870), NULL);
-	indice.insertar(new ClaveEntera(2345), NULL);
-	indice.insertar(new ClaveEntera(123), NULL);
-	indice.insertar(new ClaveEntera(456), NULL);
-	indice.insertar(new ClaveEntera(789), NULL);
+	char* null = NULL;
+	indice.insertar(new ClaveEntera(346), null);
+	indice.insertar(new ClaveEntera(9870), null);
+	indice.insertar(new ClaveEntera(2345), null);
+	indice.insertar(new ClaveEntera(123), null);
+	indice.insertar(new ClaveEntera(456), null);
+	indice.insertar(new ClaveEntera(789), null);
 
-	cout << "Fin Main" << endl;
-	*/
+	cout << "Fin Main" << endl;*/
+	
 }
 

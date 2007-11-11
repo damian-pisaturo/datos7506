@@ -131,7 +131,9 @@
 			HeaderNodo headerNodo;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisica para
 			//leer un nodo de disco.
@@ -209,7 +211,9 @@
 			SetClaves* set = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 	
 			//Parametros de inicializacion de la Capa Fisica para
 			//escribir un nodo en disco.		
@@ -276,7 +280,9 @@
 			SetClaves* set = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 	
 			//Parametros de inicializacion de la Capa Fisica.
 			pipe->agregarParametro(OperacionesCapas::FISICA_MODIFICAR_NODO, 0); //Codigo de operacion.
@@ -332,7 +338,9 @@
 			char resultado = 0;
 		
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros para inicializar el pipe.
 			pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_NODO, 0); //Codigo de operacion.
@@ -367,7 +375,9 @@
 			SetClaves* set = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisica.
 			pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO_DOBLE, 0); //Codigo de operacion.
@@ -435,7 +445,9 @@
 			SetClaves* set = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisica.
 			pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO_DOBLE, 0); //Codigo de operacion.
@@ -507,7 +519,9 @@
 			SetClaves* set = new SetClaves();
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisica para
 			//leer un nodo de disco.
@@ -581,7 +595,9 @@
 			char resultado = 0;
 		
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros para inicializar el pipe.
 			pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_NODO_DOBLE, 0); //Codigo de operacion.
@@ -629,7 +645,9 @@
 			HeaderBucket headerBucket;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de ejecucion de la Capa Fisica para leer
 			//un bucket de disco.
@@ -674,7 +692,9 @@
 			char* data = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de ejecucion de la Capa Fisica para escribir un
 			//bucket a disco.
@@ -711,7 +731,9 @@
 			char* buffer = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de ejecucion de la Capa Fisica para modificar
 			//un bucket en disco.
@@ -745,7 +767,9 @@
 			char resultado = ResultadosFisica::OK;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//eliminar un bucket de disco.
@@ -769,7 +793,9 @@
 			char* bucketsTabla = NULL;
 						
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisica para
 			//leer la tabla de dispersion 
@@ -802,7 +828,9 @@
 			char* bucketsTabla = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisica para
 			//actualizar la tabla de dispersion 
@@ -1024,7 +1052,9 @@
 			unsigned int cantClaves = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -1121,7 +1151,9 @@
 			unsigned int cantClaves = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -1314,7 +1346,9 @@
 			unsigned int cantClaves = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -1466,7 +1500,9 @@
 			unsigned int cantClaves = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -1560,7 +1596,9 @@
 			unsigned int cantClaves = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -1685,7 +1723,9 @@
 			ClaveFecha::TFECHA fecha;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -2096,7 +2136,9 @@
 			unsigned int cantClaves = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			string path = RUTA_CAPA_FISICA;
+			path += NOMBRE_CAPA_FISICA;
+			ComuDatos* pipe = instanciarPipe(path);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
