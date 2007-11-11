@@ -24,10 +24,9 @@
 //			llamadas de la Capa de Indices).
 ///////////////////////////////////////////////////////////////////////////
 
-/*
 	int main(int argc, char**argv)
 	{			
-		char resultado = ResFisica::OK;
+		char resultado = ResultadosFisica::OK;
 		
 		if (argc > 3){
 
@@ -56,17 +55,17 @@
 				//dentro del archivo.
 				pipe.parametro(3, &numBloque);
 	
-				archivo = new ArchivoIndice(nombreArchivo, tamBloque);
+				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 				
 				buffer = new char[tamBloque*sizeof(char) + 1];
 				
 				//Lectura del nodo dentro del archivo.
-				resultado = ((ArchivoIndice*)archivo)->leerBloque(buffer, numBloque);
+				resultado = ((ArchivoIndiceArbol*)archivo)->leerBloque(buffer, numBloque);
 										
 				//Envio del resultado de la operacion de lectura.
 				pipe.escribir(resultado);
 							
-				if (resultado == ResFisica::OK)
+				if (resultado == ResultadosFisica::OK)
 					//Envio de datos a traves del pipe.
 					pipe.escribir(buffer, tamBloque);	
 											
@@ -75,7 +74,7 @@
 			//Escritura de un nodo de arbol
 			case OperacionesCapas::FISICA_ESCRIBIR_NODO:
 			{	
-				archivo = new ArchivoIndice(nombreArchivo, tamBloque);
+				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 				buffer = new char[tamBloque*sizeof(char) + 1];
 								
 				//Obtencion del nodo escribir a traves del pipe.
@@ -83,7 +82,7 @@
 				
 				//Escritura del nodo a disco.
 				//Se obtiene la posicion donde fue escrito.				
-				numBloque = ((ArchivoIndice*)archivo)->escribirBloque(buffer);
+				numBloque = ((ArchivoIndiceArbol*)archivo)->escribirBloque(buffer);
 				
 				//Se envia la nueva posicion del nodo.
 				pipe.escribir(numBloque);		
@@ -95,7 +94,7 @@
 				buffer = new char[tamBloque*sizeof(char)];
 				pipe.parametro(3, &numBloque);
 				
-				archivo = new ArchivoIndice(nombreArchivo, tamBloque);
+				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 				
 			//Obtencion del nodo a escribir a traves del pipe.
 				pipe.leer(tamBloque, buffer);
@@ -112,10 +111,10 @@
 			{
 				pipe.parametro(3, &numBloque);
 				
-				archivo = new ArchivoIndice(nombreArchivo, tamBloque);
+				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 				
 				//Escritura del nodo a disco en la posicion pasada por parametro.				
-				resultado = ((ArchivoIndice*)archivo)->eliminarBloque(numBloque);
+				resultado = ((ArchivoIndiceArbol*)archivo)->eliminarBloque(numBloque);
 				
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
@@ -123,7 +122,7 @@
 						
 			case OperacionesCapas::FISICA_LEER_BUCKET:
 			{				
-				//Obtencion del tamaño del bucket y su numero
+				//Obtencion su numero de bucket
 				//dentro del archivo.				
 				pipe.parametro(3, &numBloque);
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
@@ -136,7 +135,7 @@
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
 				
-				if (resultado == ResFisica::OK)
+				if (resultado == ResultadosFisica::OK)
 					//Envio de datos a traves del pipe.
 					pipe.escribir(buffer, tamBloque);
 				
@@ -226,22 +225,80 @@
 			
 			case OperacionesCapas::FISICA_ESCRIBIR_NODO_DOBLE:
 			{
-				//TODO
+				buffer = new char[2*tamBloque*sizeof(char)];
+				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
+				
+				// Obtencion del primer nodo a escribir a traves del pipe.
+				pipe.leer(tamBloque, buffer);
+				
+				// Obtencion del segundo nodo a escribir a traves del pipe.
+				pipe.leer(tamBloque, buffer + tamBloque);
+				
+				// Escritura del bucket a disco.
+				// Se obtiene la posicion donde fue escrito.
+				numBloque = ((ArchivoIndiceArbol*)archivo)->escribirBloqueDoble(buffer);
+				
+				// Se envia la nueva posicion del nodo.
+				pipe.escribir(numBloque);	
+				
 			}break;
 			
 			case OperacionesCapas::FISICA_LEER_NODO_DOBLE:
 			{
-				//TODO			
+				//Obtencion del primer numero de nodo a leer			
+				pipe.parametro(3, &numBloque);
+				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
+				
+				buffer = new char[2*tamBloque*sizeof(char)];
+				
+				//Lectura del bucket dentro del archivo.
+				resultado = ((ArchivoIndiceArbol*)archivo)->leerBloqueDoble(buffer, numBloque);
+				
+				//Envio del resultado de la operacion a traves del pipe.
+				pipe.escribir(resultado);
+				
+				if (resultado == ResultadosFisica::OK){
+					//Envio del primer nodo a traves del pipe.
+					pipe.escribir(buffer, tamBloque);
+					
+					//Envio del segundi nodo a traves del pipe.
+					pipe.escribir(buffer + tamBloque, tamBloque);
+				}	
 			}break;
 			
 			case OperacionesCapas::FISICA_MODIFICAR_NODO_DOBLE:
 			{
-				//TODO	
+				buffer = new char[2*tamBloque*sizeof(char)];
+				pipe.parametro(3, &numBloque);
+				
+				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);				
+				
+				// Obtencion del primer nodo a escribir a traves del pipe.
+				pipe.leer(tamBloque, buffer);
+				
+				// Obtencion del segundo nodo a escribir a traves del pipe.
+				pipe.leer(tamBloque, buffer + tamBloque);
+				
+				//Escritura del nodo a disco en la posicion pasada por parametro.
+				resultado = ((ArchivoIndiceArbol*)archivo)->escribirBloqueDoble(buffer, numBloque);
+				
+				//Envio del resultado de la operacion a traves del pipe.
+				pipe.escribir(resultado);
 			}break;
 			
 			case OperacionesCapas::FISICA_ELIMINAR_NODO_DOBLE:
 			{
-				//TODO	
+				//Obtencion del numero del primer nodo a eliminar
+				pipe.parametro(3, &numBloque);
+				
+				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
+				
+				//Eliminacion de ambos nodos				
+				resultado = ((ArchivoIndiceArbol*)archivo)->eliminarBloqueDoble(numBloque);
+				
+				//Envio del resultado de la operacion a traves del pipe.
+				pipe.escribir(resultado);
+				
 			}break;
 			
 			case OperacionesCapas::FISICA_LEER_DATO:
@@ -272,7 +329,7 @@
 				//Envio del resultado de la operacion de lectura.
 				pipe.escribir(resultado);
 							
-				if (resultado == ResFisica::OK)
+				if (resultado == ResultadosFisica::OK)
 					//Envio de datos a traves del pipe.
 					pipe.escribir(buffer, tamBloque);	
 					
@@ -368,7 +425,7 @@
 				
 			default:
 				
-				resultado = ResFisica::OPERACION_INVALIDA;
+				resultado = ResultadosFisica::OPERACION_INVALIDA;
 				
 			break;		
 			
@@ -382,13 +439,12 @@
 			if (archivo)
 				delete archivo;
 			
-		}else resultado = ResFisica::CANT_ARGUMENTOS_INVALIDA;
+		}else resultado = ResultadosFisica::CANT_ARGUMENTOS_INVALIDA;
 	
 		return resultado;		
 	}
-*/
 
-
+/*
 #include "../CapaIndices/Indices/IndiceHash.h"
  
 int main(int estaRePedanticEsto, char** hinchaPelotas)
@@ -562,6 +618,6 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	cout << "==========FIN APLICACION==========" << endl;
 	
 	return 0;
-}
+}*/
 
 

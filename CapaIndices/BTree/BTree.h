@@ -3,7 +3,7 @@
 
 #include "../Common/Nodo.h"
 #include "../Manager/IndiceManager.h"
-#include "../../Common/ResFisica.h"
+#include "../../Common/ResultadosFisica.h"
 
 class BTree {
 	

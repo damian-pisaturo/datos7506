@@ -9,9 +9,9 @@
 #include "../../CapaIndices/Common/ClaveFactory.h"
 #include <string>
 
-using namespace std;
+#define CAMPO_NO_MODIFICADO ""
 
-#define CAMPO_NO_MODIFICADO "" 
+using namespace std;
 
 class DataManager
 {

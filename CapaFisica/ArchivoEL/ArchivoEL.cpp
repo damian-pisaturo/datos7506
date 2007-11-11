@@ -31,16 +31,17 @@
 		ArchivoEL::ArchivoEL(string nombre, unsigned short tamBloque) :
 			ArchivoBase(nombre, tamBloque)
 		{
-			//Si el archivo esta vacio, agregar el primer registro
-			//booleano.
-			//cout << "Size:" << this->size() << endl;
+			//Si el archivo esta vacio, agregar los dos primeros
+			//registros booleanos.
 			if (this->size() == 0){	
 				bool valor = true;
-				this->agregarRegistro(&valor);				
+				this->agregarRegistro(&valor);
+				this->agregarRegistro(&valor);					
 			}			
 		}
 		
-		ArchivoEL::~ArchivoEL(){ }
+		ArchivoEL::~ArchivoEL()
+		{ }
 		
 	///////////////////////////////////////////////////////////////////////
 	//	Metodos publicos
@@ -98,6 +99,37 @@
 			}
 			
 			if (!libre)
+				numBloque = ResultadosFisica::BLOQUES_OCUPADOS;
+
+			return numBloque;		
+		}
+		
+		short ArchivoELFijo::buscarBloqueDobleLibre()
+		{
+			char cantLibres = 0;
+			short numBloque = -1;
+			bool libre      = false;			
+
+			//Posicionarse al comienzo del archivo de espacio libre.
+			this->posicionarse(0);
+			
+			//Recorrer el archivo hasta encontrar los dos primeros valores
+			//booleanos en true, o hasta llegar al final del mismo.
+			while( (cantLibres < 2) && (!this->fin()) ){				
+				numBloque++;
+				cantLibres = 0;
+				this->leer(&libre);
+				
+				if (libre){ 
+					cantLibres++;
+					this->leer(&libre);
+					if (libre) cantLibres++;
+				}				
+			}
+			
+			//Si no existen dos bloques consecutivos libres, se devuelve
+			//BLOQUES_OCUPADOS.
+			if (cantLibres < 2)
 				numBloque = ResultadosFisica::BLOQUES_OCUPADOS;
 
 			return numBloque;		

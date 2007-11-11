@@ -24,7 +24,7 @@
 
 #include <iostream>
 
-#include "../../Common/ResFisica.h"
+#include "../../Common/ResultadosFisica.h"
 #include "../Common/Nodo.h"
 #include "../../Common/Tamanios.h"
 #include "../Common/SetClaves.h"
@@ -52,7 +52,7 @@ class IndiceManager
 	///////////////////////////////////////////////////////////////////////
 		string nombreArchivo;
 		unsigned int tamanioBloque;
-		unsigned int tipoIndice;
+		unsigned char tipoIndice;
 		
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -193,10 +193,7 @@ class IndiceArbolManager : public IndiceManager
 		virtual int escribirBloqueDoble(BloqueIndice* bloqueNuevo);
 		virtual int escribirBloqueDoble(unsigned short numBloque, BloqueIndice* bloqueModif);
 		virtual int leerBloqueDoble(unsigned short numBloque, BloqueIndice* bloqueLeido);
-		
-		/*Exportar el archivo de Indice
-		 */
-		void exportar(ostream &archivoTexto,int posicion);
+	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Metodos publicos
@@ -301,9 +298,6 @@ class IndiceSecundarioManager: public IndiceArbolManager
 		 * $$$: Recordar que el valor que sale de aca se tiene que grabar
 		 * en el NODO, estoy hay que hacerlo antes de insertar en el arbol*/ 
 		virtual unsigned int escribirListaClaves(SetClaves* setClaves);
-	
-		/*Redefino el exportar para que tb imprima la lista de claves primarias*/
-		void exportar(ostream &archivoTexto,int posicion);
 	
 	//////////////////////////////////////////////////////////////////////
 	// Getter

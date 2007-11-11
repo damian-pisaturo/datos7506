@@ -59,12 +59,7 @@
 				//Se modifica el atributo booleano de control
 				//en el archivo de espacio libre.
 				archivoEL->agregarRegistro(&valor);
-				
-				cout << "Todos los bloques ocupados. Agrego nuevo valor al archivo de control" << endl;
-				//Se agrega nueva entrada booleana al archivo de control
-				//de espacio libre.
-				//valor = true;
-				//archivoEL->agregarRegistro(&valor);
+
 			}else{ 
 				this->posicionarse(bloqueLibre);
 				archivoEL->modificarRegistro(&valor, bloqueLibre);
@@ -313,6 +308,107 @@
 			this->archivoTabla->escribirCantElementos(cantElem);
 			this->archivoTabla->escribirTabla(elementos);			
 		}
+		
+
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//-----------------------------------------------------------------------
+// Nombre: ArchivoIndiceArbol
+//			(Permite el manejo de archivos empleados en la persistencia de
+//			datos a traves de indices con estructura de arbol B+ o B*).
+///////////////////////////////////////////////////////////////////////////
+ 
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		ArchivoIndiceArbol::ArchivoIndiceArbol(string nombreArchivo, unsigned short tamBucket):
+			ArchivoIndice(nombreArchivo, tamBucket)
+			{ }
+		
+		ArchivoIndiceArbol::~ArchivoIndiceArbol() { }
+		
+	///////////////////////////////////////////////////////////////////////
+	//	Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+
+		short ArchivoIndiceArbol::escribirBloqueDoble(const void* nodo)
+		{
+			bool valor = false;
+			ArchivoELFijo* archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
+			
+			short bloqueLibre = archivoEL->buscarBloqueDobleLibre();
+			
+			if (bloqueLibre == ResultadosFisica::BLOQUES_OCUPADOS){
+				//Si ningun par de bloques consecutivos esta libre, appendea al
+				//final del archivo. 
+				this->posicionarseFin();
+				bloqueLibre = this->posicion();
+				
+				//Se modifica el atributo booleano de control
+				//en el archivo de espacio libre.
+				archivoEL->agregarRegistro(&valor);
+
+			}else{ 
+				this->posicionarse(bloqueLibre);
+				archivoEL->modificarRegistro(&valor, bloqueLibre);
+				archivoEL->modificarRegistro(&valor, bloqueLibre + 1);
+			}
+			
+			//Escritura del nodo doble a disco.
+			this->escribir(nodo);
+			this->escribir((char*)nodo + this->getTamanioBloque());
+			
+			return bloqueLibre;
+		}
+		
+		
+		char ArchivoIndiceArbol::escribirBloqueDoble(const void* nodo, unsigned short numBloque)
+		{
+			char resultado = ResultadosFisica::OK;
+			bool valor     = false;
+			ArchivoELFijo* archivoEL = NULL;
+			
+			resultado = this->posicionarse(numBloque);
+			
+			if (resultado == ResultadosFisica::OK){
+				resultado = this->escribir(nodo);
+				
+				if (resultado == ResultadosFisica::OK){
+					resultado = this->escribir((char*)nodo + this->getTamanioBloque());
+					
+					//Se modifica la entrada correspondiente al bloque 
+					//modificado en el archivo de control de espacio libre.
+					archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
+					archivoEL->modificarRegistro(&valor, numBloque);
+					archivoEL->modificarRegistro(&valor, numBloque + 1);
+					
+				}
+			}
+			
+			return resultado;
+		}
+		
+
+		char ArchivoIndiceArbol::eliminarBloqueDoble(unsigned short numNodo)
+		{
+			char resultado = this->eliminarBloque(numNodo);
+			
+			if (resultado == ResultadosFisica::OK)
+				resultado = this->eliminarBloque(numNodo + 1);
+			
+			return resultado;
+		}
+		
+		char ArchivoIndiceArbol::leerBloqueDoble(void* nodo, unsigned short numNodo)
+		{
+			char resultado = this->leerBloque(nodo, numNodo);
+			
+			if (resultado == ResultadosFisica::OK)
+				resultado = this->leerBloque((char*)nodo + this->getTamanioBloque(), numNodo + 1);
+			
+			return resultado;
+		}
+					
 				
 
 		

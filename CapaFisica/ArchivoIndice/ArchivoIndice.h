@@ -18,7 +18,7 @@
 
 #include "../ArchivoBase/ArchivoBase.h"
 #include "../ArchivoEL/ArchivoEL.h"
-#include "../../Common/ResFisica.h"
+#include "../../Common/ResultadosFisica.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -154,6 +154,13 @@ class ArchivoTablaHash :public ArchivoBase
 		
 }; /*Fin clase ArchivoTablaHash*/
 
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//-----------------------------------------------------------------------
+// Nombre: ArchivoIndiceHash
+//			(Permite el manejo de archivos empleados en la persistencia de
+//			datos a traves de un indice de dispersion extensible).
+///////////////////////////////////////////////////////////////////////////
 class ArchivoIndiceHash : public ArchivoIndice
 {
 	private:
@@ -181,6 +188,49 @@ class ArchivoIndiceHash : public ArchivoIndice
 			void escribirTabla(unsigned int cantElem, unsigned int* elementos);			
 			
 };
+
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//-----------------------------------------------------------------------
+// Nombre: ArchivoIndiceArbol
+//			(Permite el manejo de archivos empleados en la persistencia de
+//			datos a traves de indices con estructura de arbol B+ o B*).
+///////////////////////////////////////////////////////////////////////////
+class ArchivoIndiceArbol : public ArchivoIndice
+{		
+	public:
+		///////////////////////////////////////////////////////////////////////
+		// Constructor/Destructor
+		///////////////////////////////////////////////////////////////////////
+			ArchivoIndiceArbol(string nombreArchivo, unsigned short tamNodo);
+			virtual ~ArchivoIndiceArbol();
+		
+		///////////////////////////////////////////////////////////////////////
+		//	Metodos publicos
+		///////////////////////////////////////////////////////////////////////
+			
+			/*Añade dos nuevos nodos en los dos primeros bloques libres indicados
+			 * por el archivo de control de espacio libre. Devuelve
+			 * el numero de bloque en el que fue insertado el primero de ellos.
+			 */
+			short escribirBloqueDoble(const void* nodo);
+			
+			/*Modifica los nodos cuyos numeros en el archivo son numNodo y numNodo + 1 
+			 * con el contenido de 'nodo'.
+			 */
+			char escribirBloqueDoble(const void* nodo, unsigned short numBloque);	
+			
+			/*Actualiza el archivo de control de espacio libre, modificando
+			 * las entradas booleana correspondiente a numNodo y numNodo + 1 .
+			 */
+			char eliminarBloqueDoble(unsigned short numNodo);
+			
+			/*Devuelve en 'nodo' los bloques del archivo de indice cuyas 
+			 * posiciones son numNodo y numNodo + 1.
+			 */
+			char leerBloqueDoble(void* nodo, unsigned short numNodo);
+			
+}; /*Fin clase ArchivoIndiceArbol*/
 
 #endif /*ARCHIVOINDICEARBOL_H_*/
 
