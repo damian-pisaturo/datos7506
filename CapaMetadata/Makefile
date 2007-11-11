@@ -4,12 +4,12 @@
 # Nombre del ejecutable.
 target = capaMetadata
 
-# Extensi�n de los archivos a compilar (c para C, cpp o cc o cxx para C++).
+# Extensión de los archivos a compilar (c para C, cpp o cc o cxx para C++).
 extension = cpp
 
-# Archivos con el c�digo fuente que componen el ejecutable. Si no se especifica,
-# toma todos los archivos con la extensi�n mencionada. Para especificar hay que
-# descomentar la l�nea (quitarle el '#' del principio).
+# Archivos con el código fuente que componen el ejecutable. Si no se especifica,
+# toma todos los archivos con la extensión mencionada. Para especificar hay que
+# descomentar la línea (quitarle el '#' del principio).
 # NOTA: No poner cabeceras (.h). 
 
 fuentes = DataManager/DataManager.cpp
@@ -40,7 +40,7 @@ CXXFLAGS = $(CFLAGS) -fno-inline
 # VARIABLES CALCULADAS A PARTIR DE LA CONFIGURACION
 ####################################################
 
-# Uso enlazador de c++ si es c�digo no C.
+# Uso enlazador de c++ si es código no C.
 ifeq ($(extension), c)
 enlazador = $(CC)
 else
@@ -64,4 +64,4 @@ $(target): $(o_files)
 	$(enlazador) $(LDFLAGS) $(o_files) $(LOADLIBES) $(LDLIBS) -o $(target)
 
 clean:
-	@$(RM) -fv *.o $(target)
+	@$(RM) -fv $(o_files) $(target)
