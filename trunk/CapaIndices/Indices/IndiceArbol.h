@@ -25,7 +25,7 @@ class IndiceArbol: public Indice {
 		/*
 		 * Este metodo inserta una clave en un indice.
 		 **/
-		int insertar(Clave *clave, char* registro = NULL);
+		int insertar(Clave *clave, char* &registro);
 		
 		/*
 		 * Este metodo elimina una clave del indice. 
@@ -37,7 +37,9 @@ class IndiceArbol: public Indice {
 		 * Este metodo busca una clave dentro del indice, y la devuelve con todos
 		 * sus atributos actualizados.
 		 **/
-		Clave* buscar(Clave *clave, char* registro = NULL) const;
+		Clave* buscar(Clave *clave, char* &registro) const;
+		
+		Clave* buscar(Clave *clave) const;
 		
 		Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const;
 		
@@ -45,7 +47,7 @@ class IndiceArbol: public Indice {
 		 * Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario,
 		 * la reemplaza por claveNueva y devuelve true.
 		 **/
-		bool modificar(Clave* claveVieja, Clave* claveNueva, char* registroNuevo = NULL);
+		bool modificar(Clave* claveVieja, Clave* claveNueva, char* &registroNuevo);
 		
 		char buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque);
 						                       

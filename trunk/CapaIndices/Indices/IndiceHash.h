@@ -53,7 +53,7 @@ class IndiceHash :public Indice
 		/*
 		 * Este metodo inserta un registro en el indice.
 		 **/
-		int insertar(Clave *clave, char* &registro = NULL);
+		int insertar(Clave *clave, char* &registro);
 		
 		/*
 		 * Este metodo elimina un registro del indice.
@@ -65,7 +65,9 @@ class IndiceHash :public Indice
 		 * Siempre retorna NULL y devuelve el registro de clave "clave"
 		 * dentro de "registro".
 		 **/
-		Clave* buscar(Clave *clave, char* &registro = NULL) const;
+		Clave* buscar(Clave *clave, char* &registro) const;
+		
+		Clave* buscar(Clave *clave) const;
 		
 		Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const;
 	

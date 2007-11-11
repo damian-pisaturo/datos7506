@@ -42,6 +42,13 @@
 		
 		return NULL;
 	}
+	
+	Clave* IndiceHash::buscar(Clave *clave) const
+	{
+	//	TODO implementar esto para que diga si la clave existe o no, sin devolver el registro.
+		
+		return NULL;
+	}
 
 	/*
 	 * Elimina al registro de clave "claveVieja" e inserta al registro "registroNuevo".
