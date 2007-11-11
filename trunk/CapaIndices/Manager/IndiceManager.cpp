@@ -131,7 +131,7 @@
 			HeaderNodo headerNodo;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisica para
 			//leer un nodo de disco.
@@ -209,7 +209,7 @@
 			SetClaves* set = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 	
 			//Parametros de inicializacion de la Capa Fisica para
 			//escribir un nodo en disco.		
@@ -276,7 +276,7 @@
 			SetClaves* set = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 	
 			//Parametros de inicializacion de la Capa Fisica.
 			pipe->agregarParametro(OperacionesCapas::FISICA_MODIFICAR_NODO, 0); //Codigo de operacion.
@@ -332,7 +332,7 @@
 			char resultado = 0;
 		
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros para inicializar el pipe.
 			pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_NODO, 0); //Codigo de operacion.
@@ -367,7 +367,7 @@
 			SetClaves* set = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisica.
 			pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO_DOBLE, 0); //Codigo de operacion.
@@ -435,7 +435,7 @@
 			SetClaves* set = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisica.
 			pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO_DOBLE, 0); //Codigo de operacion.
@@ -507,7 +507,7 @@
 			SetClaves* set = new SetClaves();
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisica para
 			//leer un nodo de disco.
@@ -581,7 +581,7 @@
 			char resultado = 0;
 		
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros para inicializar el pipe.
 			pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_NODO_DOBLE, 0); //Codigo de operacion.
@@ -629,7 +629,7 @@
 			HeaderBucket headerBucket;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de ejecucion de la Capa Fisica para leer
 			//un bucket de disco.
@@ -674,7 +674,7 @@
 			char* data = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de ejecucion de la Capa Fisica para escribir un
 			//bucket a disco.
@@ -711,7 +711,7 @@
 			char* buffer = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de ejecucion de la Capa Fisica para modificar
 			//un bucket en disco.
@@ -745,7 +745,7 @@
 			char resultado = ResultadosFisica::OK;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//eliminar un bucket de disco.
@@ -769,7 +769,7 @@
 			char* bucketsTabla = NULL;
 						
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisica para
 			//leer la tabla de dispersion 
@@ -802,7 +802,7 @@
 			char* bucketsTabla = NULL;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisica para
 			//actualizar la tabla de dispersion 
@@ -854,7 +854,7 @@
 		
 		if (setClaves->size() > 0){
 			//Instancia del pipe
-			pipe = instanciarPipe("capaFisica");
+			pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -901,7 +901,7 @@
 		
 		if (setClaves->size() > 0){
 			//Instancia del pipe
-			pipe = instanciarPipe("capaFisica");
+			pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -1024,7 +1024,7 @@
 			unsigned int cantClaves = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -1115,8 +1115,39 @@
 	//////////////////////////////////////////////////////////////////////
 		SetClaves* IndiceBooleanRomanoManager::leerListaClaves(unsigned int posicion)
 		{
-			//TODO 
-			return NULL;
+			
+			SetClaves* setClaves    = NULL;
+			char* bufferClaves      = NULL; 
+			unsigned int cantClaves = 0;
+			
+			//Instancia del pipe
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			
+			//Parametros de inicializacion de la Capa Fisisca para
+			//obtener una lista de claves primarias.
+			pipe->agregarParametro(OperacionesCapas::FISICA_LEER_LISTA, 0); //Codigo de operacion
+			pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
+			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo de la lista en disco
+			pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
+			
+			//Iniciar comunicacion con la Capa Fisica
+			pipe->lanzar();
+			
+			//Obtener tamaño de la lista
+			pipe->leer(&cantClaves);
+			
+			if(cantClaves > 0) {
+				bufferClaves = new char[this->getTamanioBloqueLista()];
+				
+				//Leer la lista del archivo.
+				pipe->leer(this->getTamanioBloqueLista(), bufferClaves);
+				
+				setClaves = new SetClaves();
+				for (unsigned char i = 0; i < cantClaves; i++)
+					setClaves->insert(new ClaveBoolean( *((bool*)bufferClaves) + i));				
+			}
+			
+			return setClaves;
 		}
 		
 	//////////////////////////////////////////////////////////////////////
@@ -1283,7 +1314,7 @@
 			unsigned int cantClaves = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -1435,7 +1466,7 @@
 			unsigned int cantClaves = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -1529,7 +1560,7 @@
 			unsigned int cantClaves = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -1648,8 +1679,100 @@
 	//////////////////////////////////////////////////////////////////////	
 		SetClaves* IndiceFechaRomanoManager::leerListaClaves(unsigned int posicion)
 		{
-			//TODO
-			return NULL;
+			SetClaves* setClaves    = NULL;
+			char* bufferClaves      = NULL; 
+			unsigned int cantClaves = 0;
+			ClaveFecha::TFECHA fecha;
+			
+			//Instancia del pipe
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+			
+			//Parametros de inicializacion de la Capa Fisisca para
+			//obtener una lista de claves primarias.
+			pipe->agregarParametro(OperacionesCapas::FISICA_LEER_LISTA, 0); //Codigo de operacion
+			pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
+			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo de la lista en disco
+			pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
+			
+			//Iniciar comunicacion con la Capa Fisica
+			pipe->lanzar();
+			
+			//Obtener tamaño de la lista
+			pipe->leer(&cantClaves);
+			
+			if(cantClaves > 0) {
+				bufferClaves = new char[this->getTamanioBloqueLista()];
+				
+				//Leer la lista del archivo.
+				pipe->leer(this->getTamanioBloqueLista(), bufferClaves);
+				
+				int offset = 0;
+				
+				setClaves = new SetClaves();
+				for (unsigned char i = 0; i < cantClaves; i++)
+					memcpy(&fecha.anio, bufferClaves + offset, sizeof(fecha.anio));
+					offset += sizeof(fecha.anio);
+					memcpy(&fecha.mes, bufferClaves + offset, sizeof(fecha.mes));
+					offset += sizeof(fecha.mes);
+					memcpy(&fecha.dia, bufferClaves + offset, sizeof(fecha.dia));
+					offset += sizeof(fecha.dia);
+					
+					setClaves->insert(new ClaveFecha(fecha));				
+			}
+			
+			return setClaves;
+		}
+		
+		char IndiceFechaRomanoManager::escribirListaClaves(unsigned int posicion, SetClaves* setClaves)
+		{		
+			char resultado         = 0;
+			char* bufferClaves     = NULL; 
+			ComuDatos* pipe        = NULL;
+			ClaveFecha::TFECHA* fecha;
+			
+			if (setClaves->size() > 0){
+				//Instancia del pipe
+				pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
+				
+				//Parametros de inicializacion de la Capa Fisisca para
+				//obtener una lista de claves primarias.
+				pipe->agregarParametro(OperacionesCapas::FISICA_MODIFICAR_LISTA, 0); //Codigo de operacion
+				pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
+				pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo de la lista en disco
+				pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
+				
+				//Iniciar comunicacion con la Capa Fisica
+				pipe->lanzar();
+				
+				bufferClaves = new char[this->getTamanioBloqueLista()];		
+				unsigned int offset = 0;
+				
+				for (SetClaves::iterator it = setClaves->begin();  it != setClaves->end(); ++it){
+					fecha = (ClaveFecha::TFECHA*)(*it)->getValor();
+					memcpy(bufferClaves + offset, &fecha->anio, sizeof(fecha->anio));
+					memcpy(bufferClaves + offset + sizeof(fecha->anio), &fecha->mes, sizeof(fecha->mes));
+					memcpy(bufferClaves + offset + sizeof(fecha->anio) + sizeof(fecha->mes), 
+						   &fecha->dia, sizeof(fecha->dia));
+					offset += (*it)->getTamanioValor();
+				}
+				
+				//Escritura del tamanio de la lista (cantidad de claves a almacenar)
+				pipe->escribir((int)setClaves->size());
+				
+				//Escritura de la lista al archivo.
+				pipe->escribir(bufferClaves, this->getTamanioBloqueLista());
+				
+				//Obtencion del resultado de la operacion
+				pipe->leer(&resultado);	
+			}
+			
+			if (pipe)
+				if (pipe) delete pipe;
+			
+			if (bufferClaves)
+				delete[] bufferClaves;
+			
+			return resultado;
 		}
 		
 	//////////////////////////////////////////////////////////////////////
@@ -1973,7 +2096,7 @@
 			unsigned int cantClaves = 0;
 			
 			//Instancia del pipe
-			ComuDatos* pipe = instanciarPipe("capaFisica");
+			ComuDatos* pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 			
 			//Parametros de inicializacion de la Capa Fisisca para
 			//obtener una lista de claves primarias.
@@ -2028,7 +2151,7 @@
 			
 			if (setClaves->size() > 0){
 				//Instancia del pipe
-				pipe = instanciarPipe("capaFisica");
+				pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 				
 				//Parametros de inicializacion de la Capa Fisisca para
 				//obtener una lista de claves primarias.
@@ -2083,7 +2206,7 @@
 			
 			if (setClaves->size() > 0){
 				//Instancia del pipe
-				pipe = instanciarPipe("capaFisica");
+				pipe = instanciarPipe(NOMBRE_CAPA_FISICA);
 				
 				//Parametros de inicializacion de la Capa Fisisca para
 				//obtener una lista de claves primarias.

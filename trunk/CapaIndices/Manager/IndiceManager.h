@@ -153,8 +153,7 @@ class IndiceArbolManager : public IndiceManager
 		struct HeaderNodo{
 			unsigned char nivel;
 			unsigned int refNodo;	
-			unsigned short espacioLibre;
-			
+			unsigned short espacioLibre;			
 		}; 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -581,10 +580,11 @@ class IndiceFechaRomanoManager: public IndiceSecundarioManager
 		virtual ~IndiceFechaRomanoManager() {}
 		
 	//////////////////////////////////////////////////////////////////////
-	// Metodo publico
+	// Metodos publicos
 	//////////////////////////////////////////////////////////////////////
 		/*Interpretacion de un buffer como un set de ClaveFecha*/
 		SetClaves* leerListaClaves(unsigned int posicion);
+		char escribirListaClaves(unsigned int posicion, SetClaves* setClaves);
 		
 	private:
 	//////////////////////////////////////////////////////////////////////
