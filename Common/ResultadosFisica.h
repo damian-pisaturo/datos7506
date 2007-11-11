@@ -19,12 +19,12 @@ class TipoOrganizacion
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: ResFisica
+// Nombre: ResultadosFisica
 //			(Clase utilitaria con constantes de error y resultados que 
 //			arroja la Capa Fisica hacia el resto de las capas).
 ///////////////////////////////////////////////////////////////////////////
 
-class ResFisica
+class ResultadosFisica
 {	
 	public:
 		static const char OK                       = -1;

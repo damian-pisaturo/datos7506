@@ -1,3 +1,22 @@
+///////////////////////////////////////////////////////////////////////////
+//	Archivo   : IndiceHash.h
+//  Namespace : CapaIndice 
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Cabeceras e interfaz de las clase IndiceHash.
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;	
+//		- Rodriguez, Maria Laura.
+///////////////////////////////////////////////////////////////////////////
+
 #ifndef INDICEHASH_H_
 #define INDICEHASH_H_
 
@@ -6,22 +25,35 @@
 #include "../Common/IndiceManagerFactory.h"
 #include "Indice.h"
 
-class IndiceHash :public Indice {
-	
-	private:
-	
-		Hash* hash;
-		
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: IndiceHash (Interfaz comun entre los distintos tipos de indices
+//				y el hash extensible)
+//////////////////////////////////////////////////////////////////////////
+class IndiceHash :public Indice
+{	
+	private:	
+	//////////////////////////////////////////////////////////////////////
+	// Atributos
+	//////////////////////////////////////////////////////////////////////
+		Hash* hash;		
 		
 	public:
-		IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo);
-		
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
+		IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo);		
 		virtual ~IndiceHash();
-		
+	
+	///////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+
 		/*
 		 * Este metodo inserta un registro en el indice.
 		 **/
-		int insertar(Clave *clave, char* registro = NULL);
+		int insertar(Clave *clave, char* &registro = NULL);
 		
 		/*
 		 * Este metodo elimina un registro del indice.
@@ -33,14 +65,14 @@ class IndiceHash :public Indice {
 		 * Siempre retorna NULL y devuelve el registro de clave "clave"
 		 * dentro de "registro".
 		 **/
-		Clave* buscar(Clave *clave, char* registro = NULL) const;
+		Clave* buscar(Clave *clave, char* &registro = NULL) const;
 		
 		Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const;
 	
 		/*
 		 * Elimina al registro de clave "claveVieja" e inserta al registro "registroNuevo".
 		 **/
-		bool modificar(Clave *claveVieja, Clave *claveNueva, char* registroNuevo);
+		bool modificar(Clave *claveVieja, Clave *claveNueva, char* &registroNuevo);
 		
 		char buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque);
 	

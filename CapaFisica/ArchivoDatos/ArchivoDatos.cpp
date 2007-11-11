@@ -91,7 +91,7 @@
 		{
 			char resultado = this->posicionarse(numBloque);
 			
-			if (resultado == ResFisica::OK)
+			if (resultado == ResultadosFisica::OK)
 				resultado = this->leer(bloque);
 			
 			return resultado;
@@ -99,19 +99,19 @@
 		
 		short ArchivoDatosBloques::buscarBloque(void* bloque, unsigned int espacioLibre)
 		{
-			short resultado = ResFisica::OK;
+			short resultado = ResultadosFisica::OK;
 			short posicion = 0;
 			ArchivoELVariable* archivoEL = static_cast<ArchivoELVariable*>(this->getArchivoEL());
 			
 			posicion = archivoEL->buscarEspacioLibre(espacioLibre);
 			
-			if (posicion != ResFisica::BLOQUES_OCUPADOS){
+			if (posicion != ResultadosFisica::BLOQUES_OCUPADOS){
 				resultado = this->posicionarse(posicion);
-				if (resultado == ResFisica::OK)
+				if (resultado == ResultadosFisica::OK)
 					resultado = this->leer(bloque);
 			}
 			
-			if (resultado != ResFisica::OK)
+			if (resultado != ResultadosFisica::OK)
 				posicion = resultado;
 			
 			return posicion;				
@@ -121,7 +121,7 @@
 		{
 			char resultado = this->posicionarse(numBloque);
 			
-			if (resultado == ResFisica::OK)
+			if (resultado == ResultadosFisica::OK)
 				resultado = this->escribir(bloque);
 			
 			return resultado;			
@@ -136,7 +136,7 @@
 			//ArchivoELVariable* archivoEL = static_cast<ArchivoELVariable*>(this->getArchivoEL());
 			short bloqueLibre;// = archivoEL->buscarBloqueLibre();
 			
-			if (bloqueLibre == ResFisica::BLOQUES_OCUPADOS){
+			if (bloqueLibre == ResultadosFisica::BLOQUES_OCUPADOS){
 				this->posicionarseFin();
 				bloqueLibre = this->posicion() + 1;
 			}else

@@ -1,7 +1,7 @@
 #ifndef RESINDICES_H_
 #define RESINDICES_H_
 
-class ResIndices {
+class ResultadosIndices {
 
 	public:
 		static const char OK						= -100;

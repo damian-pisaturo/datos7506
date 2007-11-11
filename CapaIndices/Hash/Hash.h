@@ -39,7 +39,7 @@ class Hash
 	//////////////////////////////////////////////////////////////////////
 	// Atributos
 	//////////////////////////////////////////////////////////////////////
-		Tabla *tabla;
+		Tabla* tabla;
 		IndiceHashManager* archivo;
 		ListaNodos* listaParam;
 	
@@ -78,15 +78,13 @@ class Hash
 		/*
 		 * A partir de una clave recupera un registro 
 		 **/
-		void recuperarRegistro(Clave &clave,char *registro); 
-		
+		void recuperarRegistro(Clave &clave,char* &registro); 		
 		
 		
 	private:
 	///////////////////////////////////////////////////////////////////////
 	// Metodos privados
-	///////////////////////////////////////////////////////////////////////	
-		
+	///////////////////////////////////////////////////////////////////////			
 		/*
 		 * Este método aplica una función de dispersión a la clave.
 		 **/
@@ -107,14 +105,11 @@ class Hash
 		 * Este método se engarga de dividir el tamaño de dispersión del bucket nroBucket
 		 * y actualizarlo en el archivo.
 		 **/
-		void dividirDispersion(unsigned int nroBucket);
+		void dividirDispersion(unsigned int nroBucket);		
 		
-		
-		bool esRegistroVariable();
-		
+		bool esRegistroVariable();		
 		
 		char* serializarClave(void** clave);
-
 };
 
 #endif /*HASH_H_*/

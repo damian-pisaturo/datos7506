@@ -151,7 +151,7 @@
 		
 		pipe->leer(&resultado);	
 		
-		if (resultado == ResFisica::OK){ 
+		if (resultado == ResultadosFisica::OK){ 
 			pipe->leer(this->getTamanioBloque(), data);		
 			
 			//Castear el header
@@ -704,7 +704,7 @@
 			
 			pipe->leer(&resultado);
 			
-			if (resultado == ResFisica::OK){
+			if (resultado == ResultadosFisica::OK){
 				pipe->leer(this->getTamanioBloque(), buffer);			
 				
 				bucketLeido->setDatos(buffer);
@@ -764,7 +764,7 @@
 		
 		int IndiceHashManager::escribirBloque(unsigned short numBucket, BloqueIndice* bloqueModif)
 		{
-			char resultado = 0;
+			char resultado = ResultadosFisica::OK;
 			Bucket* bucketLeido = static_cast<Bucket*> (bloqueModif);
 			
 			//Variables de escritura del buffer
@@ -802,7 +802,7 @@
 		
 		int IndiceHashManager::eliminarBloque(unsigned short numBucket)
 		{
-			char resultado = 0;
+			char resultado = ResultadosFisica::OK;
 			
 			//Instancia del pipe
 			ComuDatos* pipe = instanciarPipe("capaFisica");

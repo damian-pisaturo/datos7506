@@ -50,7 +50,7 @@
 			
 			short bloqueLibre = archivoEL->buscarBloqueLibre();
 			
-			if (bloqueLibre == ResFisica::BLOQUES_OCUPADOS){
+			if (bloqueLibre == ResultadosFisica::BLOQUES_OCUPADOS){
 				//Si ningun bloque esta libre, appendea al
 				//final del archivo. 
 				this->posicionarseFin();
@@ -78,12 +78,12 @@
 
 		char ArchivoIndice::escribirBloque(const void* bloque, unsigned short numBloque)
 		{
-			char resultado = ResFisica::OK;
+			char resultado = ResultadosFisica::OK;
 			bool valor = false;
 			ArchivoELFijo* archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
 			
 			resultado = this->posicionarse(numBloque);
-			if (resultado == ResFisica::OK)
+			if (resultado == ResultadosFisica::OK)
 				resultado = this->escribir(bloque);			
 			
 			//Se modifica la entrada correspondiente al bloque 
@@ -105,7 +105,7 @@
 		{	
 			char resultado = this->posicionarse(numBloque);
 			
-			if (resultado == ResFisica::OK)
+			if (resultado == ResultadosFisica::OK)
 				resultado = this->leer(bloque);
 			
 			
@@ -152,7 +152,7 @@
 	
 		char ArchivoLista::escribirLista(const unsigned int cantClaves, const void* lista, unsigned short numBloque)
 		{
-			char resultado = ResFisica::OK;
+			char resultado = ResultadosFisica::OK;
 			
 			char* datos = new char[this->getTamanioBloque()];
 			
@@ -173,12 +173,12 @@
 				
 		char ArchivoLista::leerLista(unsigned int* cantClaves, void* lista, unsigned short numBloque)
 		{
-			char resultado = ResFisica::OK;
+			char resultado = ResultadosFisica::OK;
 			char* datos = new char[this->getTamanioBloque() + 1];
 			 
 			resultado = this->leerBloque(datos, numBloque);
 			
-			if (resultado == ResFisica::OK){
+			if (resultado == ResultadosFisica::OK){
 				cantClaves = ((unsigned int*)datos);
 				memcpy(lista, datos + sizeof(unsigned int), this->getTamanioBloque() - sizeof(unsigned int));			
 			}
@@ -253,7 +253,7 @@
 			 char resultado = this->posicionarse(0);
 			 
 			 //Posicionarse al comienzo del archivo.
-			 if (resultado == ResFisica::OK)			 
+			 if (resultado == ResultadosFisica::OK)			 
 				 //Obtener el primer atributo entero (cantidad de elementos)
 				 resultado = this->escribir(&cantElem);	
 			 
@@ -262,7 +262,7 @@
 		 
 		 char ArchivoTablaHash::escribirTabla(unsigned int* tabla)
 		 {
-			 char resultado = ResFisica::OK;
+			 char resultado = ResultadosFisica::OK;
 			 unsigned int cantElem = this->obtenerCantElementos();
 			 			 
 			 //Posicionarse en el segundo atributo entero
@@ -271,7 +271,7 @@
 			
 			 //Recorrer todos los elementos de tabla y
 			 //almacenarlos a disco.
-			 for (unsigned int i = 0; ( (i < cantElem) && (resultado == ResFisica::OK) ); i++)
+			 for (unsigned int i = 0; ( (i < cantElem) && (resultado == ResultadosFisica::OK) ); i++)
 				 resultado = this->escribir(tabla + i);
 				 //if (resultado == ResFisica::OK)
 					 //resultado = this->posicionarse(i + 2);
