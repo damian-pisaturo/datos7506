@@ -3,7 +3,7 @@
 
 #include "ArchivoIndice/ArchivoIndice.h"
 #include "ArchivoDatos/ArchivoDatos.h"
-#include "../Common/ResFisica.h"
+#include "../Common/ResultadosFisica.h"
 #include "../Common/OperacionesCapas.h"
 #include "../ComuDatos/ComuDatos.h"
 #include "../CapaIndices/Common/IndiceManagerFactory.h"

@@ -77,6 +77,13 @@ class ArchivoELFijo : public ArchivoEL
 		 * bloque se encuentra libre, devuelve ResFisica::BLOQUES_OCUPADOS.
 		 */
 		short buscarBloqueLibre();	
+		
+		/*Busca en el archivo de control los dos primeros bloques consecutivos
+		 * en condicion de libre y devuelve el numero del primero de ellos
+		 * dentro del archivo. Si ningun par de bloques consecutivos se encuentra 
+		 * libre, devuelve ResFisica::BLOQUES_OCUPADOS.
+		 */		
+		short buscarBloqueDobleLibre();
 };
 
 ///////////////////////////////////////////////////////////////////////////

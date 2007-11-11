@@ -68,9 +68,10 @@
 			    this->archivo.write(static_cast<const char*>(bloque), this->tamBloque);			  
 			    
 			    //Chequea si se ha producido un error 
-			    if (this->archivo.fail())			    
+			    if (this->archivo.fail()){
+			    	this->archivo.clear();
 			      resultado = ResultadosFisica::ERROR_ESCRITURA;
-			    else
+			    }else
 			    	 this->archivo.flush();
 		    }else
 			  //El archivo no se encuentra abierto

@@ -17,7 +17,7 @@
 #define ARCHIVOBASE_H_
 
 #include "../../Common/Tamanios.h"
-#include "../../Common/ResFisica.h"
+#include "../../Common/ResultadosFisica.h"
 
 #include <iostream>
 #include <fstream>
