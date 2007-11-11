@@ -22,7 +22,7 @@
 #include <string>
 #include "Tabla.h"
 #include "Bucket.h"
-#include "../../Common/ResultadosIndices.h"
+
 
 
 ///////////////////////////////////////////////////////////////////////////
