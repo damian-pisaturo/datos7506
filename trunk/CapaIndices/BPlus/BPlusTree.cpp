@@ -47,7 +47,7 @@ NodoBPlus* BPlusTree::getRaiz()
 	//Lee el primer registro del archivo -> la raiz
 	this->nodoRaiz = new NodoBPlus(0, 0, this->tamanioNodo);
 	int resultado = indiceManager.leerBloque(0, this->nodoRaiz);
-	if (resultado != ResFisica::OK) this->nodoRaiz = NULL;
+	if (resultado != ResultadosFisica::OK) this->nodoRaiz = NULL;
 
 	return this->nodoRaiz;
 }

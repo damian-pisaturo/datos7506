@@ -57,12 +57,18 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos 
 	string::size_type posAnterior = 0, posActual = 0, posSeparador = 0;
 	
 	MapaIndices mapaIndices;
-	unsigned char tipoIndice;
+	unsigned char tipoIndice       = 0;
 	Clave *clave, *claveResultante = NULL;
-	Indice* indice;
+	Indice* indice                 = NULL;
+	
 	//Posibles valores de retorno de las funciones de los índices
 	//TODO Ver si hay que reservar memoria para el bloque de datos
-	char* bloqueDatosAEnviar;
+	
+	//TODO (Comentario de Fantone) No se si se usa en otros metodos, pero al menos
+	//el recuperarRegistro de Hash hace un new del char* que le pases (que, por cierto,
+	//como no recibia una referencia, jamas se conservaba al terminar la funcion).
+	
+	char* bloqueDatosAEnviar = NULL;
 	SetClaves* setClavesPrimarias; //Conjunto de claves primarias (indice secundario)
 	unsigned int nroBloque = 0; //Variable utilizada para almacenar el número de bloque
 								//en el cual se debe insertar un registro

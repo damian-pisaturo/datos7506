@@ -508,6 +508,7 @@ int Bloque::bajaRegistro(const ListaNodos *listaParam, Clave &clave) {
 	}
 	if (!registroBorrado)
 		return NO_ENCONTRADO;
+	
 	return BLOQUE_OK;
 }
 

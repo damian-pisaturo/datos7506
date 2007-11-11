@@ -60,7 +60,7 @@
 	///////////////////////////////////////////////////////////////////////
 		char ArchivoBase::escribir(const void* bloque) 
 		{
-			char resultado = ResFisica::OK;
+			char resultado = ResultadosFisica::OK;
 
 			//Verifica que el archivo esté abierto
 			if (this->archivo.is_open()) {	
@@ -69,19 +69,19 @@
 			    
 			    //Chequea si se ha producido un error 
 			    if (this->archivo.fail())			    
-			      resultado = ResFisica::ERROR_ESCRITURA;
+			      resultado = ResultadosFisica::ERROR_ESCRITURA;
 			    else
 			    	 this->archivo.flush();
 		    }else
 			  //El archivo no se encuentra abierto
-			  resultado = ResFisica::NO_ABIERTO;
+			  resultado = ResultadosFisica::NO_ABIERTO;
 	
 			return resultado;
 		}	
 
 		char ArchivoBase::leer(void* bloque) 
 		{
-			char resultado = ResFisica::OK;
+			char resultado = ResultadosFisica::OK;
 			
 			//Verifica que el archivo esté abierto
 			if (this->archivo.is_open()) {		  	
@@ -91,11 +91,11 @@
 				//Chequea si se ha producido un error
 				if (this->archivo.fail()){
 					this->archivo.clear();
-					resultado = ResFisica::ERROR_LECTURA;
+					resultado = ResultadosFisica::ERROR_LECTURA;
 				}
 			}else
 			  //El archivo no se encuentra abierto
-			  resultado = ResFisica::NO_ABIERTO;
+			  resultado = ResultadosFisica::NO_ABIERTO;
 			
 			return resultado;
 		}
@@ -124,14 +124,14 @@
 				// Calcula el número de bloque según la posición del byte actual
 			    pos = this->archivo.tellg() / this->tamBloque;
 			else
-				pos = ResFisica::NO_ABIERTO;
+				pos = ResultadosFisica::NO_ABIERTO;
 			
 			  return pos;
 		}
 		
 		char ArchivoBase::posicionarse(unsigned short posicion)
 		{
-			char resultado = ResFisica::OK;
+			char resultado = ResultadosFisica::OK;
 			
 			if (this->size() >= (posicion + 1)*this->tamBloque){
 				//Verifica que el archivo esté abierto
@@ -141,11 +141,11 @@
 		
 					//Chequea si se ha producido un error			
 					if (this->archivo.fail())
-						resultado = ResFisica::ERROR_POSICION;
+						resultado = ResultadosFisica::ERROR_POSICION;
 				}else
-					resultado = ResFisica::NO_ABIERTO;
+					resultado = ResultadosFisica::NO_ABIERTO;
 			}else
-				resultado = ResFisica::ERROR_POSICION;
+				resultado = ResultadosFisica::ERROR_POSICION;
 			
 			return resultado;
 		}
