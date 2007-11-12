@@ -205,6 +205,7 @@
 			//Variables de escritura del buffer
 			char* data = new char[this->getTamanioBloque()];
 			char* punteroAux = data;
+			memset(data, 0, this->getTamanioBloque());
 			
 			//Variables de interpretacion del nodo
 			HeaderNodo headerNodo;
@@ -249,19 +250,19 @@
 					iterClaves != set->end(); ++iterClaves)
 					this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
 			}
-			
+
 			//Grabar el buffer en el archivo.
 			pipe->escribir(punteroAux, this->getTamanioBloque());
 			
 			//Obtener nueva posicion del bloque en el archivo. 
-			unsigned short numBloque = 0;
+			unsigned int numBloque = 0;
 			pipe->leer(&numBloque);
 			 
 			//Setear en el nodo la posicion donde se grabo el nodo.
 			nodoNuevo->setPosicionEnArchivo(numBloque);		
 			
 			if (pipe) delete pipe;
-			delete[] punteroAux;
+			if (punteroAux) delete[] punteroAux;
 		
 			return numBloque;
 		}
@@ -272,7 +273,7 @@
 			Nodo* nodoNuevo = static_cast<Nodo*> (bloqueModif);
 			
 			//Variables de escritura del buffer
-			char* data = new char[this->getTamanioBloque() + 1];
+			char* data = new char[this->getTamanioBloque()];
 			const char* punteroAux = data;
 			
 			//Variables de interpretacion del nodo
@@ -294,8 +295,8 @@
 			pipe->lanzar();
 			
 			//Copiar el header al buffer
-			headerNodo.nivel = nodoNuevo->getNivel();  
-			headerNodo.refNodo = nodoNuevo->getRefNodo();
+			headerNodo.nivel        = nodoNuevo->getNivel();  
+			headerNodo.refNodo      = nodoNuevo->getRefNodo();
 			headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
 	
 			memcpy(data, &headerNodo.nivel, sizeof(char));
@@ -310,14 +311,17 @@
 			
 			//Recorrer la lista de claves copiando cada clave al buffer
 			if(nodoNuevo->getNivel() == 0){
+				
 				for(SetClaves::iterator iterClaves = set->begin(); 
 					iterClaves != set->end(); ++iterClaves)
 					this->copiarClaveHoja((Clave*)(*iterClaves), data);
 				
 			}else{
+				
 				for(SetClaves::iterator iterClaves = set->begin(); 
 					iterClaves != set->end(); ++iterClaves)
 					this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
+				
 			}		
 			
 			//Grabar el buffer en el archivo.
@@ -362,7 +366,7 @@
 	
 		int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo)
 		{
-			unsigned short numBloque = 0;
+			unsigned int numBloque = 0;
 			Nodo* nodoNuevo = static_cast<Nodo*> (bloqueNuevo);
 			
 			//Variables de escritura del buffer
@@ -711,7 +715,7 @@
 			pipe->escribir(data, this->getTamanioBloque());
 			
 			//Obtener nueva posicion del bucket en el archivo. 
-			unsigned short numBucket = 0;
+			unsigned int numBucket = 0;
 			pipe->leer(&numBucket);
 			 
 			//Setear en el bucket la posicion donde se grabo.
