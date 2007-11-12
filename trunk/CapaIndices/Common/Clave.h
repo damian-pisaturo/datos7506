@@ -135,12 +135,8 @@ class Clave
 			return this->hijoDer;
 		}
 		
-		virtual void** getValorParaHash() const
-		{
-			void** valor = new void*[1];
-	 		valor[0] = this->getValor();
-			return valor;
-		}
+		virtual void** getValorParaHash() const;
+		
 }; //Fin clase Clave (Abstracta)
 
 
@@ -527,6 +523,7 @@ class ClaveCompuesta: public Clave
 		ClaveCompuesta(const ListaClaves& listaClaves,
 						unsigned int referencia = 0,
 						unsigned int hijoDer = 0);
+		
 		virtual ~ClaveCompuesta();
 
 	///////////////////////////////////////////////////////////////////////////

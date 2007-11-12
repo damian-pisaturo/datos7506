@@ -17,6 +17,7 @@ class BTree {
 	public:
 		
 		BTree(IndiceManager& indiceManager, unsigned short tamanioNodo);
+		
 		virtual ~BTree();
 		
 		virtual void insertar(Clave* clave) = 0;

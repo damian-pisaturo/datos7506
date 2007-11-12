@@ -29,6 +29,14 @@
 		
 		return tamanio;
 	}
+	
+	
+	void** Clave::getValorParaHash() const
+	{
+		void** valor = new void*[1];
+ 		valor[0] = this->getValor();
+		return valor;
+	}
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
