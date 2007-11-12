@@ -65,6 +65,7 @@
 			//Verifica que el archivo esté abierto
 			if (this->archivo.is_open()) {	
 				//Escribe el bloque en el archivo
+
 			    this->archivo.write(static_cast<const char*>(bloque), this->tamBloque);			  
 			    
 			    //Chequea si se ha producido un error 

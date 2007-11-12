@@ -11,7 +11,7 @@ NodoBStar::NodoBStar(unsigned int refNodo, unsigned char nivel, unsigned short t
 NodoBStar::NodoBStar(unsigned int refNodo, unsigned char nivel, Clave* clave, unsigned short tamanio)
 		  : Nodo(refNodo, nivel, clave, tamanio) {
 	
-	
+	this->actualizarEspacioLibre(clave,true);
 	
 }
 
@@ -45,5 +45,27 @@ Nodo* NodoBStar::copiar() const {
 	nodoCopia->setPosicionEnArchivo(this->getPosicionEnArchivo());
 	return nodoCopia;
 	
+}
+
+void NodoBStar::actualizarEspacioLibre(Clave* clave, bool insercion)
+{
+	if (insercion)
+		this->setEspacioLibre(this->getEspacioLibre() - clave->getTamanioEnDisco());
+	else
+	   	this->setEspacioLibre(this->getEspacioLibre() + clave->getTamanioEnDisco());
+}
+
+void NodoBStar::actualizarEspacioLibre(SetClaves* claves, bool insercion)
+{
+	unsigned int suma = 0;
+	
+	for (SetClaves::iterator iter = claves->begin(); iter != claves->end(); ++iter){
+		suma += (*iter)->getTamanioEnDisco();			
+	}
+	
+	if (insercion)
+		this->setEspacioLibre(this->getEspacioLibre() - suma);
+	else
+		this->setEspacioLibre(this->getEspacioLibre() + suma);
 }
 

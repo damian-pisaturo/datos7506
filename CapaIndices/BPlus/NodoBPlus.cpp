@@ -33,11 +33,6 @@ NodoBPlus::NodoBPlus(unsigned int refNodo, unsigned char nivel, unsigned short t
 				: Nodo(refNodo, nivel, tamanio)
 { }	
 
-NodoBPlus::NodoBPlus() 
-				: Nodo(0, 0, 0)
-{ }	
-
-
 NodoBPlus::NodoBPlus(unsigned int refNodo, unsigned char nivel, Clave* clave,
 		unsigned short tamanio) : Nodo(refNodo, nivel, clave, tamanio)
 { 
@@ -123,9 +118,6 @@ bool NodoBPlus::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave
 void NodoBPlus::actualizarEspacioLibre(Clave* clave, bool insercion)
 {
 	if (insercion){
-/*		cout << "Espacio Libre actual: " << this->getEspacioLibre() << endl;
-		cout << "Espacio Libre que le resto: " << (clave->getTamanioEnDisco()) << endl;
-		*/
 		if (this->getNivel() != 0) this->setEspacioLibre(this->getEspacioLibre() + Tamanios::TAMANIO_REFERENCIA - clave->getTamanioEnDisco());
 		else this->setEspacioLibre(this->getEspacioLibre() - clave->getTamanioEnDisco());
 	}
@@ -156,3 +148,6 @@ void NodoBPlus::actualizarEspacioLibre(SetClaves* claves, bool insercion)
 	}
 
 }
+
+
+

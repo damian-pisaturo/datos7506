@@ -98,8 +98,9 @@ class Nodo : public BloqueIndice
 	     * el tamanio de la/s clave/s a insertar, segun sea una
 		 * insercion o una eliminacion.
 	     */
-		virtual void actualizarEspacioLibre(SetClaves* claves, bool insercion); 
-		virtual void actualizarEspacioLibre(Clave* clave, bool insercion);
+		virtual void actualizarEspacioLibre(SetClaves* claves, bool insercion) = 0; 
+		virtual void actualizarEspacioLibre(Clave* clave, bool insercion) = 0;
+		void actualizarEspacioLibre();
 			
 		/*reemplazarClave()
 		 * Reemplaza la claveVieja del Nodo actual con una copia de 
@@ -223,12 +224,13 @@ class Nodo : public BloqueIndice
 			this->nivel = nivel;
 		}
 		
-		void setClaves(SetClaves* set)
-		{	
+		void setClaves(SetClaves* set);
+/*		{	
 			if (this->claves) delete this->claves;
 			this->claves = set;
+			this->actualizarEspacioLibre();
 		}		
-		
+	*/	
 		void setPosicionEnArchivo(unsigned int posicion)
 		{
 			this->posicionEnArchivo = posicion;	

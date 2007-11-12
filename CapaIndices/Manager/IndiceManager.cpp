@@ -169,7 +169,7 @@
 				//Recorrer el buffer desde donde quedo hasta que supere
 				//el espacio libre, interpretando clave por clave.
 				const char* punteroFinal = punteroAux + (this->getTamanioBloque() - headerNodo.espacioLibre);
-				
+	
 				if(nodoLeido->getNivel() == 0){
 					while(data < punteroFinal){	
 						//Leer la clave	
@@ -185,16 +185,17 @@
 						set->insert(claveNueva);
 					}
 				}
-				
+								
 				//Agregar el setClaves al nodo
 				nodoLeido->setClaves(set);
+
 				//Settear la posicion del nodo en el archivo
 				nodoLeido->setPosicionEnArchivo(numBloque);
 			}
 			
 			if (pipe) delete pipe;		
 			if (punteroAux) delete[] punteroAux;
-	
+			
 			return resultado;
 		}
 	
@@ -275,6 +276,7 @@
 			//Variables de escritura del buffer
 			char* data = new char[this->getTamanioBloque()];
 			const char* punteroAux = data;
+			memset(data, 0, this->getTamanioBloque());
 			
 			//Variables de interpretacion del nodo
 			HeaderNodo headerNodo;
@@ -332,7 +334,7 @@
 			pipe->leer(&resultado);
 			
 			if (pipe) delete pipe;
-			if (punteroAux) delete[] punteroAux;
+			if (punteroAux)	delete[] punteroAux;
 			
 			return resultado;
 		}
