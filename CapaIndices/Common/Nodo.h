@@ -225,12 +225,7 @@ class Nodo : public BloqueIndice
 		}
 		
 		void setClaves(SetClaves* set);
-/*		{	
-			if (this->claves) delete this->claves;
-			this->claves = set;
-			this->actualizarEspacioLibre();
-		}		
-	*/	
+		
 		void setPosicionEnArchivo(unsigned int posicion)
 		{
 			this->posicionEnArchivo = posicion;	

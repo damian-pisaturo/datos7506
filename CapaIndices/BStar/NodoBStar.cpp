@@ -31,6 +31,22 @@ unsigned short NodoBStar::getTamanioEnDisco() const {
 }
 
 
+unsigned short NodoBStar::getTamanioEspacioClaves() const {
+			
+	if (this->getNivel() == 0) //Nodo hoja ==> Tengo que sumarle el espacio que se le descuenta por la referencia al hijo izq
+		return (this->getTamanio() - Nodo::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA);
+	else return (this->getTamanio() - Nodo::getTamanioHeader());
+	
+}
+
+
+unsigned short NodoBStar::getTamanioMinimo() const {
+	
+	return (2*(this->getTamanioEspacioClaves())/3);
+	
+}
+
+
 VectorConjuntos* NodoBStar::split(){
 	return this->getClaves()->splitBStar(this->getTamanioMinimo(), this->getTamanioEspacioClaves());
 }
