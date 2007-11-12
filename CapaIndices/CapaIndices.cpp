@@ -160,6 +160,7 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos 
 
 int main(int argc, char* argv[]) {
 	
+	/*
 	ComuDatos pipe(argv);
 	unsigned char codOp;
 	string nombreTipo;
@@ -171,9 +172,10 @@ int main(int argc, char* argv[]) {
 	
 	//TODO Enviar resultado a la capa de metadata!
 	pipe.escribir(resultado);
+	*/
 	
-	/* MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
-	IndiceArbol indice(TipoIndices::GRIEGO, 512, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BP, 512, "locura");
+	// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
+	IndiceArbol indice(TipoIndices::GRIEGO, 32, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BP, 32, "locura");
 	
 	char* null = NULL;
 	indice.insertar(new ClaveEntera(346), null);
@@ -181,9 +183,10 @@ int main(int argc, char* argv[]) {
 	indice.insertar(new ClaveEntera(2345), null);
 	indice.insertar(new ClaveEntera(123), null);
 	indice.insertar(new ClaveEntera(456), null);
-	indice.insertar(new ClaveEntera(789), null);
-
+	indice.insertar(new ClaveEntera(9999), null);
+/*	indice.insertar(new ClaveEntera(200), null);
+*/
 	cout << "Fin Main" << endl;
-	*/
+	
 }
 

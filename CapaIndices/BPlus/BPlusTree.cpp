@@ -108,7 +108,7 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 	else if ( *codigo == Codigo::OVERFLOW ){
 		NodoBPlus* nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
 		
-		if (!nodoPadre){ //nodoDestino es la raiz. 
+		if (!nodoPadre){ //nodoDestino es la raiz.
 			SetClaves* setClavesDerecho = nodoDestino->splitB(nodoDestino->getTamanioMinimo());
 			Clave* clavePromocionada = (*(setClavesDerecho->begin()))->copiar();
 			NodoBPlus* nuevoNodoDerecho = new NodoBPlus(clavePromocionada->getHijoDer(), nodoDestino->getNivel(), this->tamanioNodo);

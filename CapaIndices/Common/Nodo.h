@@ -198,6 +198,9 @@ class Nodo : public BloqueIndice
 		
 		//Método abstracto que devuelve una copia de este nodo
 		virtual Nodo* copiar() const = 0;
+		
+		//Método abstracto que carga en este nodo todos los mismos valores que posee el nodo pasado por parámetro
+		virtual Nodo& operator = (const Nodo &nodo);
 
 		
 	///////////////////////////////////////////////////////////////////////////

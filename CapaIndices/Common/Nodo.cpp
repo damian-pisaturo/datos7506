@@ -560,3 +560,20 @@ void Nodo::setClaves(SetClaves* set)
 }		
 		
 
+//Método que carga en este nodo todos los mismos valores que posee el nodo pasado por parámetro
+Nodo& Nodo::operator = (const Nodo &nodo) {
+	
+	this->setHijoIzq(nodo.getHijoIzq());
+	this->setNivel(nodo.getNivel());
+	this->setTamanio(nodo.getTamanio());
+	
+	SetClaves* setClavesCopia = new SetClaves();
+	*setClavesCopia = *(nodo.getClaves());
+	this->setClaves(setClavesCopia);
+	
+	this->setPosicionEnArchivo(nodo.getPosicionEnArchivo());
+	
+	return *this;
+	
+}
+

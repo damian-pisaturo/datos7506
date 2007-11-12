@@ -63,8 +63,6 @@ class NodoBPlus: public Nodo
 		void actualizarEspacioLibre(Clave* clave, bool insercion);
 		
 		void actualizarEspacioLibre(SetClaves* claves, bool insercion);
-		
-				
 			
 	//////////////////////////////////////////////////////////////////////
 	// Metodos publicos
