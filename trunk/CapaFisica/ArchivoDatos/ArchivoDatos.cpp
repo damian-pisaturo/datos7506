@@ -117,30 +117,42 @@
 			return posicion;				
 		}
 
-		char ArchivoDatosBloques::escribirBloque(void* bloque, unsigned short numBloque)
+		char ArchivoDatosBloques::escribirBloque(void* bloque, unsigned short numBloque, unsigned short espLibre)
 		{
+			ArchivoELVariable* archivoEL = static_cast<ArchivoELVariable*>(this->getArchivoEL());
 			char resultado = this->posicionarse(numBloque);
 			
-			if (resultado == ResultadosFisica::OK)
+			if (resultado == ResultadosFisica::OK){
 				resultado = this->escribir(bloque);
+				
+				//Se modifica la entrada correspondiente al bloque 
+				//modificado en el archivo de control de espacio libre.
+				archivoEL->modificarRegistro(&espLibre, numBloque);				
+			}
 			
 			return resultado;			
 		}
 		
-		short ArchivoDatosBloques::escribirBloque(void* bloque)
-		{
-			//TODO buscarBloqueLibre() tiene que buscar
-			//si existe alguna entrada cuyo espacio libre
-			//coincida con el tamanio del bloque.
-			
-			//ArchivoELVariable* archivoEL = static_cast<ArchivoELVariable*>(this->getArchivoEL());
-			short bloqueLibre;// = archivoEL->buscarBloqueLibre();
+		short ArchivoDatosBloques::escribirBloque(void* bloque, unsigned short espLibre)
+		{			
+			ArchivoELVariable* archivoEL = static_cast<ArchivoELVariable*>(this->getArchivoEL());
+			short bloqueLibre = archivoEL->buscarEspacioLibre();
 			
 			if (bloqueLibre == ResultadosFisica::BLOQUES_OCUPADOS){
+				//Si ningun bloque esta libre, appendea al
+				//final del archivo.
 				this->posicionarseFin();
-				bloqueLibre = this->posicion() + 1;
-			}else
+				bloqueLibre = this->posicion();
+				
+				//Se modifica el atributo booleano de control
+				//en el archivo de espacio libre.
+				archivoEL->agregarRegistro(&espLibre);
+				
+			}else{
+				
+				archivoEL->modificarRegistro(&espLibre, bloqueLibre);
 				this->posicionarse(bloqueLibre);
+			}			
 			
 			this->escribir(bloque);
 			

@@ -47,8 +47,9 @@ class ArchivoDatos : public ArchivoBase
 		 */
 		ArchivoDatos(string nombreArchivo, unsigned short tamanio, unsigned char tipoOrg);
 		
-		/*Cierra el archivo creado*/
-		~ArchivoDatos();
+		/*Cierra el archivo creado
+		 */
+		virtual ~ArchivoDatos();
 	
 	///////////////////////////////////////////////////////////////////////
 	// Getter
@@ -75,7 +76,7 @@ class ArchivoDatosBloques : public ArchivoDatos
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		ArchivoDatosBloques(string nombreArchivo, unsigned short tamBloque);		
-		~ArchivoDatosBloques();
+		virtual ~ArchivoDatosBloques();
 	
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
@@ -97,7 +98,7 @@ class ArchivoDatosBloques : public ArchivoDatos
 		/*Sobre-escribe en la posicion relativa numBloque el bloque pasado
 		 * por parametro.
 		 */
-		char escribirBloque(void* bloque, unsigned short numBloque);
+		char escribirBloque(void* bloque, unsigned short numBloque, unsigned short espLibre);
 		
 		/*Escribe en el archivo de datos el bloque pasado por parametro
 		 * en la posicion del primer bloque libre que encuentre, utilizando
@@ -105,7 +106,7 @@ class ArchivoDatosBloques : public ArchivoDatos
 		 * se encuentran ocupados, appendea al final del archivo.
 		 * Devuelve la posicion en donde fue escrito finalmente.
 		 */
-		 short escribirBloque(void* bloque);
+		 short escribirBloque(void* bloque, unsigned short espLibre);
 		
 		/*Modifica el archivo de control de espacio libre
 		 * para que el bloque cuya posicion relativa en el archivo es

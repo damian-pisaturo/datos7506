@@ -164,7 +164,7 @@
 					
 			while((espacioLibre <= espacioRequerido) && 
 					(!this->fin())){
-				this->posicionarse(++numBloque);
+				++numBloque;
 				this->leer(&espacioLibre);
 			}
 			
@@ -172,4 +172,9 @@
 				numBloque = ResultadosFisica::BLOQUES_OCUPADOS;
 			
 			return numBloque;		
+		}
+		
+		short ArchivoELVariable::buscarEspacioLibre()
+		{
+			return this->buscarEspacioLibre(this->getTamanioBloque());
 		}

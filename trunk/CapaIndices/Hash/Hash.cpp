@@ -225,8 +225,6 @@
 				ListaNodos::const_iterator it;
 				it = this->listaParam->begin();
 				
-				// TODO Como no sabes lo que te viene por parametro y le vas a hacer un new,
-				// borralo antes, puerca detestable !
 				if (registro) 
 					delete[] registro;
 				
@@ -241,7 +239,6 @@
 				}			
 			}
 			
-			//TODO Nunca liberabas al bucket, palurda clandestina !
 			if (bucket)
 				delete bucket;
 		}
@@ -276,6 +273,9 @@
 			//clave original ! Entendes, Pony hediondo ?
 			delete[] claveSerializada;
 			delete[] claveHash;
+			
+			cout << "imprimo el valor de la clave para ver si se borro" << endl;
+			cout << *((int*)clave.getValor())<<endl;
 			
 			return aux;
 		}

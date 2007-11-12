@@ -78,13 +78,14 @@
 			ArchivoELFijo* archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
 			
 			resultado = this->posicionarse(numBloque);
-			if (resultado == ResultadosFisica::OK)
+			if (resultado == ResultadosFisica::OK){
 				resultado = this->escribir(bloque);			
 			
-			//Se modifica la entrada correspondiente al bloque 
-			//modificado en el archivo de control de espacio libre.
-			archivoEL->modificarRegistro(&valor, numBloque);
-			
+				//Se modifica la entrada correspondiente al bloque 
+				//modificado en el archivo de control de espacio libre.
+				archivoEL->modificarRegistro(&valor, numBloque);
+			}
+				
 			return resultado;
 		}
 		

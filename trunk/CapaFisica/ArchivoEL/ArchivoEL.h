@@ -112,7 +112,8 @@ class ArchivoELVariable : public ArchivoEL
 		 * su posicion dentro del archivo. Si ningun bloque cumple con el 
 		 * requisito, devuelve ResFisica::BLOQUES_OCUPADOS.
 		 */
-		short buscarEspacioLibre(unsigned short espacioRequerido);	
+		short buscarEspacioLibre(unsigned short espacioRequerido);
+		short buscarEspacioLibre();
 };
 
 #endif /*ARCHIVOEL_H_*/
