@@ -61,12 +61,8 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos 
 	Clave *clave, *claveResultante = NULL;
 	Indice* indice                 = NULL;
 	
-	//Posibles valores de retorno de las funciones de los índices
 	//TODO Ver si hay que reservar memoria para el bloque de datos
 	
-	//TODO (Comentario de Fantone) No se si se usa en otros metodos, pero al menos
-	//el recuperarRegistro de Hash hace un new del char* que le pases (que, por cierto,
-	//como no recibia una referencia, jamas se conservaba al terminar la funcion).
 	
 	char* bloqueDatosAEnviar = NULL;
 	SetClaves* setClavesPrimarias; //Conjunto de claves primarias (indice secundario)
@@ -175,8 +171,8 @@ int main(int argc, char* argv[]) {
 	
 	//TODO Enviar resultado a la capa de metadata!
 	pipe.escribir(resultado);
-	/*
-	// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
+	
+	/* MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
 	IndiceArbol indice(TipoIndices::GRIEGO, 512, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BP, 512, "locura");
 	
 	char* null = NULL;
@@ -187,7 +183,7 @@ int main(int argc, char* argv[]) {
 	indice.insertar(new ClaveEntera(456), null);
 	indice.insertar(new ClaveEntera(789), null);
 
-	cout << "Fin Main" << endl;*/
-	
+	cout << "Fin Main" << endl;
+	*/
 }
 

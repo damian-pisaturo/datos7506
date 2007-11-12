@@ -337,23 +337,26 @@
 			
 			case OperacionesCapas::FISICA_ESCRIBIR_DATO:
 			{
+				int espLibre = 0;
+				int tipoOrg  = 0;
 				archivo = new ArchivoIndice(nombreArchivo, tamBloque);
-				buffer = new char[tamBloque*sizeof(char) + 1];
-											
-				int tipoOrg = 0;
+				buffer  = new char[tamBloque*sizeof(char)];			
 				
 				//Obtencion del tipo de organizacion del archivo.
 				pipe.parametro(3, &tipoOrg);
 				
+				//Obtencion del espacio libre dentro del bloque.
+				pipe.parametro(4, &espLibre);
+
 				//Obtencion del bloque a escribir a traves del pipe.
 				pipe.leer(tamBloque, buffer);
 				
 				if (tipoOrg == TipoOrganizacion::REG_VARIABLES){
 					archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
-				
+					
 					//Escritura del bloque a disco.
 					//Se obtiene la posicion donde fue escrito.
-					numBloque = ((ArchivoDatosBloques*)archivo)->escribirBloque(buffer);
+					numBloque = ((ArchivoDatosBloques*)archivo)->escribirBloque(buffer, espLibre);
 				}else if (TipoOrganizacion::REG_FIJOS){
 					archivo = new ArchivoDatosRegistros(nombreArchivo, tamBloque);
 					
@@ -372,13 +375,17 @@
 							
 			case OperacionesCapas::FISICA_MODIFICAR_DATO:
 			{								
-				int tipoOrg = 0;
+				int tipoOrg  = 0;
+				int espLibre = 0;
 				buffer = new char[tamBloque*sizeof(char)];
 				pipe.parametro(3, &numBloque);				
 	
 				//Obtencion del tipo de organizacion del archivo.
 				pipe.parametro(3, &tipoOrg);				
 				
+				//Obtencion del espacio libre dentro del bloque.
+				pipe.parametro(4, &espLibre);
+
 				//Obtencion del bloque a escribir a traves del pipe.
 				pipe.leer(tamBloque, buffer);
 							
@@ -386,7 +393,7 @@
 					archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
 				
 					//Modificacion del bloque en disco.
-					resultado = ((ArchivoDatosBloques*)archivo)->escribirBloque(buffer, numBloque);
+					resultado = ((ArchivoDatosBloques*)archivo)->escribirBloque(buffer, numBloque, espLibre);
 				}else if (TipoOrganizacion::REG_FIJOS){
 					archivo = new ArchivoDatosRegistros(nombreArchivo, tamBloque);
 					
