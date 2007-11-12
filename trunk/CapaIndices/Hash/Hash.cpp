@@ -164,7 +164,6 @@
 				// Si el tamaño de dispersión del bucket coincide con el tamaño de la tabla, se elimina el bucket.
 				if ( (cantRegs == 1) && (bucket->getTamDispersion() == this->tabla->getTamanio())) {
 					
-					cout << "Eliminando (cant. reg = 1)" << endl;
 					// Se llama a marcar al bucket como vacío en el archivo.
 					this->archivo->eliminarBloque(nroBucket);
 					// Se renueva la referencia de la tabla que antes apuntaba al bucket que se eliminó.

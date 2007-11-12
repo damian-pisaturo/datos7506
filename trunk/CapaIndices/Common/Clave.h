@@ -92,6 +92,15 @@ class Clave
 	// Getters/Setters
 	///////////////////////////////////////////////////////////////////////////
 		
+		//El tamanio de la clave depende de si se va a insertar en un nodo interno o
+		//en un nodo hoja. Representa el tamaño que ocupa la misma en disco.
+		//Si hijoDer == 0, significa que la clave se va a insertar en un nodo hoja,
+		//por lo cual no se tendra en cuenta el tamaño de este atributo. En cualquier
+		//otro caso se considerará el tamaño del hijo derecho.
+		//El valor 0 hace referencia al nodo Raíz, pero ningún nodo puede tener como hijo
+		//al nodo raíz, por lo tanto utilizar este valor no presenta inconvenientes.
+		virtual unsigned int getTamanioEnDisco() const;
+		
 		//Este método es virtual para que cada clase heredera pueda liberar la memoria
 		//utilizada por el valor anterior, según el tipo de dato que utilice.
 		virtual void setValor(void* nuevoValor) = 0;
@@ -99,6 +108,7 @@ class Clave
 		//Este método es virtual para que cada clase heredera devuelva el tamaño del
 		//tipo de dato que usa internamente.
 		virtual unsigned int getTamanioValor() const = 0;
+		
 		
 		unsigned int getReferencia() const
 		{
@@ -119,16 +129,6 @@ class Clave
 		{
 			return this->valor;
 		}
-
-		
-		//El tamanio de la clave depende de si se va a insertar en un nodo interno o
-		//en un nodo hoja. Representa el tamaño que ocupa la misma en disco.
-		//Si hijoDer == 0, significa que la clave se va a insertar en un nodo hoja,
-		//por lo cual no se tendra en cuenta el tamaño de este atributo. En cualquier
-		//otro caso se considerará el tamaño del hijo derecho.
-		//El valor 0 hace referencia al nodo Raíz, pero ningún nodo puede tener como hijo
-		//al nodo raíz, por lo tanto utilizar este valor no presenta inconvenientes.
-		virtual unsigned int getTamanioEnDisco() const;
 
 		unsigned int getHijoDer() const
 		{
