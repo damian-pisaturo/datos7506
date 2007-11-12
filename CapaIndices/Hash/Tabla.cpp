@@ -64,7 +64,7 @@ Tabla::~Tabla()
  * Pide a la capa física la creación de un archivo de datos con 1 solo bucket, 
  * y un archivo con la tabla.
  **/
-void Tabla::crear( unsigned int tamanioBloque)
+void Tabla::crear(unsigned int tamanioBloque)
 {
 	this->tamanio = 1;
 	
@@ -72,14 +72,14 @@ void Tabla::crear( unsigned int tamanioBloque)
 		this->nroBucket = new unsigned int[this->tamanio];
 	
 	// Setea en la posición 0 de la tabla al bucket 0.
-	this->setNroBucket(0,0);
+	this->setNroBucket(0, 0);
 	
 	// Crea un archivo de datos con un bucket vacío y lo escribe a disco.
 	Bucket * bucket = new Bucket(0, 1, tamanioBloque);
 	this->archivo->escribirBloque(bucket);
 	
 	// Escribe la tabla a disco.
-	this->archivo->escribirTabla(this->tamanio,this->nroBucket);
+	this->archivo->escribirTabla(this->tamanio, this->nroBucket);
 }
 
 /*
@@ -89,9 +89,10 @@ void Tabla::crear( unsigned int tamanioBloque)
  **/
 void Tabla::reorganizarTabla(unsigned short tamDispActualizado, int posicion, unsigned int nuevoNroBucket){
 	
+	
 	if((tamDispActualizado/2) == tamanio){
 		duplicarTabla();
-		nroBucket[posicion] = nuevoNroBucket;
+		nroBucket[posicion] = nuevoNroBucket;	
 	}
 	else
 		actualizarReferencias(tamDispActualizado,posicion,nuevoNroBucket);
@@ -184,13 +185,14 @@ unsigned int* Tabla::getContenido(){
  **/
 void Tabla::reducirTabla()
 {
-	tamanio = (getTamanio()/2);
+	this->tamanio /= 2;
 	unsigned int* tabla = new unsigned int [getTamanio()];
-	for (unsigned int i=0; i < getTamanio(); i++)
-		tabla[i] = getNroBucket(i);
 	
-	delete[] nroBucket;
-	nroBucket = tabla;
+	for (unsigned int i = 0; i < getTamanio(); i++)
+		tabla[i] = this->getNroBucket(i);
+	
+	delete[] this->nroBucket;
+	this->nroBucket = tabla;
 }
 
 
@@ -200,19 +202,18 @@ void Tabla::reducirTabla()
  **/
 void Tabla::duplicarTabla(){
 	// Se crea una lista de números de buckets auxiliar del doble del tamaño de la lista actual.
-	unsigned int * nroBuckets = new unsigned int[tamanio*2];
+	unsigned int * nroBuckets = new unsigned int[this->tamanio*2];
 	
 	// Se copia 2 veces el contenido de la lista actual.
-	memcpy(nroBuckets,this->nroBucket,tamanio);
-	memcpy(&nroBuckets[tamanio],this->nroBucket,tamanio);
+	memcpy(nroBuckets                , this->nroBucket, this->tamanio*sizeof(unsigned int));
+	memcpy(nroBuckets + this->tamanio, this->nroBucket, this->tamanio*sizeof(unsigned int));
 	
 	// Se actualiza la tabla.
 	delete[] this->nroBucket;
 	this->nroBucket = nroBuckets;
 	
 	// Se actualiza el tamaño de la tabla.
-	tamanio *= 2;
-	
+	this->tamanio *= 2;	
 }
 
 /*

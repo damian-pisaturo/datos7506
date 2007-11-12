@@ -63,8 +63,8 @@ void ComuDatos::lanzar()
 	string pipeLee = this->nombreProceso + "_ComuDatosH";
 	string pipeEscribe = this->nombreProceso + "_ComuDatosP";
 	
-	mkfifo(pipeLee.c_str(), 0666);
-	mkfifo(pipeEscribe.c_str(), 0666);
+	mkfifo(pipeLee.c_str(), 0777);
+	mkfifo(pipeEscribe.c_str(), 0777);
 	
 	// Parametro 1 lectura y 2 escritura hijo.
 	argumentos[1] = (char*) malloc (sizeof(char)*pipeEscribe.length()+1);
@@ -241,7 +241,7 @@ char ComuDatos::escribir(char enviarDato)
 {
 	char resultado = SIN_ERROR;
 	
-	if (sizeof(enviarDato) <= TOPE_ENVIAR_STRING)
+	if (sizeof(char) <= TOPE_ENVIAR_STRING)
 	{
 		write(this->fd_pipeP, &enviarDato, sizeof(char));
 	}else resultado = EXCEDE_TOPE;

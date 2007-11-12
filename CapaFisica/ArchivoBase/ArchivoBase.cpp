@@ -65,7 +65,6 @@
 			//Verifica que el archivo esté abierto
 			if (this->archivo.is_open()) {	
 				//Escribe el bloque en el archivo
-
 			    this->archivo.write(static_cast<const char*>(bloque), this->tamBloque);			  
 			    
 			    //Chequea si se ha producido un error 
@@ -135,7 +134,7 @@
 		{
 			char resultado = ResultadosFisica::OK;
 			
-			if (this->size() >= (posicion + 1)*this->tamBloque){
+			//if (this->size() >= (posicion + 1)*this->tamBloque){
 				//Verifica que el archivo esté abierto
 				if (this->archivo.is_open()) {
 					//Mueve la posición actual según sea el tamano del bloque
@@ -146,8 +145,8 @@
 						resultado = ResultadosFisica::ERROR_POSICION;
 				}else
 					resultado = ResultadosFisica::NO_ABIERTO;
-			}else
-				resultado = ResultadosFisica::ERROR_POSICION;
+			//}else
+				//resultado = ResultadosFisica::ERROR_POSICION;
 			
 			return resultado;
 		}

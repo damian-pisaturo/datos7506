@@ -28,10 +28,12 @@
 Bucket::Bucket(IndiceManager* indiceHash, unsigned int nroBucket)
 :Bloque()
 {
+	cout << "Leyendo bloque desde el constructor de Bucket..." << endl;
 	indiceHash->leerBloque(nroBucket, this);
+	cout << "termino el leer bloque del constructor de bucket" << endl;
 	
 	this->setTamanioBloque(indiceHash->getTamanioBloque());
-	this->setNroBloque(nroBucket);
+	//this->setNroBloque(nroBucket);
 	this->setOffsetADatos(Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + 
 				   Tamanios::TAMANIO_DISPERSION);
 }
@@ -42,8 +44,8 @@ Bucket::Bucket(IndiceManager* indiceHash, unsigned int nroBucket)
 Bucket::Bucket(unsigned int nroBucket,unsigned short tamDisp,unsigned int tamanioBloque)
 :Bloque(nroBucket,tamanioBloque){
 	
-	tamDispersion = tamDisp;
-	cantRegs = 0;
+	this->tamDispersion = tamDisp;
+	this->cantRegs = 0;
 	char* datos = getDatos();
 	
 	//Los primeros 6 bytes se usan para guardar esplibre, cantRegs y tamDispersion.
