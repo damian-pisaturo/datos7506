@@ -56,7 +56,7 @@
 		int Hash::insertarRegistro(char* registro, Clave &clave)
 		{
 			// Se aplica la función de hash para saber en que bucket se debe insertar.	
-			int posicion = aplicarHash(clave) % this->tabla->getTamanio();			
+			int posicion = this->aplicarHash(clave) % this->tabla->getTamanio();
 			
 			// Se obtiene el bucket donde hay que insertar el registro.
 			int numBucket = this->tabla->getNroBucket(posicion);
@@ -67,14 +67,17 @@
 			// Se busca si el registro ya existe.
 			unsigned short aux = 0;
 			
-			if (bucket->Bloque::buscarRegistro(this->listaParam, clave, &aux))
+			if (bucket->buscarRegistro(this->listaParam, clave, &aux))
 			{
 				if (bucket) delete bucket;
-				
+			
 				// ya existe un registro con esa clave.
 				return ResultadosIndices::CLAVE_DUPLICADA; 
 			}
 			
+			
+			
+			// Si el registro no existe, hay que insertarlo.
 			// Se obtiene la longitud del registro independientemente de si es variable o fija.
 			unsigned short longReg = bucket->getTamanioRegistros(this->listaParam, registro);
 			
@@ -113,7 +116,7 @@
 				// (ya duplicado) del bucket donde se produjo overflow.
 				this->tabla->reorganizarTabla(bucket->getTamDispersion(), posicion, nuevoBucket->getNroBloque()); 
 				
-				redistribuirElementos(bucket, nuevoBucket);
+				this->redistribuirElementos(bucket, nuevoBucket);
 				
 				// Guarda en disco la redistribución de los elementos.
 				this->archivo->escribirBloque(bucket->getNroBloque(), bucket);
@@ -123,7 +126,9 @@
 				if (nuevoBucket) delete nuevoBucket;
 				
 				// Intenta nuevamente la inserción del registro.
-				return insertarRegistro(registro, clave);				
+				int result = this->insertarRegistro(registro, clave);				
+				
+				return result;
 			}
 		}
 
@@ -151,29 +156,28 @@
 			resultado = bucket->bajaRegistro(this->listaParam, clave);		
 			
 			if (resultado == ResultadosIndices::OK){
-				
+
+				// Se actualiza la baja en disco.
+				this->archivo->escribirBloque(nroBucket, bucket);				
+				 
 				// Si hay un solo registro se debe verificar si se puede borrar el bucket del archivo.
 				// Si el tamaño de dispersión del bucket coincide con el tamaño de la tabla, se elimina el bucket.
 				if ( (cantRegs == 1) && (bucket->getTamDispersion() == this->tabla->getTamanio())) {
 					
+					cout << "Eliminando (cant. reg = 1)" << endl;
 					// Se llama a marcar al bucket como vacío en el archivo.
 					this->archivo->eliminarBloque(nroBucket);
-						
 					// Se renueva la referencia de la tabla que antes apuntaba al bucket que se eliminó.
 					unsigned int nroBucketIgualDisp = this->tabla->buscarBucketIgualDispersion(posicion, bucket->getTamDispersion());
-						
-							
-					this->tabla->setNroBucket(posicion, nroBucketIgualDisp);
-				
-					// Se actualiza el tamaño de dispersión del bloque y se lo guarda en archivo.
-					dividirDispersion(nroBucketIgualDisp);
 					
+					this->tabla->setNroBucket(posicion, nroBucketIgualDisp);
+
+					// Se actualiza el tamaño de dispersión del bloque y se lo guarda en archivo.
+					this->dividirDispersion(nroBucketIgualDisp);
+
 					// En caso de que deba realizarse una reducción a la mitad del tamaño de la tabla se lo hace.
 					this->tabla->considerarReduccion();		
-				}
-				
-				// Se actualiza la baja en disco.
-				this->archivo->escribirBloque(nroBucket, bucket);				
+				} 
 			}		
 			
 
@@ -274,8 +278,8 @@
 			delete[] claveSerializada;
 			delete[] claveHash;
 			
-			cout << "imprimo el valor de la clave para ver si se borro" << endl;
-			cout << *((int*)clave.getValor())<<endl;
+			//cout << "imprimo el valor de la clave para ver si se borro" << endl;
+			//cout << *((int*)clave.getValor())<<endl;
 			
 			return aux;
 		}
@@ -369,13 +373,18 @@
 		 **/
 		void Hash::dividirDispersion(unsigned int nroBucket)
 		{
+			cout << "cuando empieza"<<endl;
 			// Se levanta el bucket de disco.
 			Bucket* bucket = new Bucket(this->archivo, nroBucket);
 			
+			cout << "dsps del new" << endl;
 			// Se divide el tamaño de dispersión.
 			bucket->setTamDispersion(bucket->getTamDispersion()/2);
+			
+			cout << "dsps de setear el tamDisp."<< endl;
 			this->archivo->escribirBloque(nroBucket, bucket);
 			
+			cout << "dsps de escribir el bloque."  << endl;
 			if (bucket)
 				delete bucket;
 		}

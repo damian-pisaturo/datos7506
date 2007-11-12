@@ -85,7 +85,7 @@
 				//modificado en el archivo de control de espacio libre.
 				archivoEL->modificarRegistro(&valor, numBloque);
 			}
-				
+			
 			return resultado;
 		}
 		
@@ -104,7 +104,8 @@
 			if (resultado == ResultadosFisica::OK)
 				resultado = this->leer(bloque);
 			
-			
+			cout << "El resultado de leerBloque es " << (int)resultado << endl;
+			cout << "lalalalalalalalalalalla" << endl;
 			return resultado;			
 		}	 
 

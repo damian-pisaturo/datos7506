@@ -51,6 +51,9 @@
 			this->numero       = numeroBloque;
 			this->tamanio      = tamanioBloque;
 			this->datos        = new char[tamanioBloque];
+			
+			memset(datos, 0, this->getTamanioBloque());
+			
 			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 			
 			// Inicializa el offset a espacio libre dentro del bloque.
@@ -84,12 +87,14 @@
 			void** clavePrimaria = clave.getValorParaHash();
 			
 			// Obtengo el offset a los registros
-			int offsetToReg       = getOffsetADatos();
+			int offsetToReg       = this->getOffsetADatos();
 			int offsetToProxCampo = 0;
 		
+			
 			// Se obtiene la cantidad de registros dentro del bloque.
-			unsigned short cantRegistros;
-			memcpy(&cantRegistros, &(this->datos[Tamanios::TAMANIO_ESPACIO_LIBRE]), Tamanios::TAMANIO_LONGITUD);
+			unsigned short cantRegistros = 0;
+	
+			memcpy(&cantRegistros, &(this->datos[Tamanios::TAMANIO_ESPACIO_LIBRE]), Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 		
 			unsigned char cantClaves       = 0;
 			unsigned char clavesChequeadas = 0;

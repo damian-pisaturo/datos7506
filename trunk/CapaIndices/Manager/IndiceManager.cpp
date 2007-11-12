@@ -169,7 +169,7 @@
 				//Recorrer el buffer desde donde quedo hasta que supere
 				//el espacio libre, interpretando clave por clave.
 				const char* punteroFinal = punteroAux + (this->getTamanioBloque() - headerNodo.espacioLibre);
-	
+				
 				if(nodoLeido->getNivel() == 0){
 					while(data < punteroFinal){	
 						//Leer la clave	
@@ -185,7 +185,7 @@
 						set->insert(claveNueva);
 					}
 				}
-								
+				
 				//Agregar el setClaves al nodo
 				nodoLeido->setClaves(set);
 
@@ -195,7 +195,7 @@
 			
 			if (pipe) delete pipe;		
 			if (punteroAux) delete[] punteroAux;
-			
+	
 			return resultado;
 		}
 	
@@ -334,7 +334,7 @@
 			pipe->leer(&resultado);
 			
 			if (pipe) delete pipe;
-			if (punteroAux)	delete[] punteroAux;
+			if (punteroAux) delete[] punteroAux;
 			
 			return resultado;
 		}
@@ -646,6 +646,7 @@
 			char resultado = 0;
 			Bucket* bucketLeido = static_cast<Bucket*> (bloqueLeido);
 			char* buffer = new char[this->getTamanioBloque()];
+			memset(buffer, 0, this->getTamanioBloque());
 			
 			//Variable de interpretacion del bucket
 			HeaderBucket headerBucket;
@@ -668,6 +669,7 @@
 			
 			pipe->leer(&resultado);
 			
+			
 			if (resultado == ResultadosFisica::OK){
 				pipe->leer(this->getTamanioBloque(), buffer);			
 				
@@ -683,6 +685,7 @@
 				bucketLeido->setEspacioLibre(headerBucket.espLibre);
 				bucketLeido->setCantRegs(headerBucket.cantRegs);
 				bucketLeido->setNroBloque(numBucket);
+				
 			}
 			
 			if (pipe) delete pipe;
@@ -723,7 +726,8 @@
 			//Setear en el bucket la posicion donde se grabo.
 			bucketLeido->setNroBloque(numBucket);
 			
-			if (pipe) delete pipe;
+			if (pipe)
+				delete pipe;
 			
 			return numBucket;
 		}
@@ -791,6 +795,9 @@
 			//capa fisica.
 			pipe->leer(&resultado);
 			
+			if (pipe)
+				delete pipe;
+			
 			return resultado;
 		}
 		
@@ -826,7 +833,8 @@
 			
 			buckets = (unsigned int*) bucketsTabla;	
 
-			if (pipe) delete pipe;	
+			if (pipe) 
+				delete pipe;	
 		}
 		
 		void IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* buckets)
@@ -855,7 +863,8 @@
 			//Enviar el contenido de la tabla por el pipe.
 			pipe->escribir(bucketsTabla, tamanio*sizeof(unsigned int));
 			
-			if (pipe) delete pipe;			
+			if (pipe) 
+				delete pipe;			
 		}
 
 ///////////////////////////////////////////////////////////////////////////
