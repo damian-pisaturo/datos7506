@@ -34,12 +34,11 @@ Nodo::Nodo(unsigned int refNodo, unsigned char nivel, Clave* clave,
 	this->nivel   = nivel;
 	this->tamanio = tamanio;
 	this->setEspacioLibre(tamanio - this->getTamanioHeader());
-	
+
 	/*Agrega la clave a la lista de claves del nodo*/
 	this->claves = new SetClaves();
 	this->claves->insert(clave);
-	
-	this->actualizarEspacioLibre(clave,true);
+
 }
 
 Nodo::Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio)
@@ -64,28 +63,6 @@ Nodo::~Nodo()
 ///////////////////////////////////////////////////////////////////////
 // Metodos publicos
 ///////////////////////////////////////////////////////////////////////              
-
-void Nodo::actualizarEspacioLibre(Clave* clave, bool insercion)
-{
-	if (insercion)
-		this->setEspacioLibre(this->getEspacioLibre() - clave->getTamanioEnDisco());
-	else
-	   	this->setEspacioLibre(this->getEspacioLibre() + clave->getTamanioEnDisco());
-}
-
-void Nodo::actualizarEspacioLibre(SetClaves* claves, bool insercion)
-{
-	unsigned int suma = 0;
-	
-	for (SetClaves::iterator iter = claves->begin(); iter != claves->end(); ++iter){
-		suma += (*iter)->getTamanioEnDisco();			
-	}
-	
-	if (insercion)
-		this->setEspacioLibre(this->getEspacioLibre() - suma);
-	else
-		this->setEspacioLibre(this->getEspacioLibre() + suma);
-}
 
 
 Clave* Nodo::buscar(Clave* claveBuscada) const
@@ -506,23 +483,25 @@ bool Nodo::tieneUnderflow() const {
 
 
 SetClaves* Nodo::splitB(unsigned short minClaves) {
-	return (this->getClaves()->splitBPlus(minClaves, this->getTamanioEspacioClaves()));
+	SetClaves* set = this->getClaves()->splitBPlus(minClaves, this->getTamanioEspacioClaves());
+	this->actualizarEspacioLibre();
+	return set;
 }
 
 
 void Nodo::insertarClave(Clave* &clave, char* codigo)
 {
 	char cod = Codigo::NO_MODIFICADO;
-		
+
 	//Se verifica si la clave está en el conjunto
 	if (this->getClaves()->find(clave) != this->getClaves()->end()) {
 		*codigo = cod;
 		return;
 	}
-	
+
 	//Insercion ordenada de la clave en el conjunto
 	this->getClaves()->insert(clave);
-	
+
 	//Si hay espacio suficiente para la nueva clave ...
 	if (this->getEspacioLibre() > clave->getTamanioEnDisco()){
 		this->actualizarEspacioLibre(clave, true);
@@ -552,10 +531,32 @@ void Nodo::eliminarClave(Clave* clave, char* codigo) {
 			*codigo = Codigo::UNDERFLOW;
 		else
 	 		*codigo = Codigo::MODIFICADO;
-	 	
-	}
 	
-	*codigo = Codigo::NO_MODIFICADO;
+	} else
+		*codigo = Codigo::NO_MODIFICADO;
 	
 }
+
+void Nodo::actualizarEspacioLibre(){
+
+	unsigned int espacioLibre = this->getTamanioEspacioClaves();
+	
+	for (SetClaves::iterator iter = this->getClaves()->begin(); iter != this->getClaves()->end(); ++iter){
+		espacioLibre -= (*iter)->getTamanioEnDisco();
+	}
+	
+	this->setEspacioLibre(espacioLibre);
+	
+}
+
+void Nodo::setClaves(SetClaves* set)
+{	
+	if (this->claves){
+		delete this->claves;
+		this->claves = NULL;
+	}
+	this->claves = set;
+	this->actualizarEspacioLibre();
+}		
+		
 

@@ -34,6 +34,10 @@ class NodoBStar : public Nodo {
 		VectorConjuntos* split();
 		
 		Nodo* copiar() const;
+		
+		void actualizarEspacioLibre(Clave* clave, bool insercion);
+		
+		void actualizarEspacioLibre(SetClaves* claves, bool insercion);
 
 };
 

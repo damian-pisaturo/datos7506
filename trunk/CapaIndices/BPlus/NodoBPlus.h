@@ -44,9 +44,6 @@ class NodoBPlus: public Nodo
 				
 		NodoBPlus(unsigned int refNodo, unsigned char nivel, unsigned short tamanio);
 		
-		/*Crea el nodo sin setear ningun atributo*/
-		NodoBPlus();
-		
 		/*Crea un nuevo nodo para insertarle una Clave*/
 		NodoBPlus(unsigned int refNodo, unsigned char nivel, Clave* clave,
 			   unsigned short tamanio);
@@ -66,6 +63,7 @@ class NodoBPlus: public Nodo
 		void actualizarEspacioLibre(Clave* clave, bool insercion);
 		
 		void actualizarEspacioLibre(SetClaves* claves, bool insercion);
+		
 				
 			
 	//////////////////////////////////////////////////////////////////////

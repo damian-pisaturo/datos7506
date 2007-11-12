@@ -75,7 +75,7 @@
 			case OperacionesCapas::FISICA_ESCRIBIR_NODO:
 			{	
 				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
-				buffer = new char[tamBloque*sizeof(char) + 1];
+				buffer = new char[tamBloque*sizeof(char)];
 								
 				//Obtencion del nodo escribir a traves del pipe.
 				pipe.leer(tamBloque, buffer);

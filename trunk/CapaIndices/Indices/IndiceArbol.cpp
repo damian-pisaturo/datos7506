@@ -40,7 +40,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro) {
  * Si la encuentra devuelve OK; y si no, devuelve NO_ENCONTRADO.
  **/
 int IndiceArbol::eliminar(Clave *clave) {
-	return (int)!bTree->eliminar(clave);
+	return (int)(!(bTree->eliminar(clave)));
 }
 
 /*

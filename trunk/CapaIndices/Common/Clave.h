@@ -59,20 +59,12 @@ class Clave
 		*/
 		void* valor;
 
-		//El tamanio de la clave depende de si se va a insertar en un nodo interno o
-		//en un nodo hoja. Representa el tamaño que ocupa la misma en disco.
-		//Si hijoDer == 0, significa que la clave se va a insertar en un nodo hoja,
-		//por lo cual no se tendra en cuenta el tamaño de este atributo. En cualquier
-		//otro caso se considerará el tamaño del hijo derecho.
-		//El valor 0 hace referencia al nodo Raíz, pero ningún nodo puede tener como hijo
-		//al nodo raíz, por lo tanto utilizar este valor no presenta inconvenientes.
-		unsigned int tamanio;
 
 	public:
 	///////////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////////
-		Clave() : refRegistro(0), hijoDer(0), valor(NULL), tamanio(0) {}
+		Clave() : refRegistro(0), hijoDer(0), valor(NULL) {}
 
 		virtual ~Clave() {}
 
@@ -128,10 +120,15 @@ class Clave
 			return this->valor;
 		}
 
-		unsigned int getTamanioEnDisco() const
-		{
-			return this->tamanio;
-		}
+		
+		//El tamanio de la clave depende de si se va a insertar en un nodo interno o
+		//en un nodo hoja. Representa el tamaño que ocupa la misma en disco.
+		//Si hijoDer == 0, significa que la clave se va a insertar en un nodo hoja,
+		//por lo cual no se tendra en cuenta el tamaño de este atributo. En cualquier
+		//otro caso se considerará el tamaño del hijo derecho.
+		//El valor 0 hace referencia al nodo Raíz, pero ningún nodo puede tener como hijo
+		//al nodo raíz, por lo tanto utilizar este valor no presenta inconvenientes.
+		virtual unsigned int getTamanioEnDisco() const;
 
 		unsigned int getHijoDer() const
 		{

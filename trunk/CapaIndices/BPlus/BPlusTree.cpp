@@ -83,14 +83,17 @@ void BPlusTree::insertar(Clave* clave)
 		NodoBPlus* nodoDestino = buscarLugar(clave);
 
 		char codigo;
-		
+
 		nodoDestino->insertarClave(clave, &codigo);
-		
+
 		//La clave queda insertada independientemente de si hay OVERFLOW o no.
 		
 		insertarInterno(nodoDestino, &codigo);
-		
-		if (!(*nodoDestino == *(this->nodoRaiz))) delete nodoDestino;
+
+		if (*nodoDestino == *(this->nodoRaiz))
+			*(this->nodoRaiz) = *nodoDestino;
+		else
+			delete nodoDestino;
 		
 	}
 }
@@ -111,13 +114,14 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 			NodoBPlus* nuevoNodoDerecho = new NodoBPlus(clavePromocionada->getHijoDer(), nodoDestino->getNivel(), this->tamanioNodo);
 			nuevoNodoDerecho->setClaves(setClavesDerecho);
 			indiceManager.escribirBloque(nuevoNodoDerecho);
-			clavePromocionada->setHijoDer(nuevoNodoDerecho->getPosicionEnArchivo());
-			NodoBPlus* nuevaRaiz = new NodoBPlus(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1, this->tamanioNodo);
-			//Se escribe la nueva raíz
-			indiceManager.escribirBloque(0, nuevaRaiz);
 			nodoDestino->setHnoDer(nuevoNodoDerecho->getPosicionEnArchivo());
 			//Se actualiza nodoDestino
-			indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+			indiceManager.escribirBloque(nodoDestino);
+			clavePromocionada->setHijoDer(nuevoNodoDerecho->getPosicionEnArchivo());
+			NodoBPlus* nuevaRaiz = new NodoBPlus(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1,
+												 clavePromocionada, this->tamanioNodo);
+			//Se escribe la nueva raíz
+			indiceManager.escribirBloque(0, nuevaRaiz);
 			delete nuevoNodoDerecho;
 			this->nodoRaiz = nuevaRaiz; //No se libera la memoria ocupada por el nodo raíz, ya que siempre
 										//lo tenemos cargado en memoria.
@@ -146,7 +150,7 @@ bool BPlusTree::eliminar(Clave* clave) {
 	
 	NodoBPlus* nodoTarget = buscarLugar(clave);
 	Clave* claveBuscada = nodoTarget->buscar(clave);
-	
+
 	char codigo;
 	
 	if ( (claveBuscada) && (*claveBuscada == *clave) ){
@@ -154,11 +158,15 @@ bool BPlusTree::eliminar(Clave* clave) {
 		this->eliminarInterno(nodoTarget, &codigo); //resuelve underflow y escribe en disco
 	}
 	else{
-		delete nodoTarget;
+		if (!(*nodoTarget == *(this->nodoRaiz)))
+			delete nodoTarget;
 		return false;
 	}
 	
-	delete nodoTarget;
+	if (*nodoTarget == *(this->nodoRaiz))
+		*(this->nodoRaiz) = *nodoTarget;
+	else
+		delete nodoTarget;
 	
 	return true;
 }
@@ -177,7 +185,7 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 		Clave* clavePadreDer = NULL;
 		NodoBPlus *nodoPadre = this->buscarPadre(this->nodoRaiz, nodoTarget);
 		NodoBPlus *nodoHnoDer = NULL, *nodoHnoIzq = NULL;
-		
+
 		if (!nodoPadre) {//nodoTarget es el nodo raíz, no se chequea underflow.
 			*codigo = Codigo::MODIFICADO;
 			if (nodoTarget->getCantidadClaves() == 0) {
@@ -360,7 +368,6 @@ NodoBPlus* BPlusTree::buscarLugar(Clave* clave) const {
 	
 	//Se supone que el nodo raíz ya se encuentra cargado en memoria.
 	return buscarLugarRecursivo(this->nodoRaiz, clave);
-	
 }
 
 

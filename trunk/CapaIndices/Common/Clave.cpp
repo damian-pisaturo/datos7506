@@ -20,6 +20,16 @@
 ///////////////////////////////////////////////////////////////////////////
 #include "Clave.h"
 
+	unsigned int Clave::getTamanioEnDisco() const
+	{
+		unsigned int tamanio = this->getTamanioValor() + Tamanios::TAMANIO_REFERENCIA;
+		//Si la clave se insertara en un nodo interno
+		//agrego el tamaño de la referencia al hijo derecho
+		if (hijoDer != 0) tamanio += Tamanios::TAMANIO_REFERENCIA;
+		
+		return tamanio;
+	}
+
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //-------------------------------------------------------------------------
@@ -36,10 +46,6 @@
 		this->setValor(new int(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
-		this->tamanio = sizeof(int) + Tamanios::TAMANIO_REFERENCIA;
-		//Si la clave se insertara en un nodo interno
-		//agrego el tamaño de la referencia al hijo derecho
-		if (hijoDer != 0) this->tamanio += Tamanios::TAMANIO_REFERENCIA;
 	}
 
 	ClaveEntera::~ClaveEntera()
@@ -136,10 +142,6 @@
 		this->setValor(new bool(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
-		this->tamanio = sizeof(bool) + Tamanios::TAMANIO_REFERENCIA;
-		//Si la clave si insertará en un nodo interno
-		//agrego el tamaño de la referencia al hijo derecho
-		if (hijoDer != 0) this->tamanio += Tamanios::TAMANIO_REFERENCIA;
 	}
 
 	ClaveBoolean::~ClaveBoolean()
@@ -237,10 +239,6 @@
 		this->setValor(new char(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
-		this->tamanio = sizeof(char) + Tamanios::TAMANIO_REFERENCIA;
-		//Si la clave si insertará en un nodo interno
-		//agrego el tamaño de la referencia al hijo derecho
-		if (hijoDer != 0) this->tamanio += Tamanios::TAMANIO_REFERENCIA;
 	}
 
 	ClaveChar::~ClaveChar()
@@ -337,10 +335,6 @@
 		this->setValor(new short(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
-		this->tamanio = sizeof(short) + Tamanios::TAMANIO_REFERENCIA;
-		//Si la clave si insertará en un nodo interno
-		//agrego el tamaño de la referencia al hijo derecho
-		if (hijoDer != 0) this->tamanio += Tamanios::TAMANIO_REFERENCIA;
 	}
 
 	ClaveShort::~ClaveShort()
@@ -437,10 +431,6 @@
 		this->setValor(new float(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
-		this->tamanio = sizeof(float) + Tamanios::TAMANIO_REFERENCIA;
-		//Si la clave si insertará en un nodo interno
-		//agrego el tamaño de la referencia al hijo derecho
-		if (hijoDer != 0) this->tamanio += Tamanios::TAMANIO_REFERENCIA;
 	}
 
 	ClaveReal::~ClaveReal()
@@ -538,10 +528,6 @@
 		this->setValor(new TFECHA(clave));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
-		this->tamanio = sizeof(fecha) + Tamanios::TAMANIO_REFERENCIA;
-		//Si la clave si insertará en un nodo interno
-		//agrego el tamaño de la referencia al hijo derecho
-		if (hijoDer != 0) this->tamanio += Tamanios::TAMANIO_REFERENCIA;
 	}
 
 	ClaveFecha::~ClaveFecha()
@@ -655,10 +641,6 @@
 		//El tamaño de esta clave esta compuesto por la cantidad de caracteres,
 		//el byte utilizado para indicar el fin de la cadena y
 		//los bytes utilizados por la referencia.
-		this->tamanio = (clave.size()+1)*sizeof(char) /*+ Tamanios::TAMANIO_LONGITUD_CADENA*/ + Tamanios::TAMANIO_REFERENCIA;
-		//Si la clave si insertará en un nodo interno
-		//agrego el tamaño de la referencia al hijo derecho
-		if (hijoDer != 0) this->tamanio += Tamanios::TAMANIO_REFERENCIA;
 	}
 
 	ClaveVariable::~ClaveVariable()
@@ -764,10 +746,6 @@
 		this->setValor(new ListaClaves(listaClaves));
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
-		this->tamanio = Tamanios::TAMANIO_REFERENCIA + this->calcularTamanioValoresClaves(listaClaves);	
-		//Si la clave si insertará en un nodo interno
-		//agrego el tamaño de la referencia al hijo derecho
-		if (hijoDer != 0) this->tamanio += Tamanios::TAMANIO_REFERENCIA;
 	}
 
 	ClaveCompuesta::~ClaveCompuesta()
