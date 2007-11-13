@@ -28,7 +28,7 @@
 // Constructores/Destructor
 ///////////////////////////////////////////////////////////////////////
 Nodo::Nodo(unsigned int refNodo, unsigned char nivel, Clave* clave,
-											unsigned short tamanio)
+		   unsigned short tamanio, bool bstar)
 {
 	this->refNodo = refNodo;
 	this->nivel   = nivel;
@@ -38,9 +38,12 @@ Nodo::Nodo(unsigned int refNodo, unsigned char nivel, Clave* clave,
 	/*Agrega la clave a la lista de claves del nodo*/
 	this->claves = new SetClaves();
 	this->claves->insert(clave);
+	this->actualizarEspacioLibre(clave, true);
+	
+	this->bstar = bstar;
 }
 
-Nodo::Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio)
+Nodo::Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio, bool bstar)
 {
 	this->refNodo = refNodo;
     this->nivel = nivel;
@@ -49,6 +52,8 @@ Nodo::Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio)
     
     /*Agrega la clave a la lista de claves del nodo*/
 	this->claves = new SetClaves();
+	
+	this->bstar = bstar;
 }
 
 
@@ -92,7 +97,7 @@ unsigned short Nodo::getTamanioEnDiscoSetClaves() const {
 	
 	SetClaves::iterator iter;
 	for (iter = this->getClaves()->begin(); iter != this->getClaves()->end(); ++iter){
-		tamanio += (*iter)->getTamanioEnDisco();
+		tamanio += (*iter)->getTamanioEnDisco(bstar);
 	}
 	
 	return tamanio;
@@ -110,7 +115,7 @@ unsigned short Nodo::bytesACeder(unsigned short bytesRequeridos, unsigned char &
 		for (SetClaves::iterator iter = this->getClaves()->begin();
 			(iter != this->getClaves()->end()) && (sumaBytesRequeridos < bytesRequeridos);
 			++iter){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco(bstar);
 			++clavesPropuestas;
 		}
 	}
@@ -118,7 +123,7 @@ unsigned short Nodo::bytesACeder(unsigned short bytesRequeridos, unsigned char &
 		for (SetClaves::reverse_iterator iter = this->getClaves()->rbegin();
 			(iter != this->getClaves()->rend()) && (sumaBytesRequeridos < bytesRequeridos);
 			++iter){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco(bstar);
 			++clavesPropuestas;
 		}	
 	}
@@ -139,14 +144,14 @@ unsigned short Nodo::bytesACeder(unsigned char clavesPropuestas, bool izquierda)
 		for (SetClaves::iterator iter = this->getClaves()->begin();
 			(iter != this->getClaves()->end()) && (i < clavesPropuestas);
 			++iter, ++i){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco(bstar);
 		}
 	}
 	else{ //if (derecha)
 		for (SetClaves::reverse_iterator iter = this->getClaves()->rbegin();
 			(iter != this->getClaves()->rend()) && (i < clavesPropuestas);
 			++iter, ++i){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco(bstar);
 		}	
 	}
 	
@@ -178,12 +183,13 @@ SetClaves* Nodo::cederBytes(unsigned short bytesRequeridos, bool izquierda) {
 		for (iter = this->getClaves()->begin();
 			(iter != this->getClaves()->end()) && (sumaBytesRequeridos < bytesRequeridos);
 			++iter){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco(bstar);
 			set->insert(*iter);
 		}
 		
 		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getTamanioMinimo() ) {
 			this->getClaves()->erase(this->getClaves()->begin(), iter);
+			this->actualizarEspacioLibre(set, false);
 			return set;
 		}
 		
@@ -194,17 +200,18 @@ SetClaves* Nodo::cederBytes(unsigned short bytesRequeridos, bool izquierda) {
 		for (iter = (--(this->getClaves()->end()));
 			(iter != this->getClaves()->begin()) && (sumaBytesRequeridos < bytesRequeridos);
 			--iter){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco(bstar);
 			set->insert(*iter);
 		}
 		
 		if ( (iter == this->getClaves()->begin()) && (sumaBytesRequeridos < bytesRequeridos) ) {
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco(bstar);
 			set->insert(*iter);
 		}
 		
 		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getTamanioMinimo() ) {
 			this->getClaves()->erase(iter, this->getClaves()->end());
+			this->actualizarEspacioLibre(set, false);
 			return set;
 		}
 	}
@@ -229,7 +236,7 @@ SetClaves* Nodo::cederClaves(unsigned short cantClaves, bool izquierda) {
 		for (iter = this->getClaves()->begin();
 			(iter != this->getClaves()->end()) && (i < cantClaves);
 			++iter){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco(bstar);
 			set->insert(*iter);
 			++i;
 		}
@@ -246,13 +253,13 @@ SetClaves* Nodo::cederClaves(unsigned short cantClaves, bool izquierda) {
 		for (iter = (--(this->getClaves()->end()));
 			(iter != this->getClaves()->begin()) && (i < cantClaves);
 			--iter){
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco(bstar);
 			set->insert(*iter);
 			++i;
 		}
 		
 		if ( (iter == this->getClaves()->begin()) && (i < cantClaves) ) {
-			sumaBytesRequeridos += (*iter)->getTamanioEnDisco();
+			sumaBytesRequeridos += (*iter)->getTamanioEnDisco(bstar);
 			set->insert(*iter);
 		}
 		
@@ -274,6 +281,7 @@ void Nodo::recibir(SetClaves* set){
 	for(SetClaves::iterator iter = set->begin(); iter != set->end(); ++iter){
 		this->getClaves()->insert(*iter);
 	}
+	this->actualizarEspacioLibre(set, true);
 	set->clear();
 }
 
@@ -299,13 +307,13 @@ unsigned short Nodo::obtenerBytesSobrantes(unsigned short &cantClaves, bool izqu
 	if (izquierda){
 		for(SetClaves::iterator iter = this->getClaves()->begin(); (tamanioEnDiscoSetClaves - sumaSobrantes) > tamanioEspacioClaves; ++iter){
 			++cantClaves;
-			sumaSobrantes += (*iter)->getTamanioEnDisco();
+			sumaSobrantes += (*iter)->getTamanioEnDisco(bstar);
 		}
 	}
 	else{ //if (derecha)
 		for(SetClaves::reverse_iterator iter = this->getClaves()->rbegin(); (tamanioEnDiscoSetClaves - sumaSobrantes) > tamanioEspacioClaves; ++iter){
 			++cantClaves;
-			sumaSobrantes += (*iter)->getTamanioEnDisco();
+			sumaSobrantes += (*iter)->getTamanioEnDisco(bstar);
 		}
 	}
 	
@@ -354,7 +362,7 @@ bool Nodo::puedeRecibirClaveDesdeIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* c
 	//Variable que almacena el tamanio en bytes de las claves sobrantes sin incluir la ultima clave.
 	unsigned short primerosBytesSobrantes = nodoHnoIzq->bytesACeder(cantClavesSobrantes - 1, false);
 	unsigned short bytesUltimaClaveSobrante = bytesSobrantes - primerosBytesSobrantes;
-	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(bstar);
 	
 	if ( tamanioClavePadre > this->getEspacioLibre() ) return false;
 	
@@ -373,7 +381,7 @@ bool Nodo::puedeRecibirClaveDesdeDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* c
 	//Variable que almacena el tamanio en bytes de las claves sobrantes sin incluir la ultima clave.
 	unsigned short primerosBytesSobrantes = nodoHnoDer->bytesACeder(cantClavesSobrantes - 1);
 	unsigned short bytesUltimaClaveSobrante = bytesSobrantes - primerosBytesSobrantes;
-	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(bstar);
 	
 	if ( tamanioClavePadre > this->getEspacioLibre() ) return false;
 	
@@ -392,11 +400,11 @@ bool Nodo::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* cla
 	unsigned short bytesRequeridos = nodoHnoIzq->obtenerBytesRequeridos();
 	unsigned short bytesPropuestosPorMi = 0;
 	unsigned short bytesHaciaElPadre = 0;
-	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(bstar);
 	unsigned char clavesPropuestas = 0;
 	
 	if ( ( tamanioClavePadre >= bytesRequeridos ) &&
-		 (nodoPadre->puedeRecibir(this->obtenerPrimeraClave()->getTamanioEnDisco(), tamanioClavePadre)) )
+		 (nodoPadre->puedeRecibir(this->obtenerPrimeraClave()->getTamanioEnDisco(bstar), tamanioClavePadre)) )
 		return true;
 	
 	bytesRequeridos -= tamanioClavePadre;
@@ -420,11 +428,11 @@ bool Nodo::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* cla
 	unsigned short bytesRequeridos = nodoHnoDer->obtenerBytesRequeridos();
 	unsigned short bytesPropuestosPorMi = 0;
 	unsigned short bytesHaciaElPadre = 0;
-	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(bstar);
 	unsigned char clavesPropuestas = 0;
 	
 	if ( ( tamanioClavePadre >= bytesRequeridos ) &&
-		 (nodoPadre->puedeRecibir(this->obtenerUltimaClave()->getTamanioEnDisco(), tamanioClavePadre)) )
+		 (nodoPadre->puedeRecibir(this->obtenerUltimaClave()->getTamanioEnDisco(bstar), tamanioClavePadre)) )
 		return true;
 		
 	bytesRequeridos -= tamanioClavePadre;
@@ -460,17 +468,20 @@ void Nodo::merge(Nodo* nodoHno1, Nodo* nodoHno2, Clave* clavePadre1, Clave* clav
 Clave* Nodo::extraerUltimaClave() {
 	SetClaves::iterator iter = this->getClaves()->end();
 	this->getClaves()->erase(*(--iter));
+	this->actualizarEspacioLibre(*iter, false);
 	return *iter;
 }
 
 Clave* Nodo::extraerPrimeraClave() {
 	SetClaves::iterator iter = this->getClaves()->begin();
 	this->getClaves()->erase(*iter);
+	this->actualizarEspacioLibre(*iter, false);
 	return *iter;
 }
 
 void Nodo::extraerClave(Clave* clave) {
 	this->getClaves()->erase(clave);
+	this->actualizarEspacioLibre(clave, false);
 }
 
 
@@ -505,7 +516,7 @@ void Nodo::insertarClave(Clave* &clave, char* codigo)
 	this->getClaves()->insert(clave);
 
 	//Si hay espacio suficiente para la nueva clave ...
-	if (this->getEspacioLibre() > clave->getTamanioEnDisco()){
+	if (this->getEspacioLibre() > clave->getTamanioEnDisco(bstar)){
 		this->actualizarEspacioLibre(clave, true);
 		cod = Codigo::MODIFICADO;
 	}else{ //No hay espacio libre suficiente para insertar la clave...
@@ -522,12 +533,14 @@ void Nodo::eliminarClave(Clave* clave, char* codigo) {
 	SetClaves::iterator iter = set->find(clave);
 	
 	if (iter != set->end()) { //Se encontró la clave
+		
+		//Se actualiza el espacio libre del nodo
+		this->actualizarEspacioLibre(clave, false);
+		
 		//Se libera la memoria utilizada por la clave
 		delete *iter;
 		//Se elimina el puntero a la clave que estaba dentro del conjunto
 		set->erase(iter);
-		//Se actualiza el espacio libre del nodo
-		this->actualizarEspacioLibre(clave, false);
 		
 		if (this->getTamanioEnDiscoSetClaves() < this->getTamanioMinimo()) 
 			*codigo = Codigo::UNDERFLOW;
@@ -539,20 +552,6 @@ void Nodo::eliminarClave(Clave* clave, char* codigo) {
 	
 }
 
-void Nodo::actualizarEspacioLibre(){
-
-	unsigned int espacioLibre = this->getTamanioEspacioClaves();
-	unsigned int contador = 0;
-	
-	for (SetClaves::iterator iter = this->getClaves()->begin(); iter != this->getClaves()->end(); ++iter) {
-		espacioLibre -= (*iter)->getTamanioEnDisco();
-		++contador;
-	}
-	
-	if (this->getNivel() != 0) this->setEspacioLibre(espacioLibre + contador*Tamanios::TAMANIO_REFERENCIA);
-	else this->setEspacioLibre(espacioLibre);
-	
-}
 
 void Nodo::setClaves(SetClaves* set)
 {	
@@ -579,6 +578,42 @@ Nodo& Nodo::operator = (const Nodo &nodo) {
 	this->setPosicionEnArchivo(nodo.getPosicionEnArchivo());
 	
 	return *this;
+	
+}
+
+
+void Nodo::actualizarEspacioLibre(Clave* clave, bool insercion)
+{
+	if (insercion)
+		this->setEspacioLibre(this->getEspacioLibre() - clave->getTamanioEnDisco(bstar));
+	else
+	   	this->setEspacioLibre(this->getEspacioLibre() + clave->getTamanioEnDisco(bstar));
+}
+
+void Nodo::actualizarEspacioLibre(SetClaves* claves, bool insercion)
+{
+	unsigned int suma = 0;
+	
+	for (SetClaves::iterator iter = claves->begin(); iter != claves->end(); ++iter){
+		suma += (*iter)->getTamanioEnDisco(bstar);			
+	}
+	
+	if (insercion)
+		this->setEspacioLibre(this->getEspacioLibre() - suma);
+	else
+		this->setEspacioLibre(this->getEspacioLibre() + suma);
+}
+
+
+void Nodo::actualizarEspacioLibre() {
+
+	unsigned int espacioLibre = this->getTamanioEspacioClaves();
+	
+	for (SetClaves::iterator iter = this->getClaves()->begin(); iter != this->getClaves()->end(); ++iter) {
+		espacioLibre -= (*iter)->getTamanioEnDisco(bstar);
+	}
+	
+	this->setEspacioLibre(espacioLibre);
 	
 }
 

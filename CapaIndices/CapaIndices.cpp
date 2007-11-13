@@ -186,6 +186,10 @@ int main(int argc, char* argv[]) {
 	indice.insertar(new ClaveEntera(9999), null);
 	indice.insertar(new ClaveEntera(200), null);
 
+
+	ClaveEntera clave(456);
+	indice.eliminar(&clave);
+
 	cout << "Fin Main" << endl;
 	
 }
