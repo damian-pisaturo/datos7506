@@ -59,7 +59,7 @@
 			int posicion = this->aplicarHash(clave) % this->tabla->getTamanio();
 			
 			// Se obtiene el bucket donde hay que insertar el registro.
-			int numBucket = this->tabla->getNroBucket(posicion);
+			unsigned int numBucket = this->tabla->getNroBucket(posicion);
 			
 			// Levanta un bucket ya existente del disco y carga sus datos.
 			Bucket * bucket = new Bucket(this->archivo, numBucket);

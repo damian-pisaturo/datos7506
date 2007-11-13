@@ -58,12 +58,11 @@
 			
 			// Inicializa el offset a espacio libre dentro del bloque.
 			unsigned short espLibre = this->offsetADatos;
-			unsigned short cantRegs = 0;
-			
-			// Se incluyen en el bloque es sí, el offset a espacio libre, y
-			// la cantidad de registros. 
 			memcpy(this->datos, &espLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
-			memcpy(&this->datos[Tamanios::TAMANIO_ESPACIO_LIBRE], &cantRegs,
+			
+			// Inicializa la cantidad de registros dentro del bloque.
+			unsigned short cantRegs = 0;
+			memcpy(this->datos + Tamanios::TAMANIO_ESPACIO_LIBRE, &cantRegs,
 				   Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 		}
 		

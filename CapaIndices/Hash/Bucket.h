@@ -55,7 +55,7 @@ public:
 	 * Crea un Bucket con los datos del bloque cuyo numBucket es la posición del mismo 
 	 * en el archivo.
 	 **/
-	Bucket(IndiceManager* indiceHash, unsigned int numBucket);
+	Bucket(IndiceHashManager* indiceHash, unsigned int numBucket);
 	
 	/*
 	 * Constructor utilizado para crear un bucket en memoria y no acceder a disco
