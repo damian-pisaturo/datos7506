@@ -320,6 +320,7 @@ int IndiceArbolManager::escribirBloque(unsigned short numNodo,
 
 	if (pipe)
 		delete pipe;
+	
 	if (punteroAux)
 		delete[] punteroAux;
 
@@ -489,6 +490,7 @@ int IndiceArbolManager::escribirBloqueDoble(unsigned short numBloque,
 
 	if (pipe)
 		delete pipe;
+	
 	if (punteroAux)
 		delete[] punteroAux;
 
@@ -576,6 +578,7 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque,
 
 	if (pipe)
 		delete pipe;
+	
 	if (punteroAux)
 		delete[] punteroAux;
 

@@ -114,7 +114,7 @@ class ArchivoDatosBloques : public ArchivoDatos
 		 */
 		char eliminarBloque(unsigned short numBloque);
 	
-}; /*Fin clase ArchivoDatos*/
+}; /*Fin clase ArchivoDatosBloques*/
 
 class ArchivoDatosRegistros : public ArchivoDatos
 {	
@@ -152,6 +152,6 @@ class ArchivoDatosRegistros : public ArchivoDatos
 		 */
 		char eliminarRegistro(unsigned short numBloque);
 	
-}; /*Fin clase ArchivoDatos*/
+}; /*Fin clase ArchivoDatosRegistros*/
 
 #endif /*ARCHIVODATOS_H_*/
