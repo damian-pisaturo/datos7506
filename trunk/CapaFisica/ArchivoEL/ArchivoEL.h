@@ -74,14 +74,14 @@ class ArchivoELFijo : public ArchivoEL
 	///////////////////////////////////////////////////////////////////////
 		/*Busca en el archivo de control el primer bloque en condicion
 		 * de libre y devuelve su numero dentro del archivo. Si ningun
-		 * bloque se encuentra libre, devuelve ResFisica::BLOQUES_OCUPADOS.
+		 * bloque se encuentra libre, devuelve ResultadosFisica::BLOQUES_OCUPADOS.
 		 */
 		short buscarBloqueLibre();	
 		
 		/*Busca en el archivo de control los dos primeros bloques consecutivos
 		 * en condicion de libre y devuelve el numero del primero de ellos
 		 * dentro del archivo. Si ningun par de bloques consecutivos se encuentra 
-		 * libre, devuelve ResFisica::BLOQUES_OCUPADOS.
+		 * libre, devuelve ResultadosFisica::BLOQUES_OCUPADOS.
 		 */		
 		short buscarBloqueDobleLibre();
 };

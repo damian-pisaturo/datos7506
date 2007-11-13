@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //	Archivo   : ArchivoIndice.h
-//  Namespace : CapaFisica
+//  Namespace : CapaIndices
 ////////////////////////////////////////////////////////////////////////////
 //	75.06 Organizacion de Datos
 //	Trabajo practico: Framework de Persistencia
@@ -22,18 +22,14 @@
 #ifndef INDICEMANAGER_H_
 #define INDICEMANAGER_H_
 
-#include <iostream>
+#include <string>
 
-#include "../../Common/ResultadosFisica.h"
 #include "../Common/Nodo.h"
 #include "../../Common/Tamanios.h"
 #include "../Common/SetClaves.h"
-#include "../../ComuDatos/ComuDatos.h"
-#include "../../Common/NombresCapas.h"
 #include "../../Common/TipoDatos.h"
 #include "../Common/TipoIndices.h"
-#include "../../Common/OperacionesCapas.h"
-
+#include "Manager.h"
 
 using namespace std;
 
@@ -44,14 +40,12 @@ using namespace std;
 //			(Abstracta. Clase que sirve de abstraccion de la capa 
 //			fisica para los indices de la capa de indices).
 ///////////////////////////////////////////////////////////////////////////
-class IndiceManager
+class IndiceManager : public Manager
 {
 	private:
 	///////////////////////////////////////////////////////////////////////
-	// Atributos
+	// Atributo
 	///////////////////////////////////////////////////////////////////////
-		string nombreArchivo;
-		unsigned int tamanioBloque;
 		unsigned char tipoIndice;
 		
 	public:
@@ -89,41 +83,13 @@ class IndiceManager
 
 
 	///////////////////////////////////////////////////////////////////////
-	// Getters/Setters
+	// Getters
 	///////////////////////////////////////////////////////////////////////
-		unsigned int getTamanioBloque()
-		{
-			return this->tamanioBloque;
-		}
-		
-		void setTamanioBloque(unsigned int tamanio)
-		{
-			this->tamanioBloque = tamanio;
-		}
-		
-		string getNombreArchivo()
-		{
-			return this->nombreArchivo;
-		}
-		
-		void setNombreArchivo(string nombre)
-		{
-			this->nombreArchivo = nombre;
-		}
 		
 		const unsigned int getTipoIndice()
 		{
 			return this->tipoIndice;
-		}
-		
-		
-	protected:
-		
-		/* Devuelve una instancia de un pipe de comunicacion entre
-		 * la clase actual y el ejecutable cuyo nombre es pasado
-		 * por parametro.
-		 */
-		ComuDatos* instanciarPipe(string nombreEjecutable);
+		}	
 		
 };
 

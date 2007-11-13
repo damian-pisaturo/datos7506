@@ -27,7 +27,7 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		Hash::Hash(IndiceHashManager *arch, ListaNodos * lista, unsigned int tamBucket)
+		Hash::Hash(IndiceHashManager* arch, ListaNodos* lista, unsigned int tamBucket)
 		{
 			this->archivo    = arch;
 			this->listaParam = lista;
@@ -37,7 +37,8 @@
 	
 		Hash::~Hash()
 		{
-			delete this->tabla;
+			if (this->tabla)
+				delete this->tabla;
 		}
 
 	///////////////////////////////////////////////////////////////////////
@@ -46,8 +47,8 @@
 
 		/*
 		 * Este método se utiliza para hacer una operación de alta en el archivo.
-		 * Si el registro se puede insertar devuelve HASH_OK; si ya existe un registro
-		 * con la misma clave, devuelve DUPLICATED.
+		 * Si el registro se puede insertar devuelve OK; si ya existe un registro
+		 * con la misma clave, devuelve CLAVE_DUPLICADA.
 		 * En caso de que el registro no entre en el bucket correspondiente, se 
 		 * toman las medidas necesarias para hacer extensible la función de hash.
 		 * Si el registro es variable "registro" contendrá su longitud en los 
@@ -125,15 +126,13 @@
 				if (bucket) delete bucket;				
 				if (nuevoBucket) delete nuevoBucket;
 				
-				// Intenta nuevamente la inserción del registro.
-				int result = this->insertarRegistro(registro, clave);				
-				
-				return result;
+				// Intenta nuevamente la inserción del registro.				
+				return this->insertarRegistro(registro, clave);
 			}
 		}
 
 		/* Este método se utiliza para hacer una operación de baja en el archivo.
-		 * Si el registro se puede eliminar devuelve HASH_OK, si no existe el registro
+		 * Si el registro se puede eliminar devuelve OK, si no existe el registro
 		 * a eliminar, se devuelve NO_ENCONTRADO.
 		 * En caso de que el bucket quede vacío, se considera la posibilidad de 
 		 * disminuir el tamaño de la tabla de hash.

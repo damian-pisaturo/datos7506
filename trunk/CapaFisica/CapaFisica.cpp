@@ -30,8 +30,10 @@
 		
 		if (argc > 3){
 
+			//Archivo de escritura/lectura.
 			ArchivoBase* archivo = NULL;			
 			
+			//Instancia del pipe de comunicacion entre capas.
 			ComuDatos pipe(argv);
 			
 			string nombreArchivo;
@@ -39,6 +41,7 @@
 			int accion    = 0;
 			int tamBloque = 0;
 			int numBloque = 0;
+			int espLibre  = 0;
 	
 			//Obtener parametros comunes a todas las acciones
 			//de la capa fisica.
@@ -345,15 +348,15 @@
 				buffer  = new char[tamBloque*sizeof(char)];			
 				
 				//Obtencion del tipo de organizacion del archivo.
-				pipe.parametro(3, &tipoOrg);
-				
-				//Obtencion del espacio libre dentro del bloque.
-				pipe.parametro(4, &espLibre);
+				pipe.parametro(3, &tipoOrg);		
 
 				//Obtencion del bloque a escribir a traves del pipe.
 				pipe.leer(tamBloque, buffer);
 				
 				if (tipoOrg == TipoOrganizacion::REG_VARIABLES){
+					//Obtencion del espacio libre dentro del bloque.
+					pipe.parametro(4, &espLibre);
+								
 					archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
 					
 					//Escritura del bloque a disco.
@@ -383,15 +386,15 @@
 				pipe.parametro(3, &numBloque);				
 	
 				//Obtencion del tipo de organizacion del archivo.
-				pipe.parametro(4, &tipoOrg);				
-				
-				//Obtencion del espacio libre dentro del bloque.
-				pipe.parametro(5, &espLibre);
+				pipe.parametro(4, &tipoOrg);			
 
 				//Obtencion del bloque a escribir a traves del pipe.
 				pipe.leer(tamBloque, buffer);
 							
 				if (tipoOrg == TipoOrganizacion::REG_VARIABLES){
+					//Obtencion del espacio libre dentro del bloque.
+					pipe.parametro(5, &espLibre);
+
 					archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
 				
 					//Modificacion del bloque en disco.
@@ -430,6 +433,29 @@
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
 				
+			}break;
+			
+			case OperacionesCapas::FISICA_BUSCAR_ESPACIO_LIBRE:
+			{
+				int numBloque = 0;
+				
+				//Obtencion del espacio libre a buscar.
+				pipe.parametro(3, &espLibre);
+				buffer = new char[tamBloque*sizeof(char)];
+				
+				archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
+				
+				//Obtencion del numero del primer bloque que contiene el
+				//espacio libre requerido
+				numBloque = ((ArchivoDatosBloques*)archivo)->buscarBloque(buffer, espLibre);
+				
+				if (numBloque != ResultadosFisica::BLOQUES_OCUPADOS)
+					//Se envia el bloque si existe al menos uno que cumpla el
+					//criterio de busqueda (espacio libre suficiente).
+					pipe.escribir(buffer, tamBloque);	
+				
+				pipe.escribir(numBloque);				
+			
 			}break;
 				
 			default:
