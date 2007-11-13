@@ -32,7 +32,7 @@ class SetClaves : public set<Clave*, Comparador> {
 		//El conjunto devuelto contiene las claves mayores.
 		//Recibe la minima cantidad de claves (en bytes) que debe tener
 		//cada conjunto.
-		SetClaves* splitBPlus(unsigned short minClaves, unsigned short maxClaves);
+		SetClaves* splitBPlus(unsigned short minClaves, unsigned short maxClaves, bool bstar);
 		
 		//Este metodo divide al conjunto actual en tres 2/3 llenos.
 		//Devuelve un vector con punteros a los otros conjuntos creados.
