@@ -37,7 +37,7 @@ ComuDatos::ComuDatos(char** argv)
 		
 		this->fd_pipeH = open(argv[1], O_RDONLY);
 		if (this->fd_pipeH<0){
-			close(this->fd_pipeH);
+			close(this->fd_pipeP);
 			perror("argv[]");
 			return;	
 		}	

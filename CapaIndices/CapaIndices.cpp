@@ -184,8 +184,8 @@ int main(int argc, char* argv[]) {
 	indice.insertar(new ClaveEntera(123), null);
 	indice.insertar(new ClaveEntera(456), null);
 	indice.insertar(new ClaveEntera(9999), null);
-/*	indice.insertar(new ClaveEntera(200), null);
-*/
+	indice.insertar(new ClaveEntera(200), null);
+
 	cout << "Fin Main" << endl;
 	
 }
