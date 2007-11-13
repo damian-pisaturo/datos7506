@@ -57,7 +57,8 @@ class Nodo : public BloqueIndice
 		unsigned char nivel;
 		unsigned int posicionEnArchivo;
 		unsigned short tamanio;
-		SetClaves* claves;		
+		SetClaves* claves;
+		bool bstar;
 	
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -65,10 +66,10 @@ class Nodo : public BloqueIndice
 	///////////////////////////////////////////////////////////////////////
 		
 		/*Crea un nuevo nodo para insertarle una Clave*/
-		Nodo(unsigned int refNodo, unsigned char nivel, Clave* clave, unsigned short tamanio);
+		Nodo(unsigned int refNodo, unsigned char nivel, Clave* clave, unsigned short tamanio, bool bstar);
 		
 		/*Crea el nodo sin setear ninguna clave*/
-		Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio);
+		Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio, bool bstar);
 		
 		/*Destructor*/
 		virtual ~Nodo();
@@ -98,9 +99,9 @@ class Nodo : public BloqueIndice
 	     * el tamanio de la/s clave/s a insertar, segun sea una
 		 * insercion o una eliminacion.
 	     */
-		virtual void actualizarEspacioLibre(SetClaves* claves, bool insercion) = 0; 
-		virtual void actualizarEspacioLibre(Clave* clave, bool insercion) = 0;
-		void actualizarEspacioLibre();
+		virtual void actualizarEspacioLibre(SetClaves* claves, bool insercion); 
+		virtual void actualizarEspacioLibre(Clave* clave, bool insercion);
+		virtual void actualizarEspacioLibre();
 			
 		/*reemplazarClave()
 		 * Reemplaza la claveVieja del Nodo actual con una copia de 

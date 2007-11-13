@@ -430,7 +430,7 @@ void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodo
 	
 	char codigo;
 	unsigned short bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
-	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(true);
 	SetClaves* setIntercambio = NULL;
 	
 	nodoPadre->extraerClave(clavePadre);
@@ -461,7 +461,7 @@ void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPa
 	
 	char codigo;
 	unsigned short bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
-	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(true);
 	SetClaves* setIntercambio = NULL;
 	
 	nodoPadre->extraerClave(clavePadre);

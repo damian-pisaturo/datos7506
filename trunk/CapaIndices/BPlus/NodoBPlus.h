@@ -28,12 +28,6 @@
 ///////////////////////////////////////////////////////////////////////////
 class NodoBPlus: public Nodo
 {
-	private:		
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-		void insertarEnHoja(Clave* &clave, char* codigo);
-		void insertarEnNodo(Clave* &clave, char* codigo);
 	
 	public:
 	//////////////////////////////////////////////////////////////////////
@@ -48,25 +42,20 @@ class NodoBPlus: public Nodo
 		NodoBPlus(unsigned int refNodo, unsigned char nivel, Clave* clave,
 			   unsigned short tamanio);
 			
-		/*Lee el archivo y crea ese nodo*/
-		//NodoBPlus(unsigned int referencia);
-			
 		/*Destructor*/
 		virtual ~NodoBPlus() {}
+		
+		
+		
+	//////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	//////////////////////////////////////////////////////////////////////
 		
 		Nodo* copiar() const;
 		
 		bool puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* clavePadre) const;
 				
 		bool puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* clavePadre) const;
-		
-		void actualizarEspacioLibre(Clave* clave, bool insercion);
-		
-		void actualizarEspacioLibre(SetClaves* claves, bool insercion);
-			
-	//////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	//////////////////////////////////////////////////////////////////////
 		
 		//Devuelve el espacio (en bytes) destinado para almacenar claves (elementos)
 		unsigned short getTamanioEspacioClaves() const {

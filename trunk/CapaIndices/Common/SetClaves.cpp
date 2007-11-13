@@ -7,8 +7,14 @@ SetClaves::~SetClaves() {
 
 Clave* SetClaves::findClave(Clave* clave) const {
 
+	//cout << "me piden buscar: ";
+	//clave->imprimir(cout);
+	
 	//Busco la clave mayor o igual a la que me pasan por parametro
 	SetClaves::const_iterator iter = this->lower_bound(clave);
+	
+	//cout << "devuelvo: ";
+	//(*iter)->imprimir(cout);
 
 	if (iter == this->end()) return *(--iter);
 	
@@ -31,7 +37,7 @@ SetClaves* SetClaves::splitBPlus(unsigned short minClaves, unsigned short maxCla
 	unsigned short i;
 	
 	for(i = 0; (iter != this->end()) && (i < minClaves); ++iter)
-		i += (*iter)->getTamanioEnDisco();
+		i += (*iter)->getTamanioEnDisco(false);
 	
 	if (i > maxClaves) --iter;
 	
@@ -60,7 +66,7 @@ VectorConjuntos* SetClaves::splitBStar(unsigned short minClaves, unsigned short 
 		for (iter = this->begin();
 			(iter != this->end()) && (tamanioAcumulado < minClaves);
 			++iter) {
-			tamanioAcumulado += (*iter)->getTamanioEnDisco();
+			tamanioAcumulado += (*iter)->getTamanioEnDisco(true);
 			if (tamanioAcumulado <= maxClaves)
 				nuevoConj->insert(*iter);
 		}

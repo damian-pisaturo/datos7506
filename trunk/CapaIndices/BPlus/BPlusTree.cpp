@@ -134,6 +134,9 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 			
 			nodoPadre->insertarClave(clavePromocionada, codigo);
 			
+			if (*nodoPadre == *(this->nodoRaiz))
+				*(this->nodoRaiz) = *nodoPadre;
+			
 			//Llamada recursiva para chequear overflow en el padre
 			insertarInterno(nodoPadre, codigo);
 			
@@ -147,9 +150,15 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 
 bool BPlusTree::eliminar(Clave* clave) {
 	
+	cout << "clave a buscar: ";
+	clave->imprimir(cout);
+	
 	if ( (!clave) || (this->vacio()) ) return false;
 	
 	NodoBPlus* nodoTarget = buscarLugar(clave);
+	
+	cout << "Nodo encontrado: " << nodoTarget->getPosicionEnArchivo() << endl;
+	
 	Clave* claveBuscada = nodoTarget->buscar(clave);
 
 	char codigo;
@@ -174,6 +183,8 @@ bool BPlusTree::eliminar(Clave* clave) {
 
 void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 
+	cout << "eliminar interno" << endl;
+	
 	if (*codigo == Codigo::MODIFICADO) {
 		//Se actualiza en disco el nodo modificado.
 		indiceManager.escribirBloque(nodoTarget->getPosicionEnArchivo(), nodoTarget);
@@ -269,7 +280,7 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 				if ( (*nodoPadre == *(this->nodoRaiz)) && (nodoPadre->getCantidadClaves() == 1) ) {
 					if (nodoHnoDer) this->merge(nodoTarget, nodoHnoDer, nodoPadre->obtenerPrimeraClave());
 					else this->merge(nodoTarget, nodoHnoIzq, nodoPadre->obtenerPrimeraClave());
-					this->nodoRaiz = (NodoBPlus*)nodoTarget->copiar();
+					*(this->nodoRaiz) = *nodoTarget;
 					this->nodoRaiz->setPosicionEnArchivo(0);
 					//Se escribe la nueva raiz
 					indiceManager.escribirBloque(this->nodoRaiz->getPosicionEnArchivo(), this->nodoRaiz);
@@ -294,6 +305,9 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 			
 			if (nodoHnoDer) delete nodoHnoDer;
 			if (nodoHnoIzq) delete nodoHnoIzq;
+			
+			if (*nodoPadre == *(this->nodoRaiz))
+				*(this->nodoRaiz) = *nodoPadre;
 			
 			delete nodoPadre;
 		}
@@ -366,6 +380,8 @@ NodoBPlus* BPlusTree::buscarLugar(Clave* clave) const {
 	
 	if (!clave) return NULL;
 	
+	cout << "entro a buscarlugar..." << endl;
+	
 	//Se supone que el nodo raíz ya se encuentra cargado en memoria.
 	return buscarLugarRecursivo(this->nodoRaiz, clave);
 }
@@ -373,6 +389,11 @@ NodoBPlus* BPlusTree::buscarLugar(Clave* clave) const {
 
 NodoBPlus* BPlusTree::buscarLugarRecursivo(NodoBPlus* nodo, Clave* clave) const {
 
+	cout << "clave a buscar: ";
+	clave->imprimir(cout);
+	char a;
+	cin >> a;
+	
 	NodoBPlus *nuevoNodo = NULL, *auxNodo = NULL;
 	
 	Clave* claveResultante = nodo->buscar(clave);
@@ -452,6 +473,8 @@ void BPlusTree::merge(NodoBPlus* nodoIzquierdo, NodoBPlus* &nodoDerecho, Clave* 
 		nodoIzquierdo->merge(nodoDerecho, separador->copiar());
 	}
 	
+	nodoIzquierdo->actualizarEspacioLibre();
+	
 	indiceManager.eliminarBloque(nodoDerecho->getPosicionEnArchivo());
 	indiceManager.escribirBloque(nodoIzquierdo->getPosicionEnArchivo(), nodoIzquierdo);
 	
@@ -465,7 +488,7 @@ void BPlusTree::pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodo
 	
 	char codigo;
 	unsigned short bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
-	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(false);
 	SetClaves* setIntercambio = NULL;
 	Clave* clavePromocionada = NULL;
 	
@@ -513,7 +536,7 @@ void BPlusTree::pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPa
 
 	char codigo;
 	unsigned short bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
-	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco();
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(false);
 	SetClaves* setIntercambio = NULL;
 	Clave* clavePromocionada = NULL;
 	

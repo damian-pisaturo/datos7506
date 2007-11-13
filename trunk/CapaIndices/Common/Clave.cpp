@@ -20,12 +20,13 @@
 ///////////////////////////////////////////////////////////////////////////
 #include "Clave.h"
 
-	unsigned int Clave::getTamanioEnDisco() const
+	unsigned int Clave::getTamanioEnDisco(bool bstar) const
 	{
 		unsigned int tamanio = this->getTamanioValor() + Tamanios::TAMANIO_REFERENCIA;
-		//Si la clave se insertara en un nodo interno
-		//agrego el tamaño de la referencia al hijo derecho
-		if (hijoDer != 0) tamanio += Tamanios::TAMANIO_REFERENCIA;
+		
+		//Si la clave se inserta en un nodo interno de un árbol B*
+		//agrego el tamaño de una referencia
+		if ((bstar) && (hijoDer != 0)) tamanio += Tamanios::TAMANIO_REFERENCIA;
 		
 		return tamanio;
 	}

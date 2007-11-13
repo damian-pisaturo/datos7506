@@ -99,7 +99,7 @@ class Clave
 		//otro caso se considerará el tamaño del hijo derecho.
 		//El valor 0 hace referencia al nodo Raíz, pero ningún nodo puede tener como hijo
 		//al nodo raíz, por lo tanto utilizar este valor no presenta inconvenientes.
-		virtual unsigned int getTamanioEnDisco() const;
+		virtual unsigned int getTamanioEnDisco(bool bstar) const;
 		
 		//Este método es virtual para que cada clase heredera pueda liberar la memoria
 		//utilizada por el valor anterior, según el tipo de dato que utilice.
