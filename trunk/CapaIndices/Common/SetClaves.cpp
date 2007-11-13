@@ -26,7 +26,7 @@ Clave* SetClaves::findClave(Clave* clave) const {
 	
 }
 
-SetClaves* SetClaves::splitBPlus(unsigned short minClaves, unsigned short maxClaves) {
+SetClaves* SetClaves::splitBPlus(unsigned short minClaves, unsigned short maxClaves, bool bstar) {
 	
 	//minClaves contiene la cantidad minima de claves (en bytes) que debe
 	//contener cada conjunto.
@@ -37,7 +37,7 @@ SetClaves* SetClaves::splitBPlus(unsigned short minClaves, unsigned short maxCla
 	unsigned short i;
 	
 	for(i = 0; (iter != this->end()) && (i < minClaves); ++iter)
-		i += (*iter)->getTamanioEnDisco(false);
+		i += (*iter)->getTamanioEnDisco(bstar);
 	
 	if (i > maxClaves) --iter;
 	
