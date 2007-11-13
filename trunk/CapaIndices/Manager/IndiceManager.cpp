@@ -32,27 +32,25 @@
 ///////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 ///////////////////////////////////////////////////////////////////////
-IndiceManager::IndiceManager(unsigned int tamanioBloque, string nombreArchivo, unsigned char tipoIndice):
-	Manager(tamanioBloque, nombreArchivo)
+IndiceManager::IndiceManager(unsigned int tamanioBloque, string nombreArchivo, unsigned char tipoIndice)
+							: Manager(tamanioBloque, nombreArchivo)
 {
 	switch (tipoIndice) {
-	case TipoIndices::ARBOL_BP:
-		this->setNombreArchivo(nombreArchivo + ".plus");
-		break;
-	case TipoIndices::ARBOL_BS:
-		this->setNombreArchivo(nombreArchivo + ".star");
-		break;
-	case TipoIndices::HASH:
-		this->setNombreArchivo(nombreArchivo + ".hash");
-		break;
+	
+		case TipoIndices::ARBOL_BP:
+			this->setNombreArchivo(nombreArchivo + ".plus");
+			break;
+		case TipoIndices::ARBOL_BS:
+			this->setNombreArchivo(nombreArchivo + ".star");
+			break;
+		case TipoIndices::HASH:
+			this->setNombreArchivo(nombreArchivo + ".hash");
+			break;
+			
 	}
 	
 	this->tipoIndice = tipoIndice;
 }
-
-IndiceManager::~IndiceManager() 
-{ }
-
 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -120,8 +118,6 @@ int IndiceArbolManager::leerBloque(unsigned int numBloque,
 	HeaderNodo headerNodo;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisica para
@@ -204,8 +200,6 @@ int IndiceArbolManager::escribirBloque(BloqueIndice* bloqueNuevo) {
 	SetClaves* set= NULL;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisica para
@@ -276,8 +270,6 @@ int IndiceArbolManager::escribirBloque(unsigned short numNodo,
 	SetClaves* set= NULL;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisica.
@@ -338,8 +330,6 @@ int IndiceArbolManager::eliminarBloque(unsigned short posicion) {
 	char resultado = 0;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros para inicializar el pipe.
@@ -374,8 +364,6 @@ int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo) {
 	SetClaves* set= NULL;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisica.
@@ -447,8 +435,6 @@ int IndiceArbolManager::escribirBloqueDoble(unsigned short numBloque,
 	SetClaves* set= NULL;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisica.
@@ -524,8 +510,6 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque,
 	SetClaves* set = new SetClaves();
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisica para
@@ -602,8 +586,6 @@ int IndiceArbolManager::eliminarBloqueDoble(unsigned short posicion) {
 	char resultado = 0;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros para inicializar el pipe.
@@ -655,8 +637,6 @@ int IndiceHashManager::leerBloque(unsigned int numBucket,
 	HeaderBucket headerBucket;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de ejecucion de la Capa Fisica para leer
@@ -706,8 +686,6 @@ int IndiceHashManager::escribirBloque(BloqueIndice* nuevoBloque) {
 	char* data= NULL;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de ejecucion de la Capa Fisica para escribir un
@@ -746,8 +724,6 @@ int IndiceHashManager::escribirBloque(unsigned short numBucket,
 	char* buffer= NULL;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de ejecucion de la Capa Fisica para modificar
@@ -782,8 +758,6 @@ int IndiceHashManager::eliminarBloque(unsigned short numBucket) {
 	char resultado = ResultadosFisica::OK;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisisca para
@@ -810,8 +784,6 @@ void IndiceHashManager::leerTabla(unsigned int* tamanio, unsigned int* &buckets)
 	char* bucketsTabla= NULL;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisica para
@@ -846,8 +818,6 @@ void IndiceHashManager::escribirTabla(unsigned int tamanio,
 	char* bucketsTabla= NULL;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisica para
@@ -1077,8 +1047,6 @@ SetClaves* IndiceEnteroRomanoManager::leerListaClaves(unsigned int posicion) {
 	unsigned int cantClaves = 0;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisisca para
@@ -1175,8 +1143,6 @@ SetClaves* IndiceBooleanRomanoManager::leerListaClaves(unsigned int posicion) {
 	unsigned int cantClaves = 0;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisisca para
@@ -1366,8 +1332,6 @@ SetClaves* IndiceCharRomanoManager::leerListaClaves(unsigned int posicion) {
 	unsigned int cantClaves = 0;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisisca para
@@ -1518,8 +1482,6 @@ SetClaves* IndiceShortRomanoManager::leerListaClaves(unsigned int posicion) {
 	unsigned int cantClaves = 0;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisisca para
@@ -1613,8 +1575,6 @@ SetClaves* IndiceRealRomanoManager::leerListaClaves(unsigned int posicion) {
 	unsigned int cantClaves = 0;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisisca para
@@ -1739,8 +1699,6 @@ SetClaves* IndiceFechaRomanoManager::leerListaClaves(unsigned int posicion) {
 	ClaveFecha::TFECHA fecha;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisisca para
@@ -2146,8 +2104,6 @@ SetClaves* IndiceVariableRomanoManager::leerListaClaves(unsigned int posicion) {
 	unsigned int cantClaves = 0;
 
 	//Instancia del pipe
-	string path= RUTA_CAPA_FISICA;
-	path += NOMBRE_CAPA_FISICA;
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisisca para

@@ -13,6 +13,8 @@ extension = cpp
 # NOTA: No poner cabeceras (.h).
 
 fuentes = RegisterInfo/RegisterInfo.cpp
+fuentes += Manager/Manager.cpp
+fuentes += Manager/BloqueDatosManager.cpp
 fuentes += Manager/IndiceManager.cpp
 fuentes += Indices/IndiceArbol.cpp
 fuentes += Indices/IndiceHash.cpp

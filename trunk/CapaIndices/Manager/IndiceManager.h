@@ -54,7 +54,7 @@ class IndiceManager : public Manager
 	///////////////////////////////////////////////////////////////////////
 		
 		IndiceManager(unsigned int tamanioBloque, string nombreArchivo, unsigned char tipoIndice);		
-		virtual ~IndiceManager();
+		virtual ~IndiceManager() {}
 	
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos

@@ -12,31 +12,21 @@ extension = cpp
 # descomentar la línea (quitarle el '#' del principio).
 # NOTA: No poner cabeceras (.h). 
 
-fuentes = ../CapaIndices/Bloque/Bloque.cpp 
+fuentes = ../CapaIndices/Bloque/Bloque.cpp
 fuentes += ../CapaIndices/Common/Nodo.cpp
 fuentes += ../CapaIndices/Common/Clave.cpp
-fuentes += ../CapaIndices/Common/SetClaves.cpp 
+fuentes += ../CapaIndices/Common/SetClaves.cpp
 fuentes += ../CapaIndices/BStar/NodoBStar.cpp
-fuentes += ../CapaIndices/BStar/BStarTree.cpp 
 fuentes += ../CapaIndices/BPlus/NodoBPlus.cpp
-fuentes += ../CapaIndices/BPlus/BPlusTree.cpp 
-fuentes += ../CapaIndices/BTree/BTree.cpp 
-fuentes += ../ComuDatos/ComuDatos.cpp 
-fuentes += ../CapaIndices/Hash/Hash.cpp 
-fuentes += ../CapaIndices/Hash/Bucket.cpp 
-fuentes += ../CapaIndices/Hash/Tabla.cpp 
+fuentes += ../CapaIndices/Hash/Bucket.cpp
 fuentes += ../CapaIndices/RegisterInfo/RegisterInfo.cpp
-fuentes += ../CapaMetadata/DataManager/DataManager.cpp
-fuentes += ../CapaIndices/Indices/IndiceHash.cpp 
-fuentes += ../CapaIndices/Indices/IndiceArbol.cpp 
-fuentes += ../CapaIndices/Manager/IndiceManager.cpp 
-fuentes += ../CapaIndices/Common/ClaveFactory.cpp 
-fuentes += ../CapaIndices/Common/IndiceManagerFactory.cpp 
-fuentes += CapaFisica.cpp 
+fuentes += ../CapaIndices/Common/ClaveFactory.cpp
+fuentes += ../ComuDatos/ComuDatos.cpp
 fuentes += ArchivoBase/ArchivoBase.cpp
-fuentes += ArchivoDatos/ArchivoDatos.cpp 
+fuentes += ArchivoDatos/ArchivoDatos.cpp
 fuentes += ArchivoEL/ArchivoEL.cpp
 fuentes += ArchivoIndice/ArchivoIndice.cpp
+fuentes += CapaFisica.cpp
 
 # CONFIGURACION "AVANZADA"
 ###########################
