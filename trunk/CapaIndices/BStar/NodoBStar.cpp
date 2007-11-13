@@ -3,15 +3,13 @@
 NodoBStar::NodoBStar(unsigned int refNodo, unsigned char nivel, unsigned short tamanio)
 		 : Nodo(refNodo, nivel, tamanio) {
 	
-	
-	
 }
 
 
 NodoBStar::NodoBStar(unsigned int refNodo, unsigned char nivel, Clave* clave, unsigned short tamanio)
 		  : Nodo(refNodo, nivel, clave, tamanio) {
 	
-	this->actualizarEspacioLibre(clave,true);
+	this->actualizarEspacioLibre(clave, true);
 	
 }
 

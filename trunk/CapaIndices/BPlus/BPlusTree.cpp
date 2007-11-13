@@ -92,8 +92,9 @@ void BPlusTree::insertar(Clave* clave)
 
 		if (*nodoDestino == *(this->nodoRaiz))
 			*(this->nodoRaiz) = *nodoDestino;
-		else
-			delete nodoDestino;
+		
+		delete nodoDestino; //No se libera la memoria de this->nodoRaiz ya que nodoDestino
+							//era una copia
 		
 	}
 }
@@ -122,9 +123,9 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 												 clavePromocionada, this->tamanioNodo);
 			//Se escribe la nueva raíz
 			indiceManager.escribirBloque(0, nuevaRaiz);
+			*(this->nodoRaiz) = *nuevaRaiz;
 			delete nuevoNodoDerecho;
-			this->nodoRaiz = nuevaRaiz; //No se libera la memoria ocupada por el nodo raíz, ya que siempre
-										//lo tenemos cargado en memoria.
+			delete nuevaRaiz;
 			*codigo = Codigo::MODIFICADO;
 		}
 		else{
@@ -153,20 +154,19 @@ bool BPlusTree::eliminar(Clave* clave) {
 
 	char codigo;
 	
-	if ( (claveBuscada) && (*claveBuscada == *clave) ){
+	if ( (claveBuscada) && (*claveBuscada == *clave) ) {
 		nodoTarget->eliminarClave(claveBuscada, &codigo);
 		this->eliminarInterno(nodoTarget, &codigo); //resuelve underflow y escribe en disco
 	}
-	else{
-		if (!(*nodoTarget == *(this->nodoRaiz)))
-			delete nodoTarget;
+	else {
+		delete nodoTarget;
 		return false;
 	}
 	
 	if (*nodoTarget == *(this->nodoRaiz))
 		*(this->nodoRaiz) = *nodoTarget;
-	else
-		delete nodoTarget;
+	
+	delete nodoTarget;
 	
 	return true;
 }
@@ -190,7 +190,7 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 			*codigo = Codigo::MODIFICADO;
 			if (nodoTarget->getCantidadClaves() == 0) {
 				indiceManager.eliminarBloque(nodoTarget->getPosicionEnArchivo());
-				//La memoria utilizada por el nodo se libera al final del método eliminar
+				delete this->nodoRaiz;
 				this->nodoRaiz = NULL;
 			} else {
 				indiceManager.escribirBloque(nodoTarget->getPosicionEnArchivo(), nodoTarget);

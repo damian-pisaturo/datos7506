@@ -38,7 +38,6 @@ Nodo::Nodo(unsigned int refNodo, unsigned char nivel, Clave* clave,
 	/*Agrega la clave a la lista de claves del nodo*/
 	this->claves = new SetClaves();
 	this->claves->insert(clave);
-
 }
 
 Nodo::Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio)
@@ -322,6 +321,9 @@ bool Nodo::esPadre(const Nodo* hijo, Clave* &clave) const {
 	if ( (clave) && (clave->getHijoDer() == hijo->getPosicionEnArchivo()) )
 		return true;
 	
+	if ((!clave) && (this->getHijoIzq() == hijo->getPosicionEnArchivo()))
+		return true;
+	
 	return false;
 	
 }
@@ -540,12 +542,15 @@ void Nodo::eliminarClave(Clave* clave, char* codigo) {
 void Nodo::actualizarEspacioLibre(){
 
 	unsigned int espacioLibre = this->getTamanioEspacioClaves();
+	unsigned int contador = 0;
 	
-	for (SetClaves::iterator iter = this->getClaves()->begin(); iter != this->getClaves()->end(); ++iter){
+	for (SetClaves::iterator iter = this->getClaves()->begin(); iter != this->getClaves()->end(); ++iter) {
 		espacioLibre -= (*iter)->getTamanioEnDisco();
+		++contador;
 	}
 	
-	this->setEspacioLibre(espacioLibre);
+	if (this->getNivel() != 0) this->setEspacioLibre(espacioLibre + contador*Tamanios::TAMANIO_REFERENCIA);
+	else this->setEspacioLibre(espacioLibre);
 	
 }
 
