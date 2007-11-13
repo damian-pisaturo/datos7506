@@ -25,7 +25,7 @@
 /**
  * Este constructor inicia un bloque preexistente levantandolo desde el archivo.
  */
-Bucket::Bucket(IndiceManager* indiceHash, unsigned int nroBucket)
+Bucket::Bucket(IndiceHashManager* indiceHash, unsigned int nroBucket)
 :Bloque()
 {
 	cout << "Leyendo bloque desde el constructor de Bucket..." << endl;
@@ -33,7 +33,7 @@ Bucket::Bucket(IndiceManager* indiceHash, unsigned int nroBucket)
 	cout << "termino el leer bloque del constructor de bucket" << endl;
 	
 	this->setTamanioBloque(indiceHash->getTamanioBloque());
-	//this->setNroBloque(nroBucket);
+
 	this->setOffsetADatos(Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + 
 				   Tamanios::TAMANIO_DISPERSION);
 }

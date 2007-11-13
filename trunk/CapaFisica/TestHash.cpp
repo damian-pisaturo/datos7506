@@ -1,6 +1,6 @@
 #include "../CapaIndices/Indices/IndiceHash.h"
  
-int main(int estaRePedanticEsto, char** hinchaPelotas)
+int main(int argc, char** argv)
 {	
 	RegisterInfo* regInfo = new RegisterInfo();
 	
@@ -17,7 +17,7 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	unsigned short tamReg = 14; // 4 + 2 + 4 + 4
 	char *registro = new char [tamReg + 2];
 	
-	//Insercion registro numero 0
+	//Crea el registro numero 0
 	memcpy(registro,&tamReg, Tamanios::TAMANIO_LONGITUD);
 	memcpy(registro + 2,&entero1, sizeof(int));
 	memcpy(registro + 6,&longCadena, Tamanios::TAMANIO_LONGITUD);
@@ -25,10 +25,11 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	memcpy(registro + 12,&entero2, sizeof(int));	
 	
 	cout << endl;
-	cout << "Insertando registro 0 (Clave " << entero2 << ")" << "...OK!" << endl;
+	cout << "Insertando registro 0 (Clave " << entero2 << ")...";
 	
 	Clave* clave = new ClaveEntera(55);
 	manuColoquio->insertar(clave, registro);
+	cout << "...OK!" << endl;
 	
 	delete clave;	
 	delete[] registro;
@@ -45,9 +46,10 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	memcpy(registro + 8,  cadena, longCadena);
 	memcpy(registro + 12, &entero2, sizeof(int));	
 	
-	cout << "Insertando registro 1 (Clave " << entero2 << ")" << "...OK!" << endl;
+	cout << "Insertando registro 1 (Clave " << entero2 << ")..." ;
 	clave = new ClaveEntera(122);
 	manuColoquio->insertar(clave, registro);
+	cout << "OK!" << endl;
 	
 	delete clave;	
 	delete[] registro;
@@ -61,15 +63,16 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	longCadena = 7;
 	entero2 = 33;
 		
-	memcpy(registro,&tamReg,Tamanios::TAMANIO_LONGITUD);
-	memcpy(registro + 2,  &entero1,sizeof(int));
-	memcpy(registro + 6,  &longCadena,Tamanios::TAMANIO_LONGITUD);
-	memcpy(registro + 8,  cadena,longCadena);
-	memcpy(registro + 15, &entero2,sizeof(int));
+	memcpy(registro,&tamReg, Tamanios::TAMANIO_LONGITUD);
+	memcpy(registro + 2,  &entero1, sizeof(int));
+	memcpy(registro + 6,  &longCadena, Tamanios::TAMANIO_LONGITUD);
+	memcpy(registro + 8,  cadena, longCadena);
+	memcpy(registro + 15, &entero2, sizeof(int));
 	
-	cout << "Insertando registro 2 (Clave " << entero2 << ")" << "...OK!" << endl;
+	cout << "Insertando registro 2 (Clave " << entero2 << ")...";
 	clave = new ClaveEntera(33);
 	manuColoquio->insertar(clave,registro);
+	cout << "OK!" << endl;
 	
 	delete clave;	
 	delete[] registro;
@@ -89,9 +92,10 @@ int main(int estaRePedanticEsto, char** hinchaPelotas)
 	memcpy(registro + 8,  cadena,longCadena);
 	memcpy(registro + 25, &entero2,sizeof(int));
 	
-	cout << "Insertando registro 3 (Clave " << entero2 << ")" << "...OK!" << endl;
+	cout << "Insertando registro 3 (Clave " << entero2 << ")...";
 	clave = new ClaveEntera(555);
 	manuColoquio->insertar(clave, registro);
+	cout << "OK!" << endl;
 	
 	delete clave;	
 	
