@@ -250,18 +250,17 @@ class IndiceSecundarioManager: public IndiceArbolManager
 	// Metodos publicos
 	//////////////////////////////////////////////////////////////////////
 
-		/*POST: Devuelve una lista de claves primaras de la posicion dada.
-		 * RECORDAR: Borrar la lista una vez utilizada*/
+		/*Devuelve un set de claves primarias de la posicion en el archivo dada.
+		 */
 		virtual SetClaves* leerListaClaves(unsigned int posicion) = 0;
 		
-		/*POST: SobreEscribe con listaClaves la lista que se encuentra en la posicion dada
+		/*Sobre-escribe con setClaves la lista que se encuentra en la posicion dada
 		 * para actualizarla una vez insertada una nueva referencia en la lista*/
 		virtual char escribirListaClaves(unsigned int posicion, SetClaves* setClaves);
 		
-		/*POST: Graba una nueva lista de claves primarias en el archivo, devolviendo la posicion
-		 * donde se grabo, 
-		 * $$$: Recordar que el valor que sale de aca se tiene que grabar
-		 * en el NODO, estoy hay que hacerlo antes de insertar en el arbol*/ 
+		/*Graba una nueva lista de claves primarias en el archivo, devolviendo la posicion
+		 * donde se almaceno finalmente.
+		*/ 
 		virtual unsigned int escribirListaClaves(SetClaves* setClaves);
 	
 	//////////////////////////////////////////////////////////////////////
