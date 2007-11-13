@@ -34,49 +34,49 @@
 
 class Bucket : public Bloque , public BloqueIndice
 {
-private:
-//////////////////////////////////////////////////////////////////////
-// Atributos
-//////////////////////////////////////////////////////////////////////
+	
+	private:
+	//////////////////////////////////////////////////////////////////////
+	// Atributos
+	//////////////////////////////////////////////////////////////////////
 
-	unsigned short tamDispersion;
-	unsigned short cantRegs;
+		unsigned short tamDispersion;
+		unsigned short cantRegs;
 	
-///////////////////////////////////////////////////////////////////////
-// Metodos privados
-///////////////////////////////////////////////////////////////////////
-	
-public:
-///////////////////////////////////////////////////////////////////////
-// Constructor/Destructor
-///////////////////////////////////////////////////////////////////////
-	
-	/*
-	 * Crea un Bucket con los datos del bloque cuyo numBucket es la posición del mismo 
-	 * en el archivo.
-	 **/
-	Bucket(IndiceHashManager* indiceHash, unsigned int numBucket);
-	
-	/*
-	 * Constructor utilizado para crear un bucket en memoria y no acceder a disco
-	 **/
-	Bucket(unsigned int nroBucket,unsigned short tamDispersion,unsigned int tamanioBloque);
-	
-	virtual ~Bucket();
-
-	
-	
-///////////////////////////////////////////////////////////////////////
-// Metodos publicos
-///////////////////////////////////////////////////////////////////////
+	public:
+	///////////////////////////////////////////////////////////////////////
+	// Constructor/Destructor
+	///////////////////////////////////////////////////////////////////////
 		
-	void setTamDispersion(unsigned short tDisp);
-	unsigned short getTamDispersion();
-	void setCantRegs(unsigned short cRegs);
-	unsigned short getCantRegs();
-	void incrementarCantRegistros();
-	void decrementarCantRegistros();
-	void actualizarEspLibre();
+		/*
+		 * Crea un Bucket con los datos del bloque cuyo numBucket es la posición del mismo 
+		 * en el archivo.
+		 **/
+		Bucket(IndiceHashManager* indiceHash, unsigned int numBucket);
+		
+		/*
+		 * Constructor utilizado para crear un bucket en memoria y no acceder a disco
+		 **/
+		Bucket(unsigned int nroBucket,unsigned short tamDispersion,unsigned int tamanioBloque);
+		
+		virtual ~Bucket();
+
+	
+	
+	///////////////////////////////////////////////////////////////////////
+	// Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+		void incrementarCantRegistros();
+		void decrementarCantRegistros();
+		void actualizarEspLibre();
+
+	///////////////////////////////////////////////////////////////////////
+	// Getters/Setters
+	///////////////////////////////////////////////////////////////////////
+		void setTamDispersion(unsigned short tDisp);
+		unsigned short getTamDispersion();
+		void setCantRegs(unsigned short cRegs);
+		unsigned short getCantRegs();
 	
 };
 
