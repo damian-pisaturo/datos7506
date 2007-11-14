@@ -670,23 +670,22 @@
 
 	char ClaveVariable::comparar(Clave* otraClave)
 	{
-		string* palabraOtra = (string*) otraClave->getValor();
-		string* palabraThis = (string*) this->getValor();
+		string palabraOtra = *((string*)otraClave->getValor());
+		string palabraThis = *((string*)this->getValor());
 
-		
-		for(unsigned int i=0; i < palabraOtra->length(); i++)
-			(*palabraOtra)[i] = tolower((*palabraOtra)[i]);
+		for(unsigned int i=0; i < palabraOtra.length(); i++)
+			palabraOtra[i] = tolower(palabraOtra[i]);
 
-		for(unsigned int j=0; j < palabraThis->length(); j++)
-			(*palabraThis)[j] = tolower((*palabraThis)[j]);
+		for(unsigned int j=0; j < palabraThis.length(); j++)
+			palabraThis[j] = tolower(palabraThis[j]);
 		
-		return palabraThis->compare(*palabraOtra);
+		return palabraThis.compare(palabraOtra);
 	}
 
 
 	void ClaveVariable::imprimir(ostream& salida)
 	{
-		string* clave = static_cast<string*>(this->getValor());
+		string* clave = (string*)this->getValor();
 
 		salida<<"Clave: "<<*clave;
 		salida<<" Referencia: "<<this->getReferencia()<<endl;
@@ -694,31 +693,31 @@
 	
 	bool ClaveVariable::operator < (const Clave& clave) const {
 			
-		string* palabraOtra = (string*) clave.getValor();
-		string* palabraThis = (string*) this->getValor();
+		string palabraOtra = *((string*)clave.getValor());
+		string palabraThis = *((string*)this->getValor());
 
-		for(unsigned int i=0; i < palabraOtra->length(); i++)
-			(*palabraOtra)[i] = tolower((*palabraOtra)[i]);
+		for(unsigned int i=0; i < palabraOtra.length(); i++)
+			palabraOtra[i] = tolower(palabraOtra[i]);
 
-		for(unsigned int j=0; j < palabraThis->length(); j++)
-			(*palabraThis)[j] = tolower((*palabraThis)[j]);
+		for(unsigned int j=0; j < palabraThis.length(); j++)
+			palabraThis[j] = tolower(palabraThis[j]);
 		
-		return (*palabraThis < *palabraOtra);
+		return (palabraThis < palabraOtra);
 			
 	}
 
 	bool ClaveVariable::operator == (const Clave& clave) const {
 		
-		string* palabraOtra = (string*) clave.getValor();
-		string* palabraThis = (string*) this->getValor();
+		string palabraOtra = *((string*)clave.getValor());
+		string palabraThis = *((string*)this->getValor());
 
-		for(unsigned int i=0; i < palabraOtra->length(); i++)
-			(*palabraOtra)[i] = tolower((*palabraOtra)[i]);
+		for(unsigned int i=0; i < palabraOtra.length(); i++)
+			palabraOtra[i] = tolower(palabraOtra[i]);
 
-		for(unsigned int j=0; j < palabraThis->length(); j++)
-			(*palabraThis)[j] = tolower((*palabraThis)[j]);
+		for(unsigned int j=0; j < palabraThis.length(); j++)
+			palabraThis[j] = tolower(palabraThis[j]);
 		
-		return (*palabraThis == *palabraOtra);
+		return (palabraThis == palabraOtra);
 		
 	}
 	
