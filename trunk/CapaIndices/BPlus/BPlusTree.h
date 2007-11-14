@@ -75,6 +75,7 @@ class BPlusTree : public BTree
 		void primero();
 		
 		bool vacio() const { return (this->nodoRaiz == NULL); }
+		
 	private:
 		//////////////////////////////////////////////////////////////////////
 		// Metodos privados
@@ -83,11 +84,11 @@ class BPlusTree : public BTree
 		/*Devuelve un nodo con la raiz del arbol*/
 		NodoBPlus* getRaiz();
 		
-		void insertarInterno(NodoBPlus* &nodoDestino, char* codigo);		
+		void insertarInterno(NodoBPlus* &nodoDestino, char* codigo, Clave* claveInsertada);		
     
-	    void eliminarInterno(NodoBPlus* nodoTarget, char* codigo);  
+	    void eliminarInterno(NodoBPlus* nodoTarget, char* codigo, Clave* claveEliminada);  
 	    
-	    NodoBPlus* buscarPadre(NodoBPlus* padre, NodoBPlus* hijo) const;
+	    NodoBPlus* buscarPadre(NodoBPlus* padre, NodoBPlus* hijo, Clave* claveNodoHijo) const;
 	    
 	    NodoBPlus* buscarLugar(Clave* clave) const;
 	    
