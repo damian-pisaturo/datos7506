@@ -1,8 +1,8 @@
 #ifndef CLAVEFACTORY_H_
 #define CLAVEFACTORY_H_
 
-#include "../../Common/DefinitionsManager.h"
-#include "Clave.h"
+#include "../DefManager/DefinitionsManager.h"
+#include "../Clave/Clave.h"
 #include <sstream>
 
 class ClaveFactory {

@@ -8,10 +8,10 @@
 #include <iostream>
 #include "Indices/IndiceArbol.h"
 #include "Indices/IndiceHash.h"
-#include "../Common/DefinitionsManager.h"
+#include "../Common/DefManager/DefinitionsManager.h"
 #include "../Common/CodigosPipe.h"
 #include "../Common/OperacionesCapas.h"
-#include "Common/ClaveFactory.h"
+#include "../Common/ClaveFactory/ClaveFactory.h"
  
 using namespace std;
 

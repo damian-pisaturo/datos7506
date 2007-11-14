@@ -1,12 +1,12 @@
 #ifndef DATAMANAGER_H_
 #define DATAMANAGER_H_
 
-#include "../../Common/DefinitionsManager.h"
+#include "../../Common/DefManager/DefinitionsManager.h"
 #include "../../Common/TipoDatos.h"
 #include "../../Common/Tamanios.h"
-#include "../../CapaIndices/Common/Clave.h"
-#include "../../CapaIndices/Bloque/Bloque.h"
-#include "../../CapaIndices/Common/ClaveFactory.h"
+#include "../..//Common/Clave/Clave.h"
+#include "../../Common/Bloque/Bloque.h"
+#include "../../Common/ClaveFactory/ClaveFactory.h"
 #include <string>
 
 #define CAMPO_NO_MODIFICADO ""

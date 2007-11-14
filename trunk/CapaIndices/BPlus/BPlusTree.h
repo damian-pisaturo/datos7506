@@ -21,7 +21,6 @@
 #define BPLUSTREE_H_
 
 #include "../BTree/BTree.h"
-#include "../Common/Clave.h"
 #include "NodoBPlus.h"
 #include "../Manager/IndiceManager.h"
 

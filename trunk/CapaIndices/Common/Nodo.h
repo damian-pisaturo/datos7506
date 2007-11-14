@@ -22,7 +22,7 @@
 #include "BloqueIndice.h"
 #include "SetClaves.h"
 #include "Codigo.h"
-#include "Clave.h"
+#include "../../Common/Clave/Clave.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase

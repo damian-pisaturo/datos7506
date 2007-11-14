@@ -2,7 +2,7 @@
 #define CAPAMETADATA_H_
 
 
-#include "../Common/DefinitionsManager.h"
+#include "../Common/DefManager/DefinitionsManager.h"
 #include "Parser/ParserOperaciones.h"
 
 int main(int argc, char* argv[]);
