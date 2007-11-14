@@ -56,8 +56,17 @@
 		 **/
 		int Hash::insertarRegistro(char* registro, Clave &clave)
 		{
+			cout << "insertando clave " << *(int*)clave.getValor() << endl;
 			// Se aplica la función de hash para saber en que bucket se debe insertar.	
-			int posicion = this->aplicarHash(clave) % this->tabla->getTamanio();
+			unsigned int hash = this->aplicarHash(clave);
+			
+			cout << "funcion de hash: " << hash << endl;
+			
+			cout << "tamanio tabla: " << this->tabla->getTamanio() << endl;
+			
+			unsigned int posicion = hash % this->tabla->getTamanio();
+			
+			cout << "posicion: " << posicion << endl;
 			
 			// Se obtiene el bucket donde hay que insertar el registro.
 			unsigned int numBucket = this->tabla->getNroBucket(posicion);
@@ -74,9 +83,7 @@
 			
 				// ya existe un registro con esa clave.
 				return ResultadosIndices::CLAVE_DUPLICADA; 
-			}
-			
-			
+			}			
 			
 			// Si el registro no existe, hay que insertarlo.
 			// Se obtiene la longitud del registro independientemente de si es variable o fija.
@@ -103,6 +110,8 @@
 			// Hay OVERFLOW
 			// Si el registro no entra en el bucket hay que crear un nuevo bucket.
 			{
+				cout << "OVERFLOW" << endl;
+				
 				// Se duplica el tamaño de dispersión del bucket que se divide.
 				bucket->setTamDispersion(bucket->getTamDispersion()*2);
 				
@@ -121,7 +130,7 @@
 				
 				// Guarda en disco la redistribución de los elementos.
 				this->archivo->escribirBloque(bucket->getNroBloque(), bucket);
-				this->archivo->escribirBloque(nuevoBucket->getNroBloque(), nuevoBucket);		
+				this->archivo->escribirBloque(nuevoBucket->getNroBloque(), nuevoBucket);
 				
 				if (bucket) delete bucket;				
 				if (nuevoBucket) delete nuevoBucket;
@@ -252,9 +261,10 @@
 		/*
 		 * Este método aplica una función de dispersión a la clave.
 		 **/ 
-		int Hash::aplicarHash(Clave &clave)
+		unsigned int Hash::aplicarHash(Clave &clave)
 		{
-			int aux = 0;
+			cout << "aplico hash a clave: " << *(int *)clave.getValor() << endl;
+			unsigned int aux = 0;
 			void ** claveHash      = clave.getValorParaHash();
 			char* claveSerializada = serializarClave(claveHash);
 			
@@ -262,8 +272,8 @@
 			
 			int ultimoBit = 0;
 			
-			// Doy vuelta los bits, y tomo los 5 menos significativos.
-			for (int i = 0; i< 5; i++)
+			// Doy vuelta los bits, y tomo los 6 menos significativos.
+			for (int i = 0; i < 6; i++)
 			{
 				aux = aux << 1;
 				ultimoBit = valorHash & 1;
@@ -271,13 +281,10 @@
 				valorHash = valorHash >> 1;
 			}
 			
-			//TODO Chequear que delete claveHash no elimine el valor de la 
-			//clave original ! Entendes, Pony hediondo ?
 			delete[] claveSerializada;
 			delete[] claveHash;
 			
-			//cout << "imprimo el valor de la clave para ver si se borro" << endl;
-			//cout << *((int*)clave.getValor())<<endl;
+			cout << " me da: " << aux << endl;
 			
 			return aux;
 		}
@@ -335,8 +342,12 @@
 				// Obtengo la clave primaria.
 				clave = bucket->getClavePrimaria(this->listaParam, &datos[offsetReg]);
 				
+				
 				posicion = aplicarHash(*clave) % this->tabla->getTamanio(); 
+				
 				nroBucket = this->tabla->getNroBucket(posicion);
+				
+				delete clave;
 				
 				// Se decide en cual de los 2 buckets se inserta el registro.
 				if (nroBucket == nuevoBucket->getNroBloque())
@@ -371,7 +382,6 @@
 		 **/
 		void Hash::dividirDispersion(unsigned int nroBucket)
 		{
-			cout << "cuando empieza"<<endl;
 			// Se levanta el bucket de disco.
 			Bucket* bucket = new Bucket(this->archivo, nroBucket);
 			
@@ -383,6 +393,7 @@
 			this->archivo->escribirBloque(nroBucket, bucket);
 			
 			cout << "dsps de escribir el bloque."  << endl;
+			
 			if (bucket)
 				delete bucket;
 		}

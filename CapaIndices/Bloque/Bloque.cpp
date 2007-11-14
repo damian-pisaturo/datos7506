@@ -271,6 +271,7 @@
 				if (registro) delete []registro;
 			}
 			
+			delete[] clavePrimaria;
 			return encontrado;
 		}
 

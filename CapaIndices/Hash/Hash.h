@@ -85,7 +85,7 @@ class Hash
 		/*
 		 * Este método aplica una función de dispersión a la clave.
 		 **/
-		int aplicarHash(Clave &clave);
+		unsigned int aplicarHash(Clave &clave);
 		
 		/*
 		 * Método utilizado internamente cuando se aplica la función de dispersión a una clave.

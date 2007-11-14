@@ -80,6 +80,8 @@ void Tabla::crear(unsigned int tamanioBloque)
 	
 	// Escribe la tabla a disco.
 	this->archivo->escribirTabla(this->tamanio, this->nroBucket);
+
+	delete bucket;
 }
 
 /*
@@ -87,7 +89,7 @@ void Tabla::crear(unsigned int tamanioBloque)
  * Para eso si el tamaño de dispersión del bloque es igual al tamaño de la tabla,
  * duplica esta última y sino solo actualiza la referencia de "posicion"
  **/
-void Tabla::reorganizarTabla(unsigned short tamDispActualizado, int posicion, unsigned int nuevoNroBucket){
+void Tabla::reorganizarTabla(unsigned short tamDispActualizado, unsigned int posicion, unsigned int nuevoNroBucket){
 	
 	
 	if((tamDispActualizado/2) == tamanio){
@@ -124,7 +126,7 @@ void Tabla::considerarReduccion()
  * es igual al tamaño de la tabla, para buscar al otro bucket de la tabla que tiene igual número
  * de dispersión.
  **/
-unsigned int Tabla::buscarBucketIgualDispersion(int posicion,unsigned short tamDispersion)
+unsigned int Tabla::buscarBucketIgualDispersion(unsigned int posicion,unsigned short tamDispersion)
 {
 	// Se divide el tamaño de dispersión.
 	tamDispersion = tamDispersion/2;
@@ -145,7 +147,7 @@ unsigned int Tabla::buscarBucketIgualDispersion(int posicion,unsigned short tamD
  * Devuelve el número de bucket dentro del archivo de datos que se encuentra 
  * referenciado por la posición "posicionTabla" dentro de la tabla de dispersión.
  **/
-unsigned int Tabla::getNroBucket(int posicionTabla)
+unsigned int Tabla::getNroBucket(unsigned int posicionTabla)
 {
 	return this->nroBucket[posicionTabla];
 }
@@ -154,7 +156,7 @@ unsigned int Tabla::getNroBucket(int posicionTabla)
  * Setea el número de bucket dentro del archivo al que se hace referencia en
  * la entrada "posicion" de la tabla.
  **/
-void Tabla::setNroBucket(int posicion, unsigned int nro)
+void Tabla::setNroBucket(unsigned int posicion, unsigned int nro)
 {
 	this->nroBucket[posicion] = nro;
 }
@@ -221,7 +223,7 @@ void Tabla::duplicarTabla(){
  * donde el tamaño de dispersión del bucket donde se debe hacer la misma es menor que el tamaño
  * de la tabla de dispersión.
  **/
-void Tabla::actualizarReferencias(unsigned short tamDispActualizado, int posicion, unsigned int nuevoNroBucket){
+void Tabla::actualizarReferencias(unsigned short tamDispActualizado,unsigned int posicion, unsigned int nuevoNroBucket){
 
 	// Se va saltando de a "tamDispActualizado" posiciones a partir de "posicion" en la tabla
 	// haciendo que se apunte a nuevoNroBucket.

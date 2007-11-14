@@ -473,6 +473,8 @@
 			//Cierre del archivo.			
 			if (archivo)
 				delete archivo;
+	
+			pipe.liberarRecursos();
 			
 		}else resultado = ResultadosFisica::CANT_ARGUMENTOS_INVALIDA;
 	
