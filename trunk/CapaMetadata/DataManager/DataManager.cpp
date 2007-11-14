@@ -398,6 +398,8 @@ int DataManager::insertar(const DefinitionsManager::ListaValoresAtributos* lista
 	
 }
 
+/*
+ * */
 int DataManager::eliminar(DefinitionsManager::ListaClaves* listaClaves,
 						  const DefinitionsManager::ListaTiposAtributos* listaTipos, Bloque* bloque) {
 	
