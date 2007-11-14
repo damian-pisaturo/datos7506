@@ -43,9 +43,9 @@ class BStarTree : public BTree{
 		
 		//Métodos
 		
-		void insertarInterno(NodoBStar* &nodoDestino, char* codigo);
+		void insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* claveInsertada);
 		
-		void eliminarInterno(NodoBStar* nodoTarget, char* codigo);
+		void eliminarInterno(NodoBStar* nodoTarget, char* codigo, Clave* claveEliminada);
 		
 		//bool puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
 		//							  	NodoBStar* &nodoHnoDer) const;
@@ -70,7 +70,7 @@ class BStarTree : public BTree{
 										NodoBStar* nodoHnoIzq, Clave* clavePadre);
 		
 		//Busca el padre del nodo pasado por parámetro
-		NodoBStar* buscarPadre(NodoBStar* padre, NodoBStar* hijo) const;
+		NodoBStar* buscarPadre(NodoBStar* padre, NodoBStar* hijo, Clave* claveNodoHijo) const;
 		
 		//Busca el nodo en el que se debe insertar/eliminar una clave.
 		//Devuelve un puntero al nodo donde se debe insertar/eliminar la clave.

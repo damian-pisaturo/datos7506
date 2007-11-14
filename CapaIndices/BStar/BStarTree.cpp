@@ -42,7 +42,7 @@ void BStarTree::insertar(Clave* clave) {
 		
 		//La clave queda insertada independientemente de si hay OVERFLOW o no.
 		
-		insertarInterno(nodoDestino, &codigo);
+		insertarInterno(nodoDestino, &codigo, clave);
 		
 		delete nodoDestino;
 		
@@ -51,7 +51,7 @@ void BStarTree::insertar(Clave* clave) {
 }
 
 
-void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
+void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* claveInsertada) {
 	
 	if (*codigo == Codigo::MODIFICADO){
 		if (*nodoDestino == *(this->nodoRaiz))
@@ -63,7 +63,7 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 		Clave* clavePadreIzq = NULL;
 		//Puntero a la clave del nodo padre que se encuentra entre nodoDestino y su hermano der
 		Clave* clavePadreDer = NULL;
-		NodoBStar* nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
+		NodoBStar* nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino, claveInsertada);
 		NodoBStar *nodoHnoDer = NULL, *nodoHnoIzq = NULL;
 		
 		if (!nodoPadre){ //nodoDestino es la raiz.
@@ -164,7 +164,7 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo) {
 				if (nodoHnoIzq) delete nodoHnoIzq;
 				
 				//Llamada recursiva para chequear overflow en el padre. Si no hay overflow, lo escribe en disco.
-				insertarInterno(nodoPadre, codigo);
+				insertarInterno(nodoPadre, codigo, claveInsertada);
 			}
 			
 			delete nodoPadre;
@@ -198,16 +198,16 @@ bool BStarTree::eliminar(Clave* clave) {
 			nodoTarget->insertarClave(claveMenorDeLasMayores, &codigo);
 			//Se resuelve el overflow en nodoTarget (en caso que haya).
 			//Este método también escribe el nodo en disco.
-			this->insertarInterno(nodoTarget, &codigo);
+			this->insertarInterno(nodoTarget, &codigo, claveMenorDeLasMayores);
 			nodoMenorDeLosMayores->eliminarClave(claveMenorDeLasMayores, &codigo);
 			//Se resuelve el underflow en nodoMenorDeLosMayores (en caso que haya).
 			//Este método también escribe el nodo en disco.
-			this->eliminarInterno(nodoMenorDeLosMayores, &codigo);
+			this->eliminarInterno(nodoMenorDeLosMayores, &codigo, claveMenorDeLasMayores);
 			delete nodoMenorDeLosMayores;
 		}
 		else { //NodoTarget es un nodo hoja
 			nodoTarget->eliminarClave(claveBuscada, &codigo);
-			this->eliminarInterno(nodoTarget, &codigo); //resuelve underflow y escribe en disco
+			this->eliminarInterno(nodoTarget, &codigo,claveBuscada); //resuelve underflow y escribe en disco
 		}
 	}
 	else{
@@ -221,7 +221,7 @@ bool BStarTree::eliminar(Clave* clave) {
 }
 
 
-void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
+void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo, Clave* claveEliminada) {
 
 	if (*codigo == Codigo::MODIFICADO) {
 		//Se actualizar en disco el nodo modificado.
@@ -234,7 +234,7 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
 		Clave* clavePadreIzq = NULL;
 		//Puntero a la clave del nodo padre que se encuentra entre nodoTarget y su hermano der
 		Clave* clavePadreDer = NULL;
-		NodoBStar *nodoPadre = this->buscarPadre(this->nodoRaiz, nodoTarget);
+		NodoBStar *nodoPadre = this->buscarPadre(this->nodoRaiz, nodoTarget, claveEliminada);
 		NodoBStar *nodoHnoDer = NULL, *nodoHnoIzq = NULL, *nodoHnoHno = NULL;
 		
 		//'nodoHnoHno' se utiliza para apuntar al hno siguiente al hermano derecho de 'nodoTarget'
@@ -379,10 +379,10 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo) {
 					nodoPadre->insertarClave(clavePromocionada, &codigoInsertar);
 					
 					if (nodoPadre->tieneOverflow()) //Se resuelve posible overflow al insertar la clave promocionada
-						this->insertarInterno(nodoPadre, &codigoInsertar);
+						this->insertarInterno(nodoPadre, &codigoInsertar, clavePromocionada);
 					//Sino, se resuelve posible underflow al eliminar las claves separadoras. Si no hay underflow,
 					//este método se encargará de escribir nodoPadre en disco.
-					else this->eliminarInterno(nodoPadre, codigo);
+					else this->eliminarInterno(nodoPadre, codigo, claveEliminada);
 					
 				}		
 			}
@@ -553,14 +553,14 @@ void BStarTree::recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* no
 }
 
 
-NodoBStar* BStarTree::buscarPadre(NodoBStar* padre, NodoBStar* hijo) const {
+NodoBStar* BStarTree::buscarPadre(NodoBStar* padre, NodoBStar* hijo, Clave* claveNodoHijo) const {
 	
 	NodoBStar *auxNodo = NULL, *nuevoNodo = NULL;
 	Clave* claveOrientadora = NULL;
 
 	if ( (!padre) || (!hijo) || (*hijo == *(this->nodoRaiz)) ) return NULL;
 	
-	if (padre->esPadre(hijo, claveOrientadora)) {
+	if (padre->esPadre(hijo, claveOrientadora, claveNodoHijo)) {
 		
 		auxNodo = new NodoBStar(0, 0, this->tamanioNodo);
 		//Devuelvo una copia del padre
@@ -576,7 +576,7 @@ NodoBStar* BStarTree::buscarPadre(NodoBStar* padre, NodoBStar* hijo) const {
     		indiceManager.leerBloque(claveOrientadora->getHijoDer(), nuevoNodo);
     	}
     	
-    	auxNodo = buscarPadre(nuevoNodo, hijo);
+    	auxNodo = buscarPadre(nuevoNodo, hijo, claveNodoHijo);
     	
     	delete nuevoNodo;
     	

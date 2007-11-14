@@ -30,30 +30,28 @@
 Nodo::Nodo(unsigned int refNodo, unsigned char nivel, Clave* clave,
 		   unsigned short tamanio, bool bstar)
 {
+	this->bstar = bstar;
 	this->refNodo = refNodo;
 	this->nivel   = nivel;
 	this->tamanio = tamanio;
 	this->setEspacioLibre(tamanio - this->getTamanioHeader());
-
+	
 	/*Agrega la clave a la lista de claves del nodo*/
 	this->claves = new SetClaves();
 	this->claves->insert(clave);
 	this->actualizarEspacioLibre(clave, true);
-	
-	this->bstar = bstar;
 }
 
 Nodo::Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio, bool bstar)
 {
+	this->bstar = bstar;
 	this->refNodo = refNodo;
     this->nivel = nivel;
     this->tamanio = tamanio;
     this->setEspacioLibre(tamanio - this->getTamanioHeader());
     
     /*Agrega la clave a la lista de claves del nodo*/
-	this->claves = new SetClaves();
-	
-	this->bstar = bstar;
+	this->claves = new SetClaves();	
 }
 
 
@@ -322,14 +320,14 @@ unsigned short Nodo::obtenerBytesSobrantes(unsigned short &cantClaves, bool izqu
 }
 
 
-bool Nodo::esPadre(const Nodo* hijo, Clave* &clave) const {
+bool Nodo::esPadre(const Nodo* hijo, Clave* &claveProxNodo, Clave* claveNodoHijo) const {
 	
-	clave = this->buscar(hijo->obtenerPrimeraClave());
+	claveProxNodo = this->buscar(claveNodoHijo);
 	
-	if ( (clave) && (clave->getHijoDer() == hijo->getPosicionEnArchivo()) )
+	if ( (claveProxNodo) && (claveProxNodo->getHijoDer() == hijo->getPosicionEnArchivo()) )
 		return true;
 	
-	if ((!clave) && (this->getHijoIzq() == hijo->getPosicionEnArchivo()))
+	if ((!claveProxNodo) && (this->getHijoIzq() == hijo->getPosicionEnArchivo()))
 		return true;
 	
 	return false;
@@ -466,6 +464,7 @@ void Nodo::merge(Nodo* nodoHno1, Nodo* nodoHno2, Clave* clavePadre1, Clave* clav
 
 
 Clave* Nodo::extraerUltimaClave() {
+	if (this->getClaves()->empty()) return NULL;
 	SetClaves::iterator iter = this->getClaves()->end();
 	this->getClaves()->erase(*(--iter));
 	this->actualizarEspacioLibre(*iter, false);
@@ -473,6 +472,7 @@ Clave* Nodo::extraerUltimaClave() {
 }
 
 Clave* Nodo::extraerPrimeraClave() {
+	if (this->getClaves()->empty()) return NULL;
 	SetClaves::iterator iter = this->getClaves()->begin();
 	this->getClaves()->erase(*iter);
 	this->actualizarEspacioLibre(*iter, false);
@@ -480,8 +480,10 @@ Clave* Nodo::extraerPrimeraClave() {
 }
 
 void Nodo::extraerClave(Clave* clave) {
-	this->getClaves()->erase(clave);
-	this->actualizarEspacioLibre(clave, false);
+	SetClaves::iterator iter = this->getClaves()->find(clave);
+	if (iter == this->getClaves()->end()) return;
+	this->getClaves()->erase(iter);
+	this->actualizarEspacioLibre(*iter, false);
 }
 
 
@@ -516,7 +518,7 @@ void Nodo::insertarClave(Clave* &clave, char* codigo)
 	this->getClaves()->insert(clave);
 
 	//Si hay espacio suficiente para la nueva clave ...
-	if (this->getEspacioLibre() > clave->getTamanioEnDisco(bstar)){
+	if (this->getEspacioLibre() >= clave->getTamanioEnDisco(bstar)){
 		this->actualizarEspacioLibre(clave, true);
 		cod = Codigo::MODIFICADO;
 	}else{ //No hay espacio libre suficiente para insertar la clave...
@@ -555,13 +557,11 @@ void Nodo::eliminarClave(Clave* clave, char* codigo) {
 
 void Nodo::setClaves(SetClaves* set)
 {	
-	if (this->claves){
+	if (this->claves)
 		delete this->claves;
-		this->claves = NULL;
-	}
 	this->claves = set;
 	this->actualizarEspacioLibre();
-}		
+}
 		
 
 //Método que carga en este nodo todos los mismos valores que posee el nodo pasado por parámetro

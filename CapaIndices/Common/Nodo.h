@@ -156,7 +156,7 @@ class Nodo : public BloqueIndice
 		
 		void recibir(SetClaves* set);
 		
-		bool esPadre(const Nodo* hijo, Clave* &clave) const;
+		bool esPadre(const Nodo* hijo, Clave* &claveProxNodo, Clave* claveNodoHijo) const;
 		
 		//Retorna un puntero la primera clave o NULL si el nodo no tiene claves.
 		Clave* obtenerPrimeraClave() const;

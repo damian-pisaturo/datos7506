@@ -88,7 +88,7 @@ void BPlusTree::insertar(Clave* clave)
 
 		//La clave queda insertada independientemente de si hay OVERFLOW o no.
 		
-		insertarInterno(nodoDestino, &codigo);
+		insertarInterno(nodoDestino, &codigo, clave);
 
 		if (*nodoDestino == *(this->nodoRaiz))
 			*(this->nodoRaiz) = *nodoDestino;
@@ -100,7 +100,7 @@ void BPlusTree::insertar(Clave* clave)
 }
 
 
-void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
+void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo, Clave* claveInsertada) {
 	
 	if (*codigo == Codigo::MODIFICADO){
 		//Se actualiza en disco el nodo modificado.
@@ -108,7 +108,7 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 	}
 	else if ( *codigo == Codigo::OVERFLOW ){
 			
-		NodoBPlus* nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
+		NodoBPlus* nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino, claveInsertada);
 		
 		if (!nodoPadre){ //nodoDestino es la raiz.
 			
@@ -135,6 +135,7 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 			//Se actualiza nodoDestino
 			indiceManager.escribirBloque(nodoDestino);
 			clavePromocionada->setHijoDer(nuevoNodoDerecho->getPosicionEnArchivo());
+			
 			nuevaRaiz = new NodoBPlus(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1,
 									  clavePromocionada, this->tamanioNodo);
 			
@@ -158,7 +159,7 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 				*(this->nodoRaiz) = *nodoPadre;
 			
 			//Llamada recursiva para chequear overflow en el padre
-			insertarInterno(nodoPadre, codigo);
+			insertarInterno(nodoPadre, codigo, claveInsertada);
 			
 			delete nodoPadre;
 		}
@@ -180,7 +181,7 @@ bool BPlusTree::eliminar(Clave* clave) {
 	
 	if ( (claveBuscada) && (*claveBuscada == *clave) ) {
 		nodoTarget->eliminarClave(claveBuscada, &codigo);
-		this->eliminarInterno(nodoTarget, &codigo); //resuelve underflow y escribe en disco
+		this->eliminarInterno(nodoTarget, &codigo, clave); //resuelve underflow y escribe en disco
 	}
 	else {
 		delete nodoTarget;
@@ -196,7 +197,7 @@ bool BPlusTree::eliminar(Clave* clave) {
 }
 
 
-void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
+void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo, Clave* claveEliminada) {
 	
 	if (*codigo == Codigo::MODIFICADO) {
 		//Se actualiza en disco el nodo modificado.
@@ -206,7 +207,7 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 		Clave* clavePadreIzq = NULL;
 		//Puntero a la clave del nodo padre que se encuentra entre nodoTarget y su hermano der
 		Clave* clavePadreDer = NULL;
-		NodoBPlus *nodoPadre = this->buscarPadre(this->nodoRaiz, nodoTarget);
+		NodoBPlus *nodoPadre = this->buscarPadre(this->nodoRaiz, nodoTarget, claveEliminada);
 		NodoBPlus *nodoHnoDer = NULL, *nodoHnoIzq = NULL;
 
 		if (!nodoPadre) {//nodoTarget es el nodo raíz, no se chequea underflow.
@@ -312,7 +313,7 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 					
 					//Se resuelve posible underflow al eliminar la clave separadora. Si no hay underflow,
 					//este método se encargará de escribir nodoPadre en disco.
-					this->eliminarInterno(nodoPadre, codigo);
+					this->eliminarInterno(nodoPadre, codigo, claveEliminada);
 					
 				}		
 			}
@@ -356,14 +357,14 @@ bool BPlusTree::modificar(Clave* claveVieja, Clave* claveNueva) {
 }
 
 
-NodoBPlus* BPlusTree::buscarPadre(NodoBPlus* padre, NodoBPlus* hijo) const {
+NodoBPlus* BPlusTree::buscarPadre(NodoBPlus* padre, NodoBPlus* hijo, Clave* claveNodoHijo) const {
 	
 	NodoBPlus *auxNodo = NULL, *nuevoNodo = NULL;
 	Clave* claveOrientadora = NULL;
 
 	if ( (!padre) || (!hijo) || (*hijo == *(this->nodoRaiz)) ) return NULL;
 	
-	if (padre->esPadre(hijo, claveOrientadora)) {
+	if (padre->esPadre(hijo, claveOrientadora, claveNodoHijo)) {
 		
 		auxNodo = new NodoBPlus(0, 0, this->tamanioNodo);
 		//Devuelvo una copia del padre
@@ -379,7 +380,7 @@ NodoBPlus* BPlusTree::buscarPadre(NodoBPlus* padre, NodoBPlus* hijo) const {
     		indiceManager.leerBloque(claveOrientadora->getHijoDer(), nuevoNodo);
     	}
     	
-    	auxNodo = buscarPadre(nuevoNodo, hijo);
+    	auxNodo = buscarPadre(nuevoNodo, hijo, claveNodoHijo);
     	
     	delete nuevoNodo;
     	

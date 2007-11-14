@@ -182,25 +182,33 @@ int main(int argc, char* argv[]) {
 	indice.insertar(new ClaveVariable("Manu Capo"), null);
 	indice.insertar(new ClaveVariable("Nico gay"), null);
 	indice.insertar(new ClaveVariable("Tifi Manterola"), null);
-	indice.insertar(new ClaveVariable("Aleee"), null);
 	indice.insertar(new ClaveVariable("Isaa"), null);
+	indice.insertar(new ClaveVariable("Aleee"), null);
+	indice.insertar(new ClaveVariable("Pepe"), null);
+	indice.insertar(new ClaveVariable("Xuxa"), null);
+	
+	ClaveVariable clave("Pepe");
+	indice.eliminar(&clave);
+	
+	ClaveVariable clave1("Tifi Manterola");
+	indice.eliminar(&clave1);
 
-	
-	
-/*	indice.insertar(new ClaveEntera(346), null);
-	indice.insertar(new ClaveEntera(9870), null);*/
+//	indice.insertar(new ClaveEntera(346), null);
+//	indice.insertar(new ClaveEntera(9870), null);
 	
 /*	ClaveEntera clave5(346);
 	indice.eliminar(&clave5);
 
 	ClaveEntera clave6(9870);
-	indice.eliminar(&clave6);*/
-	
+	indice.eliminar(&clave6);
+*/
+
 /*	indice.insertar(new ClaveEntera(2345), null);
 	indice.insertar(new ClaveEntera(123), null);
 	indice.insertar(new ClaveEntera(456), null);
 	indice.insertar(new ClaveEntera(9999), null);
-	indice.insertar(new ClaveEntera(200), null);*/
+	indice.insertar(new ClaveEntera(200), null);
+*/
 
 /*	ClaveEntera clave(456);
 	indice.eliminar(&clave);

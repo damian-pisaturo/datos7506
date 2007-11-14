@@ -7,6 +7,8 @@ SetClaves::~SetClaves() {
 
 Clave* SetClaves::findClave(Clave* clave) const {
 	
+	if (this->empty()) return NULL;
+	
 	//Busco la clave mayor o igual a la que me pasan por parametro
 	SetClaves::const_iterator iter = this->lower_bound(clave);
 
