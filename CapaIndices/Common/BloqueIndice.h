@@ -20,7 +20,7 @@
 #define BLOQUEINDICE_H_
 
 #include "../../Common/Tamanios.h"
-#include "Clave.h"
+#include "../../Common/Clave/Clave.h"
 
 
 ///////////////////////////////////////////////////////////////////////////

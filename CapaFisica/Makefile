@@ -12,16 +12,7 @@ extension = cpp
 # descomentar la línea (quitarle el '#' del principio).
 # NOTA: No poner cabeceras (.h). 
 
-fuentes = ../CapaIndices/Bloque/Bloque.cpp
-fuentes += ../CapaIndices/Common/Nodo.cpp
-fuentes += ../CapaIndices/Common/Clave.cpp
-fuentes += ../CapaIndices/Common/SetClaves.cpp
-fuentes += ../CapaIndices/BStar/NodoBStar.cpp
-fuentes += ../CapaIndices/BPlus/NodoBPlus.cpp
-fuentes += ../CapaIndices/Hash/Bucket.cpp
-fuentes += ../CapaIndices/RegisterInfo/RegisterInfo.cpp
-fuentes += ../CapaIndices/Common/ClaveFactory.cpp
-fuentes += ../ComuDatos/ComuDatos.cpp
+fuentes = ../ComuDatos/ComuDatos.cpp
 fuentes += ArchivoBase/ArchivoBase.cpp
 fuentes += ArchivoDatos/ArchivoDatos.cpp
 fuentes += ArchivoEL/ArchivoEL.cpp

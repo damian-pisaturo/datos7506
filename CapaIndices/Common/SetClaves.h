@@ -1,7 +1,7 @@
 #ifndef SETCLAVES_H_
 #define SETCLAVES_H_
 
-#include "Clave.h"
+#include "../../Common/Clave/Clave.h"
 #include <set>
 #include <vector>
 

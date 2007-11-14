@@ -1,8 +1,8 @@
 #ifndef INDICE_H_
 #define INDICE_H_
 
-#include "../../Common/DefinitionsManager.h"
-#include "../Common/Clave.h"
+#include "../../Common/DefManager/DefinitionsManager.h"
+#include "../../Common/Clave/Clave.h"
 #include "../Common/SetClaves.h"
 #include "../../Common/ResultadosIndices.h"
 #include <vector>

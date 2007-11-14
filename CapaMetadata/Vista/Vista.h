@@ -6,9 +6,9 @@
 #include <fstream>
 #include <list>
 
-#include "../../Common/DefinitionsManager.h"
+#include "../../Common/DefManager/DefinitionsManager.h"
 #include "../DataManager/DataManager.h"
-#include "../../CapaIndices/Bloque/Bloque.h"
+#include "../../Common/Bloque/Bloque.h"
 #include "../../Common/Tamanios.h"
 
 

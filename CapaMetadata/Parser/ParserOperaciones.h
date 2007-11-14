@@ -12,10 +12,10 @@
 #include <fstream>
 #include <list>
 
-#include "../../Common/DefinitionsManager.h"
+#include "../../Common/DefManager/DefinitionsManager.h"
 #include "../DataManager/DataManager.h"
 #include "../../CapaIndices/Indices/Indice.h"
-#include "../../CapaIndices/Bloque/Bloque.h"
+#include "../../Common/Bloque/Bloque.h"
 #include "../../Common/Tamanios.h"
 #include "../../Common/NombresCapas.h"
 #include "../../Common/OperacionesCapas.h"

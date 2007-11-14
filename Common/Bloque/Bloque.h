@@ -27,8 +27,8 @@
 
 #include "../../Common/Tamanios.h"
 #include "../../Common/TipoDatos.h"
-#include "../RegisterInfo/RegisterInfo.h"
-#include "../Common/Clave.h"
+#include "../../CapaIndices/RegisterInfo/RegisterInfo.h"
+#include "../Clave/Clave.h"
 #include "../../Common/ResultadosIndices.h"
 
 using namespace std;
