@@ -133,7 +133,6 @@
 				buffer = new char[tamBloque*sizeof(char)];
 				
 				//Lectura del bucket dentro del archivo.
-				cout << "Leyendo desde la fisica el bucket " << numBloque << endl;
 				resultado = ((ArchivoIndiceHash*)archivo)->leerBloque(buffer, numBloque);
 				
 				

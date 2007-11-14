@@ -29,7 +29,6 @@
 
 		ArchivoBase::ArchivoBase(string nombre, unsigned short tamBloque)
 		{
-			cout << "abro archivo" << endl;
 			//Abre el archivo en modo lectura - escritura binario  
 			this->archivo.open(nombre.c_str(), ios::in |ios::out |ios::binary);
 			
@@ -54,8 +53,7 @@
 		{
 			//Cierra el archivo
 			this->tamBloque = 0;
-			this->archivo.close();	
-			cout << "cierro archivo" << endl;
+			this->archivo.close();
 		}
 
 	///////////////////////////////////////////////////////////////////////

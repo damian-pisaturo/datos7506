@@ -28,9 +28,7 @@
 Bucket::Bucket(IndiceHashManager* indiceHash, unsigned int nroBucket)
 :Bloque()
 {
-	cout << "Leyendo bloque desde el constructor de Bucket..." << endl;
 	indiceHash->leerBloque(nroBucket, this);
-	cout << "termino el leer bloque del constructor de bucket" << endl;
 	
 	this->setTamanioBloque(indiceHash->getTamanioBloque());
 

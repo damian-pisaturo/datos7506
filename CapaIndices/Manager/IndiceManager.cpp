@@ -908,8 +908,7 @@ char IndiceSecundarioManager::escribirListaClaves(unsigned int posicion,
 	}
 
 	if (pipe)
-		if (pipe)
-			delete pipe;
+		delete pipe;
 
 	if (bufferClaves)
 		delete[] bufferClaves;
@@ -955,8 +954,7 @@ unsigned int IndiceSecundarioManager::escribirListaClaves(SetClaves* setClaves) 
 	}
 
 	if (pipe)
-		if (pipe)
-			delete pipe;
+		delete pipe;
 
 	if (bufferClaves)
 		delete[] bufferClaves;
@@ -1786,8 +1784,7 @@ char IndiceFechaRomanoManager::escribirListaClaves(unsigned int posicion,
 	}
 
 	if (pipe)
-		if (pipe)
-			delete pipe;
+		delete pipe;
 
 	if (bufferClaves)
 		delete[] bufferClaves;
@@ -2203,8 +2200,7 @@ unsigned int IndiceVariableRomanoManager::escribirListaClaves(
 	}
 
 	if (pipe)
-		if (pipe)
-			delete pipe;
+		delete pipe;
 
 	if (bufferClaves)
 		delete bufferClaves;

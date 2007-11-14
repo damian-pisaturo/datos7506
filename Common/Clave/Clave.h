@@ -423,8 +423,8 @@ class ClaveVariable: public Clave
 		//tipo de dato que usa internamente.
 		virtual unsigned int getTamanioValor() const;
 		
-		//Devuelve el char* contenido en el valor string.
-		virtual void* getValor() const;
+		//Redefinición del método de la clase padre
+		virtual unsigned int getTamanioEnDisco(bool bstar) const;
 
 }; //Fin clase ClaveVariable.
 

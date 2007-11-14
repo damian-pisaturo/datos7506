@@ -644,7 +644,10 @@
 	ClaveVariable::ClaveVariable(const string& clave, unsigned int referencia,
 														unsigned int hijoDer)
 	{			
-		this->setValor(new string(clave));
+		this->valor = new char[clave.size()+1];
+		clave.copy((char*)this->valor, clave.size());
+		((char*)(this->valor))[clave.size()] = 0;
+		
 		this->setReferencia(referencia);
 		this->setHijoDer(hijoDer);
 		//El tamaño de esta clave esta compuesto por la cantidad de caracteres,
@@ -654,7 +657,7 @@
 
 	ClaveVariable::~ClaveVariable()
 	{
-		delete (string*)this->getValor();
+		delete[] (char*)this->getValor();
 	}
 
 
@@ -663,15 +666,15 @@
 	///////////////////////////////////////////////////////////////////////
 	Clave* ClaveVariable::copiar()
 	{
-		string* clave = (string*)this->getValor();
+		string clave = (char*)this->getValor();
 
-		return new ClaveVariable(*clave,this->getReferencia(),this->getHijoDer());
+		return new ClaveVariable(clave,this->getReferencia(),this->getHijoDer());
 	}
 
 	char ClaveVariable::comparar(Clave* otraClave)
 	{
-		string palabraOtra = *((string*)otraClave->getValor());
-		string palabraThis = *((string*)this->getValor());
+		string palabraOtra = (char*)otraClave->getValor();
+		string palabraThis = (char*)this->getValor();
 
 		for(unsigned int i=0; i < palabraOtra.length(); i++)
 			palabraOtra[i] = tolower(palabraOtra[i]);
@@ -685,16 +688,14 @@
 
 	void ClaveVariable::imprimir(ostream& salida)
 	{
-		string* clave = (string*)this->getValor();
-
-		salida<<"Clave: "<<*clave;
-		salida<<" Referencia: "<<this->getReferencia()<<endl;
+		salida << "Clave: " << (char*)this->getValor();
+		salida << " Referencia: " << this->getReferencia() << endl;
 	}
 	
 	bool ClaveVariable::operator < (const Clave& clave) const {
 			
-		string palabraOtra = *((string*)clave.getValor());
-		string palabraThis = *((string*)this->getValor());
+		string palabraOtra = (char*)clave.getValor();
+		string palabraThis = (char*)this->getValor();
 
 		for(unsigned int i=0; i < palabraOtra.length(); i++)
 			palabraOtra[i] = tolower(palabraOtra[i]);
@@ -708,8 +709,8 @@
 
 	bool ClaveVariable::operator == (const Clave& clave) const {
 		
-		string palabraOtra = *((string*)clave.getValor());
-		string palabraThis = *((string*)this->getValor());
+		string palabraOtra = (char*)clave.getValor();
+		string palabraThis = (char*)this->getValor();
 
 		for(unsigned int i=0; i < palabraOtra.length(); i++)
 			palabraOtra[i] = tolower(palabraOtra[i]);
@@ -721,20 +722,35 @@
 		
 	}
 	
+	//Debe recibir un string*
 	void ClaveVariable::setValor(void* nuevoValor) 
 	{		
-		if (this->valor) delete (string*)this->valor;
-		this->valor = nuevoValor;		
+		if (this->valor)
+			delete[] (char*)this->valor;
+		
+		string* clave = (string*)nuevoValor;
+		
+		this->valor = new char[clave->size()+1];
+		clave->copy((char*)this->valor, clave->size());
+		((char*)(this->valor))[clave->size()] = 0;
+		
+		delete clave;
 	}
 	
 	unsigned int ClaveVariable::getTamanioValor() const
 	{
-		return (((string*)this->valor)->size()+1)*sizeof(char);
+		return (strlen((char*)this->getValor())+1)*sizeof(char);
 	}
 	
-	void* ClaveVariable::getValor() const
+	unsigned int ClaveVariable::getTamanioEnDisco(bool bstar) const
 	{
-		return (void*)(((string*)this->valor)->c_str());
+		unsigned int tamanio = this->getTamanioValor() + Tamanios::TAMANIO_LONGITUD_CADENA + Tamanios::TAMANIO_REFERENCIA;
+		
+		//Si la clave se inserta en un nodo interno de un árbol B*
+		//agrego el tamaño de una referencia
+		if ((bstar) && (hijoDer != 0)) tamanio += Tamanios::TAMANIO_REFERENCIA;
+		
+		return tamanio;
 	}
 
 ///////////////////////////////////////////////////////////////////////////
