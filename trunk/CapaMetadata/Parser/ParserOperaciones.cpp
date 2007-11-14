@@ -118,6 +118,7 @@ bool ParserOperaciones::ejecutarOperaciones(){
 					comuDatos.lanzar();
 					comuDatos.escribir(tamanioRegistro);
 					comuDatos.leer(&nroBloque);
+					// Obtengo los datos del bloque
 					comuDatos.leer(Tamanios::TAMANIO_BLOQUE_DATO,datos);
 					
 					// Creo el bloque
@@ -157,7 +158,7 @@ bool ParserOperaciones::ejecutarOperaciones(){
 					
 					// TODO: VER NUMERO DE RETORNO PARA VALIDACIONES
 					dataManager->eliminar(&listaClaves,listaTiposAtributos,bloque);
-					
+				
 					break;
 				}
 					
@@ -167,6 +168,7 @@ bool ParserOperaciones::ejecutarOperaciones(){
 					ListaNodos *listaTiposAtributos;
 					DefinitionsManager::ListaValoresAtributos *listaValoresAtributos;
 					string clave;
+					// TODO: DAMI TIENE QUE PASARME EL REGISTRO VIEJO
 					char *registroViejo;
 					
 					// Obtengo las listas necesarias con la informacion de los registros
