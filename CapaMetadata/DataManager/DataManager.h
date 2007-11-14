@@ -44,6 +44,14 @@ public:
 	unsigned short getTamanioRegistro(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
 									  const DefinitionsManager::ListaValoresAtributos &listaVA);
 
+	/*
+	 * Crea un registro a partir de modificaciones de otro 
+	 **/
+	void crearRegistroModificacion(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
+								   const DefinitionsManager::ListaValoresAtributos &listaVA,
+								   char *registroEnDisco);
+	void crearRegistroAlta(const DefinitionsManager::ListaValoresAtributos &listaVA,
+						   const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos);
 private:
 	// Registro que se genera para realizar un alta o modificacion en disco
 	char *registro;
@@ -54,15 +62,7 @@ private:
 							  const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
 							  const DefinitionsManager::ListaValoresAtributos &listaVA);
 	
-	void crearRegistroAlta(const DefinitionsManager::ListaValoresAtributos &listaVA,
-						   const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos);
 	
-	/*
-	 * Crea un registro a partir de modificaciones de otro 
-	 **/
-	void crearRegistroModificacion(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
-								   const DefinitionsManager::ListaValoresAtributos &listaVA,
-								   char *registroEnDisco);
 	
 };
 

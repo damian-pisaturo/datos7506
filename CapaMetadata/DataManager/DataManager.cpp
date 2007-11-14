@@ -40,14 +40,28 @@ void DataManager::crearRegistroAlta(const DefinitionsManager::ListaValoresAtribu
 		// Obtengo el campo del registro
 		campoRegistro = *itValoresAtributos;
 		if(tipo == TipoDatos::TIPO_ENTERO){
-			int *entero = (int*)campoRegistro.c_str();
-			memcpy(&registro[offsetToCampo],entero,sizeof(int));
+			int entero = atoi(campoRegistro.c_str());
+			memcpy(&registro[offsetToCampo],&entero,sizeof(int));
 			offsetToCampo += sizeof(int);
 		}
 		else if(tipo == TipoDatos::TIPO_FECHA){
- 			ClaveFecha::TFECHA *fecha = (ClaveFecha::TFECHA*)campoRegistro.c_str();
-			memcpy(&registro[offsetToCampo],fecha,sizeof(ClaveFecha::TFECHA));
-			offsetToCampo += sizeof(ClaveFecha::TFECHA);
+			
+			string subStr = campoRegistro.substr(0, 4);
+			unsigned short anio = atoi(subStr.c_str());
+			memcpy(&registro[offsetToCampo], &anio, sizeof(unsigned short));
+			offsetToCampo += sizeof(unsigned short);
+			
+			subStr = campoRegistro.substr(4, 2);
+			unsigned char mes = atoi(subStr.c_str());
+			memcpy(&registro[offsetToCampo], &mes, sizeof(unsigned char));
+			offsetToCampo += sizeof(unsigned char);
+			
+			subStr = campoRegistro.substr(6, 2);
+			unsigned char dia = atoi(subStr.c_str());
+			memcpy(&registro[offsetToCampo], &dia, sizeof(unsigned char));
+			offsetToCampo += sizeof(unsigned char);			
+			
+			
 		}
 		else if(tipo == TipoDatos::TIPO_FLOAT){
 			float *campoFloat = (float*)campoRegistro.c_str();
@@ -72,8 +86,8 @@ void DataManager::crearRegistroAlta(const DefinitionsManager::ListaValoresAtribu
 			offsetToCampo += longCampoVariable;
 		}
 		else if(tipo == TipoDatos::TIPO_BOOL){
-			bool *campoBooleano = (bool*)campoRegistro.c_str();
-			memcpy(&registro[offsetToCampo],campoBooleano,sizeof(bool));
+			int campoBooleano = atoi(campoRegistro.c_str());
+			memcpy(&registro[offsetToCampo],&campoBooleano,sizeof(bool));
 			offsetToCampo += sizeof(bool);
 		}
 	}
@@ -113,7 +127,7 @@ unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTi
 					tamanioRegistro += sizeof(int);
 				
 				else if(tipo == TipoDatos::TIPO_FECHA)
-					tamanioRegistro += sizeof(ClaveFecha::TFECHA);
+					tamanioRegistro += sizeof(unsigned short) + sizeof(unsigned char) + sizeof(unsigned char);
 				
 				else if(tipo == TipoDatos::TIPO_FLOAT)
 				  	tamanioRegistro += sizeof(float);
