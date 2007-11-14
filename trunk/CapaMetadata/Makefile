@@ -18,6 +18,7 @@ fuentes += ../CapaIndices/Bloque/Bloque.cpp
 fuentes += ../CapaIndices/Common/Clave.cpp
 fuentes += ../CapaIndices/Common/ClaveFactory.cpp
 fuentes += ../Common/DefinitionsManager.cpp
+fuentes += Vista/Vista.cpp
 fuentes += ../ComuDatos/ComuDatos.cpp
 fuentes += CapaMetadata.cpp
 
