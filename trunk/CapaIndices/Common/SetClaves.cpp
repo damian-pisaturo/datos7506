@@ -6,15 +6,9 @@ SetClaves::~SetClaves() {
 }
 
 Clave* SetClaves::findClave(Clave* clave) const {
-
-	cout << "me piden buscar: ";
-	clave->imprimir(cout);
 	
 	//Busco la clave mayor o igual a la que me pasan por parametro
 	SetClaves::const_iterator iter = this->lower_bound(clave);
-	
-	//cout << "devuelvo: ";
-	//(*iter)->imprimir(cout);
 
 	if (iter == this->end()) return *(--iter);
 	

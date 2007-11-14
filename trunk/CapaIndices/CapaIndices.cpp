@@ -184,7 +184,7 @@ int main(int argc, char* argv[]) {
 	indice.insertar(new ClaveVariable("Tifi Manterola"), null);
 	indice.insertar(new ClaveVariable("Aleee"), null);
 	indice.insertar(new ClaveVariable("Isaa"), null);
-	
+
 	
 	
 /*	indice.insertar(new ClaveEntera(346), null);
@@ -233,6 +233,7 @@ int main(int argc, char* argv[]) {
 	ClaveEntera clave2(12);
 	indice.eliminar(&clave2);
 	*/
+	
 	cout << "Fin Main" << endl;
 	
 }

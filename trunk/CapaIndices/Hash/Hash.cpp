@@ -56,17 +56,10 @@
 		 **/
 		int Hash::insertarRegistro(char* registro, Clave &clave)
 		{
-			cout << "insertando clave " << *(int*)clave.getValor() << endl;
 			// Se aplica la función de hash para saber en que bucket se debe insertar.	
 			unsigned int hash = this->aplicarHash(clave);
 			
-			cout << "funcion de hash: " << hash << endl;
-			
-			cout << "tamanio tabla: " << this->tabla->getTamanio() << endl;
-			
 			unsigned int posicion = hash % this->tabla->getTamanio();
-			
-			cout << "posicion: " << posicion << endl;
 			
 			// Se obtiene el bucket donde hay que insertar el registro.
 			unsigned int numBucket = this->tabla->getNroBucket(posicion);
@@ -109,9 +102,7 @@
 			else
 			// Hay OVERFLOW
 			// Si el registro no entra en el bucket hay que crear un nuevo bucket.
-			{
-				cout << "OVERFLOW" << endl;
-				
+			{				
 				// Se duplica el tamaño de dispersión del bucket que se divide.
 				bucket->setTamDispersion(bucket->getTamDispersion()*2);
 				
@@ -263,7 +254,6 @@
 		 **/ 
 		unsigned int Hash::aplicarHash(Clave &clave)
 		{
-			cout << "aplico hash a clave: " << *(int *)clave.getValor() << endl;
 			unsigned int aux = 0;
 			void ** claveHash      = clave.getValorParaHash();
 			char* claveSerializada = serializarClave(claveHash);
@@ -283,8 +273,6 @@
 			
 			delete[] claveSerializada;
 			delete[] claveHash;
-			
-			cout << " me da: " << aux << endl;
 			
 			return aux;
 		}
@@ -385,14 +373,10 @@
 			// Se levanta el bucket de disco.
 			Bucket* bucket = new Bucket(this->archivo, nroBucket);
 			
-			cout << "dsps del new" << endl;
 			// Se divide el tamaño de dispersión.
 			bucket->setTamDispersion(bucket->getTamDispersion()/2);
 			
-			cout << "dsps de setear el tamDisp."<< endl;
 			this->archivo->escribirBloque(nroBucket, bucket);
-			
-			cout << "dsps de escribir el bloque."  << endl;
 			
 			if (bucket)
 				delete bucket;
