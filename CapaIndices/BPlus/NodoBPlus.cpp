@@ -65,7 +65,7 @@ bool NodoBPlus::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave
 		unsigned char clavesPropuestas = 0;
 		
 		bytesPropuestosPorMi = this->bytesACeder(bytesRequeridos, clavesPropuestas);
-		
+
 		if ( (bytesPropuestosPorMi > 0) && (nodoHnoIzq->puedeRecibir(bytesPropuestosPorMi, 0)) ) {
 			
 			unsigned char i = 0;

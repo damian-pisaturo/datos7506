@@ -107,28 +107,48 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 		indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
 	}
 	else if ( *codigo == Codigo::OVERFLOW ){
+			
 		NodoBPlus* nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino);
 		
 		if (!nodoPadre){ //nodoDestino es la raiz.
+			
 			SetClaves* setClavesDerecho = nodoDestino->splitB(nodoDestino->getTamanioMinimo());
-			Clave* clavePromocionada = (*(setClavesDerecho->begin()))->copiar();
-			NodoBPlus* nuevoNodoDerecho = new NodoBPlus(clavePromocionada->getHijoDer(), nodoDestino->getNivel(), this->tamanioNodo);
-			nuevoNodoDerecho->setClaves(setClavesDerecho);
-			indiceManager.escribirBloque(nuevoNodoDerecho);
-			nodoDestino->setHnoDer(nuevoNodoDerecho->getPosicionEnArchivo());
+			Clave* clavePromocionada = NULL;
+			NodoBPlus *nuevoNodoDerecho = NULL, *nuevaRaiz = NULL;
+			
+			
+			if (nodoDestino->getNivel() == 0){ //Si es hoja
+				clavePromocionada = (*(setClavesDerecho->begin()))->copiar();
+				nuevoNodoDerecho = new NodoBPlus(clavePromocionada->getHijoDer(), nodoDestino->getNivel(), this->tamanioNodo);
+				nuevoNodoDerecho->setClaves(setClavesDerecho);
+				indiceManager.escribirBloque(nuevoNodoDerecho);
+				nodoDestino->setHnoDer(nuevoNodoDerecho->getPosicionEnArchivo());
+			}
+			else{
+				clavePromocionada = (*(setClavesDerecho->begin()));
+				setClavesDerecho->erase(setClavesDerecho->begin());
+				nuevoNodoDerecho = new NodoBPlus(clavePromocionada->getHijoDer(), nodoDestino->getNivel(), this->tamanioNodo);
+				nuevoNodoDerecho->setClaves(setClavesDerecho);
+				indiceManager.escribirBloque(nuevoNodoDerecho);
+			}
+			
 			//Se actualiza nodoDestino
 			indiceManager.escribirBloque(nodoDestino);
 			clavePromocionada->setHijoDer(nuevoNodoDerecho->getPosicionEnArchivo());
-			NodoBPlus* nuevaRaiz = new NodoBPlus(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1,
-												 clavePromocionada, this->tamanioNodo);
+			nuevaRaiz = new NodoBPlus(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1,
+									  clavePromocionada, this->tamanioNodo);
+			
 			//Se escribe la nueva raíz
 			indiceManager.escribirBloque(0, nuevaRaiz);
+			nuevaRaiz->setPosicionEnArchivo(0);
 			*(this->nodoRaiz) = *nuevaRaiz;
 			delete nuevoNodoDerecho;
 			delete nuevaRaiz;
 			*codigo = Codigo::MODIFICADO;
+			
+			
 		}
-		else{
+		else{			
 			//Se realiza el split del nodo con overflow
 			Clave* clavePromocionada = this->split(nodoDestino);
 			
@@ -150,14 +170,9 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo) {
 
 bool BPlusTree::eliminar(Clave* clave) {
 	
-	cout << "clave a buscar: ";
-	clave->imprimir(cout);
-	
 	if ( (!clave) || (this->vacio()) ) return false;
 	
 	NodoBPlus* nodoTarget = buscarLugar(clave);
-	
-	cout << "Nodo encontrado: " << nodoTarget->getPosicionEnArchivo() << endl;
 	
 	Clave* claveBuscada = nodoTarget->buscar(clave);
 
@@ -172,7 +187,7 @@ bool BPlusTree::eliminar(Clave* clave) {
 		return false;
 	}
 	
-	if (*nodoTarget == *(this->nodoRaiz))
+	if ((this->nodoRaiz) && (*nodoTarget == *(this->nodoRaiz)))
 		*(this->nodoRaiz) = *nodoTarget;
 	
 	delete nodoTarget;
@@ -182,14 +197,11 @@ bool BPlusTree::eliminar(Clave* clave) {
 
 
 void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
-
-	cout << "eliminar interno" << endl;
 	
 	if (*codigo == Codigo::MODIFICADO) {
 		//Se actualiza en disco el nodo modificado.
 		indiceManager.escribirBloque(nodoTarget->getPosicionEnArchivo(), nodoTarget);
 	} else if (*codigo == Codigo::UNDERFLOW) {
-		
 		//Puntero a la clave del nodo padre que se encuentra entre nodoTarget y su hermano izq
 		Clave* clavePadreIzq = NULL;
 		//Puntero a la clave del nodo padre que se encuentra entre nodoTarget y su hermano der
@@ -257,7 +269,7 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 			}
 			
 			//Fin de la búsqueda de los nodos hermanos de 'nodoTarget'
-			
+
 			//Se intenta hacer una redistribución de claves con el hermano derecho de 'nodoTarget'.
 			//Si esto no es posible, se intenta hacer una redistribución con el hermano izquierdo.
 			bool pudoRedistribuir = false;
@@ -280,12 +292,14 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo) {
 				if ( (*nodoPadre == *(this->nodoRaiz)) && (nodoPadre->getCantidadClaves() == 1) ) {
 					if (nodoHnoDer) this->merge(nodoTarget, nodoHnoDer, nodoPadre->obtenerPrimeraClave());
 					else this->merge(nodoTarget, nodoHnoIzq, nodoPadre->obtenerPrimeraClave());
-					*(this->nodoRaiz) = *nodoTarget;
-					this->nodoRaiz->setPosicionEnArchivo(0);
+					*nodoPadre = *nodoTarget;
+					nodoPadre->setPosicionEnArchivo(0);
+					if (nodoTarget->getNivel() == 0) nodoPadre->setHijoIzq(0);
 					//Se escribe la nueva raiz
-					indiceManager.escribirBloque(this->nodoRaiz->getPosicionEnArchivo(), this->nodoRaiz);
+					indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 					//Se elimina de disco el bloque que ocupaba nodoTarget
 					indiceManager.eliminarBloque(nodoTarget->getPosicionEnArchivo());
+					
 				} else {
 					
 					if (nodoHnoDer) {
@@ -380,27 +394,21 @@ NodoBPlus* BPlusTree::buscarLugar(Clave* clave) const {
 	
 	if (!clave) return NULL;
 	
-	cout << "entro a buscarlugar..." << endl;
-	
 	//Se supone que el nodo raíz ya se encuentra cargado en memoria.
 	return buscarLugarRecursivo(this->nodoRaiz, clave);
 }
 
 
 NodoBPlus* BPlusTree::buscarLugarRecursivo(NodoBPlus* nodo, Clave* clave) const {
-
-	cout << "clave a buscar: ";
-	clave->imprimir(cout);
-	char a;
-	cin >> a;
 	
 	NodoBPlus *nuevoNodo = NULL, *auxNodo = NULL;
 	
 	Clave* claveResultante = nodo->buscar(clave);
-
+	
+	
 	if (claveResultante == NULL) {
 		
-		if (nodo->getHijoIzq() == 0) { //Nodo hoja
+		if (nodo->getNivel() == 0) { //Nodo hoja
 			auxNodo = new NodoBPlus(0, 0, this->tamanioNodo);
 			//Devuelvo una copia de 'nodo'
 			*auxNodo = *nodo;
@@ -416,7 +424,8 @@ NodoBPlus* BPlusTree::buscarLugarRecursivo(NodoBPlus* nodo, Clave* clave) const 
 		if (claveResultante->getHijoDer() == 0) {//Nodo hoja
 			auxNodo = new NodoBPlus(0, 0, this->tamanioNodo);
 			//Devuelvo una copia de 'nodo'
-			*auxNodo = *nodo;
+			*auxNodo = *nodo;		
+			
 		} else {
 			nuevoNodo = new NodoBPlus(0, 0, this->tamanioNodo);
 			indiceManager.leerBloque(claveResultante->getHijoDer(), nuevoNodo);
