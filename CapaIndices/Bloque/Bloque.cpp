@@ -107,7 +107,7 @@
 			int tipoDeRegistro = 0; // Indica si el registro es variable o fijo
 			string pk;
 			unsigned short longRegistro = 0;
-			unsigned short longCampo    = 0;
+			unsigned char longCampo    = 0;
 			unsigned short bytesLong    = 0;
 			
 			//Valores de los distintos tipos
@@ -167,9 +167,9 @@
 		
 						// Se obtiene la longitud del campo variable.
 						memcpy(&longCampo, &registro[offsetToProxCampo],
-								Tamanios::TAMANIO_LONGITUD);
+								Tamanios::TAMANIO_LONGITUD_CADENA);
 		
-						offsetToProxCampo += 2;
+						offsetToProxCampo += Tamanios::TAMANIO_LONGITUD_CADENA;
 		
 						// Si es pk, se obtiene el campo en sí.
 						if (pk == "true") {
@@ -205,11 +205,10 @@
 						offsetToProxCampo += sizeof(int);
 					} else if (tipo == TipoDatos::TIPO_SHORT) {
 						if (pk == "true") {
-							memcpy(&campoShort, &registro[offsetToProxCampo],
-									Tamanios::TAMANIO_LONGITUD);
+							memcpy(&campoShort, &registro[offsetToProxCampo], sizeof(short int));
 		
-							if (campoShort
-									== *((short int*)clavePrimaria[clavesChequeadas])) {
+							if (campoShort == *((short int*)clavePrimaria[clavesChequeadas])) {
+								
 								*offsetReg = offsetToReg;
 								clavesIguales++;
 							}
@@ -221,8 +220,7 @@
 							memcpy(&campoNumerico, &registro[offsetToProxCampo],
 									sizeof(float));
 		
-							if (campoNumerico
-									== *((float*)clavePrimaria[clavesChequeadas])) {
+							if (campoNumerico == *((float*)clavePrimaria[clavesChequeadas])) {
 								*offsetReg = offsetToReg;
 								clavesIguales++;
 							}
@@ -333,7 +331,8 @@
 				ListaNodos::const_iterator it;
 				it = listaParam->begin();
 				
-				// Si el registro es de longitud variable le sumo la cantidad de bytes de la longitud del mismo.
+				// Si el registro es de longitud variable le sumo la cantidad de bytes de la longitud 
+				// del mismo.
 				if (it->tipo == TipoDatos::TIPO_VARIABLE)
 					longReg += Tamanios::TAMANIO_LONGITUD;
 		
@@ -369,7 +368,7 @@
 			int tipo         = 0; // Indica el tipo de dato del campo de un registro
 			string pk;
 			bool checkPk = false;
-			unsigned short longCampo  = 0;
+			unsigned char longCampo  = 0;
 			int campoNumericoInt      = 0;
 			float campoNumerico       = 0;
 			unsigned short campoShort = 0;
@@ -430,8 +429,8 @@
 		
 						//obtengo la longitud del campo variable
 						memcpy(&longCampo, &registro[offsetToProxCampo],
-								Tamanios::TAMANIO_LONGITUD);
-						offsetToProxCampo += Tamanios::TAMANIO_LONGITUD;
+								Tamanios::TAMANIO_LONGITUD_CADENA);
+						offsetToProxCampo += Tamanios::TAMANIO_LONGITUD_CADENA;
 						//Si es pk, me preocupo por obtener el campo en si
 		
 						if (pk == "true") {
@@ -451,11 +450,9 @@
 					} else if (tipo == TipoDatos::TIPO_ENTERO) {
 		
 						if (pk == "true") {
-							memcpy(&campoNumericoInt, &registro[offsetToProxCampo],
-									sizeof(int));
+							memcpy(&campoNumericoInt, &registro[offsetToProxCampo], sizeof(int));
 		
-							if (campoNumericoInt
-									== *((int*)clavePrimaria[clavesChequeadas]))
+							if (campoNumericoInt == *((int*)clavePrimaria[clavesChequeadas]))
 								clavesIguales++;
 		
 							clavesChequeadas++;
@@ -465,8 +462,7 @@
 						if (pk == "true") {
 							memcpy(&campoShort, &registro[offsetToProxCampo],
 									sizeof(short int));
-							if (campoShort
-									== *((short int*)clavePrimaria[clavesChequeadas]))
+							if (campoShort == *((short int*)clavePrimaria[clavesChequeadas]))
 								clavesIguales++;
 		
 							clavesChequeadas++;
@@ -528,6 +524,9 @@
 				offsetToProxCampo = 0;
 				delete []registro;
 			}
+			
+			delete[] clavePrimaria;
+			
 			if (!registroBorrado)
 				return ResultadosIndices::REGISTRO_NO_ENCONTRADO;
 			
@@ -601,20 +600,6 @@
 			
 			return registro;
 		}
-		
-		// TODO Nadie dentro de la clase llama a este metodo privado !
-		// "registro" es de tipo string (?)
-		char* Bloque::getRegisterAtribute(string registro, int offsetCampo, int longCampo) 
-		{
-			char* campo = new char[longCampo + 1];
-			
-			// TODO Se esta copiando en "campo" cualquier zanahoria
-			// (a menos que un string se comporte exactamente igual a un char*).
-			memcpy(campo, &registro[offsetCampo], longCampo);
-			campo[longCampo] = '\0';
-			
-			return campo;
-		}
 
 		/*
 		 * Este método recibe un registro, y retorna su clave primaria.
@@ -628,7 +613,7 @@
 			int tipo = 0; //Indica si el tipo de campo del registro es variable o fijo
 			int tipoDeRegistro = 0; // Indica si el registro es variable o fijo
 			string pk, str;
-			unsigned short longCampo = 0;
+			unsigned char longCampo = 0;
 			char *campo = NULL;
 			char campoChar       = 0;
 			float campoNumerico  = 0;
@@ -665,7 +650,7 @@
 					memcpy(&longCampo, &registro[offsetToProxCampo],
 							Tamanios::TAMANIO_LONGITUD_CADENA);
 		
-					offsetToProxCampo += 2;
+					offsetToProxCampo += Tamanios::TAMANIO_LONGITUD_CADENA;
 		
 					// Si es pk, se obtiene el campo en sí.
 					if (pk == "true") {
@@ -729,7 +714,7 @@
 						
 						clavesEncontradas++;
 					}
-					else  //TODO Por que hay un else en el caso de fecha ?
+					else  
 						offsetToProxCampo += Tamanios::TAMANIO_FECHA;
 				}
 			}
