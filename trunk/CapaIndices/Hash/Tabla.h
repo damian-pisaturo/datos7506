@@ -60,7 +60,7 @@ public:
 	 * Para eso si el tamaño de dispersión del bloque es igual al tamaño de la tabla,
 	 * duplica esta última y sino solo actualiza la referencia de "posicion"
 	 **/
-	void reorganizarTabla(unsigned short tamDispActualizado, int posicion, unsigned int nuevoNroBucket);
+	void reorganizarTabla(unsigned short tamDispActualizado, unsigned int posicion, unsigned int nuevoNroBucket);
 
 	/*
 	 * Este método se fija si ante la eliminación del ultimo registro en un bucket
@@ -74,18 +74,18 @@ public:
 	 * es igual al tamaño de la tabla, para buscar al otro bucket de la tabla que tiene igual número
 	 * de dispersión.
 	 **/
-	unsigned int buscarBucketIgualDispersion(int posicion,unsigned short tamDispersion);
+	unsigned int buscarBucketIgualDispersion(unsigned int posicion,unsigned short tamDispersion);
 
 	/* Devuelve el número de bucket dentro del archivo de datos que se encuentra 
 	 * referenciado por la posición "posicionTabla" dentro de la tabla de dispersión.
 	 **/
-	unsigned int getNroBucket(int posicion);
+	unsigned int getNroBucket(unsigned int posicion);
 	
 	/*
 	 * Setea el número de bucket dentro del archivo al que se hace referencia en
 	 * la entrada "posicion" de la tabla.
 	 **/
-	void setNroBucket(int posicion, unsigned int nro);
+	void setNroBucket(unsigned int posicion, unsigned int nro);
 	
 	/*
 	 * Devuelve la cantidad de entradas de la tabla.
@@ -120,7 +120,7 @@ private:
 	 * donde el tamaño de dispersión del bucket donde se debe hacer la misma es menor que el tamaño
 	 * de la tabla de dispersión.
 	 **/
-	void actualizarReferencias(unsigned short tamDispActualizado, int posicion, unsigned int nuevoNroBucket);
+	void actualizarReferencias(unsigned short tamDispActualizado, unsigned int posicion, unsigned int nuevoNroBucket);
 };
 
 #endif /*TABLA_H_*/

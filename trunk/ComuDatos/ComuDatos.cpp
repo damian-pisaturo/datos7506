@@ -63,8 +63,8 @@ void ComuDatos::lanzar()
 	string pipeLee = this->nombreProceso + "_ComuDatosH";
 	string pipeEscribe = this->nombreProceso + "_ComuDatosP";
 	
-	mkfifo(pipeLee.c_str(), 0777);
-	mkfifo(pipeEscribe.c_str(), 0777);
+	mkfifo(pipeLee.c_str(), 0666);
+	mkfifo(pipeEscribe.c_str(), 0666);
 	
 	// Parametro 1 lectura y 2 escritura hijo.
 	argumentos[1] = (char*) malloc (sizeof(char)*pipeEscribe.length()+1);
@@ -93,11 +93,11 @@ void ComuDatos::lanzar()
 	this->fd_pipeH = open(pipeLee.c_str(), O_RDONLY);
 	this->fd_pipeP = open(pipeEscribe.c_str(), O_WRONLY);
 	
-//	for(unsigned int i=0; i<(paramSize + CORRIMIENTOARGUMENTO); i++){
-//		free(argumentos[i]);
-//	}
-//	
-//	delete[] argumentos;
+	for(unsigned int i=0; i<(paramSize + CORRIMIENTOARGUMENTO); i++){
+		free(argumentos[i]);
+	}
+	
+	delete[] argumentos;
 }
 
 void ComuDatos::ejecutable(string nombreEjecutable)

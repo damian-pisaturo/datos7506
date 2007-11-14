@@ -36,7 +36,7 @@
 		ArchivoIndice::~ArchivoIndice()
 		{ 
 			if (this->archivoEL)
-				delete archivoEL;			
+				delete this->archivoEL;			
 		}
 		 
 	///////////////////////////////////////////////////////////////////////
@@ -206,9 +206,7 @@
 				this->posicionarseFin();
 				this->escribir(&valorNulo);				
 			}
-	
 		}
-		
 		ArchivoTablaHash::~ArchivoTablaHash() { }
 		 
 	///////////////////////////////////////////////////////////////////////
@@ -286,12 +284,16 @@
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		ArchivoIndiceHash::ArchivoIndiceHash(string nombreArchivo, unsigned short tamBucket):
-			ArchivoIndice(nombreArchivo, tamBucket)
-			{
-				archivoTabla = new ArchivoTablaHash(nombreArchivo + ".tlb");
-			}
+		ArchivoIndice(nombreArchivo, tamBucket)
+		{
+			archivoTabla = new ArchivoTablaHash(nombreArchivo + ".tlb");
+		}
 		
-		 ArchivoIndiceHash::~ArchivoIndiceHash() { }
+		 ArchivoIndiceHash::~ArchivoIndiceHash() 
+		 { 
+			 if (this->archivoTabla)
+				 delete this->archivoTabla; 
+		 }
 		
 	///////////////////////////////////////////////////////////////////////
 	//	Metodos publicos
