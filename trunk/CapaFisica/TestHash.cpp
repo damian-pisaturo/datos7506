@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 //	
 //	delete clave;	
 	
-	for (int i = 0 ; i < 225 ; i++) {
+	for (int i = 0 ; i < 150 ; i++) {
 		entero2 = i;
 		memcpy(registro + 25, &entero2,sizeof(int));
 		
