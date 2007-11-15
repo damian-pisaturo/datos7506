@@ -175,23 +175,39 @@ int main(int argc, char* argv[]) {
 	*/
 	
 	// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
-	IndiceArbol indice(TipoIndices::GRIEGO, 32, TipoDatos::TIPO_STRING, NULL, TipoIndices::ARBOL_BP, 32, "locura");
+	IndiceArbol indice(TipoIndices::GRIEGO, 32, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BP, 32, "locura");
 	
 	char* null = NULL;
-	
-	indice.insertar(new ClaveVariable("Manu Capo"), null);
-	indice.insertar(new ClaveVariable("Nico gay"), null);
-	indice.insertar(new ClaveVariable("Tifi Manterola"), null);
-	indice.insertar(new ClaveVariable("Isaa"), null);
+/*	
+	indice.insertar(new ClaveVariable("hola"), null);
+	indice.insertar(new ClaveVariable("chau"), null);
+	indice.insertar(new ClaveVariable("hola mundo"), null);
+	indice.insertar(new ClaveVariable("mundo"), null);
 	indice.insertar(new ClaveVariable("Aleee"), null);
 	indice.insertar(new ClaveVariable("Pepe"), null);
-	indice.insertar(new ClaveVariable("Xuxa"), null);
+	indice.insertar(new ClaveVariable("nico"), null);
+	indice.insertar(new ClaveVariable("manu"), null);
+	indice.insertar(new ClaveVariable("moe"), null);
+	indice.insertar(new ClaveVariable("lau"), null);
+	indice.insertar(new ClaveVariable("tifi"), null);
+	indice.insertar(new ClaveVariable("yo"), null);
 	
-	ClaveVariable clave("Pepe");
-	indice.eliminar(&clave);
+	stringstream texto;	
+	for (unsigned i = 0; i < 300; ++i) {
+		texto << "hola" << i;
+		cout << "inserto: " << texto.str() << endl;
+		indice.insertar(new ClaveVariable(texto.str()), null);
+		texto.str("");
+	}
+*/
 	
-	ClaveVariable clave1("Tifi Manterola");
-	indice.eliminar(&clave1);
+	for (unsigned i = 0; i < 500; ++i) {
+		cout << "inserto: " << i << endl;
+		indice.insertar(new ClaveEntera(i), null);
+	}
+	
+//	ClaveVariable clave("Pepe");
+//	indice.eliminar(&clave);
 
 //	indice.insertar(new ClaveEntera(346), null);
 //	indice.insertar(new ClaveEntera(9870), null);
