@@ -275,6 +275,8 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo, Clave* clav
 			//Si esto no es posible, se intenta hacer una redistribución con el hermano izquierdo.
 			bool pudoRedistribuir = false;
 			
+			cout << "hay underflow y voy a redistribuir" << endl;
+			
 			if (nodoHnoDer) {
 				if ( pudoRedistribuir = nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre, clavePadreDer))
 					this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer, clavePadreDer);
