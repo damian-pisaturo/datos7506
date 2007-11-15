@@ -312,9 +312,11 @@ void ComuDatos::liberarRecursos()
 	if (this->nombreProceso.length() > 0)
 	{
 		string nombre = this->nombreProceso + "_ComuDatosH";		
+		close(this->fd_pipeH);
 		unlink(nombre.c_str());
 		
 		nombre = this->nombreProceso + "_ComuDatosP";
+		close(this->fd_pipeP);
 		unlink(nombre.c_str());
 	}
 }

@@ -322,7 +322,12 @@ unsigned short Nodo::obtenerBytesSobrantes(unsigned short &cantClaves, bool izqu
 
 bool Nodo::esPadre(const Nodo* hijo, Clave* &claveProxNodo, Clave* claveNodoHijo) const {
 	
-	claveProxNodo = this->buscar(claveNodoHijo);
+	Clave* primeraClaveNodoHijo = hijo->obtenerPrimeraClave();
+	
+	if (primeraClaveNodoHijo)
+		claveProxNodo = this->buscar(primeraClaveNodoHijo);
+	else
+		claveProxNodo = this->buscar(claveNodoHijo);
 	
 	if ( (claveProxNodo) && (claveProxNodo->getHijoDer() == hijo->getPosicionEnArchivo()) )
 		return true;
