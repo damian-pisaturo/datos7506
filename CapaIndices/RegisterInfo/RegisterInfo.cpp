@@ -23,7 +23,7 @@ RegisterInfo::RegisterInfo()
 	
 	parameterList.push_back(nodo);
 	
-	nodo.tipo = TipoDatos::TIPO_ENTERO;
+	nodo.tipo = TipoDatos::TIPO_FECHA;
 	nodo.pk = "true";
 		
 	parameterList.push_back(nodo);

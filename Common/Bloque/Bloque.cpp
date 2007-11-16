@@ -243,10 +243,15 @@
 					} else if (tipo == TipoDatos::TIPO_FECHA) {
 						if (pk == "true") {
 							ClaveFecha::TFECHA fecha;
-							memcpy(&fecha, &registro[offsetToProxCampo],Tamanios::TAMANIO_FECHA);
+							memcpy(&fecha.anio, &registro[offsetToProxCampo], sizeof(unsigned short));
+							memcpy(&fecha.mes, &registro[offsetToProxCampo + sizeof(unsigned short)], sizeof(unsigned char));
+							memcpy(&fecha.dia, &registro[offsetToProxCampo + sizeof(unsigned short) + sizeof(unsigned char)], sizeof(unsigned char));
+							
 							ClaveFecha::TFECHA clave;
-							memcpy(&clave, clavePrimaria[clavesChequeadas], Tamanios::TAMANIO_FECHA);
-		
+							memcpy(&clave.anio, (char*)clavePrimaria[clavesChequeadas], sizeof(unsigned short));
+							memcpy(&clave.mes, (char*)clavePrimaria[clavesChequeadas] + sizeof(unsigned short), sizeof(unsigned char));
+							memcpy(&clave.dia, (char*)clavePrimaria[clavesChequeadas] + sizeof(unsigned short) + sizeof(unsigned char), sizeof(unsigned char));
+							
 							if ((fecha.anio == clave.anio)&&(fecha.mes == clave.mes)
 									&&(fecha.dia == clave.dia)) {
 								*offsetReg = offsetToReg;
@@ -269,7 +274,9 @@
 				if (registro) delete []registro;
 			}
 			
-			delete[] clavePrimaria;
+			if (clavePrimaria) 
+				delete[] clavePrimaria;
+			
 			return encontrado;
 		}
 
@@ -496,9 +503,14 @@
 					} else if (tipo == TipoDatos::TIPO_FECHA) {
 						if (pk == "true") {
 							ClaveFecha::TFECHA fecha;
-							memcpy(&fecha, &registro[offsetToProxCampo], Tamanios::TAMANIO_FECHA);
+							memcpy(&fecha.anio, &registro[offsetToProxCampo], sizeof(unsigned short));
+							memcpy(&fecha.mes, &registro[offsetToProxCampo + sizeof(unsigned short)], sizeof(unsigned char));
+							memcpy(&fecha.dia, &registro[offsetToProxCampo + sizeof(unsigned short) + sizeof(unsigned char)], sizeof(unsigned char));
+							
 							ClaveFecha::TFECHA clave;
-							memcpy(&clave, clavePrimaria[clavesChequeadas],Tamanios::TAMANIO_FECHA);
+							memcpy(&clave.anio, (char*)clavePrimaria[clavesChequeadas], sizeof(unsigned short));
+							memcpy(&clave.mes, (char*)clavePrimaria[clavesChequeadas] + sizeof(unsigned short), sizeof(unsigned char));
+							memcpy(&clave.dia, (char*)clavePrimaria[clavesChequeadas] + sizeof(unsigned short) + sizeof(unsigned char), sizeof(unsigned char));
 		
 							if ((fecha.anio == clave.anio)&&(fecha.mes == clave.mes)
 									&&(fecha.dia == clave.dia))
