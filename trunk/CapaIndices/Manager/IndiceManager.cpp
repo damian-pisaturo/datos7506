@@ -1694,9 +1694,9 @@ IndiceFechaRomanoManager::IndiceFechaRomanoManager(unsigned int tamNodo,
 // Metodos publicos
 //////////////////////////////////////////////////////////////////////	
 SetClaves* IndiceFechaRomanoManager::leerListaClaves(unsigned int posicion) {
-	SetClaves* setClaves= NULL;
-	char* bufferClaves= NULL;
-	unsigned int cantClaves = 0;
+	SetClaves* setClaves     = NULL;
+	char* bufferClaves       = NULL;
+	unsigned int cantClaves  = 0;
 	ClaveFecha::TFECHA fecha;
 
 	//Instancia del pipe
@@ -1724,26 +1724,34 @@ SetClaves* IndiceFechaRomanoManager::leerListaClaves(unsigned int posicion) {
 		int offset = 0;
 
 		setClaves = new SetClaves();
-		for (unsigned char i = 0; i < cantClaves; i++)
+		
+		for (unsigned char i = 0; i < cantClaves; i++){
 			memcpy(&fecha.anio, bufferClaves + offset, sizeof(fecha.anio));
-		offset += sizeof(fecha.anio);
-		memcpy(&fecha.mes, bufferClaves + offset, sizeof(fecha.mes));
-		offset += sizeof(fecha.mes);
-		memcpy(&fecha.dia, bufferClaves + offset, sizeof(fecha.dia));
-		offset += sizeof(fecha.dia);
+			offset += sizeof(fecha.anio);
+			memcpy(&fecha.mes, bufferClaves + offset, sizeof(fecha.mes));
+			offset += sizeof(fecha.mes);
+			memcpy(&fecha.dia, bufferClaves + offset, sizeof(fecha.dia));
+			offset += sizeof(fecha.dia);
 
-		setClaves->insert(new ClaveFecha(fecha));
+			setClaves->insert(new ClaveFecha(fecha));
+		}
 	}
+	
+	if (bufferClaves)
+		delete[] bufferClaves;
+	
+	if (pipe)
+		delete pipe;
 
 	return setClaves;
 }
 
 char IndiceFechaRomanoManager::escribirListaClaves(unsigned int posicion,
 		SetClaves* setClaves) {
-	char resultado = 0;
-	char* bufferClaves= NULL;
-	ComuDatos* pipe= NULL;
-	ClaveFecha::TFECHA* fecha;
+	char resultado            = 0;
+	char* bufferClaves        = NULL;
+	ComuDatos* pipe           = NULL;
+	ClaveFecha::TFECHA* fecha = NULL;
 
 	if (setClaves->size() > 0) {
 		//Instancia del pipe
@@ -2342,7 +2350,12 @@ Clave* IndiceCompuestoGriegoManager::leerClaveHoja(char* &buffer) {
 	int tipo;
 	unsigned int refRegistro = 0, tamanio = 0;
 	void* valor= NULL;
-
+	
+	//Variables de interpretacion de claves
+	//de longitud variable.
+	char sizeCadena = 0;
+	char* cadena = NULL;
+	
 	//Copia de los valores de las claves en el nodo				
 	for (ListaTipos::const_iterator iterTipos = this->tipos->begin(); iterTipos
 			!= this->tipos->end(); ++iterTipos) {
@@ -2392,20 +2405,37 @@ Clave* IndiceCompuestoGriegoManager::leerClaveHoja(char* &buffer) {
 			delete (float*)valor;
 		} else if (tipo == TipoDatos::TIPO_FECHA) {
 			valor = new ClaveFecha::TFECHA;
-			tamanio = sizeof(ClaveFecha::TFECHA);
+			tamanio = Tamanios::TAMANIO_FECHA;
 
-			memcpy(valor, buffer, tamanio);
+			memcpy(& ((ClaveFecha::TFECHA*)valor)->anio, buffer, sizeof(unsigned short));
+			memcpy(&((ClaveFecha::TFECHA*)valor)->mes, buffer + sizeof(unsigned short), sizeof(unsigned char));
+			memcpy(&((ClaveFecha::TFECHA*)valor)->dia, buffer + sizeof(unsigned short) + sizeof(unsigned char), sizeof(unsigned char));
 			listaClaves.push_back(new ClaveFecha(*((ClaveFecha::TFECHA*)valor)));
 
 			delete (ClaveFecha::TFECHA*)valor;
 
 		} else if (tipo == TipoDatos::TIPO_VARIABLE) {
 			valor = new string;
-			valor = buffer;
-			tamanio = ((string*)valor)->size() + 1;
+			
+			memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
+			
+			cadena = new char[sizeCadena*sizeof(char) + 1];		
+			
+			memcpy(cadena, buffer + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena*sizeof(char));
+			*(cadena + sizeCadena) = 0;
+			
+			valor = cadena;
+			
+			tamanio = ((string*)valor)->size() + Tamanios::TAMANIO_LONGITUD_CADENA;
 
 			listaClaves.push_back(new ClaveVariable(*((string*)valor)));
-			delete (string*)valor;
+			
+			if (valor)
+				delete (string*)valor;
+			
+			if (cadena) 
+				delete[] cadena;
+						
 		}
 
 		buffer += tamanio;
