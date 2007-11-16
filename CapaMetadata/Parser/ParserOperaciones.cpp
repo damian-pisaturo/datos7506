@@ -26,7 +26,8 @@ ParserOperaciones::~ParserOperaciones() {
 	if (archivo.is_open()) archivo.close();
 }
 
-bool ParserOperaciones::ejecutarOperaciones(){
+char ParserOperaciones::ejecutarOperaciones(){
+	char resultado = ResultadosMetadata::OK;
 	string lineaStr;
 	DefinitionsManager defManager;
 	DataManager dataManager;
@@ -75,8 +76,8 @@ bool ParserOperaciones::ejecutarOperaciones(){
 						nodo.nombreClave = nombreAtributo;
 						nodo.valorClave = valorAtributo;
 						listaClaves.push_back(nodo);
-						break;
-					}
+						
+					}break;
 					case 'M':
 						if (leyendoClaves){
 							DefinitionsManager::NodoListaClaves nodo;
@@ -89,116 +90,157 @@ bool ParserOperaciones::ejecutarOperaciones(){
 							if (nextSeparatorPos == proximoSeparatorCampos) leyendoClaves = true;
 						}
 						break;
-					default:
-						return false;
 				}
-			}
+			}		
 			
 			// Instancio comuDatos para la comunicacion con la capa de indices
-			ComuDatos comuDatos(NOMBRE_CAPA_INDICES); 
+			ComuDatos comuDatos(NOMBRE_CAPA_INDICES);
+			
+			int nroBloque                                                    = 0;			
+			ListaNodos *listaTiposAtributos                                  = NULL;
+			DefinitionsManager::ListaValoresAtributos *listaValoresAtributos = NULL;
+			
+			char* datos = new char[Tamanios::TAMANIO_BLOQUE_DATO];
+			DataManager* dataManager = new DataManager();
+			string clave;
+			
+			// Obtengo las listas necesarias con la informacion de los registros;
+			listaTiposAtributos   = defManager.getListaTiposAtributos(nombreTipo);
+			listaValoresAtributos = defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos);
+			
+			Bloque *bloque = NULL;
 			
 			switch(lineaStr[0]) {
 				case 'A':{
-					int tamanioRegistro;
-					int nroBloque;
-					char *datos = new char[Tamanios::TAMANIO_BLOQUE_DATO];
-					ListaNodos *listaTiposAtributos;
-					DefinitionsManager::ListaValoresAtributos *listaValoresAtributos;
-					
-					// Obtengo las listas necesarias con la informacion de los registros
-					DataManager *dataManager = new DataManager();
-					listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-					listaValoresAtributos = defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos);
+					int tamanioRegistro = 0;					
 					
 					// Obtengo el tamanio que va ocupar el nuevo registro
 					tamanioRegistro = dataManager->getTamanioRegistro(*listaTiposAtributos,*listaValoresAtributos);
 					
 					comuDatos.agregarParametro(OperacionesCapas::INDICES_INSERTAR, 0);
 					comuDatos.agregarParametro(nombreTipo, 1);
+					
 					comuDatos.lanzar();
+					
 					comuDatos.escribir(tamanioRegistro);
 					comuDatos.leer(&nroBloque);
-					// Obtengo los datos del bloque
-					comuDatos.leer(Tamanios::TAMANIO_BLOQUE_DATO,datos);
 					
-					// Creo el bloque
-					Bloque *bloque = new Bloque(nroBloque,Tamanios::TAMANIO_BLOQUE_DATO);
+					// Obtengo los datos del bloque
+					comuDatos.leer(Tamanios::TAMANIO_BLOQUE_DATO, datos);
+					
+					// Creo el bloque	
+					bloque = new Bloque(nroBloque,Tamanios::TAMANIO_BLOQUE_DATO);
 					bloque->setDatos(datos);
 					
 					// TODO: VER NUMERO DE RETORNO PARA VALIDACIONES
-					dataManager->insertar(listaValoresAtributos,listaTiposAtributos,bloque);
+					dataManager->insertar(listaValoresAtributos,listaTiposAtributos, bloque);
 					
-					break;
-				}
+					// Escritura del bloque modificado a disco.
+					comuDatos.escribir(bloque->getDatos(), Tamanios::TAMANIO_BLOQUE_DATO);
+					
+					// Obtener resultado de la operacion.
+					comuDatos.leer(&resultado);
+					
+				}break;
 
-				case 'B':{
-					int nroBloque;
-					char *datos = new char[Tamanios::TAMANIO_BLOQUE_DATO];
-					ListaNodos *listaTiposAtributos;
-					DefinitionsManager::ListaValoresAtributos *listaValoresAtributos;
-					string clave;
-					
-					// Obtengo las listas necesarias con la informacion de los registros
-					DataManager *dataManager = new DataManager();
-					listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-					listaValoresAtributos = defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos);
-					
+				case 'B':{									
 					comuDatos.agregarParametro(OperacionesCapas::INDICES_ELIMINAR, 0);
 					comuDatos.agregarParametro(nombreTipo, 1);
+					
 					comuDatos.lanzar();
 					
 					clave = this->generarPrototipoClave(listaClaves);
 					comuDatos.escribir(clave.c_str(),clave.size());
 					comuDatos.leer(&nroBloque);
-					comuDatos.leer(Tamanios::TAMANIO_BLOQUE_DATO,datos);
+					comuDatos.leer(Tamanios::TAMANIO_BLOQUE_DATO, datos);
 					
 					// Creo el bloque
-					Bloque *bloque = new Bloque(nroBloque,Tamanios::TAMANIO_BLOQUE_DATO);
+					bloque = new Bloque(nroBloque,Tamanios::TAMANIO_BLOQUE_DATO);
 					bloque->setDatos(datos);
 					
 					// TODO: VER NUMERO DE RETORNO PARA VALIDACIONES
 					dataManager->eliminar(&listaClaves,listaTiposAtributos,bloque);
+					
+					// Escritura del bloque modificado a disco.
+					comuDatos.escribir(bloque->getDatos(), Tamanios::TAMANIO_BLOQUE_DATO);
+					
+					// Obtener resultado de la operacion.
+					comuDatos.leer(&resultado);
 				
-					break;
-				}
+				}break;
 					
 				case 'M':{
-					int nroBloque;
-					char *datos = new char[Tamanios::TAMANIO_BLOQUE_DATO];
-					ListaNodos *listaTiposAtributos;
-					DefinitionsManager::ListaValoresAtributos *listaValoresAtributos;
-					string clave;
+					char *registroViejo = NULL;
+					
 					// TODO: DAMI TIENE QUE PASARME EL REGISTRO VIEJO
-					char *registroViejo;
-					
-					// Obtengo las listas necesarias con la informacion de los registros
-					DataManager *dataManager = new DataManager();
-					listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-					listaValoresAtributos = defManager.getListaValoresAtributos(nombreTipo, mapValoresAtributos);
-					
+								
 					comuDatos.agregarParametro(OperacionesCapas::INDICES_MODIFICAR, 0);
 					comuDatos.agregarParametro(nombreTipo, 1);
+					
 					comuDatos.lanzar();
 					
 					clave = this->generarPrototipoClave(listaClaves);
-					comuDatos.escribir(clave.c_str(),clave.size());
+					comuDatos.escribir(clave.c_str(), clave.size());
+					
 					comuDatos.leer(&nroBloque);
-					comuDatos.leer(Tamanios::TAMANIO_BLOQUE_DATO,datos);
+					comuDatos.leer(Tamanios::TAMANIO_BLOQUE_DATO, datos);
 					
 					// Creo el bloque
-					Bloque *bloque = new Bloque(nroBloque, Tamanios::TAMANIO_BLOQUE_DATO);
+					bloque = new Bloque(nroBloque, Tamanios::TAMANIO_BLOQUE_DATO);
 					bloque->setDatos(datos);
 					
 					// TODO: VER NUMERO DE RETORNO PARA VALIDACIONES
 					dataManager->modificar(listaValoresAtributos, listaTiposAtributos, &listaClaves, bloque, registroViejo);
 					
-					break;
-				}
+					// Escritura del bloque modificado a disco.
+					comuDatos.escribir(bloque->getDatos(), Tamanios::TAMANIO_BLOQUE_DATO);
+					
+					// Obtener resultado de la operacion.
+					comuDatos.leer(&resultado);
+					
+				}break;
+				
+				case 'C':{
+			
+					// Agregar parametros para lanzar la Capa de Indices y consultar
+					comuDatos.agregarParametro(OperacionesCapas::INDICES_CONSULTAR, 0);
+					comuDatos.agregarParametro(nombreTipo, 1);
+					
+					// Se lanza la Capa de Indices
+					comuDatos.lanzar();
+					
+					clave = this->generarPrototipoClave(listaClaves);
+					comuDatos.escribir(clave.c_str(), clave.size());
+					
+					comuDatos.leer(&resultado);
+					
+					if (resultado == ResultadosIndices::OK){
+						comuDatos.leer(&nroBloque);
+					
+						// Se obtiene el bloque de datos contenedor 
+						comuDatos.leer(Tamanios::TAMANIO_BLOQUE_DATO, datos);
+										
+						// Creo el bloque
+						bloque = new Bloque(nroBloque, Tamanios::TAMANIO_BLOQUE_DATO);
+						bloque->setDatos(datos);
+					}
+					
+				}break;
+				
 				default:
-					return false;
+					resultado = ResultadosMetadata::OPERACION_INVALIDA;
 			}
+
+			
+			if (bloque)
+				delete bloque;
+								
+			delete dataManager;
+			delete listaTiposAtributos;
+			delete listaValoresAtributos;
+			
 		}
 	}
 	
-	return true;
+	return resultado;
 }

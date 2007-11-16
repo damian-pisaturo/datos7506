@@ -6,7 +6,6 @@
 #define SEPARATOR_ATRIBUTOS ","
 #define ASIGNACION_ATRIBUTOS "="
 
-
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -19,6 +18,8 @@
 #include "../../Common/Tamanios.h"
 #include "../../Common/NombresCapas.h"
 #include "../../Common/OperacionesCapas.h"
+#include "../../Common/ResultadosMetadata.h"
+#include "../../Common/ResultadosIndices.h"
 #include "../../Common/CodigosPipe.h"
 #include "../../ComuDatos/ComuDatos.h"
 
@@ -26,18 +27,22 @@ using namespace std;
 
 class ParserOperaciones {
 	
-	private:
-		 
+	private:		 
 		ifstream archivo;
 	
 	public:
 		ParserOperaciones(const string &nombreArchivo);
 		virtual ~ParserOperaciones();
 		
-		//Devuelve false cuando se encuentra con una operacion que no entiende como ejecutar.
-		bool ejecutarOperaciones();
+		/* Ejecuta las operaciones indicadas en el archivo de operaciones.
+		 * Devuelve un codigo acorde al resultado de cada una de ellas indicado por
+		 * la Capa de Indices.
+		 */
+		char ejecutarOperaciones();
+	
 	private:
-		// Genera la clave para pasarsela a la capa de indices
+		/* Genera la clave para pasarsela a la capa de indices
+		 */
 		string generarPrototipoClave(DefinitionsManager::ListaClaves &listaClaves);
 };
 
