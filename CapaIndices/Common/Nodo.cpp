@@ -13,7 +13,6 @@
 //      - Caravatti, Estefania;
 //		- Garcia Cabrera, Manuel;
 //      - Grisolia, Nahuel;
-//		- Pisaturo, Damian;	
 //		- Rodriguez, Maria Laura.
 ///////////////////////////////////////////////////////////////////////////
 #include "Nodo.h"
@@ -164,10 +163,10 @@ unsigned short Nodo::bytesACeder(unsigned char clavesPropuestas, bool izquierda)
 
 bool Nodo::puedeRecibir(unsigned short bytesEntrantes, unsigned short bytesSalientes) const {
 	if (bytesEntrantes > bytesSalientes){
-		return ( (bytesEntrantes - bytesSalientes) < this->getEspacioLibre() ); 
+		return ( (bytesEntrantes - bytesSalientes) <= this->getEspacioLibre() ); 
 	}
 	else{
-		return ( (this->getTamanioEnDiscoSetClaves() + bytesEntrantes - bytesSalientes) > this->getTamanioMinimo() );
+		return ( (this->getTamanioEnDiscoSetClaves() + bytesEntrantes - bytesSalientes) >= this->getTamanioMinimo() );
 	}
 	
 }
@@ -190,7 +189,7 @@ SetClaves* Nodo::cederBytes(unsigned short bytesRequeridos, bool izquierda) {
 			set->insert(*iter);
 		}
 		
-		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getTamanioMinimo() ) {
+		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) >= this->getTamanioMinimo() ) {
 			this->getClaves()->erase(this->getClaves()->begin(), iter);
 			this->actualizarEspacioLibre(set, false);
 			return set;
@@ -207,7 +206,7 @@ SetClaves* Nodo::cederBytes(unsigned short bytesRequeridos, bool izquierda) {
 			set->insert(*iter);
 		}
 		
-		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getTamanioMinimo() ) {
+		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) >= this->getTamanioMinimo() ) {
 			this->getClaves()->erase(++iter, this->getClaves()->end());
 			this->actualizarEspacioLibre(set, false);
 			return set;
@@ -239,7 +238,7 @@ SetClaves* Nodo::cederClaves(unsigned short cantClaves, bool izquierda) {
 			++i;
 		}
 		
-		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getTamanioMinimo() ) {
+		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) >= this->getTamanioMinimo() ) {
 			this->getClaves()->erase(this->getClaves()->begin(), iter);
 			return set;
 		}
@@ -261,7 +260,7 @@ SetClaves* Nodo::cederClaves(unsigned short cantClaves, bool izquierda) {
 			set->insert(*iter);
 		}
 		
-		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) > this->getTamanioMinimo() ) {
+		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) >= this->getTamanioMinimo() ) {
 			this->getClaves()->erase(iter, this->getClaves()->end());
 			return set;
 		}
@@ -572,6 +571,7 @@ void Nodo::setClaves(SetClaves* set)
 //Método que carga en este nodo todos los mismos valores que posee el nodo pasado por parámetro
 Nodo& Nodo::operator = (const Nodo &nodo) {
 	
+	this->setBstar(nodo.isBstar());
 	this->setHijoIzq(nodo.getHijoIzq());
 	this->setNivel(nodo.getNivel());
 	this->setTamanio(nodo.getTamanio());
@@ -581,6 +581,7 @@ Nodo& Nodo::operator = (const Nodo &nodo) {
 	this->setClaves(setClavesCopia);
 	
 	this->setPosicionEnArchivo(nodo.getPosicionEnArchivo());
+	this->setEspacioLibre(nodo.getEspacioLibre());
 	
 	return *this;
 	

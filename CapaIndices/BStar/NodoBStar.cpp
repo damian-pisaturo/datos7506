@@ -44,7 +44,9 @@ unsigned short NodoBStar::getTamanioMinimo() const {
 
 
 VectorConjuntos* NodoBStar::split(){
-	return this->getClaves()->splitBStar(this->getTamanioMinimo(), this->getTamanioEspacioClaves());
+	VectorConjuntos* vecConj = this->getClaves()->splitBStar(this->getTamanioMinimo(), this->getTamanioEspacioClaves());
+	this->actualizarEspacioLibre();
+	return vecConj;
 }
 
 
@@ -55,6 +57,7 @@ Nodo* NodoBStar::copiar() const {
 	*setClavesCopia = *(this->getClaves());
 	nodoCopia->setClaves(setClavesCopia);
 	nodoCopia->setPosicionEnArchivo(this->getPosicionEnArchivo());
+	nodoCopia->setEspacioLibre(this->getEspacioLibre());
 	return nodoCopia;
 	
 }

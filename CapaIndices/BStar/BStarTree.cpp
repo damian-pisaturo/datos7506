@@ -17,7 +17,7 @@ NodoBStar* BStarTree::getRaiz()
 {
 	//Lee el primer registro del archivo -> la raiz
 	this->nodoRaiz = new NodoBStar(0, 0, this->tamanioNodo);
-	int resultado = indiceManager.leerBloque(0, this->nodoRaiz);
+	int resultado = indiceManager.leerBloqueDoble(0, this->nodoRaiz);
 	if (resultado != ResultadosFisica::OK) this->nodoRaiz = NULL;
 	return this->nodoRaiz;
 }
@@ -30,7 +30,7 @@ void BStarTree::insertar(Clave* clave) {
 		
 		this->nodoRaiz = new NodoBStar(0, 0, clave, this->tamanioRaiz);
 		
-		((IndiceArbolManager&)indiceManager).escribirBloqueDoble(this->nodoRaiz);
+		indiceManager.escribirBloqueDoble(this->nodoRaiz);
 		
 	} else {
 		
@@ -44,6 +44,9 @@ void BStarTree::insertar(Clave* clave) {
 		
 		insertarInterno(nodoDestino, &codigo, clave);
 		
+		if (*nodoDestino == *(this->nodoRaiz))
+			*(this->nodoRaiz) = *nodoDestino;
+		
 		delete nodoDestino;
 		
 	}
@@ -55,7 +58,7 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* cl
 	
 	if (*codigo == Codigo::MODIFICADO){
 		if (*nodoDestino == *(this->nodoRaiz))
-			((IndiceArbolManager&)indiceManager).escribirBloqueDoble(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+			indiceManager.escribirBloqueDoble(nodoDestino->getPosicionEnArchivo(), nodoDestino);
 		else indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
 	}
 	else if ( *codigo == Codigo::OVERFLOW ){
@@ -81,10 +84,11 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* cl
 			indiceManager.escribirBloque(nodoDestino); //Busca una nueva posicion para el nodoDestino (hijo izq de la raiz)
 			clavePromocionada->setHijoDer(nuevoNodoDerecho->getPosicionEnArchivo());
 			NodoBStar* nuevaRaiz = new NodoBStar(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1, clavePromocionada, this->tamanioRaiz);
-			((IndiceArbolManager&)indiceManager).escribirBloqueDoble(0, nuevaRaiz);
+			indiceManager.escribirBloqueDoble(0, nuevaRaiz);
+			nuevaRaiz->setPosicionEnArchivo(0);
+			*(this->nodoRaiz) = *nuevaRaiz;
 			delete nuevoNodoDerecho;
-			this->nodoRaiz = nuevaRaiz; //No se libera la memoria ocupada por el nodo raíz, ya que siempre
-										//lo tenemos cargado en memoria.
+			delete nuevaRaiz;
 			*codigo = Codigo::MODIFICADO;
 		}
 		else{
@@ -167,6 +171,9 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* cl
 				insertarInterno(nodoPadre, codigo, claveInsertada);
 			}
 			
+			if (*nodoPadre == *(this->nodoRaiz))
+				*(this->nodoRaiz) = *nodoPadre;
+			
 			delete nodoPadre;
 		}
 		
@@ -215,6 +222,9 @@ bool BStarTree::eliminar(Clave* clave) {
 		return false;
 	}
 	
+	if ((this->nodoRaiz) && (*nodoTarget == *(this->nodoRaiz)))
+		*(this->nodoRaiz) = *nodoTarget;
+	
 	delete nodoTarget;
 	
 	return true;
@@ -226,8 +236,8 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo, Clave* clav
 	if (*codigo == Codigo::MODIFICADO) {
 		//Se actualizar en disco el nodo modificado.
 		if (*nodoTarget == *(this->nodoRaiz))
-			((IndiceArbolManager&)indiceManager).escribirBloqueDoble(nodoTarget->getPosicionEnArchivo(), nodoTarget);
-		else ((IndiceArbolManager&)indiceManager).escribirBloque(nodoTarget->getPosicionEnArchivo(), nodoTarget);
+			indiceManager.escribirBloqueDoble(nodoTarget->getPosicionEnArchivo(), nodoTarget);
+		else indiceManager.escribirBloque(nodoTarget->getPosicionEnArchivo(), nodoTarget);
 	} else if (*codigo == Codigo::UNDERFLOW) {
 		
 		//Puntero a la clave del nodo padre que se encuentra entre nodoTarget y su hermano izq
@@ -252,10 +262,11 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo, Clave* clav
 			if (nodoTarget->getCantidadClaves() == 0) {
 				//Se "elimina" la raíz de disco.
 				//La memoria utilizada por el nodo se libera al final del método eliminar
-				((IndiceArbolManager&)indiceManager).eliminarBloqueDoble(nodoTarget->getPosicionEnArchivo());
+				indiceManager.eliminarBloqueDoble(nodoTarget->getPosicionEnArchivo());
+				delete nodoRaiz;
 				this->nodoRaiz = NULL;
 			} else {
-				((IndiceArbolManager&)indiceManager).escribirBloqueDoble(nodoTarget->getPosicionEnArchivo(), nodoTarget);
+				indiceManager.escribirBloqueDoble(nodoTarget->getPosicionEnArchivo(), nodoTarget);
 			}
 		} else{
 		
@@ -391,6 +402,9 @@ void BStarTree::eliminarInterno(NodoBStar* nodoTarget, char* codigo, Clave* clav
 			if (nodoHnoIzq) delete nodoHnoIzq;
 			if (nodoHnoHno) delete nodoHnoHno;
 			
+			if (*nodoPadre == *(this->nodoRaiz))
+				*(this->nodoRaiz) = *nodoPadre;
+			
 			delete nodoPadre;
 		}
 		
@@ -451,8 +465,12 @@ void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodo
 	
 	//Se actualizan los nodos
 	indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
-	indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 	indiceManager.escribirBloque(nodoHnoDer->getPosicionEnArchivo(), nodoHnoDer);
+	
+	if (*nodoPadre == *(this->nodoRaiz))
+		indiceManager.escribirBloqueDoble(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	else
+		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 
 }
 
@@ -482,9 +500,13 @@ void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPa
 	
 	//Se actualizan los nodos
 	indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
-	indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 	indiceManager.escribirBloque(nodoHnoIzq->getPosicionEnArchivo(), nodoHnoIzq);
 	
+	if (*nodoPadre == *(this->nodoRaiz))
+		indiceManager.escribirBloqueDoble(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	else
+		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+
 }
 
 
@@ -514,9 +536,13 @@ void BStarTree::recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodo
 	
 	//Se actualizan los nodos en disco
 	indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
-	indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 	indiceManager.escribirBloque(nodoHnoDer->getPosicionEnArchivo(), nodoHnoDer);
-		
+	
+	if (*nodoPadre == *(this->nodoRaiz))
+		indiceManager.escribirBloqueDoble(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	else
+		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+
 }
 
 
@@ -547,8 +573,13 @@ void BStarTree::recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* no
 	
 	//Se actualizan los nodos en disco
 	indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
-	indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 	indiceManager.escribirBloque(nodoHnoIzq->getPosicionEnArchivo(), nodoHnoIzq);
+	
+	if (*nodoPadre == *(this->nodoRaiz))
+		indiceManager.escribirBloqueDoble(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	else
+		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+
 	
 }
 
@@ -642,7 +673,7 @@ NodoBStar* BStarTree::buscarLugarRecursivo(NodoBStar* nodo, Clave* clave) const 
 		
 	if (claveResultante == NULL) {
 		
-		if (nodo->getHijoIzq() == 0) { //Nodo hoja
+		if (nodo->getNivel() == 0) { //Nodo hoja
 			auxNodo = new NodoBStar(0, 0, this->tamanioNodo);
 			//Devuelvo una copia de 'nodo'
 			*auxNodo = *nodo; //Operador =
@@ -710,7 +741,6 @@ VectorClaves* BStarTree::mergeSplitOverflow(NodoBStar* nodoTarget, NodoBStar* no
 	indiceManager.escribirBloque(nodoHno->getPosicionEnArchivo(), nodoHno);
 	indiceManager.escribirBloque(nodoTarget->getPosicionEnArchivo(), nodoTarget);
 	
-	
 	VectorClaves* vectorClaves = new VectorClaves(3);
 	
 	vectorClaves->push_back(ultimaClaveNuevoNodo);
@@ -732,8 +762,9 @@ void BStarTree::merge(NodoBStar* &nodoHijoIzq, NodoBStar* &nodoHijoDer, NodoBSta
 	nodoPadre->setNivel(0);
 	
 	nodoPadre->merge(nodoHijoIzq, nodoHijoDer, NULL, NULL);
+	nodoPadre->actualizarEspacioLibre();
 	
-	((IndiceArbolManager&)indiceManager).escribirBloqueDoble(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	indiceManager.escribirBloqueDoble(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 
 	//Se elimina de disco a los nodos nodoHijoDer y nodoHijoIzq
 	indiceManager.eliminarBloque(nodoHijoIzq->getPosicionEnArchivo());
@@ -758,6 +789,7 @@ Clave* BStarTree::mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1
 	copiaClavePadre2->setHijoDer(nodoHno2->getHijoIzq());
 		
 	nodoTarget->merge(nodoHno1, nodoHno2, copiaClavePadre1, copiaClavePadre2);
+	
 	//Se realiza el split indicándole al método que a nodoTarget lo deje lleno y que el resto
 	//de las claves las devuelva en setClavesMayores.
 	SetClaves* setClavesMayores = nodoTarget->splitB( nodoTarget->getTamanioEspacioClaves() );
