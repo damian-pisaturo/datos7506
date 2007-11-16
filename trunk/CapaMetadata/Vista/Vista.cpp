@@ -13,7 +13,10 @@ void Vista::showRegister(char *registro, ListaNodos *listaTiposAtributos){
 	ListaNodos::const_iterator it = listaTiposAtributos->begin();
 	int tipo;
 	// Si el registro pasado por parametro es variable e incluye los dos bytes de long se debera inicializar el offset en 2
-	unsigned short offset = 2; 
+	unsigned short offset = 0; 
+	
+	if(it->tipo == 	TipoDatos::TIPO_VARIABLE)
+		offset += sizeof(unsigned short);
 	
 	for(++it; it != listaTiposAtributos->end(); ++it){
 		tipo = it->tipo;
@@ -62,11 +65,11 @@ void Vista::showRegister(char *registro, ListaNodos *listaTiposAtributos){
 			break;
 		
 		case TipoDatos::TIPO_STRING:
-			unsigned short longReg;
+			unsigned char longReg;
 			char *campoVariable;
 			// Obtengo la longitud del campo variable
-			memcpy(&longReg, (registro + offset), sizeof(unsigned short));
-			offset +=  sizeof(unsigned short);
+			memcpy(&longReg, (registro + offset), Tamanios::TAMANIO_LONGITUD_CADENA);
+			offset +=  Tamanios::TAMANIO_LONGITUD_CADENA;
 			
 			campoVariable = new char [longReg + 1];
 			memcpy(campoVariable, (registro + offset), longReg);

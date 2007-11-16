@@ -7,7 +7,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 	unsigned char tipoIndice;
 	DefinitionsManager::EstructTipoIndice estructura;
 	DefinitionsManager::NodoListaIndices nodoListaIndices;
-	DefinitionsManager::ListaTiposIndices *listaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
+	DefinitionsManager::ListaTiposIndices *listbloquaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
 	DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	
 	for (DefinitionsManager::ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
@@ -205,7 +205,7 @@ int main(int argc, char* argv[]) {
 	ClaveVariable clave("lau");
 	indice.eliminar(&clave);
 	
-	indice.insertar(new ClaveVariable("hola m"), null);
+	indice.insertar(new ClaveVariable("gollum"), null);
 	
 	ClaveVariable clave2("chau");
 	indice.eliminar(&clave2);

@@ -11,7 +11,6 @@
 
 class TipoOrganizacion
 {
-	public:
 		static const unsigned char REG_FIJOS     = 0;
 		static const unsigned char REG_VARIABLES = 1;
 };
@@ -37,5 +36,5 @@ class ResultadosFisica
 		static const char OPERACION_INVALIDA 	   = -8;
 		
 		
-}; /*Fin clase CodArchivo*/
+}; /*Fin clase ResultadosFisica*/
 #endif /*RESFISICA_H_*/

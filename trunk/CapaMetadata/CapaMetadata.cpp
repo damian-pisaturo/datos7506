@@ -16,11 +16,11 @@ int main(int argc, char* argv[]) {
 	cout << "Datos del registro" << endl;
 	
 	
-	char *registro = new char [34];
+	char *registro = new char [30];
 	int entero = 789;
 	int offset = 2;
 	string campoVariable = "Maria";
-	unsigned short longCampoVariable;
+	unsigned char longCampoVariable;
 	ListaNodos lista;
 	nodoLista nodo;
 	list<string> listaValoresAtributos;
@@ -32,10 +32,10 @@ int main(int argc, char* argv[]) {
 	listaValoresAtributos.push_back("20081212");
 	listaValoresAtributos.push_back("");
 	listaValoresAtributos.push_back("");
-	unsigned short longR = 32; 
+	unsigned short longR = 28; 
 	nodo.tipo = TipoDatos::TIPO_VARIABLE;
 	lista.push_back(nodo);
-	
+	short campoShort = 76;
 	nodo.pk = "fruta";
 	nodo.tipo  = TipoDatos::TIPO_STRING;
 	lista.push_back(nodo);
@@ -45,8 +45,8 @@ int main(int argc, char* argv[]) {
 
 	longCampoVariable = campoVariable.size();
 	
-	memcpy((registro + offset), &longCampoVariable, sizeof(unsigned short));
-	offset += sizeof(unsigned short);
+	memcpy((registro + offset), &longCampoVariable, Tamanios::TAMANIO_LONGITUD_CADENA);
+	offset += Tamanios::TAMANIO_LONGITUD_CADENA;
 	
 	memcpy((registro + offset), campoVariable.c_str(), longCampoVariable);
 	offset += longCampoVariable;
@@ -57,8 +57,8 @@ int main(int argc, char* argv[]) {
 
 	longCampoVariable = campoVariable.size();
 	
-	memcpy((registro + offset), &longCampoVariable, sizeof(unsigned short));
-	offset += sizeof(unsigned short);
+	memcpy((registro + offset), &longCampoVariable, Tamanios::TAMANIO_LONGITUD_CADENA);
+	offset += Tamanios::TAMANIO_LONGITUD_CADENA;
 	
 	memcpy((registro + offset), campoVariable.c_str(), longCampoVariable);
 	offset += longCampoVariable;
@@ -68,11 +68,11 @@ int main(int argc, char* argv[]) {
 	
 	
 	
-	nodo.tipo = TipoDatos::TIPO_ENTERO;
+	nodo.tipo = TipoDatos::TIPO_SHORT;
 	lista.push_back(nodo);
-	
-	memcpy((registro + offset), &entero, sizeof(int));
-	offset += sizeof(int);
+	nodo.tipo = TipoDatos::TIPO_ENTERO;
+	memcpy((registro + offset), &campoShort, sizeof(short));
+	offset += sizeof(short);
 	
 	lista.push_back(nodo);
 	memcpy((registro + offset), &entero, sizeof(int));

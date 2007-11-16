@@ -69,17 +69,17 @@ void DataManager::crearRegistroAlta(const DefinitionsManager::ListaValoresAtribu
 			offsetToCampo += sizeof(float);
 		}
 		else if(tipo == TipoDatos::TIPO_SHORT){
-			short *campoShort = (short*)campoRegistro.c_str();
-			memcpy(&registro[offsetToCampo],campoShort,sizeof(short));  
+			int campoShort = atoi(campoRegistro.c_str());
+			memcpy(&registro[offsetToCampo],&campoShort,sizeof(short));  
 			offsetToCampo += sizeof(short);
 		}
 		else if(tipo == TipoDatos::TIPO_STRING){
 			// Obtengo la longitud del campo variable
-			unsigned short longCampoVariable =  campoRegistro.size();
+			unsigned char longCampoVariable =  campoRegistro.size();
 			// Guardo la longitud del campo variable en el registro
-			memcpy(&registro[offsetToCampo],&longCampoVariable,sizeof(unsigned short));
-			// Al offset le sumo los dos bytes de la longitud
-			offsetToCampo += sizeof(unsigned short);
+			memcpy(&registro[offsetToCampo],&longCampoVariable,Tamanios::TAMANIO_LONGITUD_CADENA);
+			// Al offset le sumo los bytes de la longitud
+			offsetToCampo += Tamanios::TAMANIO_LONGITUD_CADENA;
 			const char *campoVariable = campoRegistro.c_str();
 			// Guardo el campo variable sin el '/0'
 			memcpy(&registro[offsetToCampo],campoVariable,longCampoVariable);
@@ -140,11 +140,11 @@ unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTi
 					
 				else if(tipo == TipoDatos::TIPO_STRING){
 					// Obtengo la longitud del campo variable
-					unsigned short longCampoVariable;
+					unsigned char longCampoVariable;
 					longCampoVariable = itValoresAtributos->size();
 					
-					// le sumo al tamanio la longitud del string mas los dos bytes que indicaran la longitud del mismo
-					tamanioRegistro += sizeof(unsigned short) + longCampoVariable;
+					// le sumo al tamanio la longitud del string mas los bytes que indicaran la longitud del mismo
+					tamanioRegistro += Tamanios::TAMANIO_LONGITUD_CADENA + longCampoVariable;
 
 				}
 				else if(tipo == TipoDatos::TIPO_BOOL)
@@ -173,7 +173,7 @@ void DataManager::crearRegistroModificacion(const DefinitionsManager::ListaTipos
 	unsigned short longRegNuevo;
 	int tipo;
 	string valorModificado;
-	unsigned short longCampoVariable; 
+	unsigned char longCampoVariable; 
 	
 	// Si el tipo de registro es fijo obtengo la longitud de la lista de tipos 
 	if(regAttribute.tipo == TipoDatos::TIPO_FIJO)
@@ -182,7 +182,7 @@ void DataManager::crearRegistroModificacion(const DefinitionsManager::ListaTipos
 	else{
 			// Incremento el offset en dos bytes, que son los que ocupan la longitud del registro
 			offsetRegDisco += sizeof(unsigned short);
-			longRegNuevo += sizeof(unsigned short);
+			longRegNuevo += Tamanios::TAMANIO_LONGITUD_CADENA;
 			
 			
 			// Itero las listas para obtener el tamanio del nuevo registro y reservar memoria para el mismo
@@ -215,9 +215,9 @@ void DataManager::crearRegistroModificacion(const DefinitionsManager::ListaTipos
 					// Sumo los dos bytes de la longitud del registro
 					longRegNuevo += sizeof(unsigned short);
 					// Obtengo la longitud del campo variable en el registro original para incrementar el offset del mismo
-					memcpy(&longCampoVariable,&registroEnDisco[offsetRegDisco],sizeof(unsigned short));
+					memcpy(&longCampoVariable, &registroEnDisco[offsetRegDisco], Tamanios::TAMANIO_LONGITUD_CADENA);
 					// Le sumo al offset los dos bytes que indican la longitud del campo variable + la longitud del campo variable
-					offsetRegDisco += sizeof(unsigned short) + longCampoVariable;
+					offsetRegDisco += Tamanios::TAMANIO_LONGITUD_CADENA + longCampoVariable;
 					
 					// Si el valor en la lista de valores modificados es distinto de "" significa 
 					// que ese valor fue modificado  
@@ -264,7 +264,7 @@ void DataManager::generarRegistroModificado(char *registroNuevo, char *registroV
 	
 	// Si el registro es variable guardo la longitud del mismo en los primeros dos bytes
 	if(tipo == TipoDatos::TIPO_VARIABLE){
-		memcpy(registroNuevo,&longNuevoReg,sizeof(unsigned short));
+		memcpy(registroNuevo, &longNuevoReg, sizeof(unsigned short));
 		offsetRegNuevo += sizeof(unsigned short);
 		offsetRegViejo += sizeof(unsigned short);
 	}	
@@ -341,32 +341,32 @@ void DataManager::generarRegistroModificado(char *registroNuevo, char *registroV
 		
 			break;
 		case TipoDatos::TIPO_STRING:
-			unsigned short longCampoVariable;
+			unsigned char longCampoVariable;
 			if (estaModificado){
 				longCampoVariable = valorModificado.size(); 								
-				// Guardo la longitud del campo variable en los dos bytes anteriores al dato
-				memcpy(&registroNuevo[offsetRegNuevo],&longCampoVariable,sizeof(unsigned short));
-				//Incremento el offset en dos bytes
-				offsetRegNuevo += sizeof(unsigned short);
+				// Guardo la longitud del campo variable en los bytes anteriores al dato
+				memcpy(&registroNuevo[offsetRegNuevo], &longCampoVariable, Tamanios::TAMANIO_LONGITUD_CADENA);
+				//Incremento el offset en el byte de longitud
+				offsetRegNuevo += Tamanios::TAMANIO_LONGITUD_CADENA;
 				// Guardo el campo variable
 				memcpy(&registroNuevo[offsetRegNuevo],valorModificado.c_str(),longCampoVariable);
 				// Incremento el offset del registro nuevo
 				offsetRegNuevo += longCampoVariable;
 				
 				// Movimientos en el registro viejo
-				memcpy(&longCampoVariable,&registroViejo[offsetRegViejo],sizeof(unsigned short));
+				memcpy(&longCampoVariable, &registroViejo[offsetRegViejo], Tamanios::TAMANIO_LONGITUD_CADENA);
 				// Incremento el offset para apuntar al proximo campo por si lo tengo que guardar en el registro nuevo
-				offsetRegViejo += sizeof(unsigned short) + longCampoVariable;
+				offsetRegViejo += Tamanios::TAMANIO_LONGITUD_CADENA + longCampoVariable;
 				
 			}else{
-				memcpy(&longCampoVariable,&registroViejo[offsetRegViejo],sizeof(unsigned short));
+				memcpy(&longCampoVariable, &registroViejo[offsetRegViejo], Tamanios::TAMANIO_LONGITUD_CADENA);
 				// Incremento el offset en dos bytes que corresponden a la longitud del campo variable
-				offsetRegViejo += sizeof(unsigned short);
+				offsetRegViejo += Tamanios::TAMANIO_LONGITUD_CADENA;
 				// Guardo la longitud del campo variable en el registro nuevo
-				memcpy(&registroNuevo[offsetRegNuevo],&longCampoVariable,sizeof(unsigned short));
-				offsetRegNuevo += sizeof(unsigned short);
+				memcpy(&registroNuevo[offsetRegNuevo], &longCampoVariable, Tamanios::TAMANIO_LONGITUD_CADENA);
+				offsetRegNuevo += Tamanios::TAMANIO_LONGITUD_CADENA;
 				// Guardo el campo variable
-				memcpy(&registroNuevo[offsetRegNuevo],&registroViejo[offsetRegViejo],longCampoVariable);
+				memcpy(&registroNuevo[offsetRegNuevo], &registroViejo[offsetRegViejo], longCampoVariable);
 				offsetRegNuevo += longCampoVariable;
 				offsetRegViejo += longCampoVariable;
 			}

@@ -52,8 +52,9 @@ class Indice
 		
 		virtual Clave* buscar(Clave *clave) const = 0;
 		
-		//Método que busca una clave secundaria. Si la encuentra devuelve en setClavesPrimarias
-		//una lista con las claves primarias correspondientes a esa clave secundaria.
+		/*Método que busca una clave secundaria. Si la encuentra devuelve en setClavesPrimarias
+		 * una lista con las claves primarias correspondientes a esa clave secundaria.
+		 */
 		virtual Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const = 0;
 		
 		/*
@@ -65,8 +66,9 @@ class Indice
 		virtual bool modificar(Clave *claveVieja, Clave *claveNueva,
 				                       char* &registroNuevo) = 0;
 		
-		//Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
-		//para insertar un nuevo registro de tamaño 'tamRegistro'
+		/*Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
+		*para insertar un nuevo registro de tamaño 'tamRegistro'
+		*/
 		virtual char buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos,
 										 unsigned int &nroBloque) = 0;
 		
