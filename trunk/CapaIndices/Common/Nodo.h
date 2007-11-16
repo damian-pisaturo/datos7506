@@ -286,6 +286,11 @@ class Nodo : public BloqueIndice
 		//Devuelve el espacio (en bytes) destinado para almacenar claves (elementos)
 		virtual unsigned short getTamanioEspacioClaves() const = 0;
 		
+	protected:
+		bool isBstar() const { return this->bstar; }
+		
+		void setBstar(bool bstar) { this->bstar = bstar; }
+		
 }; //Fin clase Nodo.
 
 #endif /*NODO_H_*/

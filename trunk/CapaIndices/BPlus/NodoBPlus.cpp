@@ -49,6 +49,7 @@ Nodo* NodoBPlus::copiar() const {
 	*setClavesCopia = *(this->getClaves());
 	nodoCopia->setClaves(setClavesCopia);
 	nodoCopia->setPosicionEnArchivo(this->getPosicionEnArchivo());
+	nodoCopia->setEspacioLibre(this->getEspacioLibre());
 	return nodoCopia;
 	
 }
@@ -71,6 +72,7 @@ bool NodoBPlus::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave
 			unsigned char i = 0;
 			SetClaves::iterator iter;
 			for (iter = this->getClaves()->begin(); i < clavesPropuestas; ++iter, ++i);
+			
 			//*iter es la clave que deberia quedar como separador
 			return nodoPadre->puedeRecibir((*iter)->getTamanioEnDisco(false), tamanioClavePadre);
 			

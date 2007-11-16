@@ -12,7 +12,7 @@ class BTree {
 		unsigned short tamanioNodo; //Tamanio máximo (en bytes) de un nodo
 		
 		//Objeto utilizado para cargar y guardar los nodos desde disco
-		IndiceManager& indiceManager;
+		IndiceArbolManager& indiceManager;
 	
 	public:
 		
