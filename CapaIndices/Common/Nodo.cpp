@@ -33,7 +33,11 @@ Nodo::Nodo(unsigned int refNodo, unsigned char nivel, Clave* clave,
 	this->refNodo = refNodo;
 	this->nivel   = nivel;
 	this->tamanio = tamanio;
-	this->setEspacioLibre(tamanio - this->getTamanioHeader());
+	
+	if (bstar && (nivel == 0))
+		this->setEspacioLibre(tamanio - this->getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA);
+	else
+		this->setEspacioLibre(tamanio - this->getTamanioHeader());
 	
 	/*Agrega la clave a la lista de claves del nodo*/
 	this->claves = new SetClaves();
@@ -47,7 +51,11 @@ Nodo::Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio, bo
 	this->refNodo = refNodo;
     this->nivel = nivel;
     this->tamanio = tamanio;
-    this->setEspacioLibre(tamanio - this->getTamanioHeader());
+
+    if (bstar && (nivel == 0))
+		this->setEspacioLibre(tamanio - this->getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA);
+	else
+		this->setEspacioLibre(tamanio - this->getTamanioHeader());
     
     /*Agrega la clave a la lista de claves del nodo*/
 	this->claves = new SetClaves();	

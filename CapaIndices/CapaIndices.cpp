@@ -175,10 +175,10 @@ int main(int argc, char* argv[]) {
 	*/
 	
 	// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
-	IndiceArbol indice(TipoIndices::GRIEGO, 32, TipoDatos::TIPO_STRING, NULL, TipoIndices::ARBOL_BP, 32, "locura");
+	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BS, 48, "locura");
 	
 	char* null = NULL;
-	
+/*	
 	indice.insertar(new ClaveVariable("hola"), null);
 	indice.insertar(new ClaveVariable("chau"), null);
 	indice.insertar(new ClaveVariable("mundo"), null);
@@ -190,7 +190,7 @@ int main(int argc, char* argv[]) {
 	indice.insertar(new ClaveVariable("tifi"), null);
 	indice.insertar(new ClaveVariable("yo"), null);
 	indice.insertar(new ClaveVariable("hola mundo"), null);
-
+*/
 /*	
 	stringstream texto;	
 	for (unsigned i = 0; i < 300; ++i) {
@@ -200,8 +200,7 @@ int main(int argc, char* argv[]) {
 		texto.str("");
 	}
 */
-
-	
+/*	
 	ClaveVariable clave("lau");
 	indice.eliminar(&clave);
 	
@@ -209,55 +208,20 @@ int main(int argc, char* argv[]) {
 	
 	ClaveVariable clave2("chau");
 	indice.eliminar(&clave2);
-
-//	indice.insertar(new ClaveEntera(346), null);
-//	indice.insertar(new ClaveEntera(9870), null);
-	
-/*	ClaveEntera clave5(346);
-	indice.eliminar(&clave5);
-
-	ClaveEntera clave6(9870);
-	indice.eliminar(&clave6);
 */
+	
+	indice.insertar(new ClaveEntera(20), null);
+	indice.insertar(new ClaveEntera(90), null);
+	indice.insertar(new ClaveEntera(49), null);
+	indice.insertar(new ClaveEntera(33), null);
+	indice.insertar(new ClaveEntera(57), null);
+	indice.insertar(new ClaveEntera(30), null);
+	indice.insertar(new ClaveEntera(17), null);
 
-/*	indice.insertar(new ClaveEntera(2345), null);
-	indice.insertar(new ClaveEntera(123), null);
-	indice.insertar(new ClaveEntera(456), null);
-	indice.insertar(new ClaveEntera(9999), null);
-	indice.insertar(new ClaveEntera(200), null);
+/*	
+	ClaveEntera clave(456);
+	indice.eliminar(&clave);
 */
-
-/*	ClaveEntera clave(456);
-	indice.eliminar(&clave);
-
-//	indice.insertar(new ClaveEntera(54), null);
-	
-	ClaveEntera clave2(346);
-	indice.eliminar(&clave2);
-	
-	ClaveEntera clave3(9870);
-	indice.eliminar(&clave3);
-	
-	ClaveEntera clave4(9999);
-	indice.eliminar(&clave4);
-	*/
-/*	indice.insertar(new ClaveEntera(3456), null);
-	
-	indice.insertar(new ClaveEntera(543), null);
-	indice.insertar(new ClaveEntera(12), null);
-	indice.insertar(new ClaveEntera(2134), null);*/
-/*	indice.insertar(new ClaveEntera(9876), null);
-	indice.insertar(new ClaveEntera(5567), null);
-	indice.insertar(new ClaveEntera(1), null);
-	indice.insertar(new ClaveEntera(345), null);
-	indice.insertar(new ClaveEntera(9000), null);*/
-	
-	/*ClaveEntera clave(456);
-	indice.eliminar(&clave);
-	
-	ClaveEntera clave2(12);
-	indice.eliminar(&clave2);
-	*/
 	
 	cout << "Fin Main" << endl;
 	

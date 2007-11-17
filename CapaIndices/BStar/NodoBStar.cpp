@@ -20,6 +20,7 @@ unsigned short NodoBStar::getTamanioEnDisco() const {
 
 	tamanio += this->getTamanioEnDiscoSetClaves();
 	
+	//Si es un nodo interno sumo el tamaño de la referencia al hijo izquierdo
 	if (this->getNivel() != 0) tamanio += Tamanios::TAMANIO_REFERENCIA;
 	
 	return tamanio;
@@ -28,7 +29,7 @@ unsigned short NodoBStar::getTamanioEnDisco() const {
 
 
 unsigned short NodoBStar::getTamanioEspacioClaves() const {
-			
+		
 	if (this->getNivel() == 0) //Nodo hoja ==> Tengo que sumarle el espacio que se le descuenta por la referencia al hijo izq
 		return (this->getTamanio() - Nodo::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA);
 	else return (this->getTamanio() - Nodo::getTamanioHeader());

@@ -4,9 +4,10 @@
 BStarTree::BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
 	: BTree(indiceManager, tamanioNodo) {
 	
-	this->getRaiz();
-	this->tamanioRaiz = 4*(tamanioNodo - NodoBStar::getTamanioHeader())/3;
+	this->tamanioRaiz = 4*(tamanioNodo - NodoBStar::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA)/3;
 	this->tamanioRaiz += NodoBStar::getTamanioHeader();
+	this->getRaiz();
+	
 }
 
 BStarTree::~BStarTree() {
@@ -16,7 +17,7 @@ BStarTree::~BStarTree() {
 NodoBStar* BStarTree::getRaiz()
 {
 	//Lee el primer registro del archivo -> la raiz
-	this->nodoRaiz = new NodoBStar(0, 0, this->tamanioNodo);
+	this->nodoRaiz = new NodoBStar(0, 0, this->tamanioRaiz);
 	int resultado = indiceManager.leerBloqueDoble(0, this->nodoRaiz);
 	if (resultado != ResultadosFisica::OK) this->nodoRaiz = NULL;
 	return this->nodoRaiz;
@@ -70,11 +71,12 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* cl
 		NodoBStar *nodoHnoDer = NULL, *nodoHnoIzq = NULL;
 		
 		if (!nodoPadre){ //nodoDestino es la raiz.
-			//La raíz no tiene tamaño mínimo, entonces a splitB le paso el tamaño mínimo de un nodo común.
-			unsigned short tamanioMinimo = 2*(this->tamanioNodo - Nodo::getTamanioHeader())/3;
-			SetClaves* setClavesDerecho = nodoDestino->splitB(tamanioMinimo);
-			//Ahora nodoDestino deja de ser la raíz, por lo cual pasa a tener el tamaño de un nodo común.
+			//A la raíz le setteo el tamaño de un nodo común porque se tiene que splittear en nodos comunes.
 			nodoDestino->setTamanio(this->tamanioNodo);
+			//unsigned short tamanioMinimo = 2*(this->tamanioNodo - Nodo::getTamanioHeader())/3;
+			SetClaves* setClavesDerecho = nodoDestino->splitB(nodoDestino->getTamanioMinimo());
+			//Ahora nodoDestino deja de ser la raíz, por lo cual pasa a tener el tamaño de un nodo común.
+			//nodoDestino->setTamanio(this->tamanioNodo);
 			Clave* clavePromocionada = *(setClavesDerecho->begin());
 			setClavesDerecho->erase(clavePromocionada); //Extrae la clave del conj. No libera la memoria.
 			NodoBStar* nuevoNodoDerecho = new NodoBStar(clavePromocionada->getHijoDer(), nodoDestino->getNivel(), this->tamanioNodo);
