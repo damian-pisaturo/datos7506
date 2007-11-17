@@ -20,7 +20,7 @@
 #ifndef BLOQUEDATOSMANAGER_H_
 #define BLOQUEDATOSMANAGER_H_
 
-#include "Manager.h"
+#include "../Manager.h"
 
 using namespace std;
 

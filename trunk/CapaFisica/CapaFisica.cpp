@@ -434,10 +434,72 @@
 				
 			}break;
 			
-			case OperacionesCapas::FISICA_BUSCAR_ESPACIO_LIBRE:
+			case OperacionesCapas::FISICA_ESCRIBIR_LISTA:
 			{
-				int numBloque = 0;
+				unsigned int sizeLista = 0;
 				
+				archivo = new ArchivoLista(nombreArchivo, tamBloque);
+				buffer = new char[tamBloque - sizeof(unsigned int)];
+				
+				//Obtencion del tamano de la lista.
+				pipe.leer(&sizeLista);
+				
+				//Obtencion del bloque contenedor de la lista
+				//de claves primarias.
+				pipe.leer(buffer, tamBloque - sizeof(unsigned int));
+				
+				//Escritura de la lista a disco
+				numBloque = ((ArchivoLista*)archivo)->escribirLista(sizeLista, buffer);
+				
+				//Envio del numero de bloque donde fue escrita la lista
+				//en disco a traves del pipe
+				pipe.escribir(numBloque);				
+			}break;
+			
+			case OperacionesCapas::FISICA_MODIFICAR_LISTA:
+			{
+				pipe.parametro(3, &numBloque);
+				unsigned int sizeLista = 0;
+				
+				archivo = new ArchivoLista(nombreArchivo, tamBloque);
+				buffer = new char[tamBloque - sizeof(unsigned int)];
+				
+				//Obtencion del tamano de la lista.
+				pipe.leer(&sizeLista);
+				
+				//Obtencion del bloque contenedor de la lista
+				//de claves primarias.
+				pipe.leer(buffer, tamBloque - sizeof(unsigned int));
+				
+				//Escritura de la lista a disco
+				resultado = ((ArchivoLista*)archivo)->escribirLista(sizeLista, buffer, numBloque);
+				
+				//Envio del resultado de la operacion a traves del pipe.
+				pipe.escribir(resultado);	
+			}break;
+			
+			case OperacionesCapas::FISICA_LEER_LISTA:
+			{
+				pipe.parametro(3, &numBloque);
+				unsigned int sizeLista = 0;
+				
+				archivo = new ArchivoLista(nombreArchivo, tamBloque);
+				buffer = new char[tamBloque - sizeof(unsigned int)];
+				
+				resultado = ((ArchivoLista*)archivo)->leerLista(&sizeLista, buffer, numBloque);
+				
+				//Envio del tamano de la lista a traves del pipe
+				pipe.escribir(sizeLista);
+				
+				if ( (sizeLista > 0) && (resultado == ResultadosFisica::OK) )
+					//Si la lista levantada de disco es valida, se envia
+					//a traves del pipe.
+					pipe.escribir(buffer, tamBloque - sizeof(unsigned int));
+				
+			}break;
+	
+			case OperacionesCapas::FISICA_BUSCAR_ESPACIO_LIBRE:
+			{				
 				//Obtencion del espacio libre a buscar.
 				pipe.parametro(3, &espLibre);
 				buffer = new char[tamBloque*sizeof(char)];

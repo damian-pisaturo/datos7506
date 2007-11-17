@@ -2,7 +2,7 @@
 #define BTREE_H_
 
 #include "../Common/Nodo.h"
-#include "../Manager/IndiceManager.h"
+#include "../Manager/IndiceManager/IndiceManager.h"
 #include "../../Common/ResultadosFisica.h"
 
 class BTree {

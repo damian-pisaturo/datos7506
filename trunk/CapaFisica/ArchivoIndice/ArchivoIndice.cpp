@@ -174,9 +174,9 @@
 			resultado = this->leerBloque(datos, numBloque);
 			
 			if (resultado == ResultadosFisica::OK){
-				cantClaves = ((unsigned int*)datos);
+				*cantClaves = *((unsigned int*)datos);
 				memcpy(lista, datos + sizeof(unsigned int), this->getTamanioBloque() - sizeof(unsigned int));			
-			}
+			}else *cantClaves = 0;
 			
 			delete[] datos;
 			

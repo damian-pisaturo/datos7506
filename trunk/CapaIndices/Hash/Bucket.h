@@ -22,7 +22,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include "../Manager/IndiceManager.h"
+#include "../Manager/IndiceManager/IndiceManager.h"
 #include "../../Common/Bloque/Bloque.h"
 
 
