@@ -3,7 +3,7 @@
 
 #include "../BTree/BTree.h"
 #include "NodoBStar.h"
-#include "../Manager/IndiceManager.h"
+#include "../Manager/IndiceManager/IndiceManager.h"
 
 
 

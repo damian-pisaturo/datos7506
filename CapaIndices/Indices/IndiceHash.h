@@ -21,7 +21,7 @@
 #define INDICEHASH_H_
 
 #include "../Hash/Hash.h"
-#include "../Manager/IndiceManager.h"
+#include "../Manager/IndiceManager/IndiceManager.h"
 #include "../Common/IndiceManagerFactory.h"
 #include "Indice.h"
 

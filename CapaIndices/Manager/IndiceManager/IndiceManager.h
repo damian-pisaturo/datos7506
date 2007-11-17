@@ -24,12 +24,12 @@
 
 #include <string>
 
-#include "../Common/Nodo.h"
-#include "../../Common/Tamanios.h"
-#include "../Common/SetClaves.h"
-#include "../../Common/TipoDatos.h"
-#include "../Common/TipoIndices.h"
-#include "Manager.h"
+#include "../../Common/Nodo.h"
+#include "../../../Common/Tamanios.h"
+#include "../../Common/SetClaves.h"
+#include "../../../Common/TipoDatos.h"
+#include "../../Common/TipoIndices.h"
+#include "../Manager.h"
 
 using namespace std;
 
@@ -261,7 +261,7 @@ class IndiceSecundarioManager: public IndiceArbolManager
 		/*Graba una nueva lista de claves primarias en el archivo, devolviendo la posicion
 		 * donde se almaceno finalmente.
 		*/ 
-		virtual unsigned int escribirListaClaves(SetClaves* setClaves);
+		virtual int escribirListaClaves(SetClaves* setClaves);
 	
 	//////////////////////////////////////////////////////////////////////
 	// Getter
@@ -550,6 +550,7 @@ class IndiceFechaRomanoManager: public IndiceSecundarioManager
 		/*Interpretacion de un buffer como un set de ClaveFecha*/
 		SetClaves* leerListaClaves(unsigned int posicion);
 		char escribirListaClaves(unsigned int posicion, SetClaves* setClaves);
+		int escribirListaClaves(SetClaves* setClaves);
 		
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -611,7 +612,7 @@ class IndiceVariableRomanoManager: public IndiceSecundarioManager
 		/*Interpretacion de un buffer como un set de ClaveVariable*/
 		SetClaves* leerListaClaves(unsigned int posicion);		
 		char escribirListaClaves(unsigned int posicion, SetClaves* setClaves);		
-		unsigned int escribirListaClaves(SetClaves* setClaves);
+		int escribirListaClaves(SetClaves* setClaves);
 			
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -676,14 +677,14 @@ class IndiceCompuestoRomanoManager: public IndiceSecundarioManager
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
 		IndiceCompuestoRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice, ListaTipos* listaTipos);	
-	
+
 	//////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	//////////////////////////////////////////////////////////////////////
 		/*Interpretacion de un buffer como un set de ClaveCompuesta*/
 		SetClaves* leerListaClaves(unsigned int posicion);		
 		char escribirListaClaves(unsigned int posicion, SetClaves* setClaves);		
-		unsigned int escribirListaClaves(SetClaves* setClaves);
+		int escribirListaClaves(SetClaves* setClaves);
 		
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -699,8 +700,8 @@ class IndiceCompuestoRomanoManager: public IndiceSecundarioManager
 		/*Esta funcion se encarga de leer claves compuestas de un buffer*/
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);
-};
+		
+}; /*Fin clase IndiceCompuestoRomanoManager*/
 
-//TODO Implementar IndiceCompuestoRomanoManager
 
 #endif /*INDICEMANAGER_H_*/

@@ -1,7 +1,7 @@
 #ifndef INDICEMANAGERFACTORY_H_
 #define INDICEMANAGERFACTORY_H_
 
-#include "../Manager/IndiceManager.h"
+#include "../Manager/IndiceManager/IndiceManager.h"
 #include "../../Common/TipoDatos.h"
 
 class IndiceManagerFactory {

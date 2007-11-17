@@ -22,7 +22,7 @@
 
 #include "../BTree/BTree.h"
 #include "NodoBPlus.h"
-#include "../Manager/IndiceManager.h"
+#include "../Manager/IndiceManager/IndiceManager.h"
 
 
 #include <string>

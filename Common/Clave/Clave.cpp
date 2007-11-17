@@ -628,7 +628,7 @@
 	}
 	
 	unsigned int ClaveFecha::getTamanioValor() const {
-		return sizeof(fecha);
+		return Tamanios::TAMANIO_FECHA;
 	}
 
 ///////////////////////////////////////////////////////////////////////////
@@ -739,7 +739,7 @@
 	
 	unsigned int ClaveVariable::getTamanioValor() const
 	{
-		return (strlen((char*)this->getValor())+1)*sizeof(char);
+		return (strlen((char*)this->getValor()))*sizeof(char);
 	}
 	
 	unsigned int ClaveVariable::getTamanioEnDisco(bool bstar) const
