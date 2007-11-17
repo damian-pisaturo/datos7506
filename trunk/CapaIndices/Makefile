@@ -14,8 +14,8 @@ extension = cpp
 
 fuentes = RegisterInfo/RegisterInfo.cpp
 fuentes += Manager/Manager.cpp
-fuentes += Manager/BloqueDatosManager.cpp
-fuentes += Manager/IndiceManager.cpp
+fuentes += Manager/BloqueDatosManager/BloqueDatosManager.cpp
+fuentes += Manager/IndiceManager/IndiceManager.cpp
 fuentes += Indices/IndiceArbol.cpp
 fuentes += Indices/IndiceHash.cpp
 fuentes += Common/Nodo.cpp

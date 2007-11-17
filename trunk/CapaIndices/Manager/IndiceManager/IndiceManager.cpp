@@ -583,15 +583,10 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque, BloqueIndice* 
 		nodoLeido->setNivel(headerNodo.nivel);
 		nodoLeido->setEspacioLibre(headerNodo.espacioLibre);
 		nodoLeido->setRefNodo(headerNodo.refNodo);
-
-		//Cálculo especial para determinar el tamaño del bloque doble en memoria
-		unsigned short tamanioEnMemoria = 4*(this->getTamanioBloque() - Nodo::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA)/3;
-		if (nodoLeido->getNivel() == 0) tamanioEnMemoria += Nodo::getTamanioHeader() - Tamanios::TAMANIO_REFERENCIA;
-		else tamanioEnMemoria += Nodo::getTamanioHeader();
 		
 		//Recorrer el buffer desde donde quedo hasta que supere
 		//el espacio libre, interpretando clave por clave.
-		const char* punteroFinal = punteroAux + (tamanioEnMemoria - headerNodo.espacioLibre);
+		const char* punteroFinal = punteroAux + (2*this->getTamanioBloque() - headerNodo.espacioLibre);
 
 		if (nodoLeido->getNivel() == 0) {
 			while (data < punteroFinal) {
