@@ -186,7 +186,7 @@ int IndiceArbolManager::leerBloque(unsigned int numBloque,
 		delete pipe;
 	if (punteroAux)
 		delete[] punteroAux;
-
+	
 	return resultado;
 }
 

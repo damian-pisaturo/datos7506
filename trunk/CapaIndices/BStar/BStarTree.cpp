@@ -37,6 +37,9 @@ void BStarTree::insertar(Clave* clave) {
 		
 		NodoBStar* nodoDestino = buscarLugar(clave);
 		
+		//si nodoDestino == NULL significa que la clave ya esta insertada
+		if (!nodoDestino) return;
+		
 		char codigo;
 		
 		nodoDestino->insertarClave(clave, &codigo);
@@ -687,6 +690,8 @@ NodoBStar* BStarTree::buscarLugarRecursivo(NodoBStar* nodo, Clave* clave) const 
 		}
 		
 	} else {
+		
+		if (*claveResultante == *clave) return NULL; //La clave ya estaba insertada
 		
 		if (claveResultante->getHijoDer() == 0) {//Nodo hoja
 			auxNodo = new NodoBStar(0, 0, this->tamanioNodo);
