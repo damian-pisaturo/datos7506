@@ -140,8 +140,11 @@ int IndiceArbolManager::leerBloque(unsigned int numBloque,
 		memcpy(&headerNodo.nivel, data, sizeof(unsigned char));
 		data += sizeof(unsigned char);
 
-		memcpy(&headerNodo.refNodo, data, sizeof(unsigned int));
-		data += sizeof(unsigned int);
+		//El hijo izq se carga siempre y cuando no se trate de un nodo hoja de un árbol B*
+		if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
+			memcpy(&headerNodo.refNodo, data, sizeof(unsigned int));
+			data += sizeof(unsigned int);
+		} else headerNodo.refNodo = 0;
 
 		memcpy(&headerNodo.espacioLibre, data, sizeof(unsigned short));
 		data += sizeof(unsigned short);
@@ -218,8 +221,13 @@ int IndiceArbolManager::escribirBloque(BloqueIndice* bloqueNuevo) {
 
 	memcpy(data, &headerNodo.nivel, sizeof(char));
 	data+=sizeof(char);
-	memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
-	data+=sizeof(unsigned int);
+	
+	//El hijo izq se guarda siempre y cuando no se trate de un nodo hoja de un árbol B*
+	if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
+		memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
+		data+=sizeof(unsigned int);
+	} else headerNodo.refNodo = 0;
+	
 	memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));
 	data+=sizeof(unsigned short);
 
@@ -257,7 +265,7 @@ int IndiceArbolManager::escribirBloque(BloqueIndice* bloqueNuevo) {
 
 int IndiceArbolManager::escribirBloque(unsigned short numNodo,
 		BloqueIndice* bloqueModif) {
-	int resultado = 0;
+	char resultado = 0;
 	Nodo* nodoNuevo = static_cast<Nodo*> (bloqueModif);
 
 	//Variables de escritura del buffer
@@ -288,8 +296,13 @@ int IndiceArbolManager::escribirBloque(unsigned short numNodo,
 
 	memcpy(data, &headerNodo.nivel, sizeof(char));
 	data+=sizeof(char);
-	memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
-	data+=sizeof(unsigned int);
+	
+	//El hijo izq se guarda siempre y cuando no se trate de un nodo hoja de un árbol B*
+	if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
+		memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
+		data+=sizeof(unsigned int);
+	} else headerNodo.refNodo = 0;
+	
 	memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));
 	data+=sizeof(unsigned short);
 
@@ -359,6 +372,7 @@ int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo) {
 	//Variables de escritura del buffer
 	char* data = new char[2*this->getTamanioBloque()];
 	char* punteroAux = data;
+	memset(data, 0, 2*this->getTamanioBloque());
 
 	//Variables de interpretacion del nodo
 	HeaderNodo headerNodo;
@@ -382,8 +396,13 @@ int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo) {
 
 	memcpy(data, &headerNodo.nivel, sizeof(char));
 	data+=sizeof(char);
-	memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
-	data+=sizeof(unsigned int);
+	
+	//El hijo izq se guarda siempre y cuando no se trate de un nodo hoja de un árbol B*
+	if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
+		memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
+		data+=sizeof(unsigned int);
+	} else headerNodo.refNodo = 0;
+	
 	memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));
 	data+=sizeof(unsigned short);
 
@@ -424,12 +443,13 @@ int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo) {
 
 int IndiceArbolManager::escribirBloqueDoble(unsigned short numBloque,
 		BloqueIndice* bloqueNuevo) {
-	int resultado = 0;
+	char resultado = 0;
 	Nodo* nodoNuevo = static_cast<Nodo*> (bloqueNuevo);
 
 	//Variables de escritura del buffer
 	char* data = new char[2*this->getTamanioBloque()];
 	char* punteroAux = data;
+	memset(data, 0, 2*this->getTamanioBloque());
 
 	//Variables de interpretacion del nodo
 	HeaderNodo headerNodo;
@@ -439,7 +459,7 @@ int IndiceArbolManager::escribirBloqueDoble(unsigned short numBloque,
 	ComuDatos* pipe = this->instanciarPipe();
 
 	//Parametros de inicializacion de la Capa Fisica.
-	pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_NODO_DOBLE, 0); //Codigo de operacion.
+	pipe->agregarParametro(OperacionesCapas::FISICA_MODIFICAR_NODO_DOBLE, 0); //Codigo de operacion.
 	pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre archivo.
 	pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
 	pipe->agregarParametro(numBloque, 3); // Numero del primer nodo a escribir a disco.
@@ -454,8 +474,13 @@ int IndiceArbolManager::escribirBloqueDoble(unsigned short numBloque,
 
 	memcpy(data, &headerNodo.nivel, sizeof(char));
 	data+=sizeof(char);
-	memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
-	data+=sizeof(unsigned int);
+	
+	//El hijo izq se guarda siempre y cuando no se trate de un nodo hoja de un árbol B*
+	if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
+		memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
+		data+=sizeof(unsigned int);
+	} else headerNodo.refNodo = 0;
+	
 	memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));
 	data+=sizeof(unsigned short);
 
@@ -499,7 +524,7 @@ int IndiceArbolManager::escribirBloqueDoble(unsigned short numBloque,
 
 int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque,
 		BloqueIndice* bloqueLeido) {
-	int resultado = 0;
+	char resultado = 0;
 	Nodo* nodoLeido = static_cast<Nodo*> (bloqueLeido);
 
 	//Variables de escritura del buffer
@@ -521,7 +546,7 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque,
 	pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
 	pipe->agregarParametro(numBloque, 3); //Numero del primer nodo a leer dentro del archivo
 
-	//Se lanza el proceso de la capa fisica.		
+	//Se lanza el proceso de la capa fisica.
 	pipe->lanzar();
 
 	//Se obtiene el resultado de la lectura 
@@ -538,8 +563,11 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque,
 		memcpy(&headerNodo.nivel, data, sizeof(unsigned char));
 		data += sizeof(unsigned char);
 
-		memcpy(&headerNodo.refNodo, data, sizeof(unsigned int));
-		data += sizeof(unsigned int);
+		//El hijo izq se carga siempre y cuando no se trate de un nodo hoja de un árbol B*
+		if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
+			memcpy(&headerNodo.refNodo, data, sizeof(unsigned int));
+			data += sizeof(unsigned int);
+		} else headerNodo.refNodo = 0;
 
 		memcpy(&headerNodo.espacioLibre, data, sizeof(unsigned short));
 		data += sizeof(unsigned short);
@@ -549,17 +577,21 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque,
 		nodoLeido->setEspacioLibre(headerNodo.espacioLibre);
 		nodoLeido->setRefNodo(headerNodo.refNodo);
 
+		//Cálculo especial para determinar el tamaño del bloque doble en memoria
+		unsigned short tamanioEnMemoria = 4*(this->getTamanioBloque() - Nodo::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA)/3;
+		if (nodoLeido->getNivel() == 0) tamanioEnMemoria += Nodo::getTamanioHeader() - Tamanios::TAMANIO_REFERENCIA;
+		else tamanioEnMemoria += Nodo::getTamanioHeader();
+		
 		//Recorrer el buffer desde donde quedo hasta que supere
-		//el espacio libre, interpretando clave por clave.			
-		const char* punteroFinal = punteroAux + (this->getTamanioBloque()
-				- headerNodo.espacioLibre);
+		//el espacio libre, interpretando clave por clave.
+		const char* punteroFinal = punteroAux + (tamanioEnMemoria - headerNodo.espacioLibre);
 
 		if (nodoLeido->getNivel() == 0) {
 			while (data < punteroFinal) {
 				//Leer la clave	
 				claveNueva = this->leerClaveHoja(data);
 				//Agregarla a la lista	
-				set->insert(claveNueva);
+				set->insert(claveNueva);				
 			}
 		} else {
 			while (data < punteroFinal) {
@@ -572,6 +604,7 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque,
 
 		//Agregar el setClaves al nodo
 		nodoLeido->setClaves(set);
+		
 		//Setear la posicion del nodo en el archivo
 		nodoLeido->setPosicionEnArchivo(numBloque);
 	}
@@ -603,7 +636,7 @@ int IndiceArbolManager::eliminarBloqueDoble(unsigned short posicion) {
 	//Solicitar resultado de la comunicacion con la 
 	//capa fisica.
 	pipe->leer(&resultado);
-
+	
 	return resultado;
 }
 
@@ -2535,6 +2568,6 @@ Clave* IndiceCompuestoGriegoManager::leerClaveNoHoja(char* &buffer) {
 	buffer += Tamanios::TAMANIO_REFERENCIA;
 
 	//Crear la clave
-	return new ClaveCompuesta(listaClaves, refRegistro);
+	return new ClaveCompuesta(listaClaves, refRegistro, hijoDer);
 }
 
