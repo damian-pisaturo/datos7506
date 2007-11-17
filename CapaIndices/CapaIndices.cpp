@@ -217,6 +217,13 @@ int main(int argc, char* argv[]) {
 	indice.insertar(new ClaveEntera(57), null);
 	indice.insertar(new ClaveEntera(30), null);
 	indice.insertar(new ClaveEntera(17), null);
+	
+//	indice.insertar(new ClaveEntera(49), null);
+	
+	indice.insertar(new ClaveEntera(8), null);
+	indice.insertar(new ClaveEntera(10), null);
+	indice.insertar(new ClaveEntera(1), null);
+	indice.insertar(new ClaveEntera(99), null);
 
 /*	
 	ClaveEntera clave(456);
