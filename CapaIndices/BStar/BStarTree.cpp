@@ -4,8 +4,9 @@
 BStarTree::BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
 	: BTree(indiceManager, tamanioNodo) {
 	
-	this->tamanioRaiz = 4*(tamanioNodo - NodoBStar::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA)/3;
-	this->tamanioRaiz += NodoBStar::getTamanioHeader();
+	//this->tamanioRaiz = 4*(tamanioNodo - NodoBStar::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA)/3;
+	//this->tamanioRaiz += NodoBStar::getTamanioHeader();
+	this->tamanioRaiz = 2*this->tamanioNodo;
 	this->getRaiz();
 	
 }
@@ -61,9 +62,23 @@ void BStarTree::insertar(Clave* clave) {
 void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* claveInsertada) {
 	
 	if (*codigo == Codigo::MODIFICADO){
-		if (*nodoDestino == *(this->nodoRaiz))
-			indiceManager.escribirBloqueDoble(nodoDestino->getPosicionEnArchivo(), nodoDestino);
-		else indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+		
+		if (*nodoDestino == *(this->nodoRaiz)) {
+			
+			//Cálculo especial para determinar si la raiz se debe splittear
+			unsigned short espacioClaves = 4*(this->tamanioNodo - Nodo::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA)/3 + Tamanios::TAMANIO_REFERENCIA;
+			
+			cout << "espacio claves teorico: " << espacioClaves << endl;
+			cout << "tamanio en disco del set claves de la raiz: " << nodoDestino->getTamanioEnDiscoSetClaves() << endl;
+			
+			if (nodoDestino->getTamanioEnDiscoSetClaves() > espacioClaves) {
+				
+				*codigo = Codigo::OVERFLOW;
+				this->insertarInterno(nodoDestino, codigo, claveInsertada);
+				
+			} else indiceManager.escribirBloqueDoble(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+			
+		} else indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
 	}
 	else if ( *codigo == Codigo::OVERFLOW ){
 		//Puntero a la clave del nodo padre que se encuentra entre nodoDestino y su hermano izq

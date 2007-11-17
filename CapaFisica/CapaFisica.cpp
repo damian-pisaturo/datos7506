@@ -446,7 +446,7 @@
 				
 				//Obtencion del bloque contenedor de la lista
 				//de claves primarias.
-				pipe.leer(buffer, tamBloque - sizeof(unsigned int));
+				pipe.leer(tamBloque - sizeof(unsigned int), buffer);
 				
 				//Escritura de la lista a disco
 				numBloque = ((ArchivoLista*)archivo)->escribirLista(sizeLista, buffer);
@@ -469,7 +469,7 @@
 				
 				//Obtencion del bloque contenedor de la lista
 				//de claves primarias.
-				pipe.leer(buffer, tamBloque - sizeof(unsigned int));
+				pipe.leer(tamBloque - sizeof(unsigned int), buffer);
 				
 				//Escritura de la lista a disco
 				resultado = ((ArchivoLista*)archivo)->escribirLista(sizeLista, buffer, numBloque);
