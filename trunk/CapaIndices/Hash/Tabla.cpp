@@ -229,15 +229,20 @@ void Tabla::actualizarReferencias(unsigned short tamDispActualizado,unsigned int
 	// haciendo que se apunte a nuevoNroBucket.
 	
 	int i = 0;
+	cout << "tamDsp: " << tamDispActualizado << endl;
 	
-	// Se recorre desde posicion para arriba.
-	for(i = posicion; i >= 0; i -= tamDispActualizado)
-		nroBucket[i] = nuevoNroBucket;
-	
-	// Se recorre desde posicion para abajo.
-	for(i = posicion; i < (int)tamanio; i += tamDispActualizado)
-		nroBucket[i] = nuevoNroBucket;
+	if (tamDispActualizado != 0)
+	{
+		// Se recorre desde posicion para arriba. 
+		for(i = posicion; i >= 0; i -= tamDispActualizado)
+			nroBucket[i] = nuevoNroBucket;
+		
+		for(i = posicion; i < (int)tamanio; i += tamDispActualizado)
+			nroBucket[i] = nuevoNroBucket;
+	}
 }
+
+
 
 
 

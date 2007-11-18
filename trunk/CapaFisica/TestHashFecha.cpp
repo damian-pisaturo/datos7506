@@ -18,14 +18,14 @@
  * ganas de conservar el TestHash original (todo un detalle).
  * 
  * Con afecto,
- * 		Don Fantone (Poquipatico a domiclio).-
+ * 		Don Fantone (Poquipatico a domicilio).-
  */
 
 int main(int argc, char** argv)
 {
 	RegisterInfo* regInfo = new RegisterInfo();
 	
-	Indice *manuColoquio = new IndiceHash(regInfo->getParameterList(), 512, "capaFisica");
+	Indice *manuColoquio = new IndiceHash(regInfo->getParameterList(), 512, "testFecha");
 	Clave* clave = NULL;
 	int entero1  = 0;
 	char* cadena = new char[24];
@@ -50,6 +50,7 @@ int main(int argc, char** argv)
 	cout << endl;
 	cout << "Insertando 200 nuevos registros...";
 	for (int i = 1 ; i < 201 ; i++) {
+	cout << i << endl;
 		fecha.anio = i*100;
 		fecha.mes = i;
 		fecha.dia = i*2;
