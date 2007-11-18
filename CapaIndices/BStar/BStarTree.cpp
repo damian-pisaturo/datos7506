@@ -4,8 +4,6 @@
 BStarTree::BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
 	: BTree(indiceManager, tamanioNodo) {
 	
-	//this->tamanioRaiz = 4*(tamanioNodo - NodoBStar::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA)/3;
-	//this->tamanioRaiz += NodoBStar::getTamanioHeader();
 	this->tamanioRaiz = 2*this->tamanioNodo;
 	this->getRaiz();
 	
@@ -65,15 +63,11 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* cl
 		
 		if (*nodoDestino == *(this->nodoRaiz)) {
 			
-			//Cálculo especial para determinar si la raiz se debe splittear
-			unsigned short espacioClaves = 4*(this->tamanioNodo - Nodo::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA)/3 + Tamanios::TAMANIO_REFERENCIA;
-			
-			cout << "espacio claves teorico: " << espacioClaves << endl;
-			cout << "tamanio en disco del set claves de la raiz: " << nodoDestino->getTamanioEnDiscoSetClaves() << endl;
-			
-			if (nodoDestino->getTamanioEnDiscoSetClaves() > espacioClaves) {
+			//Se verifica si la raíz se debe splittear
+			if (nodoDestino->getTamanioEnDiscoSetClaves() > nodoDestino->getTamanioEspacioClaves()) {
 				
 				*codigo = Codigo::OVERFLOW;
+				
 				this->insertarInterno(nodoDestino, codigo, claveInsertada);
 				
 			} else indiceManager.escribirBloqueDoble(nodoDestino->getPosicionEnArchivo(), nodoDestino);
@@ -88,27 +82,34 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* cl
 		NodoBStar* nodoPadre = this->buscarPadre(this->nodoRaiz, nodoDestino, claveInsertada);
 		NodoBStar *nodoHnoDer = NULL, *nodoHnoIzq = NULL;
 		
-		if (!nodoPadre){ //nodoDestino es la raiz.
+		if (!nodoPadre){ //nodoDestino es la raiz
+			
 			//A la raíz le setteo el tamaño de un nodo común porque se tiene que splittear en nodos comunes.
 			nodoDestino->setTamanio(this->tamanioNodo);
-			//unsigned short tamanioMinimo = 2*(this->tamanioNodo - Nodo::getTamanioHeader())/3;
+			nodoDestino->setPosicionEnArchivo(1); //Le setteo una posición distinta de 0 para que no siga funcionando como la raiz
+			
 			SetClaves* setClavesDerecho = nodoDestino->splitB(nodoDestino->getTamanioMinimo());
-			//Ahora nodoDestino deja de ser la raíz, por lo cual pasa a tener el tamaño de un nodo común.
-			//nodoDestino->setTamanio(this->tamanioNodo);
+			
 			Clave* clavePromocionada = *(setClavesDerecho->begin());
 			setClavesDerecho->erase(clavePromocionada); //Extrae la clave del conj. No libera la memoria.
+			
 			NodoBStar* nuevoNodoDerecho = new NodoBStar(clavePromocionada->getHijoDer(), nodoDestino->getNivel(), this->tamanioNodo);
 			nuevoNodoDerecho->setClaves(setClavesDerecho);
+			
 			indiceManager.escribirBloque(nuevoNodoDerecho);
 			//Se actualiza nodoDestino
 			indiceManager.escribirBloque(nodoDestino); //Busca una nueva posicion para el nodoDestino (hijo izq de la raiz)
+			
 			clavePromocionada->setHijoDer(nuevoNodoDerecho->getPosicionEnArchivo());
 			NodoBStar* nuevaRaiz = new NodoBStar(nodoDestino->getPosicionEnArchivo(), nodoDestino->getNivel() + 1, clavePromocionada, this->tamanioRaiz);
-			indiceManager.escribirBloqueDoble(0, nuevaRaiz);
 			nuevaRaiz->setPosicionEnArchivo(0);
+			indiceManager.escribirBloqueDoble(0, nuevaRaiz);
+			
 			*(this->nodoRaiz) = *nuevaRaiz;
+			
 			delete nuevoNodoDerecho;
 			delete nuevaRaiz;
+			
 			*codigo = Codigo::MODIFICADO;
 		}
 		else{
@@ -134,9 +135,15 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* cl
 				//nodoDestino es el hijo derecho de la última clave del nodo
 				//nodoDestino no tiene hermano derecho
 				nodoHnoIzq = new NodoBStar(0, 0, this->tamanioNodo);
-				indiceManager.leerBloque((*(--(--iterPadre)))->getHijoDer(), nodoHnoIzq);
-				clavePadreIzq = *(++iterPadre);
+				if ((--iterPadre) == nodoPadre->getClaves()->begin()) {
+					indiceManager.leerBloque(nodoPadre->getHijoIzq(), nodoHnoIzq);
+					clavePadreIzq = *iterPadre;
+				} else {
+					indiceManager.leerBloque((*(--iterPadre))->getHijoDer(), nodoHnoIzq);
+					clavePadreIzq = *(++iterPadre);
+				}
 			} else {
+				
 				if ( iterPadre == nodoPadre->getClaves()->begin() ) {
 					nodoHnoIzq = new NodoBStar(0, 0, this->tamanioNodo);
 					indiceManager.leerBloque(nodoPadre->getHijoIzq(), nodoHnoIzq);
@@ -147,10 +154,20 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* cl
 					indiceManager.leerBloque((*(--iterPadre))->getHijoDer(), nodoHnoIzq);
 					clavePadreIzq = *(++iterPadre);
 				}
+				
 				nodoHnoDer = new NodoBStar(0, 0, this->tamanioNodo);
-				indiceManager.leerBloque((*iterPadre)->getHijoDer(), nodoHnoDer);
+				indiceManager.leerBloque((*(++iterPadre))->getHijoDer(), nodoHnoDer);
 				clavePadreDer = *iterPadre;
+				
 			}
+			
+			if (clavePadreIzq)
+				cout << "clave padre izq: " << *((int*)clavePadreIzq->getValor()) << endl;
+			else cout << "clave padre izq: NULL" << endl;
+
+			if (nodoHnoIzq)
+				cout << "nodo hno izq: " << nodoHnoIzq->getPosicionEnArchivo() << endl;
+			else cout << "nodo hno izq: NULL" << endl;
 			
 			//Fin de la búsqueda de los nodos hermanos de 'nodoDestino'
 			
@@ -506,7 +523,7 @@ void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPa
 	clavePadre->setHijoDer(nodoDestino->getHijoIzq());
 	
 	if ( tamanioClavePadre < bytesRequeridos){
-		setIntercambio = nodoHnoIzq->cederBytes(bytesRequeridos - tamanioClavePadre);
+		setIntercambio = nodoHnoIzq->cederBytes(bytesRequeridos - tamanioClavePadre, false);
 		nodoDestino->recibir(setIntercambio);
 		delete setIntercambio;
 	}
@@ -577,7 +594,7 @@ void BStarTree::recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* no
 	nodoPadre->extraerClave(clavePadre);
 	clavePadre->setHijoDer(nodoDestino->getHijoIzq());
 	
-	setIntercambio = nodoHnoIzq->cederBytes(bytesSobrantes);
+	setIntercambio = nodoHnoIzq->cederBytes(bytesSobrantes, false);
 	
 	Clave* clavePromocionada = *(setIntercambio->begin());
 	setIntercambio->erase(setIntercambio->begin());

@@ -33,6 +33,7 @@ Nodo::Nodo(unsigned int refNodo, unsigned char nivel, Clave* clave,
 	this->refNodo = refNodo;
 	this->nivel   = nivel;
 	this->tamanio = tamanio;
+	this->posicionEnArchivo = 1;
 	
 	if (bstar && (nivel == 0))
 		this->setEspacioLibre(tamanio - this->getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA);
@@ -51,6 +52,7 @@ Nodo::Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio, bo
 	this->refNodo = refNodo;
     this->nivel = nivel;
     this->tamanio = tamanio;
+    this->posicionEnArchivo = 1;
 
     if (bstar && (nivel == 0))
 		this->setEspacioLibre(tamanio - this->getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA);
@@ -58,7 +60,7 @@ Nodo::Nodo(unsigned int refNodo, unsigned char nivel, unsigned short tamanio, bo
 		this->setEspacioLibre(tamanio - this->getTamanioHeader());
     
     /*Agrega la clave a la lista de claves del nodo*/
-	this->claves = new SetClaves();	
+	this->claves = new SetClaves();
 }
 
 
@@ -170,11 +172,16 @@ unsigned short Nodo::bytesACeder(unsigned char clavesPropuestas, bool izquierda)
 }
 
 bool Nodo::puedeRecibir(unsigned short bytesEntrantes, unsigned short bytesSalientes) const {
-	if (bytesEntrantes > bytesSalientes){
-		return ( (bytesEntrantes - bytesSalientes) <= this->getEspacioLibre() ); 
+	
+	unsigned short tamanioEspacioClavesResultante = this->getTamanioEnDiscoSetClaves() + bytesEntrantes - bytesSalientes;
+	
+	if (bytesEntrantes >= bytesSalientes) {
+		return ( tamanioEspacioClavesResultante <=  this->getTamanioEspacioClaves() ); 
 	}
 	else{
-		return ( (this->getTamanioEnDiscoSetClaves() + bytesEntrantes - bytesSalientes) >= this->getTamanioMinimo() );
+		//Si este nodo es el nodo raíz, no se verifica underflow
+		if (this->getPosicionEnArchivo() == 0) return true;
+		return ( tamanioEspacioClavesResultante >= this->getTamanioMinimo() );
 	}
 	
 }
@@ -199,7 +206,7 @@ SetClaves* Nodo::cederBytes(unsigned short bytesRequeridos, bool izquierda) {
 		
 		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) >= this->getTamanioMinimo() ) {
 			this->getClaves()->erase(this->getClaves()->begin(), iter);
-			this->actualizarEspacioLibre(set, false);
+			this->actualizarEspacioLibre();
 			return set;
 		}
 		
@@ -216,7 +223,7 @@ SetClaves* Nodo::cederBytes(unsigned short bytesRequeridos, bool izquierda) {
 		
 		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) >= this->getTamanioMinimo() ) {
 			this->getClaves()->erase(++iter, this->getClaves()->end());
-			this->actualizarEspacioLibre(set, false);
+			this->actualizarEspacioLibre();
 			return set;
 		}
 	}
@@ -373,12 +380,25 @@ bool Nodo::puedeRecibirClaveDesdeIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* c
 	unsigned short primerosBytesSobrantes = nodoHnoIzq->bytesACeder(cantClavesSobrantes - 1, false);
 	unsigned short bytesUltimaClaveSobrante = bytesSobrantes - primerosBytesSobrantes;
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(bstar);
+	unsigned short tamanioClavePadreARecibir = tamanioClavePadre;
+
+	if (this->getNivel() == 0) {
+		tamanioClavePadreARecibir -= Tamanios::TAMANIO_REFERENCIA;
+		bytesUltimaClaveSobrante += Tamanios::TAMANIO_REFERENCIA;
+	}
 	
-	if ( tamanioClavePadre > this->getEspacioLibre() ) return false;
+	if ( tamanioClavePadreARecibir > this->getEspacioLibre() ) return false;
 	
-	if ( (this->puedeRecibir(primerosBytesSobrantes + tamanioClavePadre, 0))
+	cout << "primeros bytes sobrantes: " << primerosBytesSobrantes << endl;
+	cout << "tamaño clave padre a recibir: " << tamanioClavePadreARecibir << endl;
+	cout << "bytes ultima clave sobrante: " << bytesUltimaClaveSobrante << endl;
+	cout << "tamaño clave padre: " << tamanioClavePadre << endl;
+	
+	if ( (this->puedeRecibir(primerosBytesSobrantes + tamanioClavePadreARecibir, 0))
 		&& ( nodoPadre->puedeRecibir(bytesUltimaClaveSobrante, tamanioClavePadre) ) )
 		return true;
+	
+	cout << "no puede recibir" << endl;
 	
 	return false;
 }
@@ -392,10 +412,16 @@ bool Nodo::puedeRecibirClaveDesdeDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* c
 	unsigned short primerosBytesSobrantes = nodoHnoDer->bytesACeder(cantClavesSobrantes - 1);
 	unsigned short bytesUltimaClaveSobrante = bytesSobrantes - primerosBytesSobrantes;
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(bstar);
+	unsigned short tamanioClavePadreARecibir = tamanioClavePadre;
+
+	if (this->getNivel() == 0) {
+		tamanioClavePadreARecibir -= Tamanios::TAMANIO_REFERENCIA;
+		bytesUltimaClaveSobrante += Tamanios::TAMANIO_REFERENCIA;
+	}
 	
-	if ( tamanioClavePadre > this->getEspacioLibre() ) return false;
+	if ( tamanioClavePadreARecibir > this->getEspacioLibre() ) return false;
 	
-	if ( (this->puedeRecibir(primerosBytesSobrantes + tamanioClavePadre, 0))
+	if ( (this->puedeRecibir(primerosBytesSobrantes + tamanioClavePadreARecibir, 0))
 		&& ( nodoPadre->puedeRecibir(bytesUltimaClaveSobrante, tamanioClavePadre) ) )
 		return true;
 	
@@ -412,21 +438,31 @@ bool Nodo::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* cla
 	unsigned short bytesHaciaElPadre = 0;
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(bstar);
 	unsigned char clavesPropuestas = 0;
+	unsigned short tamanioClavePadreARecibir = tamanioClavePadre;
+	unsigned short tamanioClaveHaciaElPadre = this->obtenerPrimeraClave()->getTamanioEnDisco(bstar);
+
+	if (this->getNivel() == 0) {
+		tamanioClavePadreARecibir -= Tamanios::TAMANIO_REFERENCIA;
+		tamanioClaveHaciaElPadre += Tamanios::TAMANIO_REFERENCIA;
+	}
 	
-	if ( ( tamanioClavePadre >= bytesRequeridos ) &&
-		 (nodoPadre->puedeRecibir(this->obtenerPrimeraClave()->getTamanioEnDisco(bstar), tamanioClavePadre)) )
+	if ( ( tamanioClavePadreARecibir >= bytesRequeridos ) &&
+		 (nodoPadre->puedeRecibir(tamanioClaveHaciaElPadre, tamanioClavePadre)) ) 
 		return true;
 	
-	bytesRequeridos -= tamanioClavePadre;
+	bytesRequeridos -= tamanioClavePadreARecibir;
 	bytesPropuestosPorMi = this->bytesACeder(bytesRequeridos, clavesPropuestas);
 	
 	if ( (bytesPropuestosPorMi > 0)
-		&& (nodoHnoIzq->puedeRecibir(bytesPropuestosPorMi + tamanioClavePadre, 0))
-		&& ( (bytesHaciaElPadre = this->bytesACeder(clavesPropuestas + 1)) > 0 ) ){
+		&& (nodoHnoIzq->puedeRecibir(bytesPropuestosPorMi + tamanioClavePadreARecibir, 0))
+		&& ( (bytesHaciaElPadre = this->bytesACeder(clavesPropuestas + 1)) > 0 ) ) {
 			bytesHaciaElPadre -= bytesPropuestosPorMi;
+			//Si la clave pasa de un nodo hoja a un nodo interno, el tamaño se incrementa
+			//debido a que ahora tendrá una referencia al hijo derecho.
+			if (this->getNivel() == 0) bytesHaciaElPadre += Tamanios::TAMANIO_REFERENCIA;
 			if ( nodoPadre->puedeRecibir(bytesHaciaElPadre, tamanioClavePadre) )
 				return true;
-		}
+	}
 	
 	return false;
 }
@@ -440,18 +476,28 @@ bool Nodo::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* cla
 	unsigned short bytesHaciaElPadre = 0;
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(bstar);
 	unsigned char clavesPropuestas = 0;
+	unsigned short tamanioClavePadreARecibir = tamanioClavePadre;
+	unsigned short tamanioClaveHaciaElPadre = this->obtenerPrimeraClave()->getTamanioEnDisco(bstar);
+
+	if (this->getNivel() == 0) {
+		tamanioClavePadreARecibir -= Tamanios::TAMANIO_REFERENCIA;
+		tamanioClaveHaciaElPadre += Tamanios::TAMANIO_REFERENCIA;
+	}
 	
-	if ( ( tamanioClavePadre >= bytesRequeridos ) &&
-		 (nodoPadre->puedeRecibir(this->obtenerUltimaClave()->getTamanioEnDisco(bstar), tamanioClavePadre)) )
+	if ( ( tamanioClavePadreARecibir >= bytesRequeridos ) &&
+		 (nodoPadre->puedeRecibir(tamanioClaveHaciaElPadre, tamanioClavePadre)) )
 		return true;
 		
-	bytesRequeridos -= tamanioClavePadre;
+	bytesRequeridos -= tamanioClavePadreARecibir;
 	bytesPropuestosPorMi = this->bytesACeder(bytesRequeridos, clavesPropuestas, false);
 	
 	if ( (bytesPropuestosPorMi > 0)
-		&& (nodoHnoDer->puedeRecibir(bytesPropuestosPorMi + tamanioClavePadre, 0))
+		&& (nodoHnoDer->puedeRecibir(bytesPropuestosPorMi + tamanioClavePadreARecibir, 0))
 		&& ( (bytesHaciaElPadre = this->bytesACeder(clavesPropuestas + 1, false)) > 0 ) ){
 			bytesHaciaElPadre -= bytesPropuestosPorMi;
+			//Si la clave pasa de un nodo hoja a un nodo interno, el tamaño se incrementa
+			//debido a que ahora tendrá una referencia al hijo derecho.
+			if (this->getNivel() == 0) bytesHaciaElPadre += Tamanios::TAMANIO_REFERENCIA;
 			if ( nodoPadre->puedeRecibir(bytesHaciaElPadre, tamanioClavePadre) )
 				return true;
 		}
@@ -478,28 +524,30 @@ void Nodo::merge(Nodo* nodoHno1, Nodo* nodoHno2, Clave* clavePadre1, Clave* clav
 Clave* Nodo::extraerUltimaClave() {
 	if (this->getClaves()->empty()) return NULL;
 	SetClaves::iterator iter = this->getClaves()->end();
-	this->getClaves()->erase(*(--iter));
-	this->actualizarEspacioLibre(*iter, false);
-	return *iter;
+	Clave* clave = *(--iter);
+	this->getClaves()->erase(iter);
+	this->actualizarEspacioLibre(clave, false);
+	return clave;
 }
 
 Clave* Nodo::extraerPrimeraClave() {
 	if (this->getClaves()->empty()) return NULL;
 	SetClaves::iterator iter = this->getClaves()->begin();
-	this->getClaves()->erase(*iter);
-	this->actualizarEspacioLibre(*iter, false);
-	return *iter;
+	Clave* clave = *iter;
+	this->getClaves()->erase(iter);
+	this->actualizarEspacioLibre(clave, false);
+	return clave;
 }
 
 void Nodo::extraerClave(Clave* clave) {
 	SetClaves::iterator iter = this->getClaves()->find(clave);
 	if (iter == this->getClaves()->end()) return;
 	this->getClaves()->erase(iter);
-	this->actualizarEspacioLibre(*iter, false);
+	this->actualizarEspacioLibre(clave, false);
 }
 
 
-bool Nodo::tieneOverflow() const {
+bool Nodo::tieneOverflow() const {	
 	return (this->getTamanioEnDiscoSetClaves() > this->getTamanioEspacioClaves());
 }
 
