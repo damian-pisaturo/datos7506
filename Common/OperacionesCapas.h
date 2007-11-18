@@ -32,12 +32,17 @@ class OperacionesCapas
 		const static unsigned char FISICA_ELIMINAR_DATO        = 21;
 		const static unsigned char FISICA_BUSCAR_ESPACIO_LIBRE = 22;		
 		
-		const static unsigned char INDICES_CONSULTAR			= 'C';
-		const static unsigned char INDICES_CONSULTAR_EXISTENCIA	= 'E';
-		const static unsigned char INDICES_BUSCAR_ESPACIO_LIBRE	= 'L';
-		const static unsigned char INDICES_INSERTAR				= 'A';
-		const static unsigned char INDICES_ELIMINAR				= 'B';
-		const static unsigned char INDICES_MODIFICAR			= 'M';
+		const static unsigned char INDICES_CONSULTAR			= 23;
+		const static unsigned char INDICES_CONSULTAR_EXISTENCIA	= 24;
+		const static unsigned char INDICES_BUSCAR_ESPACIO_LIBRE	= 25;
+		const static unsigned char INDICES_INSERTAR				= 26;
+		const static unsigned char INDICES_ELIMINAR				= 27;
+		const static unsigned char INDICES_MODIFICAR			= 28;
+		
+		const static unsigned char METADATA_MODIFICACION	    = 29;
+		const static unsigned char METADATA_ALTA	            = 30;
+		const static unsigned char METADATA_BAJA	            = 31;
+		const static unsigned char METADATA_CONSULTA     	    = 32;
 };
 
 #endif /*OPERACIONESCAPAS_H_*/

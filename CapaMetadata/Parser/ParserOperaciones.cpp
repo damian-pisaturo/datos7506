@@ -1,6 +1,7 @@
 #include "ParserOperaciones.h"
-
-string ParserOperaciones::generarPrototipoClave(DefinitionsManager::ListaClaves &listaClaves){
+/*
+string ParserOperaciones::generarPrototipoClave(DefinitionsManager::ListaClaves &listaClaves)
+{
 	string clave = NULL;
 	DefinitionsManager::ListaClaves::const_iterator it = listaClaves.begin();
 	
@@ -15,62 +16,183 @@ string ParserOperaciones::generarPrototipoClave(DefinitionsManager::ListaClaves 
 		clave += it->valorClave;
 		clave += CodigosPipe::COD_FIN_CLAVE;
 	}
+	
 	return clave;
 }
+*/
 
-ParserOperaciones::ParserOperaciones(const string &nombreArchivo) {
+
+ParserOperaciones::ParserOperaciones(const string &nombreArchivo)
+{
 	archivo.open(nombreArchivo.c_str());
+	numOperacion = 0;
+	mapValoresAtributos = NULL;
+	listaClaves = NULL;
 }
 
-ParserOperaciones::~ParserOperaciones() {
+ParserOperaciones::~ParserOperaciones()
+{
 	if (archivo.is_open()) archivo.close();
+	if (mapValoresAtributos){
+		delete mapValoresAtributos;
+		mapValoresAtributos = NULL;
+	}
+	if (listaClaves){
+		delete listaClaves;
+		listaClaves = NULL;
+	}
+	
 }
 
-char ParserOperaciones::ejecutarOperaciones(){
-	char resultado = ResultadosMetadata::OK;
-	string lineaStr;
+bool ParserOperaciones::proximaOperacion()
+{	
+	string linea;
+	bool leyendoClaves; // es true si se trata de una modificacion y esta leyendo la parte que contiene la clave o lista de claves 
+	bool procesado = false;
+	
+	while ( (!archivo.fail()) && (!procesado) ){
+		
+		leyendoClaves = false;
+		getline(archivo, linea);
+		
+		if (linea.size() != 0){
+			if (mapValoresAtributos){
+				delete mapValoresAtributos;
+				mapValoresAtributos = NULL;
+			}
+			mapValoresAtributos = new DefinitionsManager::MapaValoresAtributos();
+			
+			if (listaClaves){
+				delete listaClaves;
+				listaClaves = NULL;
+			}
+			listaClaves = new DefinitionsManager::ListaClaves();
+			
+			procesado = true;
+			numOperacion++;
+									
+			size_t separatorPos, nextSeparatorPos, proximoSeparatorCampos;
+			string nombreAtributo, valorAtributo;
+			
+			separatorPos = linea.find(SEPARATOR_CAMPOS);
+			nextSeparatorPos = linea.find(SEPARATOR_CAMPOS, separatorPos + 1);
+			
+			nombreTipo = linea.substr(separatorPos + 1, nextSeparatorPos - separatorPos - 1);
+			
+			
+			proximoSeparatorCampos = linea.find(SEPARATOR_CAMPOS, linea.find(SEPARATOR_CAMPOS, nextSeparatorPos + 1));
+			
+			while (nextSeparatorPos != string::npos){
+				separatorPos = nextSeparatorPos;
+				nextSeparatorPos = linea.find(ASIGNACION_ATRIBUTOS, separatorPos + 1);
+				nombreAtributo = linea.substr(separatorPos + 1, nextSeparatorPos - separatorPos - 1);
+				
+				separatorPos = nextSeparatorPos;
+				nextSeparatorPos = linea.find(SEPARATOR_ATRIBUTOS, separatorPos + 1);
+				
+				if ( (!leyendoClaves) && (linea[0] == MODIFICACION) && ((nextSeparatorPos == string::npos) || (nextSeparatorPos > proximoSeparatorCampos)) ){
+					nextSeparatorPos = proximoSeparatorCampos;
+				}
+				valorAtributo = linea.substr(separatorPos + 1, nextSeparatorPos - separatorPos - 1);
+
+				switch(linea[0]){
+					case ALTA:
+						tipoOperacion = OperacionesCapas::METADATA_ALTA;
+						(*mapValoresAtributos)[nombreAtributo] = valorAtributo;
+						break;
+					
+					case BAJA: {
+						tipoOperacion = OperacionesCapas::METADATA_BAJA;
+						DefinitionsManager::NodoListaClaves nodo;
+						nodo.nombreClave = nombreAtributo;
+						nodo.valorClave = valorAtributo;
+						listaClaves->push_back(nodo);
+						
+					}break;
+					
+					case MODIFICACION:
+						tipoOperacion = OperacionesCapas::METADATA_MODIFICACION;
+						if (leyendoClaves){
+							DefinitionsManager::NodoListaClaves nodo;
+							nodo.nombreClave = nombreAtributo;
+							nodo.valorClave = valorAtributo;
+							listaClaves->push_back(nodo);
+						}
+						else{
+							(*mapValoresAtributos)[nombreAtributo] = valorAtributo;
+							if (nextSeparatorPos == proximoSeparatorCampos) leyendoClaves = true;
+						}
+						break;
+						
+					case CONSULTA: {
+						tipoOperacion = OperacionesCapas::METADATA_CONSULTA;
+						DefinitionsManager::NodoListaClaves nodo;
+						nodo.nombreClave = nombreAtributo;
+						nodo.valorClave = valorAtributo;
+						listaClaves->push_back(nodo);
+					
+					}break;
+						
+				}
+			}		
+
+
+		}
+	}
+	
+	return procesado;
+	
+}
+
+/*
+char ParserOperaciones::ejecutarOperaciones()
+{
+	char resultado = c
+	string linea;
 	DefinitionsManager defManager;
 	DataManager dataManager;
 	bool leyendoClaves; // es true si se trata de una modificacion y esta leyendo la parte que contiene la clave o lista de claves 
 	 
 	while (!archivo.fail()){
-		leyendoClaves = false;
-		getline(archivo, lineaStr);
 		
-		if (lineaStr.size() != 0){
+		leyendoClaves = false;
+		getline(archivo, linea);
+		
+		if (linea.size() != 0){
 		
 			DefinitionsManager::MapaValoresAtributos mapValoresAtributos;
-			DefinitionsManager::ListaClaves listaClaves;
+			
 			
 			size_t separatorPos, nextSeparatorPos, proximoSeparatorCampos;
 			string nombreTipo;
 			string nombreAtributo, valorAtributo;
 			
-			separatorPos = lineaStr.find(SEPARATOR_CAMPOS);
-			nextSeparatorPos = lineaStr.find(SEPARATOR_CAMPOS, separatorPos + 1);
+			separatorPos = linea.find(SEPARATOR_CAMPOS);
+			nextSeparatorPos = linea.find(SEPARATOR_CAMPOS, separatorPos + 1);
 			
-			nombreTipo = lineaStr.substr(separatorPos + 1, nextSeparatorPos - separatorPos - 1);
+			nombreTipo = linea.substr(separatorPos + 1, nextSeparatorPos - separatorPos - 1);
 			
 			
-			proximoSeparatorCampos = lineaStr.find(SEPARATOR_CAMPOS, lineaStr.find(SEPARATOR_CAMPOS, nextSeparatorPos + 1));
+			proximoSeparatorCampos = linea.find(SEPARATOR_CAMPOS, linea.find(SEPARATOR_CAMPOS, nextSeparatorPos + 1));
 			
 			while (nextSeparatorPos != string::npos){
 				separatorPos = nextSeparatorPos;
-				nextSeparatorPos = lineaStr.find(ASIGNACION_ATRIBUTOS, separatorPos + 1);
-				nombreAtributo = lineaStr.substr(separatorPos + 1, nextSeparatorPos - separatorPos - 1);
+				nextSeparatorPos = linea.find(ASIGNACION_ATRIBUTOS, separatorPos + 1);
+				nombreAtributo = linea.substr(separatorPos + 1, nextSeparatorPos - separatorPos - 1);
 				
 				separatorPos = nextSeparatorPos;
-				nextSeparatorPos = lineaStr.find(SEPARATOR_ATRIBUTOS, separatorPos + 1);
+				nextSeparatorPos = linea.find(SEPARATOR_ATRIBUTOS, separatorPos + 1);
 				
-				if ( (!leyendoClaves) && (lineaStr[0] == 'M') && ((nextSeparatorPos == string::npos) || (nextSeparatorPos > proximoSeparatorCampos)) ){
+				if ( (!leyendoClaves) && (linea[0] == 'M') && ((nextSeparatorPos == string::npos) || (nextSeparatorPos > proximoSeparatorCampos)) ){
 					nextSeparatorPos = proximoSeparatorCampos;
 				}
-				valorAtributo = lineaStr.substr(separatorPos + 1, nextSeparatorPos - separatorPos - 1);
+				valorAtributo = linea.substr(separatorPos + 1, nextSeparatorPos - separatorPos - 1);
 
-				switch(lineaStr[0]){
+				switch(linea[0]){
 					case 'A':
 						mapValoresAtributos[nombreAtributo] = valorAtributo;
 						break;
+					
 					case 'B': {
 						DefinitionsManager::NodoListaClaves nodo;
 						nodo.nombreClave = nombreAtributo;
@@ -78,6 +200,7 @@ char ParserOperaciones::ejecutarOperaciones(){
 						listaClaves.push_back(nodo);
 						
 					}break;
+					
 					case 'M':
 						if (leyendoClaves){
 							DefinitionsManager::NodoListaClaves nodo;
@@ -92,8 +215,8 @@ char ParserOperaciones::ejecutarOperaciones(){
 						break;
 				}
 			}		
-			
-			// Instancio comuDatos para la comunicacion con la capa de indices
+*/			
+			/*// Instancio comuDatos para la comunicacion con la capa de indices
 			ComuDatos comuDatos(NOMBRE_CAPA_INDICES);
 			
 			int nroBloque                                                    = 0;			
@@ -110,7 +233,7 @@ char ParserOperaciones::ejecutarOperaciones(){
 			
 			Bloque *bloque = NULL;
 			
-			switch(lineaStr[0]) {
+			switch(linea[0]) {
 				case 'A':{
 					int tamanioRegistro = 0;					
 					
@@ -243,4 +366,5 @@ char ParserOperaciones::ejecutarOperaciones(){
 	}
 	
 	return resultado;
-}
+*///}
+

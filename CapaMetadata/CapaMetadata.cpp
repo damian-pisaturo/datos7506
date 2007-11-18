@@ -1,7 +1,24 @@
-#include "CapaMetadata.h"
-#include "Vista/Vista.h"
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcionr
+//		Funcion principal de la Capa Metadata.
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;
+//		- Rodriguez, Maria Laura.
+///////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char* argv[]) {
+#include "CapaMetadata.h"
+
+int main(int argc, char* argv[]) 
+{
+	
 	
 	//if (argc < 2) return 1;
 		
@@ -13,8 +30,7 @@ int main(int argc, char* argv[]) {
 	//ParserOperaciones parserOperaciones("../operaciones.txt");
 	//parserOperaciones.ejecutarOperaciones();
 	
-	cout << "Datos del registro" << endl;
-	
+	/*cout << "Datos del registro" << endl;
 	
 	char *registro = new char [30];
 	int entero = 789;
@@ -41,7 +57,7 @@ int main(int argc, char* argv[]) {
 	lista.push_back(nodo);
 	lista.push_back(nodo);
 	memcpy(registro,&longR,2);
-	/***************** PRIMER CAMPO VARIABLE **********************/
+	**************** PRIMER CAMPO VARIABLE *********************
 
 	longCampoVariable = campoVariable.size();
 	
@@ -51,7 +67,7 @@ int main(int argc, char* argv[]) {
 	memcpy((registro + offset), campoVariable.c_str(), longCampoVariable);
 	offset += longCampoVariable;
 	
-	/***************** SEGUNDO CAMPO VARIABLE **********************/
+	**************** SEGUNDO CAMPO VARIABLE *********************
 	
 	campoVariable = "Laura";
 
@@ -62,11 +78,6 @@ int main(int argc, char* argv[]) {
 	
 	memcpy((registro + offset), campoVariable.c_str(), longCampoVariable);
 	offset += longCampoVariable;
-	
-	
-	
-	
-	
 	
 	nodo.tipo = TipoDatos::TIPO_SHORT;
 	lista.push_back(nodo);
@@ -134,6 +145,7 @@ int main(int argc, char* argv[]) {
 		
 		vista->showRegister(dataManager->getRegistro(),&lista);
 	return 0;
+*/	
 	
 }
 
