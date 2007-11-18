@@ -29,7 +29,14 @@ unsigned short NodoBStar::getTamanioEnDisco() const {
 
 
 unsigned short NodoBStar::getTamanioEspacioClaves() const {
-		
+	
+	if (this->getPosicionEnArchivo() == 0) { //Nodo raíz
+		unsigned short espacioClaves = 4*(this->getTamanio()/2 - Nodo::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA)/3;
+		if (this->getNivel() == 0)
+			return (espacioClaves + Tamanios::TAMANIO_REFERENCIA);
+		else return espacioClaves;
+	}
+	
 	if (this->getNivel() == 0) //Nodo hoja ==> Tengo que sumarle el espacio que se le descuenta por la referencia al hijo izq
 		return (this->getTamanio() - Nodo::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA);
 	else return (this->getTamanio() - Nodo::getTamanioHeader());
@@ -39,7 +46,8 @@ unsigned short NodoBStar::getTamanioEspacioClaves() const {
 
 unsigned short NodoBStar::getTamanioMinimo() const {
 	
-	return (2*(this->getTamanioEspacioClaves())/3);
+	if (this->getPosicionEnArchivo() == 0) return 0; //Nodo Raíz
+	else return (2*(this->getTamanioEspacioClaves())/3);
 	
 }
 
@@ -60,6 +68,23 @@ Nodo* NodoBStar::copiar() const {
 	nodoCopia->setPosicionEnArchivo(this->getPosicionEnArchivo());
 	nodoCopia->setEspacioLibre(this->getEspacioLibre());
 	return nodoCopia;
+	
+}
+
+
+void NodoBStar::actualizarEspacioLibre() {
+
+	unsigned short espacioLibre;
+	
+	if (this->getNivel() == 0) //Nodo hoja ==> Tengo que sumarle el espacio que se le descuenta por la referencia al hijo izq
+		espacioLibre = this->getTamanio() - Nodo::getTamanioHeader() + Tamanios::TAMANIO_REFERENCIA;
+	else espacioLibre = this->getTamanio() - Nodo::getTamanioHeader();
+	
+	for (SetClaves::iterator iter = this->getClaves()->begin(); iter != this->getClaves()->end(); ++iter) {
+		espacioLibre -= (*iter)->getTamanioEnDisco(true);
+	}
+	
+	this->setEspacioLibre(espacioLibre);
 	
 }
 

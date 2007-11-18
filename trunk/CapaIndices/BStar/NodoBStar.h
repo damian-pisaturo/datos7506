@@ -21,6 +21,8 @@ class NodoBStar : public Nodo {
 		
 		unsigned short getTamanioMinimo() const;
 		
+		void actualizarEspacioLibre();
+		
 		VectorConjuntos* split();
 		
 		Nodo* copiar() const;
