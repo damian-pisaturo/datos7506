@@ -33,40 +33,46 @@
 
 	/*
 	 * Este metodo busca un registro dentro del indice.
-	 * Siempre retorna NULL y devuelve el registro de clave "clave"
+	 * Devuelve el bloque que contiene el registro de clave "clave"
 	 * dentro de "registro".
 	 **/
-	Clave* IndiceHash::buscar(Clave *clave, char* &registro) const
+	int IndiceHash::buscar(Clave *clave, char* &registro) const
 	{
-		this->hash->recuperarRegistro(*clave,registro);
-		
-		return NULL;
+		if (this->hash->recuperarRegistro(*clave,registro))
+			return ResultadosIndices::OK;
+		else return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	}
 	
-	Clave* IndiceHash::buscar(Clave *clave) const
+	int IndiceHash::buscar(Clave *clave) const
 	{
-	//	TODO implementar esto para que diga si la clave existe o no, sin devolver el registro.
-		return NULL;
+		char* registro = NULL;
+		
+		if (this->hash->recuperarRegistro(*clave, registro))
+			return ResultadosIndices::CLAVE_ENCONTRADA;
+		else return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	}
 
 	/*
 	 * Elimina al registro de clave "claveVieja" e inserta al registro "registroNuevo".
 	 **/
-	bool IndiceHash::modificar(Clave *claveVieja, Clave *claveNueva, char* &registroNuevo) 
+	int IndiceHash::modificar(Clave *claveVieja, Clave *claveNueva, char* &registroNuevo) 
 	{
 		return this->hash->modificarRegistro(*claveVieja, *claveNueva, registroNuevo);
 	}
 
 
-	char IndiceHash::buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque) 
-	{		
-		//TODO Llamar al método de Nico
+	int IndiceHash::buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque) 
+	{	
+		//TODO llamar a BloqueDatosManager para que me diga el número de bloque en el que debo insertar
+		//el nuevo registro
 		return 0;
 	}
 
-	
+/*	
 	Clave* IndiceHash::buscar(Clave* clave, SetClaves* &setClavesPrimarias) const 
 	{		
 		//TODO Lamar al método de Nico...
 		return 0;
 	}
+*/
+
