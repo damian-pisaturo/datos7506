@@ -1,5 +1,8 @@
 #include "DefinitionsManager.h"
 
+//se inicializa la instancia estática de esta clase
+DefinitionsManager DefinitionsManager::instance;
+
 DefinitionsManager::DefinitionsManager() {
 	
 	this->cargarDefiniciones();

@@ -206,9 +206,10 @@
 		}
 
 		/*
-		 * Recupera un registro a partir de una clave 
+		 * Recupera un registro a partir de una clave. 
+		 * Si lo encuentra devuelve true. De lo contrario, devuelve false.
 		 **/	
-		void Hash::recuperarRegistro(Clave &clave, char* &registro)
+		bool Hash::recuperarRegistro(Clave &clave, char* &registro)
 		{
 			// Se aplica la función de hash para ver en que bucket se debe buscar el
 			// registro a recuperar.
@@ -243,11 +244,13 @@
 					registro = new char[longReg];
 					
 					memcpy(registro, datos + offsetToReg, longReg);
-				}			
+				}
+				return true;
 			}
 			
 			if (bucket)
 				delete bucket;
+			return false;
 		}
 
 	///////////////////////////////////////////////////////////////////////

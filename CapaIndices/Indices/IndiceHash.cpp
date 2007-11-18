@@ -46,7 +46,6 @@
 	Clave* IndiceHash::buscar(Clave *clave) const
 	{
 	//	TODO implementar esto para que diga si la clave existe o no, sin devolver el registro.
-		
 		return NULL;
 	}
 

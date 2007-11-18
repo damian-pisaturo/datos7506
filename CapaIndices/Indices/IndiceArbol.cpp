@@ -48,7 +48,8 @@ int IndiceArbol::eliminar(Clave *clave) {
  * sus atributos actualizados.
  **/
 Clave* IndiceArbol::buscar(Clave *clave, char* &registro) const {
-	return bTree->buscar(clave);
+	Clave* claveRecuperada = bTree->buscar(clave);
+	return claveRecuperada;
 }
 
 Clave* IndiceArbol::buscar(Clave *clave) const {
