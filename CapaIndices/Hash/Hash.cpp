@@ -104,17 +104,22 @@
 			// Si el registro no entra en el bucket hay que crear un nuevo bucket.
 			{				
 				// Se duplica el tamaño de dispersión del bucket que se divide.
+				
 				bucket->setTamDispersion(bucket->getTamDispersion()*2);
 				
+				if (bucket->getTamDispersion() == 0)
+					exit(0);
 				// Se crea un nuevo bucket vacío. Se devuelve en numBucketNuevo el número del mismo. 
 				unsigned int numBucketNuevo = 0;
 				
 				// Se crea un bucket vacío en memoria y se lo graba en disco.
 				Bucket * nuevoBucket = new Bucket(numBucketNuevo,bucket->getTamDispersion(), this->archivo->getTamanioBloque());
+				
 				numBucketNuevo = this->archivo->escribirBloque(nuevoBucket);
 				
 				// Duplica la tabla o actualiza sus referencias dependiendo del tamaño de dispersión 
 				// (ya duplicado) del bucket donde se produjo overflow.
+				
 				this->tabla->reorganizarTabla(bucket->getTamDispersion(), posicion, nuevoBucket->getNroBloque()); 
 				
 				this->redistribuirElementos(bucket, nuevoBucket);
@@ -262,8 +267,8 @@
 			
 			int ultimoBit = 0;
 			
-			// Doy vuelta los bits, y tomo los 6 menos significativos.
-			for (int i = 0; i < 6; i++)
+			// Doy vuelta los bits, y tomo los 8 menos significativos.
+			for (int i = 0; i < 16; i++)
 			{
 				aux = aux << 1;
 				ultimoBit = valorHash & 1;
