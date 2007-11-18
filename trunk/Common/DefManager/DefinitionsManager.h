@@ -52,12 +52,13 @@ class DefinitionsManager {
 		
 		typedef std::map<std::string, ListaTiposIndices*> MapaTiposIndices;
 		
-		
-		//Metodos
-		DefinitionsManager();
-		
+		//Destructor
 		virtual ~DefinitionsManager();
 		
+		//Método para obtener la instancia de este objeto
+		static DefinitionsManager& getInstance() { return instance; }
+		
+		//Métodos públicos
 		ListaTiposAtributos* getListaTiposAtributos(const string &nombreTipo);
 		
 		ListaTipos* getListaTipos(const string &nombreTipo);
@@ -88,13 +89,17 @@ class DefinitionsManager {
 		}
 		
 	private:
+		DefinitionsManager();
+
+		static DefinitionsManager instance;
+		
 		//Atributos
 		MapaTiposAtributos mapaTiposAtributos;
 		
 		MapaTiposIndices mapaTiposIndices;
 		
 		MapaNombresAtributos mapaNombresAtributos;
-
+				
 		//Metodos
 		void cargarDefiniciones();
 		

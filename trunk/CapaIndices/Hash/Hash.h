@@ -73,9 +73,10 @@ class Hash
 		bool modificarRegistro(Clave &claveVieja, Clave &claveNueva, char* registroNuevo);
 	
 		/*
-		 * A partir de una clave recupera un registro 
+		 * A partir de una clave recupera un registro.
+		 * Si lo encuentra devuelve true; de lo contrario, devuelve false. 
 		 **/
-		void recuperarRegistro(Clave &clave,char* &registro); 		
+		bool recuperarRegistro(Clave &clave,char* &registro); 		
 		
 		
 	private:
