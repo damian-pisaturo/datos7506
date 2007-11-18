@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////
-//	Archivo   : ArchivoIndice.h
+//	Archivo   : IndiceManager.h
 //  Namespace : CapaIndices
 ////////////////////////////////////////////////////////////////////////////
 //	75.06 Organizacion de Datos
 //	Trabajo practico: Framework de Persistencia
 ////////////////////////////////////////////////////////////////////////////
 //	Descripcion
-//		Cabeceras e interfaz de las clases ArchivoIndice correspodientes
+//		Cabeceras e interfaz de las clases IndiceManager correspodientes
 //      a cada tipo de dato (booleano, char, short, entero, real, fecha, 
-//		string) e indice (Griego y Romano).
+//		string).
 ///////////////////////////////////////////////////////////////////////////
 //	Integrantes
 //		- Alvarez Fantone, Nicolas;
@@ -227,67 +227,23 @@ class IndiceHashManager : public IndiceManager
 
 };
 
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: IndiceSecundarioManager
-//			(Abstracta. Clase que sirve de abstraccion de la capa 
-//			fisica para los indices secundarios de la capa de indices).
-///////////////////////////////////////////////////////////////////////////
-class IndiceSecundarioManager: public IndiceArbolManager
-{	
-	private:		
-		unsigned int tamBloqueLista;
-		
-	public:
-	//////////////////////////////////////////////////////////////////////
-	// Constructor/Destructor
-	//////////////////////////////////////////////////////////////////////
-		IndiceSecundarioManager(unsigned int tamNodo, const string nombreArchivo, unsigned int tamanioBloqueLista, unsigned char tipoIndice);
-		virtual ~IndiceSecundarioManager();
-
-	//////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	//////////////////////////////////////////////////////////////////////
-
-		/*Devuelve un set de claves primarias de la posicion en el archivo dada.
-		 */
-		virtual SetClaves* leerListaClaves(unsigned int posicion) = 0;
-		
-		/*Sobre-escribe con setClaves la lista que se encuentra en la posicion dada
-		 * para actualizarla una vez insertada una nueva referencia en la lista*/
-		virtual char escribirListaClaves(unsigned int posicion, SetClaves* setClaves);
-		
-		/*Graba una nueva lista de claves primarias en el archivo, devolviendo la posicion
-		 * donde se almaceno finalmente.
-		*/ 
-		virtual int escribirListaClaves(SetClaves* setClaves);
-	
-	//////////////////////////////////////////////////////////////////////
-	// Getter
-	//////////////////////////////////////////////////////////////////////
-		unsigned int getTamanioBloqueLista()
-		{
-			return this->tamBloqueLista;
-		}
-};
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: ArchivoIndiceEnteroGriego 
-//		   (Implementa archivo de indices primarios de clave entera).
+// Nombre: IndiceEnteroManager 
+//		   (Implementa archivo de indices de clave entera).
 ///////////////////////////////////////////////////////////////////////////
-class IndiceEnteroGriegoManager: public IndiceArbolManager
+class IndiceEnteroManager: public IndiceArbolManager
 {
 	
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////		
-		IndiceEnteroGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
+		IndiceEnteroManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
 		
-		virtual ~IndiceEnteroGriegoManager() {}
+		virtual ~IndiceEnteroManager() {}
 		
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -299,57 +255,24 @@ class IndiceEnteroGriegoManager: public IndiceArbolManager
 		Clave* leerClaveNoHoja(char* &buffer);
 
 	
-}; //Fin clave ArchivoIndiceEnteroGriego
+}; //Fin clave IndiceEnteroManager
+
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: ArchivoIndiceEnteroRomano 
-//		   (Implementa archivo de indices secundarios de clave entera).
-///////////////////////////////////////////////////////////////////////////
-class IndiceEnteroRomanoManager: public IndiceSecundarioManager
-{
-	public:
-	//////////////////////////////////////////////////////////////////////
-	// Constructor
-	//////////////////////////////////////////////////////////////////////
-		IndiceEnteroRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
-		virtual ~IndiceEnteroRomanoManager();
-		
-		/*Interpretacion de un buffer como un set de ClaveEntera*/
-		SetClaves* leerListaClaves(unsigned int posicion);
-		
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-		/*Interpreta un buffer como una clave de tipo ClaveEntera.*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
-		
-}; //Fin clase ArchivoIndiceEnteroRomano
-
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: ArchivoIndiceBooleanGriego 
-//		   (Implementa archivo de indices primarios de clave booleana).
+// Nombre: IndiceBooleanManager 
+//		   (Implementa archivo de indices de clave booleana).
 ///////////////////////////////////////////////////////////////////////////
 
-class IndiceBooleanRomanoManager: public IndiceSecundarioManager
+class IndiceBooleanManager: public IndiceArbolManager
 {
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	//////////////////////////////////////////////////////////////////////		
-		IndiceBooleanRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
-		virtual ~IndiceBooleanRomanoManager() {}
-	
-	//////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	//////////////////////////////////////////////////////////////////////
-		/*Interpretacion de un buffer como un set de ClaveBoolean*/
-		SetClaves* leerListaClaves(unsigned int posicion);
+		IndiceBooleanManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
+		virtual ~IndiceBooleanManager() {}
 			
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -359,30 +282,29 @@ class IndiceBooleanRomanoManager: public IndiceSecundarioManager
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);	
 		
-}; //Fin clase IndiceBooleanRomanoManager
+}; //Fin clase IndiceBooleanManager
 
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: ArchivoIndiceCharGriego
-//		   (Implementa archivo de indices primarios de clave de tipo char).
+// Nombre: IndiceCharManager
+//		   (Implementa archivo de indices de clave de tipo char).
 ///////////////////////////////////////////////////////////////////////////
-class IndiceCharGriegoManager: public IndiceArbolManager
+class IndiceCharManager: public IndiceArbolManager
 {
 	public:
 	//////////////////////////////////////////////////////////////////////
-	// Constructor
+	// Constructor/Destructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceCharGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
-		
-		virtual ~IndiceCharGriegoManager() {}
+		IndiceCharManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);		
+		virtual ~IndiceCharManager() {}
 		
 	private:
 	//////////////////////////////////////////////////////////////////////
 	// Metodos privados
 	//////////////////////////////////////////////////////////////////////
-		/*Interpreta un buffer como una clave de tipo ClaveBoolean.*/
+		/*Interpreta un buffer como una clave de tipo ClaveChar.*/
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);
 		
@@ -391,46 +313,16 @@ class IndiceCharGriegoManager: public IndiceArbolManager
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: ArchivoIndiceCharRomano
-//		   (Implementa archivo de indices secundarios de clave de tipo char).
+// Nombre: IndiceShortManager
+//		   (Implementa archivo de indices de clave de tipo short).
 ///////////////////////////////////////////////////////////////////////////
-class IndiceCharRomanoManager: public IndiceSecundarioManager
+class IndiceShortManager: public IndiceArbolManager
 {
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceCharRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
-		
-		/*Interpretacion de un buffer como un set de ClaveChar*/
-		SetClaves* leerListaClaves(unsigned int posicion);
-		
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-	
-		/*Interpreta un buffer como una clave de tipo ClaveChar.*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);		
-
-		
-}; //Fin clase ArchivoIndiceCharGriego
-
-
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: ArchivoIndiceShortGriego
-//		   (Implementa archivo de indices primarios de clave de tipo short).
-///////////////////////////////////////////////////////////////////////////
-class IndiceShortGriegoManager: public IndiceArbolManager
-{
-	public:
-	//////////////////////////////////////////////////////////////////////
-	// Constructor
-	//////////////////////////////////////////////////////////////////////
-		IndiceShortGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
+		IndiceShortManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
 	
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -440,57 +332,22 @@ class IndiceShortGriegoManager: public IndiceArbolManager
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);
 		
-}; //Fin clase IndiceShortGriegoManager
-
-
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: ArchivoIndiceShortRomano
-//		   (Implementa archivo de indices primarios de clave de tipo short).
-///////////////////////////////////////////////////////////////////////////
-class IndiceShortRomanoManager: public IndiceSecundarioManager
-{
-	public:
-	//////////////////////////////////////////////////////////////////////
-	// Constructor
-	//////////////////////////////////////////////////////////////////////
-		IndiceShortRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
-		
-		/*Interpretacion de un buffer como un set de ClaveShort*/
-		SetClaves* leerListaClaves(unsigned int posicion);
-		
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-		/*Interpreta un buffer como una clave de tipo ClaveShort.*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
-	
-		
-}; //Fin clase IndiceShortRomanoManager
+}; //Fin clase IndiceShortManager
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: ArchivoIndiceRealRomano
-//		   (Implementa archivo de indices primarios de clave de tipo float).
+// Nombre: IndiceRealManager
+//		   (Implementa archivo de indices de clave de tipo float).
 ///////////////////////////////////////////////////////////////////////////
-class IndiceRealRomanoManager: public IndiceSecundarioManager
+class IndiceRealManager: public IndiceArbolManager
 {	
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceRealRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
+		IndiceRealManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
 	
-	//////////////////////////////////////////////////////////////////////
-	// Metodo publico
-	//////////////////////////////////////////////////////////////////////
-		/*Interpretacion de un buffer como un set de ClaveReal*/
-		SetClaves* leerListaClaves(unsigned int posicion);
-		
 	private:
 	//////////////////////////////////////////////////////////////////////
 	// Metodos privados
@@ -499,23 +356,23 @@ class IndiceRealRomanoManager: public IndiceSecundarioManager
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);
 	
-}; //Fin clase ArchivoIndiceRealRomano
+}; //Fin clase IndiceRealManager
 
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: IndiceFechaGriegoManager
-//		   (Implementa archivo de indices primarios de clave de tipo fecha).
+// Nombre: IndiceFechaManager
+//		   (Implementa archivo de indices de clave de tipo fecha).
 ///////////////////////////////////////////////////////////////////////////
-class IndiceFechaGriegoManager: public IndiceArbolManager
+class IndiceFechaManager: public IndiceArbolManager
 {
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceFechaGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
-		virtual ~IndiceFechaGriegoManager() {}
+		IndiceFechaManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);
+		virtual ~IndiceFechaManager() {}
 		
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -525,58 +382,21 @@ class IndiceFechaGriegoManager: public IndiceArbolManager
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);	
 		
-}; //Fin clase IndiceFechaGriegoManager
-
-
-//////////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: IndiceFechaRomanoManager
-//		   (Implementa archivo de indices secundarios de clave de tipo fecha).
-//////////////////////////////////////////////////////////////////////////////
-class IndiceFechaRomanoManager: public IndiceSecundarioManager
-{	
-	public:
-	//////////////////////////////////////////////////////////////////////
-	// Constructor/Destructor
-	//////////////////////////////////////////////////////////////////////		
-		IndiceFechaRomanoManager(unsigned int tamNodo, const string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
-		
-		virtual ~IndiceFechaRomanoManager() {}
-		
-	//////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	//////////////////////////////////////////////////////////////////////
-		/*Interpretacion de un buffer como un set de ClaveFecha*/
-		SetClaves* leerListaClaves(unsigned int posicion);
-		char escribirListaClaves(unsigned int posicion, SetClaves* setClaves);
-		int escribirListaClaves(SetClaves* setClaves);
-		
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////		
-		/*Interpreta un buffer como una clave de tipo ClaveFecha.*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
-
-	
-}; //Fin clase IndiceFechaRomanoManager
+}; //Fin clase IndiceFechaManager
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: ArchivoIndiceVariableGriego 
-//		   (Implementa archivo de indices primarios de clave de 
-//			longitud variable).
+// Nombre: IndiceVariableManager
+//		   (Implementa archivo de indices de clave de longitud variable).
 ///////////////////////////////////////////////////////////////////////////
-class IndiceVariableGriegoManager: public IndiceArbolManager
+class IndiceVariableManager: public IndiceArbolManager
 {
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceVariableGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);	
+		IndiceVariableManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice);	
 
 	private:
 	//////////////////////////////////////////////////////////////////////
@@ -590,50 +410,14 @@ class IndiceVariableGriegoManager: public IndiceArbolManager
 		Clave* leerClaveNoHoja(char* &buffer);
 	
 };
-
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: IndiceVariableRomanoManager 
-//		   (Implementa archivo de indices secundarios de clave de 
-//			longitud variable).
-///////////////////////////////////////////////////////////////////////////
-class IndiceVariableRomanoManager: public IndiceSecundarioManager
-{
-	public:
-	//////////////////////////////////////////////////////////////////////
-	// Constructor
-	//////////////////////////////////////////////////////////////////////
-		IndiceVariableRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice);
-
-	//////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	//////////////////////////////////////////////////////////////////////
-		/*Interpretacion de un buffer como un set de ClaveVariable*/
-		SetClaves* leerListaClaves(unsigned int posicion);		
-		char escribirListaClaves(unsigned int posicion, SetClaves* setClaves);		
-		int escribirListaClaves(SetClaves* setClaves);
-			
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-		void copiarClaveNoHoja(Clave* clave,char* &buffer);
-		void copiarClaveHoja(Clave* clave,char* &buffer);
-		
-		/*Interpreta un buffer como una clave de tipo ClaveVariable.*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);	
-};
-
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: IndiceCompuestoGriegoManager 
+// Nombre: IndiceCompuestoManager 
 //		   (Implementa archivo de indices primarios de clave compuesta).
 ///////////////////////////////////////////////////////////////////////////
 
-class IndiceCompuestoGriegoManager: public IndiceArbolManager
+class IndiceCompuestoManager: public IndiceArbolManager
 {
 	private:
 		ListaTipos* tipos;
@@ -642,66 +426,23 @@ class IndiceCompuestoGriegoManager: public IndiceArbolManager
 	//////////////////////////////////////////////////////////////////////
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
-		IndiceCompuestoGriegoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice, ListaTipos* listaTipos);
+		IndiceCompuestoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice, ListaTipos* listaTipos);
 	
 	private:
 	//////////////////////////////////////////////////////////////////////
 	// Metodos privados
 	//////////////////////////////////////////////////////////////////////
 	
-		/*Esta funcion se encarga de interpretar claves compuestas
-		 * variable y copiarla al buffer de escritura.
+		/*Interpreta claves compuestas para copiarlas a
+		 * un buffer de escritura.
 		 */
 		void copiarClaveHoja(Clave* clave,char* &puntero);
 		void copiarClaveNoHoja(Clave* clave,char* &puntero);
 		
-		/*Esta funcion se encarga de leer claves compuestas de un buffer*/
-		Clave* leerClaveHoja(char* &buffer);
-		Clave* leerClaveNoHoja(char* &buffer);
-};
-
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: IndiceCompuestoRomanoManager 
-//		   (Implementa archivo de indices secundarios de clave compuesta).
-///////////////////////////////////////////////////////////////////////////
-
-class IndiceCompuestoRomanoManager: public IndiceSecundarioManager
-{
-	private:
-		ListaTipos* tipos;
-		
-	public:
-	//////////////////////////////////////////////////////////////////////
-	// Constructor
-	//////////////////////////////////////////////////////////////////////
-		IndiceCompuestoRomanoManager(unsigned int tamNodo, string nombreArchivo, unsigned int tamBloqueLista, unsigned char tipoIndice, ListaTipos* listaTipos);	
-
-	//////////////////////////////////////////////////////////////////////
-	// Metodos publicos
-	//////////////////////////////////////////////////////////////////////
-		/*Interpretacion de un buffer como un set de ClaveCompuesta*/
-		SetClaves* leerListaClaves(unsigned int posicion);		
-		char escribirListaClaves(unsigned int posicion, SetClaves* setClaves);		
-		int escribirListaClaves(SetClaves* setClaves);
-		
-	private:
-	//////////////////////////////////////////////////////////////////////
-	// Metodos privados
-	//////////////////////////////////////////////////////////////////////
-	
-		/*Esta funcion se encarga de interpretar claves compuestas
-		 * variable y copiarla al buffer de escritura.
-		 */
-		void copiarClaveHoja(Clave* clave,char* &puntero);
-		void copiarClaveNoHoja(Clave* clave,char* &puntero);
-		
-		/*Esta funcion se encarga de leer claves compuestas de un buffer*/
+		/*Lee claves compuestas de un buffer*/
 		Clave* leerClaveHoja(char* &buffer);
 		Clave* leerClaveNoHoja(char* &buffer);
 		
-}; /*Fin clase IndiceCompuestoRomanoManager*/
-
+}; // Fin case IndiceCompuestoManager
 
 #endif /*INDICEMANAGER_H_*/

@@ -1,6 +1,23 @@
+///////////////////////////////////////////////////////////////////////////
+//	Archivo   : ParserOperaciones.h
+//  Namespace : CapaIndices
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Cabeceras e interfaz de la clase ParserOperaciones.
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;
+//		- Rodriguez, Maria Laura.
+///////////////////////////////////////////////////////////////////////////
 #ifndef PARSEROPERACIONES_H_
 #define PARSEROPERACIONES_H_
-
 
 #define SEPARATOR_CAMPOS ';'
 #define SEPARATOR_ATRIBUTOS ','
@@ -11,57 +28,49 @@
 #define MODIFICACION 'M'
 #define CONSULTA 'C'
 
-
-
-#include <string>
 #include <iostream>
 #include <fstream>
-#include <list>
 
 #include "../../Common/DefManager/DefinitionsManager.h"
 #include "../DataManager/DataManager.h"
-#include "../../CapaIndices/Indices/Indice.h"
-#include "../../Common/Bloque/Bloque.h"
-#include "../../Common/Tamanios.h"
-#include "../../Common/NombresCapas.h"
 #include "../../Common/OperacionesCapas.h"
-#include "../../Common/ResultadosMetadata.h"
-#include "../../Common/ResultadosIndices.h"
-#include "../../Common/CodigosPipe.h"
-#include "../../ComuDatos/ComuDatos.h"
 
 using namespace std;
 
-class ParserOperaciones {
-	
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ParserOperaciones 
+//	(Parsea el archivo de operaciones, indicando altas, bajas 
+//	y modificaciones)
+///////////////////////////////////////////////////////////////////////////
+class ParserOperaciones
+{	
 	private:		 
+	//////////////////////////////////////////////////////////////////////
+	//Atributos privados
+	//////////////////////////////////////////////////////////////////////
 		ifstream archivo; // Archivo de operaciones.
-		unsigned short numOperacion; // Numero de operacion actual. 
-		
-		//TODO(S)
-		
-		/*
-		 * 1) Definicion de ListaClaves no puede estar en DefinitionsManager si se va a usar desde esta cosa.
-		 * 2) Listarme atributos que debiera tener el ParserOperaciones para interpretar cada operacion del archivo.
-		 * 3) Darme una idea de como tengo que manejarme desde afuera para manejar los mapas locos que me devuelve el Parser.
-		 * 4) ParserOperaciones debe devolver (mediante getters) los mapas y las listas debidas, correspondientes a la operacion
-		 * 		actual (que se modifica por cada llamada a proximaOperacion()).
-		 * 5) Ver 2.
-		 * 6) Tifi = pony en detrimento.
-		 */
-		
+		unsigned short numOperacion; // Numero de operacion actual. 		
 		DefinitionsManager::ListaClaves* listaClaves; // Lista de claves presentes en cada operacion
 		DefinitionsManager::MapaValoresAtributos* mapValoresAtributos;
-		string nombreTipo;
-		unsigned char tipoOperacion;
+		string nombreTipo; // Nombre del tipo de 
+		unsigned char tipoOperacion; // Tipo de operaciones actual (Alta, Baja o Modificacion)
 		
 		/* Genera la clave para pasarsela a la capa de indices
 		 */
 	//	string generarPrototipoClave(DefinitionsManager::ListaClaves &listaClaves);
 	
 	public:
+	//////////////////////////////////////////////////////////////////////
+	// Contructor/Destructor
+	//////////////////////////////////////////////////////////////////////
 		ParserOperaciones(const string &nombreArchivo);
 		virtual ~ParserOperaciones();
+	
+	//////////////////////////////////////////////////////////////////////
+	// Metodo publico
+	//////////////////////////////////////////////////////////////////////
 		
 		/* Obtiene la siguiente operacion indicada en el archivo de operaciones.
 		 * Si no existe una proxima linea, devuelve false; en caso contrario, 
@@ -70,30 +79,35 @@ class ParserOperaciones {
 		bool proximaOperacion();
 		
 		
-		///////////////////////////////////////////////////////////////////////////
-		// Getters/Setters
-		///////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+	// Getters/Setters
+	///////////////////////////////////////////////////////////////////////////
 		
-		DefinitionsManager::ListaClaves* getListaClaves(){
+		DefinitionsManager::ListaClaves* getListaClaves()
+		{
 			return this->listaClaves;
 		}
 		
-		DefinitionsManager::MapaValoresAtributos* getMapaValoresAtributos(){
+		DefinitionsManager::MapaValoresAtributos* getMapaValoresAtributos()
+		{
 			return this->mapValoresAtributos;
 		}
 		
-		string getNombreTipo(){
+		const string getNombreTipo()
+		{
 			return this->nombreTipo;
 		}
 		
-		unsigned char getTipoOperacion(){
+		unsigned char getTipoOperacion()
+		{
 			return this->tipoOperacion;
 		}
 		
-		unsigned short getNumOperacion(){
+		unsigned short getNumOperacion()
+		{
 			return this->numOperacion;
 		}
-	
+
 };
 
 #endif /*PARSEROPERACIONES_H_*/

@@ -6,7 +6,7 @@
 //	Trabajo practico: Framework de Persistencia
 ////////////////////////////////////////////////////////////////////////////
 //	Descripcion
-//		Cabeceras e interfaz de las clase BloqueDatosManager.
+//		Cabeceras e interfaz de la clase BloqueDatosManager.
 ///////////////////////////////////////////////////////////////////////////
 //	Integrantes
 //		- Alvarez Fantone, Nicolas;
@@ -20,9 +20,8 @@
 #ifndef BLOQUEDATOSMANAGER_H_
 #define BLOQUEDATOSMANAGER_H_
 
-#include "../Manager.h"
+#include "../BloqueManager.h"
 
-using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -33,7 +32,7 @@ using namespace std;
 // 			Capa Fisica).
 ///////////////////////////////////////////////////////////////////////////
 
-class BloqueDatosManager : public Manager
+class BloqueDatosManager : public BloqueManager
 {
 	private:
 		unsigned char tipoOrg;
@@ -52,21 +51,21 @@ class BloqueDatosManager : public Manager
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////
-		/*Recibe un bloque creado/inicializado de tamaño 'tamanioBloque' y lo 
-		 * llena con la informacion leida del archivo de datos en la posicion 
-		 * 'numBloque'.
+		/*Recibe un bloque de datos creado/inicializado de tamaño 'tamanioBloque' 
+		 * y lo llena con la informacion leida del archivo de datos en 
+		 * la posicion 'numBloque'.
 		 * Utiliza ComuDatos para comunicarse con la Capa Fisica.
 		 */
 		int leerBloqueDatos(unsigned int numBloque, void* bloqueLeido);		
 
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y escribir
-		 * el bloqueNuevo en el archivo especificado por nombreArchivo. 
+		 * el bloqueNuevo en el archivo de datos especificado por nombreArchivo. 
 		 * Devuelve la posicion donde fue escrito finalmente.
 		 */
 		int escribirBloqueDatos(const void* bloqueNuevo, unsigned int espLibre = 0);
 		
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y
-		 * sobre-escribir el bloque modificado en el disco
+		 * sobre-escribir el bloque de datos modificado en el disco
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
 		 */
 		int escribirBloqueDatos(unsigned short numBloque, const void* bloqueModif, unsigned int espLibre = 0);
