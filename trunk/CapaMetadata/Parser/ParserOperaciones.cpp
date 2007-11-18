@@ -1,3 +1,22 @@
+///////////////////////////////////////////////////////////////////////////
+//	Archivo   : ParserOperaciones.cpp
+//  Namespace : CapaIndices
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Implementacion de la clase ParserOperaciones.
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefania;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;
+//		- Rodriguez, Maria Laura.
+///////////////////////////////////////////////////////////////////////////
+
 #include "ParserOperaciones.h"
 /*
 string ParserOperaciones::generarPrototipoClave(DefinitionsManager::ListaClaves &listaClaves)
@@ -21,27 +40,32 @@ string ParserOperaciones::generarPrototipoClave(DefinitionsManager::ListaClaves 
 }
 */
 
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ParserOperaciones 
+//	(Parsea el archivo de operaciones, indicando altas, bajas 
+//	y modificaciones)
+///////////////////////////////////////////////////////////////////////////
 
 ParserOperaciones::ParserOperaciones(const string &nombreArchivo)
 {
-	archivo.open(nombreArchivo.c_str());
-	numOperacion = 0;
-	mapValoresAtributos = NULL;
-	listaClaves = NULL;
+	this->archivo.open(nombreArchivo.c_str());
+	this->numOperacion        = 0;
+	this->mapValoresAtributos = NULL;
+	this->listaClaves         = NULL;
 }
 
 ParserOperaciones::~ParserOperaciones()
 {
-	if (archivo.is_open()) archivo.close();
-	if (mapValoresAtributos){
-		delete mapValoresAtributos;
-		mapValoresAtributos = NULL;
-	}
-	if (listaClaves){
-		delete listaClaves;
-		listaClaves = NULL;
-	}
+	if (this->archivo.is_open()) 
+		this->archivo.close();
 	
+	if (this->mapValoresAtributos)
+		delete this->mapValoresAtributos;
+	
+	if (this->listaClaves)
+		delete this->listaClaves;	
 }
 
 bool ParserOperaciones::proximaOperacion()
@@ -50,26 +74,28 @@ bool ParserOperaciones::proximaOperacion()
 	bool leyendoClaves; // es true si se trata de una modificacion y esta leyendo la parte que contiene la clave o lista de claves 
 	bool procesado = false;
 	
-	while ( (!archivo.fail()) && (!procesado) ){
+	while ( (!this->archivo.fail()) && (!procesado) ){
 		
 		leyendoClaves = false;
-		getline(archivo, linea);
+		getline(this->archivo, linea);
 		
 		if (linea.size() != 0){
-			if (mapValoresAtributos){
-				delete mapValoresAtributos;
-				mapValoresAtributos = NULL;
+			if (this->mapValoresAtributos){
+				delete this->mapValoresAtributos;
+				this->mapValoresAtributos = NULL;
 			}
-			mapValoresAtributos = new DefinitionsManager::MapaValoresAtributos();
 			
-			if (listaClaves){
-				delete listaClaves;
-				listaClaves = NULL;
+			this->mapValoresAtributos = new DefinitionsManager::MapaValoresAtributos();
+			
+			if (this->listaClaves){
+				delete this->listaClaves;
+				this->listaClaves = NULL;
 			}
-			listaClaves = new DefinitionsManager::ListaClaves();
+			
+			this->listaClaves = new DefinitionsManager::ListaClaves();
 			
 			procesado = true;
-			numOperacion++;
+			this->numOperacion++;
 									
 			size_t separatorPos, nextSeparatorPos, proximoSeparatorCampos;
 			string nombreAtributo, valorAtributo;
@@ -77,8 +103,7 @@ bool ParserOperaciones::proximaOperacion()
 			separatorPos = linea.find(SEPARATOR_CAMPOS);
 			nextSeparatorPos = linea.find(SEPARATOR_CAMPOS, separatorPos + 1);
 			
-			nombreTipo = linea.substr(separatorPos + 1, nextSeparatorPos - separatorPos - 1);
-			
+			this->nombreTipo = linea.substr(separatorPos + 1, nextSeparatorPos - separatorPos - 1);			
 			
 			proximoSeparatorCampos = linea.find(SEPARATOR_CAMPOS, linea.find(SEPARATOR_CAMPOS, nextSeparatorPos + 1));
 			
@@ -97,39 +122,39 @@ bool ParserOperaciones::proximaOperacion()
 
 				switch(linea[0]){
 					case ALTA:
-						tipoOperacion = OperacionesCapas::METADATA_ALTA;
-						(*mapValoresAtributos)[nombreAtributo] = valorAtributo;
+						this->tipoOperacion = OperacionesCapas::METADATA_ALTA;
+						(*this->mapValoresAtributos)[nombreAtributo] = valorAtributo;
 						break;
 					
 					case BAJA: {
-						tipoOperacion = OperacionesCapas::METADATA_BAJA;
+						this->tipoOperacion = OperacionesCapas::METADATA_BAJA;
 						DefinitionsManager::NodoListaClaves nodo;
 						nodo.nombreClave = nombreAtributo;
 						nodo.valorClave = valorAtributo;
-						listaClaves->push_back(nodo);
+						this->listaClaves->push_back(nodo);
 						
 					}break;
 					
 					case MODIFICACION:
-						tipoOperacion = OperacionesCapas::METADATA_MODIFICACION;
+						this->tipoOperacion = OperacionesCapas::METADATA_MODIFICACION;
 						if (leyendoClaves){
 							DefinitionsManager::NodoListaClaves nodo;
 							nodo.nombreClave = nombreAtributo;
 							nodo.valorClave = valorAtributo;
-							listaClaves->push_back(nodo);
+							this->listaClaves->push_back(nodo);
 						}
 						else{
-							(*mapValoresAtributos)[nombreAtributo] = valorAtributo;
+							(*this->mapValoresAtributos)[nombreAtributo] = valorAtributo;
 							if (nextSeparatorPos == proximoSeparatorCampos) leyendoClaves = true;
 						}
 						break;
 						
 					case CONSULTA: {
-						tipoOperacion = OperacionesCapas::METADATA_CONSULTA;
+						this->tipoOperacion = OperacionesCapas::METADATA_CONSULTA;
 						DefinitionsManager::NodoListaClaves nodo;
 						nodo.nombreClave = nombreAtributo;
 						nodo.valorClave = valorAtributo;
-						listaClaves->push_back(nodo);
+						this->listaClaves->push_back(nodo);
 					
 					}break;
 						

@@ -7,64 +7,33 @@ IndiceManager* IndiceManagerFactory::getIndiceManager(unsigned char tipoIndice, 
 													  unsigned char tipoEstructura, unsigned short tamNodo,
 													  unsigned int tamBucket, const string& nombreArchivo) const {
 	
-	switch (tipoIndice) {
-	
-		case TipoIndices::GRIEGO:
+	if ( (tipoIndice == TipoIndices::GRIEGO) || (tipoIndice == TipoIndices::ROMANO)){
+		
+		switch (tipoDato) {
 			
-			switch (tipoDato) {
-				
-				case TipoDatos::TIPO_ENTERO:
-					return new IndiceEnteroGriegoManager(tamNodo, nombreArchivo, tipoEstructura);
-				case TipoDatos::TIPO_SHORT:
-					return new IndiceShortGriegoManager(tamNodo, nombreArchivo, tipoEstructura);
-				case TipoDatos::TIPO_CHAR:
-					return new IndiceCharGriegoManager(tamNodo, nombreArchivo, tipoEstructura);
-				case TipoDatos::TIPO_BOOL:
-					return NULL;
-				case TipoDatos::TIPO_FLOAT:
-					return NULL;
-				case TipoDatos::TIPO_FECHA:
-					return new IndiceFechaGriegoManager(tamNodo, nombreArchivo, tipoEstructura);
-				case TipoDatos::TIPO_STRING:
-					return new IndiceVariableGriegoManager(tamNodo, nombreArchivo, tipoEstructura);
-				case TipoDatos::TIPO_COMPUESTO:
-					return new IndiceCompuestoGriegoManager(tamNodo, nombreArchivo, tipoEstructura, listaTipos);
-			
-			}
-			
-		case TipoIndices::ROMANO:
-					
-			switch (tipoDato) {
-				
-				case TipoDatos::TIPO_ENTERO:
-					return new IndiceEnteroRomanoManager(tamNodo, nombreArchivo, tamBloqueLista, tipoEstructura);
-				case TipoDatos::TIPO_SHORT:
-					return new IndiceShortRomanoManager(tamNodo, nombreArchivo, tamBloqueLista, tipoEstructura);
-				case TipoDatos::TIPO_CHAR:
-					return new IndiceCharRomanoManager(tamNodo, nombreArchivo, tamBloqueLista, tipoEstructura);
-				case TipoDatos::TIPO_BOOL:
-					//TODO Implementar IndiceBooleanRomanoManager
-					//return new IndiceBooleanRomanoManager(tamNodo, nombreArchivo, tamBloqueLista, tipoEstructura);
-					break;
-				case TipoDatos::TIPO_FLOAT:
-					return new IndiceRealRomanoManager(tamNodo, nombreArchivo, tamBloqueLista, tipoEstructura);
-				case TipoDatos::TIPO_FECHA:
-					return new IndiceFechaRomanoManager(tamNodo, nombreArchivo, tamBloqueLista, tipoEstructura);
-				case TipoDatos::TIPO_STRING:
-					return new IndiceVariableRomanoManager(tamNodo, nombreArchivo, tamBloqueLista, tipoEstructura);
-				case TipoDatos::TIPO_COMPUESTO:
-					//TODO Implementar IndiceCompuestoRomanoManager
-					//return new IndiceCompuestoRomanoManager(tamNodo, nombreArchivo, tamBloqueLista, tipoEstructura, listaTipos);
-					return NULL;
-			}
-			
-		case TipoIndices::HASH:
-			
-			return new IndiceHashManager(tamBucket, nombreArchivo);
-			
-		default: return NULL;
-	
-	}
+			case TipoDatos::TIPO_ENTERO:
+				return new IndiceEnteroManager(tamNodo, nombreArchivo, tipoEstructura);
+			case TipoDatos::TIPO_SHORT:
+				return new IndiceShortManager(tamNodo, nombreArchivo, tipoEstructura);
+			case TipoDatos::TIPO_CHAR:
+				return new IndiceCharManager(tamNodo, nombreArchivo, tipoEstructura);
+			case TipoDatos::TIPO_BOOL:
+				return new IndiceBooleanManager(tamNodo, nombreArchivo, tipoEstructura);
+			case TipoDatos::TIPO_FLOAT:
+				return new IndiceRealManager(tamNodo, nombreArchivo, tipoEstructura);
+			case TipoDatos::TIPO_FECHA:
+				return new IndiceFechaManager(tamNodo, nombreArchivo, tipoEstructura);
+			case TipoDatos::TIPO_STRING:
+				return new IndiceVariableManager(tamNodo, nombreArchivo, tipoEstructura);
+			case TipoDatos::TIPO_COMPUESTO:
+				return new IndiceCompuestoManager(tamNodo, nombreArchivo, tipoEstructura, listaTipos);
+			default: return NULL;
+		
+		}
+	}else if (tipoIndice == TipoIndices::HASH)		
+		return new IndiceHashManager(tamBucket, nombreArchivo);
+	else 
+		return NULL;
 	
 }
 

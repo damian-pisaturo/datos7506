@@ -32,7 +32,7 @@
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		BloqueDatosManager::BloqueDatosManager(unsigned int tamanioBloque, string nombreArchivo, unsigned char tipoOrg):
-			Manager(tamanioBloque, nombreArchivo + ".data")
+			BloqueManager(tamanioBloque, nombreArchivo + ".data")
 		{
 			this->tipoOrg = tipoOrg;
 		}

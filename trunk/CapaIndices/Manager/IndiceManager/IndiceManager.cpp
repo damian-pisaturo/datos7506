@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////
-//	Archivo   : ArchivoIndice.cpp
+//	Archivo   : IndiceManager.cpp
 //  Namespace : CapaFisica
 ////////////////////////////////////////////////////////////////////////////
 //	75.06 Organizacion de Datos
 //	Trabajo practico: Framework de Persistencia
 ////////////////////////////////////////////////////////////////////////////
 //	Descripcion
-//		Implementacion de las clases ArchivoIndice correspodientes
+//		Implementacion de las clases IndiceManager correspodientes
 //      a cada tipo de dato (booleano, char, short, entero, real, fecha, 
-//		string) e indice (Griego y Romano).
+//		string).
 ///////////////////////////////////////////////////////////////////////////
 //	Integrantes
 //		- Alvarez Fantone, Nicolas;
@@ -45,8 +45,7 @@ IndiceManager::IndiceManager(unsigned int tamanioBloque, string nombreArchivo, u
 			break;
 		case TipoIndices::HASH:
 			this->setNombreArchivo(nombreArchivo + ".hash");
-			break;
-			
+			break;			
 	}
 	
 	this->tipoIndice = tipoIndice;
@@ -881,136 +880,18 @@ void IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* bucket
 		delete pipe;
 }
 
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: ArchivoIndiceSecundario
-//			(Abstracta. Clase que sirve de abstraccion de la capa 
-//			fisica para los indices secundarios de la capa de indices).
-///////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-// Constructor
-//////////////////////////////////////////////////////////////////////
-IndiceSecundarioManager::IndiceSecundarioManager(unsigned int tamNodo, string nombreArchivo, 
-		unsigned int tamBloqueLista, unsigned char tipoIndice) :
-	IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice)
-{
-	this->tamBloqueLista = tamBloqueLista;
-}
-
-IndiceSecundarioManager::~IndiceSecundarioManager() 
-	{ }
-
-//////////////////////////////////////////////////////////////////////
-// Metodos publicos
-//////////////////////////////////////////////////////////////////////
-char IndiceSecundarioManager::escribirListaClaves(unsigned int posicion, SetClaves* setClaves) 
-{
-	char resultado     = 0;
-	char* bufferClaves = NULL;
-	ComuDatos* pipe    = NULL;
-
-	if (setClaves->size() > 0) {
-		//Instancia del pipe
-		pipe = this->instanciarPipe();
-
-		//Parametros de inicializacion de la Capa Fisisca para
-		//obtener una lista de claves primarias.
-		pipe->agregarParametro(OperacionesCapas::FISICA_MODIFICAR_LISTA, 0); //Codigo de operacion
-		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo de la lista en disco
-		pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
-
-		//Iniciar comunicacion con la Capa Fisica
-		pipe->lanzar();
-
-		bufferClaves = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-		unsigned int offset = 0;
-
-		for (SetClaves::iterator it = setClaves->begin(); it
-				!= setClaves->end(); ++it) {
-			memcpy(bufferClaves + offset, (*it)->getValor(), (*it)->getTamanioValor());
-			offset += (*it)->getTamanioValor();
-		}
-
-		//Escritura del tamanio de la lista (cantidad de claves a almacenar)
-		pipe->escribir((int)setClaves->size());
-
-		//Escritura de la lista al archivo.
-		pipe->escribir(bufferClaves, this->getTamanioBloqueLista());
-
-		//Obtencion del resultado de la operacion
-		pipe->leer(&resultado);
-	}
-
-	if (pipe)
-		delete pipe;
-
-	if (bufferClaves)
-		delete[] bufferClaves;
-
-	return resultado;
-}
-
-int IndiceSecundarioManager::escribirListaClaves(SetClaves* setClaves)
-{
-	unsigned int numBloque = 0;
-	char* bufferClaves     = NULL;
-	ComuDatos* pipe        = NULL;
-
-	if (setClaves->size() > 0) {
-		//Instancia del pipe
-		pipe = this->instanciarPipe();
-
-		//Parametros de inicializacion de la Capa Fisisca para
-		//obtener una lista de claves primarias.
-		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_LISTA, 0); //Codigo de operacion
-		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-		pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo de la lista en disco
-
-		//Iniciar comunicacion con la Capa Fisica
-		pipe->lanzar();
-
-		bufferClaves = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-		unsigned int offset = 0;
-
-		for (SetClaves::iterator it = setClaves->begin(); it
-				!= setClaves->end(); ++it) {
-			memcpy(bufferClaves + offset, (*it)->getValor(), (*it)->getTamanioValor());
-			offset += (*it)->getTamanioValor();
-		}
-
-		//Escritura de la cantidad de claves en la lista
-		pipe->escribir((int)setClaves->size());
-
-		//Escritura de la lista al archivo.
-		pipe->escribir(bufferClaves, this->getTamanioBloqueLista());
-
-		//Obtencion del numero de bloque donde fue insertada la lista.
-		pipe->leer(&numBloque);
-	}
-
-	if (pipe)
-		delete pipe;
-
-	if (bufferClaves)
-		delete[] bufferClaves;
-
-	return numBloque;
-}
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: IndiceEnteroGriegoManager 
+// Nombre: IndiceEnteroManager 
 //		   (Implementa archivo de indices primarios de clave entera).
 ///////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////
 // Constructor
 //////////////////////////////////////////////////////////////////////
-IndiceEnteroGriegoManager::IndiceEnteroGriegoManager(unsigned int tamNodo, string nombreArchivo, 
+IndiceEnteroManager::IndiceEnteroManager(unsigned int tamNodo, string nombreArchivo, 
 		unsigned char tipoIndice) :
 	IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice) 
 	{ }
@@ -1018,7 +899,7 @@ IndiceEnteroGriegoManager::IndiceEnteroGriegoManager(unsigned int tamNodo, strin
 //////////////////////////////////////////////////////////////////////
 // Metodos privados
 //////////////////////////////////////////////////////////////////////	
-Clave* IndiceEnteroGriegoManager::leerClaveHoja(char* &buffer)
+Clave* IndiceEnteroManager::leerClaveHoja(char* &buffer)
 {
 	int valor                = 0;
 	unsigned int refRegistro = 0;
@@ -1035,7 +916,7 @@ Clave* IndiceEnteroGriegoManager::leerClaveHoja(char* &buffer)
 	return new ClaveEntera(valor, refRegistro);
 }
 
-Clave* IndiceEnteroGriegoManager::leerClaveNoHoja(char* &buffer) 
+Clave* IndiceEnteroManager::leerClaveNoHoja(char* &buffer) 
 {
 	int valor                = 0;
 	unsigned int refRegistro = 0;
@@ -1062,174 +943,22 @@ Clave* IndiceEnteroGriegoManager::leerClaveNoHoja(char* &buffer)
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: IndiceInteroRomanoManager
-//		   (Implementa archivo de indices secundarios de clave entera).
-///////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-// Constructor/Destructor
-//////////////////////////////////////////////////////////////////////
-IndiceEnteroRomanoManager::IndiceEnteroRomanoManager(unsigned int tamNodo, string nombreArchivo, 
-		unsigned int tamBloqueLista, unsigned char tipoIndice) :
-	IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice) 
-	{ }
-
-IndiceEnteroRomanoManager::~IndiceEnteroRomanoManager() 
-	{ }
-
-//////////////////////////////////////////////////////////////////////
-// Metodos publicos
-//////////////////////////////////////////////////////////////////////
-
-SetClaves* IndiceEnteroRomanoManager::leerListaClaves(unsigned int posicion) 
-{
-	SetClaves* setClaves    = NULL;
-	char* bufferClaves      = NULL;
-	unsigned int cantClaves = 0;
-
-	//Instancia del pipe
-	ComuDatos* pipe = this->instanciarPipe();
-
-	//Parametros de inicializacion de la Capa Fisisca para
-	//obtener una lista de claves primarias.
-	pipe->agregarParametro(OperacionesCapas::FISICA_LEER_LISTA, 0); //Codigo de operacion
-	pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-	pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-	pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
-
-	//Iniciar comunicacion con la Capa Fisica
-	pipe->lanzar();
-
-	//Obtener tamaño de la lista
-	pipe->leer(&cantClaves);
-
-	if (cantClaves > 0) {
-		bufferClaves = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-
-		//Leer la lista del archivo.
-		pipe->leer(this->getTamanioBloqueLista() - sizeof(unsigned int), bufferClaves);
-
-		setClaves = new SetClaves();
-		for (unsigned char i = 0; i < cantClaves; i++)
-			setClaves->insert(new ClaveEntera( *((int*)bufferClaves) + i));
-	}
-	
-	if (bufferClaves)
-		delete[] bufferClaves;
-	
-	if (pipe)
-		delete pipe;
-	
-	return setClaves;
-}
-
-//////////////////////////////////////////////////////////////////////
-// Metodos privados
-//////////////////////////////////////////////////////////////////////		
-Clave* IndiceEnteroRomanoManager::leerClaveHoja(char* &buffer) 
-{
-	int valor                = 0;
-	unsigned int refRegistro = 0;
-
-	//Se interpreta el valor entero de la clave.
-	memcpy(&valor, buffer, sizeof(int));
-	buffer += sizeof(int);
-
-	//Se interpreta la referencia al registro de datos.
-	memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-
-	//Crear la clave
-	return new ClaveEntera(valor, refRegistro);
-}
-
-Clave* IndiceEnteroRomanoManager::leerClaveNoHoja(char* &buffer) 
-{
-	int valor                = 0;
-	unsigned int refRegistro = 0;
-	unsigned int hijoDer     = 0;
-
-	//Se interpreta el valor entero de la clave.
-	memcpy(&valor, buffer, sizeof(int));
-	buffer += sizeof(int);
-
-	if (this->getTipoIndice() == TipoIndices::ARBOL_BS) {
-		//Si el arbol es B*, copiar referencia al registro de datos.
-		memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
-		buffer += Tamanios::TAMANIO_REFERENCIA;
-	}
-
-	//Se interpreta la referencia al hijo derecho de la clave.
-	memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
-
-	//Crear la clave
-	return new ClaveEntera(valor, refRegistro, hijoDer);
-}
-
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: IndiceBooleanGriegoManager
+// Nombre: IndiceBooleanManager
 //		   (Implementa archivo de indices primarios de clave entera).
 ///////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////
 // Constructor
 //////////////////////////////////////////////////////////////////////
-IndiceBooleanRomanoManager::IndiceBooleanRomanoManager(unsigned int tamNodo, string nombreArchivo,
-		unsigned int tamBloqueLista, unsigned char tipoIndice) :
-	IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice) 
+IndiceBooleanManager::IndiceBooleanManager(unsigned int tamNodo, string nombreArchivo, 
+		unsigned char tipoIndice) :
+	IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice) 
 	{ }
-
-//////////////////////////////////////////////////////////////////////
-// Metodos publicos
-//////////////////////////////////////////////////////////////////////
-SetClaves* IndiceBooleanRomanoManager::leerListaClaves(unsigned int posicion) 
-{
-	SetClaves* setClaves    = NULL;
-	char* bufferClaves      = NULL;
-	unsigned int cantClaves = 0;
-
-	//Instancia del pipe
-	ComuDatos* pipe = this->instanciarPipe();
-
-	//Parametros de inicializacion de la Capa Fisisca para
-	//obtener una lista de claves primarias.
-	pipe->agregarParametro(OperacionesCapas::FISICA_LEER_LISTA, 0); //Codigo de operacion
-	pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-	pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-	pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
-
-	//Iniciar comunicacion con la Capa Fisica
-	pipe->lanzar();
-
-	//Obtener tamaño de la lista
-	pipe->leer(&cantClaves);
-
-	if (cantClaves > 0) {
-		bufferClaves = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-
-		//Leer la lista del archivo.
-		pipe->leer(this->getTamanioBloqueLista() - sizeof(unsigned int), bufferClaves);
-
-		setClaves = new SetClaves();
-		for (unsigned char i = 0; i < cantClaves; i++)
-			setClaves->insert(new ClaveBoolean( *((bool*)bufferClaves) + i));
-	}
-	
-	if (bufferClaves)
-		delete[] bufferClaves;
-	
-	if (pipe)
-		delete pipe;
-
-	return setClaves;
-}
 
 //////////////////////////////////////////////////////////////////////
 // Metodos privados
 //////////////////////////////////////////////////////////////////////			
-Clave* IndiceBooleanRomanoManager::leerClaveHoja(char* &buffer) 
+Clave* IndiceBooleanManager::leerClaveHoja(char* &buffer) 
 {
 	bool valor               = false;
 	unsigned int refRegistro = 0;
@@ -1245,7 +974,7 @@ Clave* IndiceBooleanRomanoManager::leerClaveHoja(char* &buffer)
 	return new ClaveBoolean(valor, refRegistro);
 }
 
-Clave* IndiceBooleanRomanoManager::leerClaveNoHoja(char* &buffer)
+Clave* IndiceBooleanManager::leerClaveNoHoja(char* &buffer)
 {
 	bool valor               = false;
 	unsigned int refRegistro = 0;
@@ -1272,14 +1001,14 @@ Clave* IndiceBooleanRomanoManager::leerClaveNoHoja(char* &buffer)
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: IndiceCharGriegoManager
-//		   (Implementa archivo de indices primarios de clave tipo char).
+// Nombre: IndiceCharManager
+//		   (Implementa archivo de indices de clave tipo char).
 ///////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////
 // Constructor
 //////////////////////////////////////////////////////////////////////
-IndiceCharGriegoManager::IndiceCharGriegoManager(unsigned int tamNodo, string nombreArchivo, 
+IndiceCharManager::IndiceCharManager(unsigned int tamNodo, string nombreArchivo, 
 		unsigned char tipoIndice) :
 	IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice) 
 	{ }
@@ -1287,7 +1016,7 @@ IndiceCharGriegoManager::IndiceCharGriegoManager(unsigned int tamNodo, string no
 //////////////////////////////////////////////////////////////////////
 // Metodos privados
 //////////////////////////////////////////////////////////////////////		
-Clave* IndiceCharGriegoManager::leerClaveHoja(char* &buffer)
+Clave* IndiceCharManager::leerClaveHoja(char* &buffer)
 {
 	char valor               = 0;
 	unsigned int refRegistro = 0;
@@ -1303,7 +1032,7 @@ Clave* IndiceCharGriegoManager::leerClaveHoja(char* &buffer)
 	return new ClaveChar(valor, refRegistro);
 }
 
-Clave* IndiceCharGriegoManager::leerClaveNoHoja(char* &buffer) 
+Clave* IndiceCharManager::leerClaveNoHoja(char* &buffer) 
 {
 	char valor               = 0;
 	unsigned int refRegistro = 0;
@@ -1325,119 +1054,19 @@ Clave* IndiceCharGriegoManager::leerClaveNoHoja(char* &buffer)
 
 	//Crear la clave
 	return new ClaveChar(valor, refRegistro, hijoDer);
-}
-
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: IndiceCharRomanoManager
-//		   (Implementa archivo de indices secundarios de clave tipo char).
-///////////////////////////////////////////////////////////////////////////	
-
-//////////////////////////////////////////////////////////////////////
-// Constructor
-//////////////////////////////////////////////////////////////////////
-IndiceCharRomanoManager::IndiceCharRomanoManager(unsigned int tamNodo, string nombreArchivo, 
-		unsigned int tamBloqueLista, unsigned char tipoIndice) :
-	IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice) 
-	{ }
-
-//////////////////////////////////////////////////////////////////////
-// Metodos privados
-//////////////////////////////////////////////////////////////////////	
-Clave* IndiceCharRomanoManager::leerClaveHoja(char* &buffer)
-{
-	char valor               = 0;
-	unsigned int refRegistro = 0;
-
-	//Se interpreta el valor boolean de la clave.
-	memcpy(&valor, buffer, sizeof(char));
-	buffer += sizeof(char);
-
-	//Se interpreta la referencia al registro de datos.
-	memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
-
-	//Crear la clave
-	return new ClaveChar(valor, refRegistro);
-}
-
-Clave* IndiceCharRomanoManager::leerClaveNoHoja(char* &buffer) 
-{
-	char valor               = 0;
-	unsigned int refRegistro = 0;
-	unsigned int hijoDer     = 0;
-
-	//Se interpreta el valor de tipo char de la clave.
-	memcpy(&valor, buffer, sizeof(char));
-	buffer += sizeof(char);
-
-	if (this->getTipoIndice() == TipoIndices::ARBOL_BS) {
-		//Si el arbol es B*, copiar referencia al registro de datos.
-		memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
-		buffer += Tamanios::TAMANIO_REFERENCIA;
-	}
-
-	//Se interpreta la referencia al hijo derecho de la clave.
-	memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-
-	//Crear la clave
-	return new ClaveChar(valor, refRegistro, hijoDer);
-}
-
-SetClaves* IndiceCharRomanoManager::leerListaClaves(unsigned int posicion) 
-{
-	SetClaves* setClaves    = NULL;
-	char* bufferClaves      = NULL;
-	unsigned int cantClaves = 0;
-
-	//Instancia del pipe
-	ComuDatos* pipe = this->instanciarPipe();
-
-	//Parametros de inicializacion de la Capa Fisisca para
-	//obtener una lista de claves primarias.
-	pipe->agregarParametro(OperacionesCapas::FISICA_LEER_LISTA, 0); //Codigo de operacion
-	pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-	pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-	pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
-
-	//Iniciar comunicacion con la Capa Fisica
-	pipe->lanzar();
-
-	//Obtener tamaño de la lista
-	pipe->leer(&cantClaves);
-
-	if (cantClaves > 0) {
-		bufferClaves = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-
-		//Leer la lista del archivo.
-		pipe->leer(this->getTamanioBloqueLista() - sizeof(unsigned int), bufferClaves);
-
-		setClaves = new SetClaves();
-		for (unsigned char i = 0; i < cantClaves; i++)
-			setClaves->insert(new ClaveChar(*((char*)bufferClaves) + i));
-	}
-	
-	if (bufferClaves)
-		delete[] bufferClaves;
-	
-	if (pipe)
-		delete pipe;
-
-	return setClaves;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: Nombre: IndiceShortGriegoManager
-//		   (Implementa archivo de indices primarios de clave de tipo short).
+// Nombre: Nombre: IndiceShortManager
+//		   (Implementa archivo de indices de clave de tipo short).
 //////////////////////////////////////////////////////////////////////////////	
 
 //////////////////////////////////////////////////////////////////////
 // Constructor
 //////////////////////////////////////////////////////////////////////
-IndiceShortGriegoManager::IndiceShortGriegoManager(unsigned int tamNodo, string nombreArchivo, 
+IndiceShortManager::IndiceShortManager(unsigned int tamNodo, string nombreArchivo, 
 		unsigned char tipoIndice) :
 	IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice) 
 	{ }
@@ -1445,7 +1074,7 @@ IndiceShortGriegoManager::IndiceShortGriegoManager(unsigned int tamNodo, string 
 //////////////////////////////////////////////////////////////////////
 // Metodos privados
 //////////////////////////////////////////////////////////////////////	
-Clave* IndiceShortGriegoManager::leerClaveHoja(char* &buffer) 
+Clave* IndiceShortManager::leerClaveHoja(char* &buffer) 
 {
 	short valor              = 0;
 	unsigned int refRegistro = 0;
@@ -1462,7 +1091,7 @@ Clave* IndiceShortGriegoManager::leerClaveHoja(char* &buffer)
 	return new ClaveShort(valor, refRegistro);
 }
 
-Clave* IndiceShortGriegoManager::leerClaveNoHoja(char* &buffer) 
+Clave* IndiceShortManager::leerClaveNoHoja(char* &buffer) 
 {
 	short valor              = 0;
 	unsigned int refRegistro = 0;
@@ -1486,126 +1115,26 @@ Clave* IndiceShortGriegoManager::leerClaveNoHoja(char* &buffer)
 	return new ClaveShort(valor, refRegistro, hijoDer);
 }
 
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: IndiceShortRomanoManager
-//		   (Implementa archivo de indices secundarios de clave de tipo short).
-///////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-// Constructor
-//////////////////////////////////////////////////////////////////////
-IndiceShortRomanoManager::IndiceShortRomanoManager(unsigned int tamNodo, string nombreArchivo, 
-		unsigned int tamBloqueLista, unsigned char tipoIndice) :
-	IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice) 
-	{ }
-
-//////////////////////////////////////////////////////////////////////
-// Metodos privados
-//////////////////////////////////////////////////////////////////////	
-Clave* IndiceShortRomanoManager::leerClaveHoja(char* &buffer)
-{
-	short valor              = 0;
-	unsigned int refRegistro = 0;
-
-	//Se interpreta el valor short de la clave.
-	memcpy(&valor, buffer, sizeof(short));
-	buffer += sizeof(short);
-
-	//Se interpreta la referencia al registro de datos.
-	memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-
-	//Crear la clave
-	return new ClaveShort(valor, refRegistro);
-}
-
-Clave* IndiceShortRomanoManager::leerClaveNoHoja(char* &buffer) 
-{
-	short valor              = 0;
-	unsigned int refRegistro = 0;
-	unsigned int hijoDer     = 0;
-
-	//Se interpreta el valor short de la clave.
-	memcpy(&valor, buffer, sizeof(short));
-	buffer += sizeof(short);
-
-	if (this->getTipoIndice() == TipoIndices::ARBOL_BS) {
-		//Si el arbol es B*, copiar referencia al registro de datos.
-		memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
-		buffer += Tamanios::TAMANIO_REFERENCIA;
-	}
-
-	//Se interpreta la referencia al hijo derecho de la clave.
-	memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-
-	//Crear clave
-	return new ClaveShort(valor, refRegistro, hijoDer);
-}
-
-SetClaves* IndiceShortRomanoManager::leerListaClaves(unsigned int posicion)
-{
-	SetClaves* setClaves    = NULL;
-	char* bufferClaves      = NULL;
-	unsigned int cantClaves = 0;
-
-	//Instancia del pipe
-	ComuDatos* pipe = this->instanciarPipe();
-
-	//Parametros de inicializacion de la Capa Fisisca para
-	//obtener una lista de claves primarias.
-	pipe->agregarParametro(OperacionesCapas::FISICA_LEER_LISTA, 0); //Codigo de operacion
-	pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-	pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-	pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
-
-	//Iniciar comunicacion con la Capa Fisica
-	pipe->lanzar();
-
-	//Obtener tamaño de la lista
-	pipe->leer(&cantClaves);
-
-	if (cantClaves > 0) {
-		bufferClaves = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-
-		//Leer la lista del archivo.
-		pipe->leer(this->getTamanioBloqueLista() - sizeof(unsigned int), bufferClaves);
-
-		setClaves = new SetClaves();
-		for (unsigned char i = 0; i < cantClaves; i++)
-			setClaves->insert(new ClaveShort(*((short*)bufferClaves) + i));
-	}
-	
-	if (bufferClaves)
-		delete[] bufferClaves;
-	
-	if (pipe)
-		delete pipe;
-	
-	return setClaves;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: IndiceRealRomanoManager
-//		   (Implementa archivo de indices secundarios de clave de tipo float).
+// Nombre: IndiceRealManager
+//		   (Implementa archivo de indices de clave de tipo float).
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////
 // Constructor
 //////////////////////////////////////////////////////////////////////
-IndiceRealRomanoManager::IndiceRealRomanoManager(unsigned int tamNodo, string nombreArchivo, 
-		unsigned int tamBloqueLista, unsigned char tipoIndice) :
-	IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice) 
+IndiceRealManager::IndiceRealManager(unsigned int tamNodo, string nombreArchivo, 
+		unsigned char tipoIndice) :
+	IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice) 
 	{ }
 
 //////////////////////////////////////////////////////////////////////
 // Metodos privados
 //////////////////////////////////////////////////////////////////////	
-Clave* IndiceRealRomanoManager::leerClaveHoja(char* &buffer) 
+Clave* IndiceRealManager::leerClaveHoja(char* &buffer) 
 {
 	float valor              = 0;
 	unsigned int refRegistro = 0;
@@ -1622,7 +1151,7 @@ Clave* IndiceRealRomanoManager::leerClaveHoja(char* &buffer)
 	return new ClaveReal(valor, refRegistro);
 }
 
-Clave* IndiceRealRomanoManager::leerClaveNoHoja(char* &buffer) 
+Clave* IndiceRealManager::leerClaveNoHoja(char* &buffer) 
 {
 	float valor              = 0;
 	unsigned int refRegistro = 0;
@@ -1646,56 +1175,17 @@ Clave* IndiceRealRomanoManager::leerClaveNoHoja(char* &buffer)
 	return new ClaveReal(valor, refRegistro, hijoDer);
 }
 
-SetClaves* IndiceRealRomanoManager::leerListaClaves(unsigned int posicion) 
-{
-	SetClaves* setClaves    = NULL;
-	char* bufferClaves      = NULL;
-	unsigned int cantClaves = 0;
-
-	//Instancia del pipe
-	ComuDatos* pipe = this->instanciarPipe();
-
-	//Parametros de inicializacion de la Capa Fisisca para
-	//obtener una lista de claves primarias.
-	pipe->agregarParametro(OperacionesCapas::FISICA_LEER_LISTA, 0); //Codigo de operacion
-	pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-	pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-	pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
-
-	//Iniciar comunicacion con la Capa Fisica
-	pipe->lanzar();
-
-	//Obtener tamaño de la lista
-	pipe->leer(&cantClaves);
-
-	if (cantClaves > 0) {
-		bufferClaves = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-
-		//Leer la lista del archivo.
-		pipe->leer(this->getTamanioBloqueLista() - sizeof(unsigned int), bufferClaves);
-
-		setClaves = new SetClaves();
-		for (unsigned char i = 0; i < cantClaves; i++)
-			setClaves->insert(new ClaveReal(*((float*)bufferClaves) + i));
-	}
-
-	if (bufferClaves)
-		delete[] bufferClaves;
-	
-	return setClaves;
-}
-
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: IndiceFechaGriegoManager
-//		   (Implementa archivo de indices primarios de clave de tipo fecha).
+// Nombre: IndiceFechaManager
+//		   (Implementa archivo de indices de clave de tipo fecha).
 ///////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////
 // Constructor
 //////////////////////////////////////////////////////////////////////
-IndiceFechaGriegoManager::IndiceFechaGriegoManager(unsigned int tamNodo, string nombreArchivo, 
+IndiceFechaManager::IndiceFechaManager(unsigned int tamNodo, string nombreArchivo, 
 		unsigned char tipoIndice) :
 	IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice) 
 	{ }
@@ -1703,7 +1193,7 @@ IndiceFechaGriegoManager::IndiceFechaGriegoManager(unsigned int tamNodo, string 
 //////////////////////////////////////////////////////////////////////
 // Metodos privados
 //////////////////////////////////////////////////////////////////////	
-Clave* IndiceFechaGriegoManager::leerClaveHoja(char* &buffer) 
+Clave* IndiceFechaManager::leerClaveHoja(char* &buffer) 
 {
 	ClaveFecha::TFECHA valor;
 	unsigned int refRegistro = 0;
@@ -1726,242 +1216,7 @@ Clave* IndiceFechaGriegoManager::leerClaveHoja(char* &buffer)
 	return new ClaveFecha(valor, refRegistro);
 }
 
-Clave* IndiceFechaGriegoManager::leerClaveNoHoja(char* &buffer) 
-{
-	ClaveFecha::TFECHA valor;
-	unsigned int refRegistro = 0;
-	unsigned int hijoDer     = 0;
-
-	//Se interpreta el valor TFECHA de la clave.
-	memcpy(&(valor.anio), buffer, sizeof(unsigned short));
-	buffer += sizeof(unsigned short);
-
-	memcpy(&(valor.mes), buffer, sizeof(unsigned char));
-	buffer += sizeof(unsigned char);
-
-	memcpy(&(valor.dia), buffer, sizeof(unsigned char));
-	buffer += sizeof(unsigned char);
-
-	if (this->getTipoIndice() == TipoIndices::ARBOL_BS) {
-		//Si el arbol es B*, copiar referencia al registro de datos.
-		memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
-		buffer += Tamanios::TAMANIO_REFERENCIA;
-	}
-
-	//Se interpreta la referencia al hijo derecho de la clave.
-	memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-
-	//Crear la clave
-	return new ClaveFecha(valor, refRegistro, hijoDer);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: IndiceFechaRomanoManager
-//		   (Implementa archivo de indices secundarios de clave de tipo fecha).
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-// Constructor
-//////////////////////////////////////////////////////////////////////
-IndiceFechaRomanoManager::IndiceFechaRomanoManager(unsigned int tamNodo, const string nombreArchivo, 
-		unsigned int tamBloqueLista, unsigned char tipoIndice) :
-	IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice) 
-	{ }
-
-//////////////////////////////////////////////////////////////////////
-// Metodos publicos
-//////////////////////////////////////////////////////////////////////	
-SetClaves* IndiceFechaRomanoManager::leerListaClaves(unsigned int posicion)
-{
-	SetClaves* setClaves     = NULL;
-	char* bufferClaves       = NULL;
-	unsigned int cantClaves  = 0;
-	ClaveFecha::TFECHA fecha;
-
-	//Instancia del pipe
-	ComuDatos* pipe = this->instanciarPipe();
-
-	//Parametros de inicializacion de la Capa Fisisca para
-	//obtener una lista de claves primarias.
-	pipe->agregarParametro(OperacionesCapas::FISICA_LEER_LISTA, 0); //Codigo de operacion
-	pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-	pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-	pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
-
-	//Iniciar comunicacion con la Capa Fisica
-	pipe->lanzar();
-
-	//Obtener tamaño de la lista
-	pipe->leer(&cantClaves);
-
-	if (cantClaves > 0) {
-		bufferClaves = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-
-		//Leer la lista del archivo.
-		pipe->leer(this->getTamanioBloqueLista() - sizeof(unsigned int), bufferClaves);
-
-		int offset = 0;
-
-		setClaves = new SetClaves();
-		
-		for (unsigned char i = 0; i < cantClaves; i++){
-			memcpy(&fecha.anio, bufferClaves + offset, sizeof(unsigned short));
-			offset += sizeof(unsigned short);
-			memcpy(&fecha.mes, bufferClaves + offset, sizeof(unsigned char));
-			offset += sizeof(unsigned char);
-			memcpy(&fecha.dia, bufferClaves + offset, sizeof(unsigned char));
-			offset += sizeof(unsigned char);
-
-			setClaves->insert(new ClaveFecha(fecha));
-		}
-	}
-	
-	if (bufferClaves)
-		delete[] bufferClaves;
-	
-	if (pipe)
-		delete pipe;
-
-	return setClaves;
-}
-
-char IndiceFechaRomanoManager::escribirListaClaves(unsigned int posicion, SetClaves* setClaves) 
-{
-	char resultado            = 0;
-	char* bufferClaves        = NULL;
-	ComuDatos* pipe           = NULL;
-	ClaveFecha::TFECHA* fecha = NULL;
-
-	if (setClaves->size() > 0) {
-		//Instancia del pipe
-		pipe = this->instanciarPipe();
-
-		//Parametros de inicializacion de la Capa Fisisca para
-		//obtener una lista de claves primarias.
-		pipe->agregarParametro(OperacionesCapas::FISICA_MODIFICAR_LISTA, 0); //Codigo de operacion
-		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-		pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-		pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
-
-		//Iniciar comunicacion con la Capa Fisica
-		pipe->lanzar();
-
-		bufferClaves        = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-		unsigned int offset = 0;
-
-		for (SetClaves::iterator it = setClaves->begin(); it
-				!= setClaves->end(); ++it) {
-			fecha = (ClaveFecha::TFECHA*)(*it)->getValor();
-			memcpy(bufferClaves + offset, &fecha->anio, sizeof(unsigned short));
-			memcpy(bufferClaves + offset + sizeof(unsigned short), &fecha->mes,
-					sizeof(unsigned char));
-			memcpy(bufferClaves + offset + sizeof(unsigned short)
-					+ sizeof(unsigned char), &fecha->dia, sizeof(unsigned char));
-			offset += (*it)->getTamanioValor();
-		}
-
-		//Escritura del tamanio de la lista (cantidad de claves a almacenar)
-		pipe->escribir((int)setClaves->size());
-
-		//Escritura de la lista al archivo.
-		pipe->escribir(bufferClaves, this->getTamanioBloqueLista());
-
-		//Obtencion del resultado de la operacion
-		pipe->leer(&resultado);
-	}
-
-	if (pipe)
-		delete pipe;
-
-	if (bufferClaves)
-		delete[] bufferClaves;
-
-	return resultado;
-}
-
-int IndiceFechaRomanoManager::escribirListaClaves(SetClaves* setClaves) 
-{
-	int numBloque             = 0;
-	char* bufferClaves        = NULL;
-	ComuDatos* pipe           = NULL;
-	ClaveFecha::TFECHA* fecha = NULL;
-
-	if (setClaves->size() > 0) {
-		//Instancia del pipe
-		pipe = this->instanciarPipe();
-
-		//Parametros de inicializacion de la Capa Fisisca para
-		//obtener una lista de claves primarias.
-		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_LISTA, 0); //Codigo de operacion
-		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-		pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-
-		//Iniciar comunicacion con la Capa Fisica
-		pipe->lanzar();
-
-		bufferClaves        = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-		unsigned int offset = 0;
-
-		for (SetClaves::iterator it = setClaves->begin(); it
-				!= setClaves->end(); ++it) {
-			fecha = (ClaveFecha::TFECHA*)(*it)->getValor();
-			memcpy(bufferClaves + offset, &fecha->anio, sizeof(unsigned short));
-			memcpy(bufferClaves + offset + sizeof(unsigned short), &fecha->mes,
-					sizeof(unsigned char));
-			memcpy(bufferClaves + offset + sizeof(unsigned short)
-					+ sizeof(unsigned char), &fecha->dia, sizeof(unsigned char));
-			offset += (*it)->getTamanioValor();
-		}
-
-		//Escritura del tamanio de la lista (cantidad de claves a almacenar)
-		pipe->escribir((int)setClaves->size());
-
-		//Escritura de la lista al archivo.
-		pipe->escribir(bufferClaves, this->getTamanioBloqueLista());
-
-		//Obtencion del resultado de la operacion
-		pipe->leer(&numBloque);
-	}
-
-	if (pipe)
-		delete pipe;
-
-	if (bufferClaves)
-		delete[] bufferClaves;
-
-	return numBloque;
-}
-
-//////////////////////////////////////////////////////////////////////
-// Metodos privados
-//////////////////////////////////////////////////////////////////////
-Clave* IndiceFechaRomanoManager::leerClaveHoja(char* &buffer) 
-{
-	ClaveFecha::TFECHA valor;
-	unsigned int refRegistro = 0;
-
-	//Se interpreta el valor TFECHA de la clave.
-	memcpy(&(valor.anio), buffer, sizeof(unsigned short));
-	buffer += sizeof(unsigned short);
-
-	memcpy(&(valor.mes), buffer, sizeof(unsigned char));
-	buffer += sizeof(unsigned char);
-
-	memcpy(&(valor.dia), buffer, sizeof(unsigned char));
-	buffer += sizeof(unsigned char);
-
-	//Se interpreta la referencia al registro de datos.
-	memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-
-	//Crear la clave
-	return new ClaveFecha(valor, refRegistro);
-}
-
-Clave* IndiceFechaRomanoManager::leerClaveNoHoja(char* &buffer) 
+Clave* IndiceFechaManager::leerClaveNoHoja(char* &buffer) 
 {
 	ClaveFecha::TFECHA valor;
 	unsigned int refRegistro = 0;
@@ -1994,15 +1249,14 @@ Clave* IndiceFechaRomanoManager::leerClaveNoHoja(char* &buffer)
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: IndiceVariableGriegoManager 
-//		   (Implementa archivo de indices primarios de clave de 
-//			longitud variable).
+// Nombre: IndiceVariableManager 
+//		   (Implementa archivo de indices de clave de longitud variable).
 ///////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////
 // Constructor
 //////////////////////////////////////////////////////////////////////
-IndiceVariableGriegoManager::IndiceVariableGriegoManager(unsigned int tamNodo, string nombreArchivo, 
+IndiceVariableManager::IndiceVariableManager(unsigned int tamNodo, string nombreArchivo, 
 		unsigned char tipoIndice) :
 	IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice) 
 	{ }
@@ -2011,7 +1265,7 @@ IndiceVariableGriegoManager::IndiceVariableGriegoManager(unsigned int tamNodo, s
 // Metodos privados
 //////////////////////////////////////////////////////////////////////	
 
-void IndiceVariableGriegoManager::copiarClaveHoja(Clave* clave, char* &buffer) 
+void IndiceVariableManager::copiarClaveHoja(Clave* clave, char* &buffer) 
 {
 	unsigned char sizeCadena = clave->getTamanioValor();
 	
@@ -2029,7 +1283,7 @@ void IndiceVariableGriegoManager::copiarClaveHoja(Clave* clave, char* &buffer)
 	buffer += Tamanios::TAMANIO_REFERENCIA;
 }
 
-void IndiceVariableGriegoManager::copiarClaveNoHoja(Clave* clave, char* &buffer) 
+void IndiceVariableManager::copiarClaveNoHoja(Clave* clave, char* &buffer) 
 {
 	unsigned int referencia = 0;
 	unsigned char sizeCadena = clave->getTamanioValor();
@@ -2055,7 +1309,7 @@ void IndiceVariableGriegoManager::copiarClaveNoHoja(Clave* clave, char* &buffer)
 	buffer += Tamanios::TAMANIO_REFERENCIA;
 }
 
-Clave* IndiceVariableGriegoManager::leerClaveHoja(char* &buffer) 
+Clave* IndiceVariableManager::leerClaveHoja(char* &buffer) 
 {
 	string valor;
 	char* cadena             = NULL;
@@ -2085,7 +1339,7 @@ Clave* IndiceVariableGriegoManager::leerClaveHoja(char* &buffer)
 	return new ClaveVariable(valor, refRegistro);
 }
 
-Clave* IndiceVariableGriegoManager::leerClaveNoHoja(char* &buffer) 
+Clave* IndiceVariableManager::leerClaveNoHoja(char* &buffer) 
 {
 	string valor;
 	char* cadena             = NULL;
@@ -2122,323 +1376,18 @@ Clave* IndiceVariableGriegoManager::leerClaveNoHoja(char* &buffer)
 	return new ClaveVariable(valor, refRegistro, hijoDer);
 }
 
+
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
-// Nombre: IndiceVariableRomanoManager 
-//		   (Implementa archivo de indices secundarios de clave de 
-//			longitud variable).
+// Nombre: IndiceCompuestoManager 
+//		   (Implementa archivo de indices de clave compuesta).
 ///////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////
 // Constructor
 //////////////////////////////////////////////////////////////////////
-IndiceVariableRomanoManager::IndiceVariableRomanoManager(unsigned int tamNodo, string nombreArchivo, 
-		unsigned int tamBloqueLista, unsigned char tipoIndice) :
-	IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice) 
-	{ }
-
-//////////////////////////////////////////////////////////////////////
-// Metodos privados
-//////////////////////////////////////////////////////////////////////
-void IndiceVariableRomanoManager::copiarClaveHoja(Clave* clave, char* &buffer) 
-{
-	unsigned char sizeCadena = clave->getTamanioValor();
-	
-	//Copia de la longitud de la clave.	
-	memcpy(buffer, &sizeCadena, Tamanios::TAMANIO_LONGITUD_CADENA);
-	buffer += Tamanios::TAMANIO_LONGITUD_CADENA;
-
-	//Copia del valor variable (char*) de la clave
-	memcpy(buffer, clave->getValor(), clave->getTamanioValor());
-	buffer += clave->getTamanioValor();
-
-	//Copia de la referencia a registro del archivo de datos. 
-	unsigned int referencia = clave->getReferencia();
-	memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-}
-
-void IndiceVariableRomanoManager::copiarClaveNoHoja(Clave* clave, char* &buffer) 
-{
-	unsigned int referencia = 0;
-	unsigned char sizeCadena = (unsigned char) clave->getTamanioValor();
-
-	//Copia de la longitud de la clave.	
-	memcpy(buffer, &sizeCadena, Tamanios::TAMANIO_LONGITUD_CADENA);
-	buffer += Tamanios::TAMANIO_LONGITUD_CADENA;
-
-	//Copia del valor variable (char*) de la clave
-	memcpy(buffer, clave->getValor(), clave->getTamanioValor());
-	buffer += clave->getTamanioValor();
-
-	if (this->getTipoIndice() == TipoIndices::ARBOL_BS) {
-		//Si el arbol es B*, copiar referencia al registro de datos.			
-		referencia = clave->getReferencia();
-		memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
-		buffer += Tamanios::TAMANIO_REFERENCIA;
-	}
-
-	//Se interpreta la referencia al hijo derecho de la clave.
-	referencia = clave->getHijoDer();
-	memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-}
-
-Clave* IndiceVariableRomanoManager::leerClaveHoja(char* &buffer) 
-{
-	string valor;
-	char* cadena             = NULL;
-	unsigned int refRegistro = 0;
-	unsigned char sizeCadena = 0;
-	
-	//Se interpreta la longitud del valor de la clave variable.
-	memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
-	buffer += Tamanios::TAMANIO_LONGITUD_CADENA;
-
-	//Se interpreta el valor variable de la clave.
-	cadena = new char[sizeCadena + 1];
-	memcpy(cadena, buffer, sizeCadena);
-	buffer += sizeCadena;
-
-	*(cadena + sizeCadena) = 0;
-	valor = cadena;
-
-	if (cadena)
-		delete[] cadena;
-
-	//Se interpreta la referencia al registro de datos.
-	memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-
-	//Crear la clave
-	return new ClaveVariable(valor, refRegistro);
-}
-
-Clave* IndiceVariableRomanoManager::leerClaveNoHoja(char* &buffer) 
-{
-	string valor;
-	char* cadena              = NULL;
-	unsigned int refRegistro  = 0;
-	unsigned int hijoDer      = 0;
-	unsigned char sizeCadena  = 0;
-	
-	//Se interpreta la longitud del valor de la clave variable.	
-	memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
-	buffer += Tamanios::TAMANIO_LONGITUD_CADENA;
-
-	//Se interpreta el valor variable de la clave.
-	cadena = new char[sizeCadena + 1];
-	memcpy(cadena, buffer, sizeCadena);
-	buffer += sizeCadena;
-
-	*(cadena + sizeCadena) = 0;
-	valor = cadena;
-
-	if (cadena)
-		delete[] cadena;
-
-	if (this->getTipoIndice() == TipoIndices::ARBOL_BS) {
-		//Si el arbol es B*, copiar referencia al registro de datos.
-		memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
-		buffer += Tamanios::TAMANIO_REFERENCIA;
-	}
-
-	//Se interpreta la referencia al hijo derecho de la clave.
-	memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-
-	//Crear la clave
-	return new ClaveVariable(valor, refRegistro, hijoDer);
-}
-
-//////////////////////////////////////////////////////////////////////
-// Metodos publicos
-//////////////////////////////////////////////////////////////////////
-
-SetClaves* IndiceVariableRomanoManager::leerListaClaves(unsigned int posicion)
-{
-	SetClaves* setClaves    = NULL;
-	char* bufferClaves      = NULL;
-	unsigned int cantClaves = 0;
-
-	//Instancia del pipe
-	ComuDatos* pipe = this->instanciarPipe();
-
-	//Parametros de inicializacion de la Capa Fisisca para
-	//obtener una lista de claves primarias.
-	pipe->agregarParametro(OperacionesCapas::FISICA_LEER_LISTA, 0); //Codigo de operacion
-	pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-	pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-	pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
-
-	//Iniciar comunicacion con la Capa Fisica
-	pipe->lanzar();
-
-	//Obtener tamaño de la lista
-	pipe->leer(&cantClaves);
-
-	if (cantClaves > 0) {
-		bufferClaves = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-
-		//Leer la lista del archivo.
-		pipe->leer(this->getTamanioBloqueLista() - sizeof(unsigned int), bufferClaves);
-
-		char* strClave          = NULL;
-		unsigned char sizeClave = 0;
-		string clave;
-
-		setClaves = new SetClaves();
-		for (unsigned char i = 0; i < cantClaves; i++) {
-
-			//Obtencion de la longitud de la clave variable.
-			memcpy(&sizeClave, bufferClaves, Tamanios::TAMANIO_LONGITUD_CADENA);
-			strClave = new char[sizeClave + 1];
-
-			//Obtencion de la clave variable de longitud sizeClave.
-			memcpy(strClave, bufferClaves, sizeClave);
-			*(strClave + sizeClave) = 0;
-			clave = strClave;
-
-			//Insercion de la clave en el set.
-			setClaves->insert(new ClaveVariable(clave));
-
-			if (strClave)
-				delete[] strClave;
-		}
-	}
-	
-	if (bufferClaves)
-		delete[] bufferClaves;
-
-	return setClaves;
-}
-
-int IndiceVariableRomanoManager::escribirListaClaves(SetClaves* setClaves)
-{
-	unsigned int numBloque = 0;
-	char* bufferClaves     = NULL;
-	ComuDatos* pipe        = NULL;
-
-	if (setClaves->size() > 0) {
-		//Instancia del pipe
-		pipe = this->instanciarPipe();
-
-		//Parametros de inicializacion de la Capa Fisisca para
-		//obtener una lista de claves primarias.
-		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_LISTA, 0); //Codigo de operacion
-		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-		pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-
-		//Iniciar comunicacion con la Capa Fisica
-		pipe->lanzar();
-
-		bufferClaves            = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-		unsigned int offset     = 0;
-		unsigned char sizeClave = 0;
-
-		//Contruccion del buffer con los datos de longitud variables contenidos 
-		//en el set.
-		for (SetClaves::iterator it = setClaves->begin(); it
-				!= setClaves->end(); ++it) {
-			//Obtencion de la longitud de la cadena.
-			sizeClave = (unsigned char) (*it)->getTamanioValor();
-
-			//Copia de la longitud y la cadena al buffer.
-			memcpy(bufferClaves + offset, &sizeClave,
-					Tamanios::TAMANIO_LONGITUD_CADENA);
-			memcpy(bufferClaves + offset + Tamanios::TAMANIO_LONGITUD_CADENA, (*it)->getValor(), sizeClave);
-
-			offset += (*it)->getTamanioValor() + Tamanios::TAMANIO_LONGITUD_CADENA;
-		}
-
-		//Escritura de la cantidad de claves en la lista
-		pipe->escribir((int)setClaves->size());
-
-		//Escritura de la lista al archivo.
-		pipe->escribir(bufferClaves, this->getTamanioBloqueLista());
-
-		//Obtencion del numero de bloque donde fue insertada la lista.
-		pipe->leer(&numBloque);
-	}
-
-	if (pipe)
-		delete pipe;
-
-	if (bufferClaves)
-		delete[] bufferClaves;
-
-	return numBloque;
-}
-
-char IndiceVariableRomanoManager::escribirListaClaves(unsigned int posicion, SetClaves* setClaves) 
-{
-	char resultado     = 0;
-	char* bufferClaves = NULL;
-	ComuDatos* pipe    = NULL;
-
-	if (setClaves->size() > 0) {
-		//Instancia del pipe
-		pipe = this->instanciarPipe();
-
-		//Parametros de inicializacion de la Capa Fisisca para
-		//obtener una lista de claves primarias.
-		pipe->agregarParametro(OperacionesCapas::FISICA_MODIFICAR_LISTA, 0); //Codigo de operacion
-		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-		pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-		pipe->agregarParametro(posicion, 3); //Numero de bloque contenedor de la lista a modificar
-
-		//Iniciar comunicacion con la Capa Fisica
-		pipe->lanzar();
-
-		bufferClaves            = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-		unsigned int offset     = 0;
-		unsigned char sizeClave = 0;
-
-		//Contruccion del buffer con los datos de longitud variables contenidos 
-		//en el set.
-		for (SetClaves::iterator it = setClaves->begin(); it
-				!= setClaves->end(); ++it) {
-			//Obtencion de la longitud de la cadena.
-			sizeClave = (unsigned char) (*it)->getTamanioValor();
-
-			//Copia de la longitud y la cadena al buffer.
-			memcpy(bufferClaves + offset, &sizeClave, Tamanios::TAMANIO_LONGITUD_CADENA);
-			memcpy(bufferClaves + offset + Tamanios::TAMANIO_LONGITUD_CADENA, (*it)->getValor(), sizeClave);
-
-			offset += sizeClave + Tamanios::TAMANIO_LONGITUD_CADENA;
-		}
-
-		//Escritura de la cantidad de claves en la lista
-		pipe->escribir((int)setClaves->size());
-
-		//Escritura de la lista al archivo.
-		pipe->escribir(bufferClaves, this->getTamanioBloqueLista());
-
-		//Obtencion del resultado de la operacion
-		pipe->leer(&resultado);
-	}
-
-	if (pipe)
-		delete pipe;
-
-	if (bufferClaves)
-		delete[] bufferClaves;
-
-	return resultado;
-}
-
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: IndiceCompuestoGriegoManager 
-//		   (Implementa archivo de indices primarios de clave compuesta).
-///////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-// Constructor
-//////////////////////////////////////////////////////////////////////
-IndiceCompuestoGriegoManager::IndiceCompuestoGriegoManager(unsigned int tamNodo, string nombreArchivo, 
+IndiceCompuestoManager::IndiceCompuestoManager(unsigned int tamNodo, string nombreArchivo, 
 		unsigned char tipoIndice, ListaTipos* listaTipos) :
 	IndiceArbolManager(tamNodo, nombreArchivo, tipoIndice) 
 { 
@@ -2449,7 +1398,7 @@ IndiceCompuestoGriegoManager::IndiceCompuestoGriegoManager(unsigned int tamNodo,
 // Metodos privados
 //////////////////////////////////////////////////////////////////////
 
-void IndiceCompuestoGriegoManager::copiarClaveHoja(Clave* clave, char* &buffer) 
+void IndiceCompuestoManager::copiarClaveHoja(Clave* clave, char* &buffer) 
 {
 	int tamanio                    = 0;
 	ClaveCompuesta* claveCompuesta = static_cast<ClaveCompuesta*>(clave);
@@ -2493,7 +1442,7 @@ void IndiceCompuestoGriegoManager::copiarClaveHoja(Clave* clave, char* &buffer)
 	buffer += Tamanios::TAMANIO_REFERENCIA;
 }
 
-void IndiceCompuestoGriegoManager::copiarClaveNoHoja(Clave* clave, char* &buffer) 
+void IndiceCompuestoManager::copiarClaveNoHoja(Clave* clave, char* &buffer) 
 {
 	int tamanio                    = 0;
 	unsigned int referencia        = 0;
@@ -2546,7 +1495,7 @@ void IndiceCompuestoGriegoManager::copiarClaveNoHoja(Clave* clave, char* &buffer
 	buffer += Tamanios::TAMANIO_REFERENCIA;
 }
 
-Clave* IndiceCompuestoGriegoManager::leerClaveHoja(char* &buffer) 
+Clave* IndiceCompuestoManager::leerClaveHoja(char* &buffer) 
 {
 	ListaClaves listaClaves;
 	int tipo;
@@ -2564,80 +1513,96 @@ Clave* IndiceCompuestoGriegoManager::leerClaveHoja(char* &buffer)
 
 		tipo = (*iterTipos);
 
-		if (tipo == TipoDatos::TIPO_ENTERO) {
-			//Copia del valor de la clave
-			valor = new int;
-			tamanio = sizeof(int);
-
-			memcpy(valor, buffer, tamanio);
-			listaClaves.push_back(new ClaveEntera(*((int*)valor)));
-
-			delete (int*)valor;
-		} else if (tipo == TipoDatos::TIPO_BOOL) {
-			valor = new bool;
-			tamanio = sizeof(bool);
-
-			memcpy(valor, buffer, tamanio);
-			listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
-
-			delete (bool*)valor;
-		} else if (tipo == TipoDatos::TIPO_CHAR) {
-			valor = new char;
-			tamanio = sizeof(char);
-
-			memcpy(valor, buffer, tamanio);
-			listaClaves.push_back(new ClaveChar(*((char*)valor)));
-
-			delete (char*)valor;
-		} else if (tipo == TipoDatos::TIPO_SHORT) {
-			valor = new short;
-			tamanio = sizeof(short);
-
-			memcpy(valor, buffer, tamanio);
-			listaClaves.push_back(new ClaveShort(*((short*)valor)));
-
-			delete (short*)valor;
-		} else if (tipo == TipoDatos::TIPO_FLOAT) {
-			valor = new float;
-			tamanio = sizeof(float);
-
-			memcpy(valor, buffer, tamanio);
-			listaClaves.push_back(new ClaveReal(*((float*)valor)));
-
-			delete (float*)valor;
-		} else if (tipo == TipoDatos::TIPO_FECHA) {
-			valor = new ClaveFecha::TFECHA;
-			tamanio = Tamanios::TAMANIO_FECHA;
-
-			memcpy(& ((ClaveFecha::TFECHA*)valor)->anio, buffer, sizeof(unsigned short));
-			memcpy(&((ClaveFecha::TFECHA*)valor)->mes, buffer + sizeof(unsigned short), sizeof(unsigned char));
-			memcpy(&((ClaveFecha::TFECHA*)valor)->dia, buffer + sizeof(unsigned short) + sizeof(unsigned char), sizeof(unsigned char));
-			listaClaves.push_back(new ClaveFecha(*((ClaveFecha::TFECHA*)valor)));
-
-			delete (ClaveFecha::TFECHA*)valor;
-
-		} else if (tipo == TipoDatos::TIPO_STRING) {
-			valor = new string;
+		switch(tipo){
+		
+				case TipoDatos::TIPO_ENTERO:
+				{
+					//Copia del valor de la clave
+					valor = new int;
+					tamanio = sizeof(int);
 			
-			memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
+					memcpy(valor, buffer, tamanio);
+					listaClaves.push_back(new ClaveEntera(*((int*)valor)));
+					
+				}break;
+				
+				case TipoDatos::TIPO_BOOL:
+				{
+					valor = new bool;
+					tamanio = sizeof(bool);
 			
-			cadena = new char[sizeCadena*sizeof(char) + 1];		
+					memcpy(valor, buffer, tamanio);
+					listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
+					
+				}break;
+				
+				case TipoDatos::TIPO_CHAR:
+				{
+					valor = new char;
+					tamanio = sizeof(char);
 			
-			memcpy(cadena, buffer + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena*sizeof(char));
-			*(cadena + sizeCadena) = 0;
+					memcpy(valor, buffer, tamanio);
+					listaClaves.push_back(new ClaveChar(*((char*)valor)));
+				
+				}break;
+				
+				case TipoDatos::TIPO_SHORT:
+				{
+					valor = new short;
+					tamanio = sizeof(short);
 			
-			valor = cadena;
+					memcpy(valor, buffer, tamanio);
+					listaClaves.push_back(new ClaveShort(*((short*)valor)));
+				}break;
+				
+				case TipoDatos::TIPO_FLOAT:
+				{
+					valor = new float;
+					tamanio = sizeof(float);
 			
-			tamanio = ((string*)valor)->size() + Tamanios::TAMANIO_LONGITUD_CADENA;
-
-			listaClaves.push_back(new ClaveVariable(*((string*)valor)));
+					memcpy(valor, buffer, tamanio);
+					listaClaves.push_back(new ClaveReal(*((float*)valor)));		
+				}break;
+				
+				case TipoDatos::TIPO_FECHA:
+				{
+					valor = new ClaveFecha::TFECHA;
+					tamanio = sizeof(ClaveFecha::TFECHA);
 			
-			if (valor)
-				delete (string*)valor;
+					//Se interpreta el valor TFECHA de la clave.
+					memcpy(&(((ClaveFecha::TFECHA*)valor)->anio), buffer, sizeof(unsigned short));
+					buffer += sizeof(unsigned short);
 			
-			if (cadena) 
-				delete[] cadena;
-						
+					memcpy(&(((ClaveFecha::TFECHA*)valor)->mes), buffer, sizeof(unsigned char));
+					buffer += sizeof(unsigned char);
+			
+					memcpy(&(((ClaveFecha::TFECHA*)valor)->dia), buffer, sizeof(unsigned char));
+					buffer += sizeof(unsigned char);
+			
+					listaClaves.push_back(new ClaveFecha(*((ClaveFecha::TFECHA*)valor)));			
+				}break;
+				
+				case TipoDatos::TIPO_STRING:
+				{
+					valor = new string;
+								
+					memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
+					
+					cadena = new char[sizeCadena + 1];
+					memcpy(cadena, buffer + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena);
+					
+					*(cadena + sizeCadena) = 0;			
+					valor = cadena;
+					
+					listaClaves.push_back(new ClaveVariable(*((string*)valor)));
+					
+					if (valor)
+						delete (string*)valor;
+					
+					if (cadena)
+						delete[] cadena;
+											
+				}break;
 		}
 
 		buffer += tamanio;
@@ -2651,7 +1616,7 @@ Clave* IndiceCompuestoGriegoManager::leerClaveHoja(char* &buffer)
 	return new ClaveCompuesta(listaClaves, refRegistro);
 }
 
-Clave* IndiceCompuestoGriegoManager::leerClaveNoHoja(char* &buffer)
+Clave* IndiceCompuestoManager::leerClaveNoHoja(char* &buffer)
 {
 	ListaClaves listaClaves;
 	int tipo    = 0;
@@ -2752,7 +1717,11 @@ Clave* IndiceCompuestoGriegoManager::leerClaveNoHoja(char* &buffer)
 					
 					listaClaves.push_back(new ClaveVariable(*((string*)valor)));
 					
-					delete (string*)valor;	
+					if (valor)
+						delete (string*)valor;	
+					
+					if (cadena)
+						delete[] cadena;
 											
 				}break;
 		}		
@@ -2773,763 +1742,3 @@ Clave* IndiceCompuestoGriegoManager::leerClaveNoHoja(char* &buffer)
 	//Crear la clave
 	return new ClaveCompuesta(listaClaves, refRegistro);
 }
-
-///////////////////////////////////////////////////////////////////////////
-// Clase
-//------------------------------------------------------------------------
-// Nombre: IndiceCompuestoRomanoManager 
-//		   (Implementa archivo de indices secundarios de clave compuesta).
-///////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-// Constructor
-//////////////////////////////////////////////////////////////////////
-IndiceCompuestoRomanoManager::IndiceCompuestoRomanoManager(unsigned int tamNodo, string nombreArchivo, 
-		unsigned int tamBloqueLista, unsigned char tipoIndice,  ListaTipos* listaTipos) :
-	IndiceSecundarioManager(tamNodo, nombreArchivo, tamBloqueLista, tipoIndice) 
-	{ }
-
-//////////////////////////////////////////////////////////////////////
-// Metodos privados
-//////////////////////////////////////////////////////////////////////
-
-void IndiceCompuestoRomanoManager::copiarClaveHoja(Clave* clave, char* &buffer)
-{
-	ClaveCompuesta* claveCompuesta = static_cast<ClaveCompuesta*>(clave);
-	ListaClaves* listaClaves       = claveCompuesta->getListaClaves();
-	Clave* claveAux                = NULL;
-	ListaTipos::const_iterator iterTipos; //Iterador de la lista de tipos de claves simples.
-	unsigned int referencia        = 0;  //Rerefencia a registro de datos contenida en la clave.
-	unsigned int tamanio           = 0;
-	
-	//Variables de interpretacion de una ClaveVariable
-	char* cadena             = NULL;
-	unsigned char sizeCadena = 0;
-	
-	iterTipos = this->tipos->begin();
-	
-	//Copia de los valores de las claves en el nodo
-	for (ListaClaves::const_iterator iterClaves = listaClaves->begin(); iterClaves != listaClaves->end(); ++iterClaves) {		
-		claveAux = (*iterClaves);
-		
-		if (*iterTipos == TipoDatos::TIPO_STRING){
-			cadena = (char*)claveAux->getValor();
-			sizeCadena = claveAux->getTamanioValor();
-			
-			memcpy(buffer, &sizeCadena, Tamanios::TAMANIO_LONGITUD_CADENA);
-			memcpy(buffer + Tamanios::TAMANIO_LONGITUD_CADENA, cadena, sizeCadena);
-			
-			tamanio = sizeCadena + Tamanios::TAMANIO_LONGITUD_CADENA;
-			
-		}else{
-			
-			//Copia del valor de la clave
-			memcpy(buffer, claveAux->getValor(), claveAux->getTamanioValor());
-			tamanio = claveAux->getTamanioValor();
-		}
-		
-		buffer += tamanio;
-		++iterTipos;
-	}
-	
-	//Copia de la referencia a registro del archivo de datos. 
-	referencia = clave->getReferencia();
-	memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-}
-
-void IndiceCompuestoRomanoManager::copiarClaveNoHoja(Clave* clave, char* &buffer) 
-{
-	unsigned int referencia        = 0;
-	ClaveCompuesta* claveCompuesta = static_cast<ClaveCompuesta*>(clave);
-	ListaClaves* listaClaves       = claveCompuesta->getListaClaves();
-	Clave* claveAux                = NULL;
-	unsigned int tamanio           = 0;
-	ListaTipos::const_iterator iterTipos; //Iterador de la lista de tipos de claves simples.
-	
-	//Variables de interpretacion de una ClaveVariable
-	char* cadena             = NULL;
-	unsigned char sizeCadena = 0;
-	
-	iterTipos = this->tipos->begin();
-	
-	//Copia de los valores de las claves en el nodo
-	for (ListaClaves::const_iterator iterClaves = listaClaves->begin(); iterClaves != listaClaves->end(); ++iterClaves) {		
-		claveAux = (*iterClaves);
-		
-		if (*iterTipos == TipoDatos::TIPO_STRING){
-			cadena = (char*)claveAux->getValor();
-			sizeCadena = claveAux->getTamanioValor();
-			
-			memcpy(buffer, &sizeCadena, Tamanios::TAMANIO_LONGITUD_CADENA);
-			memcpy(buffer + Tamanios::TAMANIO_LONGITUD_CADENA, cadena, sizeCadena);
-			
-			tamanio = sizeCadena + Tamanios::TAMANIO_LONGITUD_CADENA;
-		}else{
-			
-			//Copia del valor de la clave
-			memcpy(buffer, claveAux->getValor(), claveAux->getTamanioValor());
-			tamanio = claveAux->getTamanioValor();
-		}
-		
-		buffer += tamanio;
-		++iterTipos;
-	}
-
-	if (this->getTipoIndice() == TipoIndices::ARBOL_BS) {
-		//Si el arbol es B*, copiar referencia al registro de datos.			
-		referencia = clave->getReferencia();
-		memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
-		buffer += Tamanios::TAMANIO_REFERENCIA;
-	}
-
-	//Copia de la referencia al hijo derecho.
-	referencia = clave->getHijoDer();
-	memcpy(buffer, &referencia, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-}
-
-Clave* IndiceCompuestoRomanoManager::leerClaveHoja(char* &buffer)
-{
-	ListaClaves listaClaves;
-	int tipo    = 0;
-	unsigned int refRegistro = 0, tamanio = 0;
-	void* valor = NULL;
-	
-	//Variables de interpretacion de claves de longitud variable
-	unsigned char sizeCadena = 0;
-	char* cadena             = NULL;
-
-	//Copia de los valores de las claves en el nodo				
-	for (ListaTipos::const_iterator iterTipos = this->tipos->begin(); iterTipos != this->tipos->end(); ++iterTipos) {
-
-		tipo = (*iterTipos);
-
-		switch(tipo){
-			case TipoDatos::TIPO_ENTERO:
-			{
-				//Copia del valor entero de la clave
-				valor = new int;
-				tamanio = sizeof(int);
-	
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveEntera(*((int*)valor)));
-	
-				delete (int*)valor;
-	
-			}break;
-			
-			case TipoDatos::TIPO_BOOL:
-			{
-				//Copia del valor booleano de la clave
-				valor = new bool;
-				tamanio = sizeof(bool);
-	
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
-	
-				delete (bool*)valor;
-				
-			}break;
-			
-			case TipoDatos::TIPO_CHAR:
-			{
-				//Copia del valor tipo char de la clave.
-				valor = new char;
-				tamanio = sizeof(char);
-	
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveChar(*((char*)valor)));
-	
-				delete (char*)valor;
-			
-			}break;
-			
-			case TipoDatos::TIPO_SHORT:
-			{
-				//Copia del valor short de la clave
-				valor = new short;
-				tamanio = sizeof(short);
-	
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveShort(*((short*)valor)));
-	
-				delete (short*)valor;
-				
-			}break;
-			
-			case TipoDatos::TIPO_FLOAT:
-			{
-				//Copia del valor float de la clave
-				valor = new float;
-				tamanio = sizeof(float);
-	
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveReal(*((float*)valor)));
-	
-				delete (float*)valor;	
-				
-			}break;
-			
-			case TipoDatos::TIPO_FECHA:
-			{
-				//Copia del valor tipo TFECHA de la clave.
-				valor = new ClaveFecha::TFECHA;
-				tamanio = Tamanios::TAMANIO_FECHA;
-	
-				memcpy(&(((ClaveFecha::TFECHA*)valor)->anio), buffer, sizeof(unsigned short));
-				memcpy(&(((ClaveFecha::TFECHA*)valor)->mes), buffer + sizeof(unsigned short), sizeof(unsigned char));
-				memcpy(&(((ClaveFecha::TFECHA*)valor)->dia), buffer + sizeof(unsigned short) + sizeof(unsigned char), sizeof(unsigned char));
-				
-				listaClaves.push_back(new ClaveFecha(*((ClaveFecha::TFECHA*)valor)));
-	
-				delete (ClaveFecha::TFECHA*)valor;
-				
-			}break;
-			
-			case TipoDatos::TIPO_STRING:
-			{
-				valor = new string;
-			
-				memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
-				
-				cadena = new char[sizeCadena + 1];
-				memcpy(cadena, buffer + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena);
-				
-				*(cadena + sizeCadena) = 0;			
-				valor = cadena;
-				
-				listaClaves.push_back(new ClaveVariable(*((string*)valor)));
-				
-				delete (string*)valor;	
-				
-			}break;
-			
-		} 
-
-		buffer += tamanio;
-	}
-
-	//Se interpreta la referencia al registro de datos.
-	memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-
-	//Crear la clave
-	return new ClaveCompuesta(listaClaves, refRegistro);
-}
-
-Clave* IndiceCompuestoRomanoManager::leerClaveNoHoja(char* &buffer) 
-{
-	ListaClaves listaClaves;
-	int tipo = 0;
-	unsigned int refRegistro = 0, hijoDer = 0, tamanio = 0;
-	void* valor = NULL;
-
-	//Variables de interpretacion de claves de longitud variable
-	unsigned char sizeCadena = 0;
-	char* cadena             = NULL;
-
-	//Copia de los valores de las claves en el nodo				
-	for (ListaTipos::const_iterator iterTipos = this->tipos->begin(); iterTipos != this->tipos->end(); ++iterTipos) {
-
-		tipo = (*iterTipos);
-
-		switch(tipo){
-			case TipoDatos::TIPO_ENTERO:
-			{
-				//Copia del valor entero de la clave
-				valor = new int;
-				tamanio = sizeof(int);
-	
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveEntera(*((int*)valor)));
-	
-				delete (int*)valor;
-	
-			}break;
-			
-			case TipoDatos::TIPO_BOOL:
-			{
-				//Copia del valor booleano de la clave
-				valor = new bool;
-				tamanio = sizeof(bool);
-	
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
-	
-				delete (bool*)valor;
-				
-			}break;
-			
-			case TipoDatos::TIPO_CHAR:
-			{
-				//Copia del valor tipo char de la clave.
-				valor = new char;
-				tamanio = sizeof(char);
-	
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveChar(*((char*)valor)));
-	
-				delete (char*)valor;
-			
-			}break;
-			
-			case TipoDatos::TIPO_SHORT:
-			{
-				//Copia del valor short de la clave
-				valor = new short;
-				tamanio = sizeof(short);
-	
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveShort(*((short*)valor)));
-	
-				delete (short*)valor;
-				
-			}break;
-			
-			case TipoDatos::TIPO_FLOAT:
-			{
-				//Copia del valor float de la clave
-				valor = new float;
-				tamanio = sizeof(float);
-	
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveReal(*((float*)valor)));
-	
-				delete (float*)valor;	
-				
-			}break;
-			
-			case TipoDatos::TIPO_FECHA:
-			{
-				//Copia del valor tipo TFECHA de la clave.
-				valor = new ClaveFecha::TFECHA;
-				tamanio = Tamanios::TAMANIO_FECHA;
-	
-				memcpy(&(((ClaveFecha::TFECHA*)valor)->anio), buffer, sizeof(unsigned short));
-				memcpy(&(((ClaveFecha::TFECHA*)valor)->mes), buffer + sizeof(unsigned short), sizeof(unsigned char));
-				memcpy(&(((ClaveFecha::TFECHA*)valor)->dia), buffer + sizeof(unsigned short) + sizeof(unsigned char), sizeof(unsigned char));
-				
-				listaClaves.push_back(new ClaveFecha(*((ClaveFecha::TFECHA*)valor)));
-	
-				delete (ClaveFecha::TFECHA*)valor;
-				
-			}break;
-			
-			case TipoDatos::TIPO_STRING:
-			{
-				valor = new string;
-			
-				memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
-				
-				cadena = new char[sizeCadena + 1];
-				memcpy(cadena, buffer + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena);
-				
-				*(cadena + sizeCadena) = 0;			
-				valor = cadena;
-				
-				listaClaves.push_back(new ClaveVariable(*((string*)valor)));
-				tamanio = Tamanios::TAMANIO_LONGITUD_CADENA + sizeCadena;
-				
-				delete (string*)valor;	
-				
-			}break;
-			
-		}
-		
-		buffer += tamanio;
-	}
-
-	if (this->getTipoIndice() == TipoIndices::ARBOL_BS) {
-		//Si el arbol es B*, copiar referencia al registro de datos.
-		memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
-		buffer += Tamanios::TAMANIO_REFERENCIA;
-	}
-
-	//Se interpreta la referencia al hijo derecho de la clave.
-	memcpy(&hijoDer, buffer, Tamanios::TAMANIO_REFERENCIA);
-	buffer += Tamanios::TAMANIO_REFERENCIA;
-
-	//Crear la clave
-	return new ClaveCompuesta(listaClaves, refRegistro);
-}
-
-//////////////////////////////////////////////////////////////////////
-// Metodos publicos
-//////////////////////////////////////////////////////////////////////
-
-SetClaves* IndiceCompuestoRomanoManager::leerListaClaves(unsigned int posicion) 
-{
-	ListaClaves* listaClaves = NULL; //Lista de claves contenidas en una clave compuesta
-	SetClaves* setClaves     = NULL; //Set de claves compuestas
-	char* bufferClaves       = NULL; //Buffer contenedor de toda la lista de claves en disco.
-	void* valor              = NULL; //Valor de cada clave simple.
-	unsigned int cantClaves  = 0;	 //Cantidad de claves en el buffer.
-	int tipo                 = 0;    //Tipo de cada clave en el buffer.
-	unsigned int tamanio     = 0;    //Tamanio de cada clave.
-	
-	//Variables auxiliares para la interpretacion de una clave 
-	//de longitud variable.
-	char* cadena              = NULL;
-	unsigned short sizeCadena = 0;
-	
-	//Instancia del pipe
-	ComuDatos* pipe = this->instanciarPipe();
-
-	//Parametros de inicializacion de la Capa Fisisca para
-	//obtener una lista de claves primarias.
-	pipe->agregarParametro(OperacionesCapas::FISICA_LEER_LISTA, 0); //Codigo de operacion
-	pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-	pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-	pipe->agregarParametro(posicion, 3); //Numero de lista a eliminar dentro del archivo.
-
-	//Iniciar comunicacion con la Capa Fisica
-	pipe->lanzar();
-
-	//Obtener tamaño de la lista
-	pipe->leer(&cantClaves);
-
-	if (cantClaves > 0) {
-		bufferClaves = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-
-		//Leer la lista del archivo.
-		pipe->leer(this->getTamanioBloqueLista() - sizeof(unsigned int), bufferClaves);
-		
-		//Set de claves compuestas
-		setClaves = new SetClaves();
-		
-		//Recorrer todas las claves dentro del buffer.
-		for (unsigned char i = 0; i < cantClaves; i++) {
-			listaClaves = new ListaClaves();
-			//Copia de los valores de las claves en la lista dependiendo de su tipo			
-			for (ListaTipos::const_iterator iterTipos = this->tipos->begin(); iterTipos != this->tipos->end(); ++iterTipos) {
-
-				tipo = (*iterTipos);
-
-				switch(tipo){
-					case TipoDatos::TIPO_ENTERO:
-					{
-						//Copia del valor entero de la clave
-						valor = new int;
-						tamanio = sizeof(int);
-			
-						memcpy(valor, bufferClaves, tamanio);
-						listaClaves->push_back(new ClaveEntera(*((int*)valor)));
-			
-						delete (int*)valor;
-			
-					}break;
-					
-					case TipoDatos::TIPO_BOOL:
-					{
-						//Copia del valor booleano de la clave
-						valor = new bool;
-						tamanio = sizeof(bool);
-			
-						memcpy(valor, bufferClaves, tamanio);
-						listaClaves->push_back(new ClaveBoolean(*((bool*)valor)));
-			
-						delete (bool*)valor;
-						
-					}break;
-					
-					case TipoDatos::TIPO_CHAR:
-					{
-						//Copia del valor tipo char de la clave.
-						valor = new char;
-						tamanio = sizeof(char);
-			
-						memcpy(valor, bufferClaves, tamanio);
-						listaClaves->push_back(new ClaveChar(*((char*)valor)));
-			
-						delete (char*)valor;
-					
-					}break;
-					
-					case TipoDatos::TIPO_SHORT:
-					{
-						//Copia del valor short de la clave
-						valor = new short;
-						tamanio = sizeof(short);
-			
-						memcpy(valor, bufferClaves, tamanio);
-						listaClaves->push_back(new ClaveShort(*((short*)valor)));
-			
-						delete (short*)valor;
-						
-					}break;
-					
-					case TipoDatos::TIPO_FLOAT:
-					{
-						//Copia del valor float de la clave
-						valor = new float;
-						tamanio = sizeof(float);
-			
-						memcpy(valor, bufferClaves, tamanio);
-						listaClaves->push_back(new ClaveReal(*((float*)valor)));
-			
-						delete (float*)valor;	
-						
-					}break;
-					
-					case TipoDatos::TIPO_FECHA:
-					{
-						//Copia del valor tipo TFECHA de la clave.
-						valor = new ClaveFecha::TFECHA;
-						tamanio = Tamanios::TAMANIO_FECHA;
-			
-						memcpy(&(((ClaveFecha::TFECHA*)valor)->anio), bufferClaves, sizeof(unsigned short));
-						memcpy(&(((ClaveFecha::TFECHA*)valor)->mes), bufferClaves + sizeof(unsigned short), sizeof(unsigned char));
-						memcpy(&(((ClaveFecha::TFECHA*)valor)->dia), bufferClaves + sizeof(unsigned short) + sizeof(unsigned char), sizeof(unsigned char));
-						
-						listaClaves->push_back(new ClaveFecha(*((ClaveFecha::TFECHA*)valor)));
-			
-						delete (ClaveFecha::TFECHA*)valor;
-						
-					}break;
-					
-					case TipoDatos::TIPO_STRING:
-					{
-						valor = new string;
-					
-						memcpy(&sizeCadena, bufferClaves, Tamanios::TAMANIO_LONGITUD_CADENA);
-						
-						cadena = new char[sizeCadena + 1];
-						memcpy(cadena, bufferClaves + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena);
-						
-						*(cadena + sizeCadena) = 0;			
-						valor = cadena;
-						
-						listaClaves->push_back(new ClaveVariable(*((string*)valor)));
-						tamanio = Tamanios::TAMANIO_LONGITUD_CADENA + sizeCadena;
-						
-						delete (string*)valor;	
-						
-					}break;
-					
-				}
-
-				bufferClaves += tamanio;
-				setClaves->insert(new ClaveCompuesta(*listaClaves));
-				
-				if (listaClaves)
-					delete listaClaves;
-			}
-		}
-	}
-	
-	if (bufferClaves)
-		delete[] bufferClaves;
-
-	return setClaves;
-}
-
-char IndiceCompuestoRomanoManager::escribirListaClaves(unsigned int posicion, SetClaves* setClaves)
-{
-	char resultado           = 0;    //Resultado de la escritura a disco.
-	ListaClaves* listaClaves = NULL; //Lista de claves contenidas en una clave compuesta
-	Clave* claveCompuesta    = NULL; //Clave compuesta contenida en cada elmento de set.
-	Clave* claveSimple       = NULL; //Cada clave simple cotenida en la lista de claves de la clave compuesta.
-	char* bufferClaves       = NULL; //Buffer contenedor de toda la lista de claves en disco.	
-	int tipo                 = 0;    //Tipo de cada clave en el buffer.
-	unsigned int tamanio     = 0;    //Tamanio de cada clave.
-	ComuDatos* pipe          = NULL; //Pipe de comunicaciones entre capas.
-	
-	//Variable de interpretacion de claves tipo fecha.
-	ClaveFecha::TFECHA* fecha = NULL;
-	
-	//Variables de interpretacion de claves variables.
-	unsigned char sizeCadena = 0;
-	char* cadena             = NULL;
-
-	if (setClaves->size() > 0) {
-		//Instancia del pipe
-		pipe = this->instanciarPipe();
-
-		//Parametros de inicializacion de la Capa Fisisca para
-		//obtener una lista de claves primarias.
-		pipe->agregarParametro(OperacionesCapas::FISICA_MODIFICAR_LISTA, 0); //Codigo de operacion
-		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-		pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-		pipe->agregarParametro(posicion, 3); //Numero de bloque contenedor de la lista a modificar
-
-		//Iniciar comunicacion con la Capa Fisica
-		pipe->lanzar();
-
-		bufferClaves = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-		ListaTipos::const_iterator itTipos; //Iterador de la lista de tipos.
-
-		//Contruccion del buffer con los datos de longitud variables contenidos 
-		//en el set.
-		for (SetClaves::iterator itSet = setClaves->begin(); itSet != setClaves->end(); ++itSet) {
-			
-			//Obtener siguiente ClaveCompuesta del set y su lista de claves simples.
-			claveCompuesta = (*itSet);
-			listaClaves    = ((ClaveCompuesta*)claveCompuesta)->getListaClaves();
-			itTipos        = this->tipos->begin();
-			 
-			//Iterar la lista de claves simples, preguntando por su tipo y copiando su valor al buffer.
-			for (ListaClaves::iterator itLista = listaClaves->begin(); itLista != listaClaves->end(); ++itLista) {
-				
-				//Obtener siguiente clave simple de la lista de claves de la ClaveCompuesta y su tipo.
-				claveSimple = (*itLista);	
-				tipo        = (*itTipos);	
-						
-				switch(tipo){
-					case TipoDatos::TIPO_FECHA:
-						//Copia del valor fecha de la clave al buffer.
-						tamanio = Tamanios::TAMANIO_FECHA;
-						fecha = (ClaveFecha::TFECHA*)claveSimple->getValor();
-				
-						memcpy(bufferClaves, &(fecha->anio), sizeof(unsigned short));
-						memcpy(bufferClaves + sizeof(unsigned short), &(fecha->mes), sizeof(unsigned char));
-						memcpy(bufferClaves + sizeof(unsigned short) + sizeof(unsigned char), &(fecha->dia), sizeof(unsigned char));
-					break;
-					
-					case TipoDatos::TIPO_STRING:
-						//Copia del valor variable de la clave al buffer.
-						cadena     = (char*)claveSimple->getValor();
-						sizeCadena = claveSimple->getTamanioValor();
-						
-						memcpy(bufferClaves, &sizeCadena, Tamanios::TAMANIO_LONGITUD_CADENA);
-						memcpy(bufferClaves + Tamanios::TAMANIO_LONGITUD_CADENA, cadena, sizeCadena);
-						
-						tamanio = sizeCadena + Tamanios::TAMANIO_LONGITUD_CADENA;
-					break;
-						
-					default:
-						//Copia del valor atomico (int, short, char, etc) de la clave al buffer.
-						tamanio = claveSimple->getTamanioValor();						
-						memcpy(bufferClaves, claveSimple->getValor(), tamanio);					
-					break;
-				}				
-				
-				++itTipos;
-				bufferClaves += tamanio;
-			}
-		}
-
-		//Escritura de la cantidad de claves en la lista
-		pipe->escribir((int)setClaves->size());
-
-		//Escritura de la lista al archivo.
-		pipe->escribir(bufferClaves, this->getTamanioBloqueLista());
-
-		//Obtencion del resultado de la operacion
-		pipe->leer(&resultado);
-	}
-
-	if (pipe)
-		delete pipe;
-
-	if (bufferClaves)
-		delete[] bufferClaves;
-
-	return resultado;
-	
-}
-
-int IndiceCompuestoRomanoManager::escribirListaClaves(SetClaves* setClaves)
-{
-	unsigned int numBloque   = 0;    //Numero de bloque donde fue almacenada la lista en disco.
-	ListaClaves* listaClaves = NULL; //Lista de claves contenidas en una clave compuesta
-	Clave* claveCompuesta    = NULL; //Clave compuesta contenida en cada elmento de set.
-	Clave* claveSimple       = NULL; //Cada clave simple cotenida en la lista de claves de la clave compuesta.
-	char* bufferClaves       = NULL; //Buffer contenedor de toda la lista de claves en disco.	
-	int tipo                 = 0;    //Tipo de cada clave en el buffer.
-	unsigned int tamanio     = 0;    //Tamanio de cada clave.
-	ComuDatos* pipe          = NULL; //Pipe de comunicaciones entre capas.
-	
-	//Variable de interpretacion de claves tipo fecha.
-	ClaveFecha::TFECHA* fecha = NULL;
-	
-	//Variables de interpretacion de claves variables.
-	unsigned char sizeCadena = 0;
-	char* cadena             = NULL;
-
-	if (setClaves->size() > 0) {
-		//Instancia del pipe
-		pipe = this->instanciarPipe();
-
-		//Parametros de inicializacion de la Capa Fisisca para
-		//obtener una lista de claves primarias.
-		pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_LISTA, 0); //Codigo de operacion
-		pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo
-		pipe->agregarParametro(this->getTamanioBloqueLista(), 2); //Tamaño del nodo de la lista en disco
-		
-		//Iniciar comunicacion con la Capa Fisica
-		pipe->lanzar();
-
-		bufferClaves = new char[this->getTamanioBloqueLista() - sizeof(unsigned int)];
-		ListaTipos::const_iterator itTipos; //Iterador de la lista de tipos.
-
-		//Contruccion del buffer con los datos de longitud variables contenidos 
-		//en el set.
-		for (SetClaves::iterator itSet = setClaves->begin(); itSet != setClaves->end(); ++itSet) {
-			
-			//Obtener siguiente ClaveCompuesta del set y su lista de claves simples.
-			claveCompuesta = (*itSet);
-			listaClaves    = ((ClaveCompuesta*)claveCompuesta)->getListaClaves();
-			itTipos        = this->tipos->begin();
-			 
-			//Iterar la lista de claves simples, preguntando por su tipo y copiando su valor al buffer.
-			for (ListaClaves::iterator itLista = listaClaves->begin(); itLista != listaClaves->end(); ++itLista) {
-				
-				//Obtener siguiente clave simple de la lista de claves de la ClaveCompuesta y su tipo.
-				claveSimple = (*itLista);	
-				tipo        = (*itTipos);	
-						
-				switch(tipo){
-					case TipoDatos::TIPO_FECHA:
-						//Copia del valor fecha de la clave al buffer.
-						tamanio = Tamanios::TAMANIO_FECHA;
-						fecha = (ClaveFecha::TFECHA*)claveSimple->getValor();
-				
-						memcpy(bufferClaves, &(fecha->anio), sizeof(unsigned short));
-						memcpy(bufferClaves + sizeof(unsigned short), &(fecha->mes), sizeof(unsigned char));
-						memcpy(bufferClaves + sizeof(unsigned short) + sizeof(unsigned char), &(fecha->dia), sizeof(unsigned char));
-					break;
-					
-					case TipoDatos::TIPO_STRING:
-						//Copia del valor variable de la clave al buffer.
-						cadena     = (char*)claveSimple->getValor();
-						sizeCadena = claveSimple->getTamanioValor();
-						
-						memcpy(bufferClaves, &sizeCadena, Tamanios::TAMANIO_LONGITUD_CADENA);
-						memcpy(bufferClaves + Tamanios::TAMANIO_LONGITUD_CADENA, cadena, sizeCadena);
-						
-						tamanio = sizeCadena + Tamanios::TAMANIO_LONGITUD_CADENA;
-					break;
-						
-					default:
-						//Copia del valor atomico (int, short, char, etc) de la clave al buffer.
-						tamanio = claveSimple->getTamanioValor();						
-						memcpy(bufferClaves, claveSimple->getValor(), tamanio);					
-					break;
-				}				
-				
-				++itTipos;
-				bufferClaves += tamanio;
-			}
-		}
-
-		//Escritura de la cantidad de claves en la lista
-		pipe->escribir((int)setClaves->size());
-
-		//Escritura de la lista al archivo.
-		pipe->escribir(bufferClaves, this->getTamanioBloqueLista());
-
-		//Obtencion del numero de bloque donde fue guardada la lista
-		//en el archivo.
-		pipe->leer(&numBloque);
-	}
-
-	if (pipe)
-		delete pipe;
-
-	if (bufferClaves)
-		delete[] bufferClaves;
-
-	return numBloque;
-}
-
