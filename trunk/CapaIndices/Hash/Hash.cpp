@@ -264,7 +264,7 @@
 			
 			int ultimoBit = 0;
 			
-			// Doy vuelta los bits, y tomo los 8 menos significativos.
+			// Doy vuelta los bits, y tomo los 16 menos significativos.
 			for (int i = 0; i < 16; i++)
 			{
 				aux = aux << 1;
