@@ -190,19 +190,13 @@
 			return resultado;
 		}
 
-		bool Hash::modificarRegistro(Clave &claveVieja, Clave &claveNueva, char* registroNuevo)
+		int Hash::modificarRegistro(Clave &claveVieja, Clave &claveNueva, char* registroNuevo)
 		{
-			bool resultado = false;			
-			
 			// Se elimina el registro de clave claveVieja y se lo reemplaza con el contenido
 			// de registroNuevo
-			if (this->eliminarRegistro(claveVieja) == ResultadosIndices::OK) {
-				this->insertarRegistro(registroNuevo, claveNueva);
-				
-				resultado = true;
-			}
-			
-			return resultado;
+			if (this->eliminarRegistro(claveVieja) == ResultadosIndices::OK)
+				return this->insertarRegistro(registroNuevo, claveNueva);
+			else return ResultadosIndices::ERROR_MODIFICACION;
 		}
 
 		/*

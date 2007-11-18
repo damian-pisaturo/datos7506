@@ -31,49 +31,64 @@ IndiceArbol::~IndiceArbol() {
  * Este metodo inserta una clave en un indice.
  */
 int IndiceArbol::insertar(Clave *clave, char* &registro) {
+	int resultado;
+	//TODO llamar a BloqueDatosManager para guardar el bloque de datos
+	//clave->setReferencia(numBloque);
 	bTree->insertar(clave);
-	return ResultadosIndices::OK;
+	return resultado;
 }
 
 /*
  * Este metodo elimina una clave del indice. 
- * Si la encuentra devuelve OK; y si no, devuelve NO_ENCONTRADO.
+ * Si la encuentra devuelve OK; y si no, devuelve ERROR_ELIMINACION.
  **/
 int IndiceArbol::eliminar(Clave *clave) {
-	return (int)(!(bTree->eliminar(clave)));
+	if (bTree->eliminar(clave)) return ResultadosIndices::OK;
+	else return ResultadosIndices::ERROR_ELIMINACION;
 }
 
 /*
- * Este metodo busca una clave dentro del indice, y la devuelve con todos
- * sus atributos actualizados.
+ * Este metodo busca una clave dentro del indice, y devuelve el
+ * bloque de datos correspondiente a la referencia de esa clave.
  **/
-Clave* IndiceArbol::buscar(Clave *clave, char* &registro) const {
+int IndiceArbol::buscar(Clave *clave, char* &registro) const {
 	Clave* claveRecuperada = bTree->buscar(clave);
-	return claveRecuperada;
+	if (!claveRecuperada) return ResultadosIndices::CLAVE_NO_ENCONTRADA;
+	//TODO llamar a BloqueDatosManager para cargar el bloque de datos
+	//correspondiente a la referencia de la clave
+	return ResultadosIndices::OK;
 }
 
-Clave* IndiceArbol::buscar(Clave *clave) const {
-	return bTree->buscar(clave);
+int IndiceArbol::buscar(Clave *clave) const {
+	if (bTree->buscar(clave)) return ResultadosIndices::CLAVE_ENCONTRADA;
+	else return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 }
 
 /*
  * Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario,
  * la reemplaza por claveNueva y devuelve true.
  **/
-bool IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* &registroNuevo) {
-	return bTree->modificar(claveVieja, claveNueva);
+int IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* &registroNuevo) {
+	//TODO llamar a BloqueDatosManager para sobreescribir el bloque y obtener el número
+	//de bloque para settearselo a la clave nueva
+	if (bTree->modificar(claveVieja, claveNueva))
+		return ResultadosIndices::OK;
+	else return ResultadosIndices::ERROR_MODIFICACION;
 }
 
 
-char IndiceArbol::buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque) {
+int IndiceArbol::buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque) {
 	
-	//TODO Llamar al método de Nico...
+	//TODO llamar a BloqueDatosManager para que me diga el número de bloque en el que debo insertar
+	//el nuevo registro
 	return 0;
 }
 
-
+/*
 Clave* IndiceArbol::buscar(Clave* clave, SetClaves* &setClavesPrimarias) const {
 	
 	//TODO Lamar al método de Nico...
 	return 0;
 }
+*/
+

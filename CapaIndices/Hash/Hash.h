@@ -70,13 +70,13 @@ class Hash
 		 **/
 		int eliminarRegistro(Clave &clave);
 		
-		bool modificarRegistro(Clave &claveVieja, Clave &claveNueva, char* registroNuevo);
+		int modificarRegistro(Clave &claveVieja, Clave &claveNueva, char* registroNuevo);
 	
 		/*
 		 * A partir de una clave recupera un registro.
 		 * Si lo encuentra devuelve true; de lo contrario, devuelve false. 
 		 **/
-		bool recuperarRegistro(Clave &clave,char* &registro); 		
+		bool recuperarRegistro(Clave &clave, char* &registro); 		
 		
 		
 	private:

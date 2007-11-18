@@ -1,5 +1,8 @@
 #include "CapaIndices.h"
 
+/*
+ * Crea todos los indices correspondientes a un tipo, y carga su mapa de indices.
+ **/
 void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 				  DefinitionsManager &defManager) {
 	
@@ -43,29 +46,24 @@ void destruirIndices(MapaIndices &mapaIndices) {
 	for (MapaIndices::iterator iter = mapaIndices.begin();
 		iter != mapaIndices.end(); ++iter)
 		delete iter->second;
-	
 }
 
 
-char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe) {
+int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe) {
 	
+	int resultado = ResultadosIndices::OK;
 	string buffer(""), auxStr("");
 	unsigned short tamanioBuffer = 0, bytesLeidos = 0;
-	DefinitionsManager defManager;
+	DefinitionsManager& defManager = DefinitionsManager::getInstance();
 	DefinitionsManager::ListaNombresClaves listaNombresClaves;
 	DefinitionsManager::ListaValoresClaves listaValoresClaves;
 	string::size_type posAnterior = 0, posActual = 0, posSeparador = 0;
 	
 	MapaIndices mapaIndices;
-	unsigned char tipoIndice       = 0;
-	Clave *clave, *claveResultante = NULL;
-	Indice* indice                 = NULL;
+	Clave *clave = NULL;
+	Indice* indice = NULL;
 	
-	//TODO Ver si hay que reservar memoria para el bloque de datos
-	
-	
-	char* bloqueDatosAEnviar = NULL;
-	SetClaves* setClavesPrimarias; //Conjunto de claves primarias (indice secundario)
+	char* bloqueDatosAEnviar = NULL; //TODO Ver si hay que reservar memoria para el bloque de datos
 	unsigned int nroBloque = 0; //Variable utilizada para almacenar el número de bloque
 								//en el cual se debe insertar un registro
 	
@@ -83,9 +81,9 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos 
 			bytesLeidos += CodigosPipe::BUFFER_SIZE;
 		}
 	}
-	 
+
 	bufferPipe[tamanioBuffer] = 0;
-	buffer = bufferPipe;
+	buffer = bufferPipe; //Copio el buffer en un string para parsearlo con más facilidad
 	
 	//Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes (NOMBRE_CLAVE=VALOR_CLAVE)
 	while (posActual != string::npos) {
@@ -99,32 +97,22 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos 
 		}
 	}
 	
-	
 	//Se crean los indices correspondientes al tipo 'nombreTipo'
 	crearIndices(nombreTipo, mapaIndices, defManager);
 	indice = mapaIndices[listaNombresClaves];
-	tipoIndice = indice->getTipo();
 	clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *(defManager.getListaTiposClaves(nombreTipo, listaNombresClaves)));
 	
 	switch(codOp) {
 		case OperacionesCapas::INDICES_CONSULTAR:
-			if (tipoIndice == TipoIndices::GRIEGO) //Indice Primario
-				claveResultante = indice->buscar(clave, bloqueDatosAEnviar);
-			else //Indice Secundario
-				claveResultante = indice->buscar(clave, setClavesPrimarias);
-			//TODO Enviar a la capa de metadata el bloque de datos o la lista de claves primarias
-			break;
-		case OperacionesCapas::INDICES_CONSULTAR_EXISTENCIA:
-			claveResultante = indice->buscar(clave);
-			if (claveResultante) {
-				//TODO Avisar a la capa de metadata que se encontró la clave
-			} else {
-				//TODO Avisar a la capa de metadata que no se encontró la clave
-			}
+			resultado = indice->buscar(clave, bloqueDatosAEnviar);
+			pipe.escribir(resultado);
+			if (resultado == ResultadosIndices::OK)
+				pipe.escribir(bloqueDatosAEnviar, Tamanios::TAMANIO_BLOQUE_DATO);
 			break;
 		case OperacionesCapas::INDICES_INSERTAR:
 			unsigned short tamRegistro;
 			//TODO Leer del pipe el tamaño del registro
+			//pipe.leer(&tamRegistro);
 			//Se busca un bloque que contenga espacio suficiente para insertar el nuevo registro
 			indice->buscarBloqueDestino(tamRegistro, bloqueDatosAEnviar, nroBloque);
 			pipe.escribir(nroBloque);
@@ -160,7 +148,6 @@ char procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos 
 
 int main(int argc, char* argv[]) {
 	
-	/*
 	ComuDatos pipe(argv);
 	unsigned char codOp;
 	string nombreTipo;
@@ -168,16 +155,13 @@ int main(int argc, char* argv[]) {
 	pipe.parametro(0, codOp);
 	pipe.parametro(1, nombreTipo);
 	
-	char resultado = procesarOperacion(codOp, nombreTipo, pipe);
+	procesarOperacion(codOp, nombreTipo, pipe);
 	
-	//TODO Enviar resultado a la capa de metadata!
-	pipe.escribir(resultado);
-	*/
 	
 	// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
-	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BS, 48, "locura");
+//	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BS, 48, "locura");
 	
-	char* null = NULL;
+//	char* null = NULL;
 /*	
 	indice.insertar(new ClaveVariable("hola"), null);
 	indice.insertar(new ClaveVariable("chau"), null);
@@ -209,7 +193,7 @@ int main(int argc, char* argv[]) {
 	ClaveVariable clave2("chau");
 	indice.eliminar(&clave2);
 */
-	
+/*	
 	indice.insertar(new ClaveEntera(20), null);
 	indice.insertar(new ClaveEntera(90), null);
 	indice.insertar(new ClaveEntera(49), null);
@@ -223,7 +207,7 @@ int main(int argc, char* argv[]) {
 	indice.insertar(new ClaveEntera(1), null);
 	indice.insertar(new ClaveEntera(7), null);
 	indice.insertar(new ClaveEntera(86), null);
-
+*/
 /*	
 	ClaveEntera clave(456);
 	indice.eliminar(&clave);

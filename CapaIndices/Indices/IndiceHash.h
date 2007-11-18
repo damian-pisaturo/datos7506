@@ -51,33 +51,49 @@ class IndiceHash :public Indice
 	///////////////////////////////////////////////////////////////////////
 
 		/*
-		 * Este metodo inserta un registro en el indice.
+		 * Este metodo inserta un elemento en un indice y guarda el bloque de datos.
 		 **/
-		int insertar(Clave *clave, char* &registro);
+		virtual int insertar(Clave *clave, char* &registro);
 		
 		/*
-		 * Este metodo elimina un registro del indice.
+		 * Este metodo elimina un elemento del indice.
+		 * Si es un índice primario también se elimina el registro de datos.
 		 **/
-		int eliminar(Clave *clave);
+		virtual int eliminar(Clave *clave);
 		
 		/*
-		 * Este metodo busca un registro dentro del indice.
-		 * Siempre retorna NULL y devuelve el registro de clave "clave"
+		 * Este metodo busca un elemento dentro del indice.
+		 * y devuelve el bloque que contiene el registro de clave "clave"
 		 * dentro de "registro".
 		 **/
-		Clave* buscar(Clave *clave, char* &registro) const;
+		virtual int buscar(Clave *clave, char* &registro) const;
 		
-		Clave* buscar(Clave *clave) const;
-		
-		Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const;
-	
 		/*
-		 * Elimina al registro de clave "claveVieja" e inserta al registro "registroNuevo".
-		 **/
-		bool modificar(Clave *claveVieja, Clave *claveNueva, char* &registroNuevo);
+		 * Método utilizado para saber si una clave ya se encuentra insertada en el índice
+		 */
+		virtual int buscar(Clave *clave) const;
 		
-		char buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque);
-	
+		/* Método que busca una clave secundaria. Si la encuentra devuelve en setClavesPrimarias
+		 * una lista con las claves primarias correspondientes a esa clave secundaria.
+		 */
+		//virtual Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const = 0;
+		
+		/*
+		 * Devuelve ResultadosIndices::ERROR_MODIFICACION si claveVieja no se encuentra en el indice. 
+		 * En caso contrario devuelve ResultadosIndices::OK, reemplaza claveVieja
+		 * por claveNueva y reemplaza el viejo registro correspondiente
+		 * a "claveVieja" por "registroNuevo".
+		 **/
+		virtual int modificar(Clave *claveVieja, Clave *claveNueva,
+				                       char* &registroNuevo);
+		
+		/*
+		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
+		 * para insertar un nuevo registro de tamaño 'tamRegistro'
+		 */
+		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos,
+										 unsigned int &nroBloque);
+			
 };
 
 #endif /*INDICEHASH_H_*/

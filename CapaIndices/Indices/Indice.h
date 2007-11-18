@@ -29,47 +29,47 @@ class Indice
 		virtual ~Indice() {}
 		
 		/*
-		 * Este metodo inserta un elemento en un indice.
-		 * Si es un arbol insertara solo una clave, pero si es un hash inserta 
-		 * tambien el registro.
+		 * Este metodo inserta un elemento en un indice y guarda el bloque de datos.
 		 **/
 		virtual int insertar(Clave *clave, char* &registro) = 0;
 		
 		/*
 		 * Este metodo elimina un elemento del indice.
-		 * Si es un arbol elimina una clave, pero si es un hash elimina un 
-		 * registro.
+		 * Si es un índice primario también se elimina el registro de datos.
 		 **/
 		virtual int eliminar(Clave *clave) = 0;
 		
 		/*
 		 * Este metodo busca un elemento dentro del indice.
-		 * Si es un arbol retorna una Clave.
-		 * Si es un hash retorna NULL y devuelve el registro de clave "clave"
+		 * y devuelve el bloque que contiene el registro de clave "clave"
 		 * dentro de "registro".
 		 **/
-		virtual Clave* buscar(Clave *clave, char* &registro) const = 0;
-		
-		virtual Clave* buscar(Clave *clave) const = 0;
-		
-		/*Método que busca una clave secundaria. Si la encuentra devuelve en setClavesPrimarias
-		 * una lista con las claves primarias correspondientes a esa clave secundaria.
-		 */
-		virtual Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const = 0;
+		virtual int buscar(Clave *clave, char* &registro) const = 0;
 		
 		/*
-		 * Devuelve false si claveVieja no se encuentra en el indice. 
-		 * En caso contrario devuelve true; y si es un arbol, la reemplaza 
-		 * por claveNueva; si es un hash reemplaza el viejo registro correspondiente
+		 * Método utilizado para saber si una clave ya se encuentra insertada en el índice
+		 */
+		virtual int buscar(Clave *clave) const = 0;
+		
+		/* Método que busca una clave secundaria. Si la encuentra devuelve en setClavesPrimarias
+		 * una lista con las claves primarias correspondientes a esa clave secundaria.
+		 */
+		//virtual Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const = 0;
+		
+		/*
+		 * Devuelve ResultadosIndices::ERROR_MODIFICACION si claveVieja no se encuentra en el indice. 
+		 * En caso contrario devuelve ResultadosIndices::OK, reemplaza claveVieja
+		 * por claveNueva y reemplaza el viejo registro correspondiente
 		 * a "claveVieja" por "registroNuevo".
 		 **/
-		virtual bool modificar(Clave *claveVieja, Clave *claveNueva,
+		virtual int modificar(Clave *claveVieja, Clave *claveNueva,
 				                       char* &registroNuevo) = 0;
 		
-		/*Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
-		*para insertar un nuevo registro de tamaño 'tamRegistro'
-		*/
-		virtual char buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos,
+		/*
+		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
+		 * para insertar un nuevo registro de tamaño 'tamRegistro'
+		 */
+		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos,
 										 unsigned int &nroBloque) = 0;
 		
 		unsigned char getTipo() const { return this->tipoIndice; }
