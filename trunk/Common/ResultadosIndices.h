@@ -12,7 +12,9 @@ class ResultadosIndices {
 		static const char CLAVE_ENCONTRADA			= -105;
 		static const char CLAVE_DUPLICADA			= -106;
 		static const char SOBREFLUJO       			= -107;
-		static const char REGISTRO_NO_ENCONTRADO	= -108;		
+		static const char REGISTRO_NO_ENCONTRADO	= -108;
+		static const char REQUIERE_REGISTRO			= -109;
+		static const char REQUIERE_BLOQUE			= -110;
 };
 
 #endif /*RESINDICES_H_*/

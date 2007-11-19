@@ -13,6 +13,8 @@ class BTree {
 		
 		//Objeto utilizado para cargar y guardar los nodos desde disco
 		IndiceArbolManager& indiceManager;
+		
+		
 	
 	public:
 		

@@ -2,11 +2,12 @@
 
 	IndiceHash::IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo) 
 	{
-		IndiceHashManager* indiceManager = (IndiceHashManager*) IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
-		
-		hash = new Hash(indiceManager, listaParam, tamBucket);
-		
+		this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
 		this->tipoIndice = TipoIndices::GRIEGO;
+		this->tamBloqueDato = tamBucket;
+		
+		hash = new Hash((IndiceHashManager*)indiceManager, listaParam, tamBucket);
+		
 	}
 	
 	IndiceHash::~IndiceHash() 
@@ -61,11 +62,10 @@
 	}
 
 
+	//El Hash no necesita esta funcionalidad por lo que retorna 0 para indicar que es un índice de este tipo
 	int IndiceHash::buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque) 
 	{	
-		//TODO llamar a BloqueDatosManager para que me diga el número de bloque en el que debo insertar
-		//el nuevo registro
-		return 0;
+		return ResultadosIndices::REQUIERE_REGISTRO;
 	}
 
 /*	

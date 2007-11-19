@@ -218,7 +218,7 @@
 								
 				pipe.leer(&tamanio);
 				
-				if ( (tamanio*sizeof(unsigned int)) < tamBloque){
+				if ( (int)(tamanio*sizeof(unsigned int)) < tamBloque){
 					buckets = new unsigned int[tamanio];
 					pipe.leer(sizeof(unsigned int)*tamanio, (char*)buckets);
 					
