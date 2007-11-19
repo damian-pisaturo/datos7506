@@ -7,9 +7,9 @@ RegisterInfo::RegisterInfo()
 	nodoLista nodo;
 	
 	//El primer nodo de la lista indica s	cout << i << endl;i el registro es variable o no.
-	nodo.tipo = TipoDatos::TIPO_VARIABLE;
-	nodo.pk = "9";
-	nodo.cantClaves = 2;
+	nodo.tipo = TipoDatos::TIPO_FIJO;
+	nodo.pk = "8";
+	nodo.cantClaves = 1;
 	
 	parameterList.push_back(nodo);
 	
@@ -18,13 +18,18 @@ RegisterInfo::RegisterInfo()
 	
 	parameterList.push_back(nodo);
 	
-	nodo.tipo = TipoDatos::TIPO_ENTERO;
-	nodo.pk = "true";
+	nodo.tipo = TipoDatos::TIPO_CHAR;
+	nodo.pk = "false";
 	
 	parameterList.push_back(nodo);
 	
-	nodo.tipo = TipoDatos::TIPO_STRING;
+	nodo.tipo = TipoDatos::TIPO_SHORT;
 	nodo.pk = "true";
+		
+	parameterList.push_back(nodo);
+	
+	nodo.tipo = TipoDatos::TIPO_BOOL;
+	nodo.pk = "false";
 		
 	parameterList.push_back(nodo);
 	

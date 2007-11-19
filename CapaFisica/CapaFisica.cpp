@@ -213,16 +213,20 @@
 			case OperacionesCapas::FISICA_ESCRIBIR_TABLA_HASH:
 			{
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
-				unsigned int tamanio = 0;
+				int tamanio = 0;
 				unsigned int* buckets = NULL;
 								
 				pipe.leer(&tamanio);
 				
-				buckets = new unsigned int[tamanio];
-				pipe.leer(sizeof(unsigned int)*tamanio, (char*)buckets);
+				if ( (tamanio*sizeof(unsigned int)) < tamBloque){
+					buckets = new unsigned int[tamanio];
+					pipe.leer(sizeof(unsigned int)*tamanio, (char*)buckets);
+					
+					((ArchivoIndiceHash*)archivo)->escribirTabla(tamanio, buckets);
+				}else resultado = ResultadosFisica::ERROR_ESCRITURA;
 				
-				((ArchivoIndiceHash*)archivo)->escribirTabla(tamanio, buckets);
-				
+				pipe.escribir(resultado);
+					
 				if (buckets)
 					delete[] buckets;
 			}break;

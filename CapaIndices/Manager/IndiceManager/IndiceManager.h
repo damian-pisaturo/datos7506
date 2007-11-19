@@ -214,7 +214,7 @@ class IndiceHashManager : public IndiceManager
 		/* Sobre-escribe la tabla de dispersion con el tamaño y los
 		 * numeros de buckets pasados por parametro.
 		 */
-		void escribirTabla(unsigned int tamanio, unsigned int* buckets);
+		char escribirTabla(unsigned int tamanio, unsigned int* buckets);
 		
 		/* Lee la tabla de dispersion de disco y coloca su tamaño
 		 * y numero de buckets en los parametros pasados.

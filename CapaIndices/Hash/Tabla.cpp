@@ -92,9 +92,9 @@ void Tabla::crear(unsigned int tamanioBloque)
 void Tabla::reorganizarTabla(unsigned short tamDispActualizado, unsigned int posicion, unsigned int nuevoNroBucket){
 	
 	
-	if((tamDispActualizado/2) == tamanio){
+	if((tamDispActualizado/2) == this->tamanio){
 		duplicarTabla();
-		nroBucket[posicion] = nuevoNroBucket;	
+		this->nroBucket[posicion] = nuevoNroBucket;	
 	}
 	else
 		actualizarReferencias(tamDispActualizado,posicion,nuevoNroBucket);
@@ -107,9 +107,9 @@ void Tabla::reorganizarTabla(unsigned short tamDispActualizado, unsigned int pos
  **/
 void Tabla::considerarReduccion()
 {
-	bool reducir = true;
+	bool reducir   = true;	
+	unsigned int i = 0;
 	
-	unsigned int i=0;
 	while ((i < (getTamanio()/2)) && reducir)
 	{
 		if (getNroBucket(i) != getNroBucket(getTamanio()/2 + i))
