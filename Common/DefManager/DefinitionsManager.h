@@ -1,7 +1,7 @@
 #ifndef DEFINITIONSMANAGER_H_
 #define DEFINITIONSMANAGER_H_
 
-#include "../../CapaIndices/RegisterInfo/RegisterInfo.h"
+#include "../../Common/RegisterInfo/RegisterInfo.h"
 #include "../../CapaIndices/Common/TipoIndices.h"
 #include "../TipoDatos.h"
 #include <list>

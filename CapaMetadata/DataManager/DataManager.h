@@ -4,7 +4,7 @@
 #include "../../Common/DefManager/DefinitionsManager.h"
 #include "../../Common/TipoDatos.h"
 #include "../../Common/Tamanios.h"
-#include "../..//Common/Clave/Clave.h"
+#include "../../Common/Clave/Clave.h"
 #include "../../Common/Bloque/Bloque.h"
 #include "../../Common/ClaveFactory/ClaveFactory.h"
 #include <string>
