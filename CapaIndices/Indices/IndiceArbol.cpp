@@ -23,10 +23,10 @@ IndiceArbol::IndiceArbol(const unsigned char tipoIndice, unsigned short tamBloqu
 
 	switch (tipoIndice) {
 		case TipoIndices::GRIEGO:			
-			this->bloqueManager = NULL; //new BloqueDatosManager(0, "hola", 'h');
+			this->bloqueManager = new BloqueDatosManager(0, "hola", 'h');
 			break;
 		case TipoIndices::ROMANO:
-			this->bloqueManager = (BloqueManager*)new BloqueListaManager(tamBloqueLista, nombreArchivo);
+			this->bloqueManager = new BloqueListaManager(tamBloqueLista, nombreArchivo);
 			break;
 		default:
 			this->bloqueManager = NULL;

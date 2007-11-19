@@ -159,7 +159,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 
 int main(int argc, char* argv[]) {
 	
-	ComuDatos pipe(argv);
+/*	ComuDatos pipe(argv);
 	unsigned char codOp;
 	string nombreTipo;
 	
@@ -167,12 +167,12 @@ int main(int argc, char* argv[]) {
 	pipe.parametro(1, nombreTipo);
 	
 	procesarOperacion(codOp, nombreTipo, pipe);
-	
+	*/
 	
 	// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
-//	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BS, 48, "locura");
+	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BS, 48, 48, "locura", TipoDatos::TIPO_VARIABLE);
 	
-//	char* null = NULL;
+	char* null = NULL;
 /*	
 	indice.insertar(new ClaveVariable("hola"), null);
 	indice.insertar(new ClaveVariable("chau"), null);
@@ -204,7 +204,8 @@ int main(int argc, char* argv[]) {
 	ClaveVariable clave2("chau");
 	indice.eliminar(&clave2);
 */
-/*	
+	
+	//Inserto en la raiz:
 	indice.insertar(new ClaveEntera(20), null);
 	indice.insertar(new ClaveEntera(90), null);
 	indice.insertar(new ClaveEntera(49), null);
@@ -212,13 +213,77 @@ int main(int argc, char* argv[]) {
 	indice.insertar(new ClaveEntera(57), null);
 	indice.insertar(new ClaveEntera(30), null);
 	indice.insertar(new ClaveEntera(17), null);
-	
 	indice.insertar(new ClaveEntera(8), null);
+	
+	//Splittea la raiz:
 	indice.insertar(new ClaveEntera(10), null);
+
+	//Alta común:
 	indice.insertar(new ClaveEntera(1), null);
+	
+	//Alta con redistribución
 	indice.insertar(new ClaveEntera(7), null);
+	
+	//Produce split:
 	indice.insertar(new ClaveEntera(86), null);
-*/
+
+	//Altas comunes:
+	indice.insertar(new ClaveEntera(6), null);
+	indice.insertar(new ClaveEntera(19), null);
+	indice.insertar(new ClaveEntera(60), null);
+	indice.insertar(new ClaveEntera(88), null);
+	indice.insertar(new ClaveEntera(97), null);
+	
+	//Produce split:
+	indice.insertar(new ClaveEntera(14), null);
+	
+	//Lleno la raiz:
+	indice.insertar(new ClaveEntera(2), null);
+	indice.insertar(new ClaveEntera(3), null);
+	indice.insertar(new ClaveEntera(4), null);
+	indice.insertar(new ClaveEntera(5), null);
+	indice.insertar(new ClaveEntera(9), null);
+	indice.insertar(new ClaveEntera(11), null);
+	indice.insertar(new ClaveEntera(12), null);
+	indice.insertar(new ClaveEntera(13), null);
+	indice.insertar(new ClaveEntera(15), null);
+	indice.insertar(new ClaveEntera(16), null);
+	indice.insertar(new ClaveEntera(18), null);
+	indice.insertar(new ClaveEntera(21), null);
+	indice.insertar(new ClaveEntera(22), null);
+	indice.insertar(new ClaveEntera(23), null);
+	indice.insertar(new ClaveEntera(100), null);
+	indice.insertar(new ClaveEntera(121), null);
+	indice.insertar(new ClaveEntera(93), null);
+	
+	//Splitteo la raiz:
+	indice.insertar(new ClaveEntera(28), null);
+	
+	//Baja común:
+	indice.eliminar(new ClaveEntera(11));
+	
+	//Baja con redistribución:
+	indice.eliminar(new ClaveEntera(7));
+	
+	//Baja en un nodo interno:
+	indice.eliminar(new ClaveEntera(88));
+
+	//Baja en la raiz que ademas produce merge en un nodo interno y en la raiz:
+	indice.eliminar(new ClaveEntera(23));
+
+	//Alta común
+	indice.insertar(new ClaveEntera(25), null);
+
+	//Bajas comunes
+	indice.eliminar(new ClaveEntera(57));
+	indice.eliminar(new ClaveEntera(90));
+	
+	//Baja con redistribucion del hermano del hermano
+	indice.eliminar(new ClaveEntera(97));
+	
+	//Baja en la raiz
+	indice.eliminar(new ClaveEntera(18));
+	
 /*	
 	ClaveEntera clave(456);
 	indice.eliminar(&clave);
