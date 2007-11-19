@@ -71,13 +71,16 @@ void BPlusTree::primero()
 }
 
 
-void BPlusTree::insertar(Clave* clave)
-{
-	if (!clave) return;
+bool BPlusTree::insertar(Clave* clave)
+{	
+	if (!clave) return false;
 	
 	if (this->vacio()) {
+		
 		this->nodoRaiz = new NodoBPlus(0, 0, clave, this->tamanioNodo);
+		
 		indiceManager.escribirBloque(this->nodoRaiz);
+		
 	} else {
 		//Se busca el nodo hoja donde se debe insertar la clave
 		NodoBPlus* nodoDestino = buscarLugar(clave);
@@ -85,6 +88,12 @@ void BPlusTree::insertar(Clave* clave)
 		char codigo;
 
 		nodoDestino->insertarClave(clave, &codigo);
+		
+		//Se verifica si la clave ya estaba insertada
+		if (codigo == Codigo::NO_MODIFICADO) {
+			delete nodoDestino;
+			return false;
+		}
 
 		//La clave queda insertada independientemente de si hay OVERFLOW o no.
 		
@@ -97,6 +106,8 @@ void BPlusTree::insertar(Clave* clave)
 							//era una copia
 		
 	}
+	
+	return true;
 }
 
 
@@ -340,20 +351,40 @@ Clave* BPlusTree::buscar(Clave* clave) const {
 	
 	SetClaves::iterator iter = nodo->getClaves()->find(clave);
 	
-	if (iter != nodo->getClaves()->end())
-		return *iter;
+	Clave* claveBuscada = NULL;
 	
-	return NULL;
+	if (iter != nodo->getClaves()->end())
+		claveBuscada = (*iter)->copiar();
+	
+	delete nodo;
+	
+	return claveBuscada;
 	
 }
 
 		
-bool BPlusTree::modificar(Clave* claveVieja, Clave* claveNueva) {
+int BPlusTree::modificar(Clave* claveVieja, Clave* claveNueva) {
 	
-	if ( eliminar(claveVieja) ) insertar(claveNueva);
-	else return false;
+	int resultado = ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	
-	return true;
+	Clave* claveBuscada = this->buscar(claveVieja);
+	
+	if (!claveBuscada) return resultado;
+	
+	if (*claveBuscada == *claveVieja) {	
+	
+		claveNueva->setReferencia(claveBuscada->getReferencia());
+		if (this->eliminar(claveVieja)) {
+			if (this->insertar(claveNueva))
+				resultado = ResultadosIndices::OK;
+			else resultado = ResultadosIndices::CLAVE_DUPLICADA;
+		}
+	
+	}
+	
+	delete claveBuscada;
+	
+	return resultado;
 }
 
 

@@ -12,8 +12,7 @@ extension = cpp
 # descomentar la línea (quitarle el '#' del principio).
 # NOTA: No poner cabeceras (.h).
 
-fuentes = RegisterInfo/RegisterInfo.cpp
-fuentes += Manager/Manager.cpp
+fuentes = Manager/Manager.cpp
 fuentes += Manager/BloqueManager/BloqueDatosManager/BloqueDatosManager.cpp 
 fuentes += Manager/BloqueManager/BloqueListaManager/BloqueListaManager.cpp
 fuentes += Manager/IndiceManager/IndiceManager.cpp
@@ -22,7 +21,6 @@ fuentes += Indices/IndiceHash.cpp
 fuentes += Common/Nodo.cpp
 fuentes += Common/SetClaves.cpp
 fuentes += Common/IndiceManagerFactory.cpp
-fuentes += BTree/BTree.cpp
 fuentes += BPlus/BPlusTree.cpp
 fuentes += BPlus/NodoBPlus.cpp
 fuentes += BStar/BStarTree.cpp
@@ -30,6 +28,7 @@ fuentes += BStar/NodoBStar.cpp
 fuentes += Hash/Hash.cpp
 fuentes += Hash/Bucket.cpp
 fuentes += Hash/Tabla.cpp
+fuentes += ../Common/RegisterInfo/RegisterInfo.cpp
 fuentes += ../Common/Bloque/Bloque.cpp
 fuentes += ../Common/Clave/Clave.cpp
 fuentes += ../Common/ClaveFactory/ClaveFactory.cpp

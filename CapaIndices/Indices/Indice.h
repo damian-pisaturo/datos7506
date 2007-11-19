@@ -35,12 +35,16 @@ class Indice
 		
 		/*
 		 * Este metodo inserta un elemento en un indice y guarda el bloque de datos.
+		 * Si pudo insertar devuelve ResultadosIndices::OK, en caso contrario
+		 * devuelve ResultadosIndices::CLAVE_DUPLICADA.
 		 **/
 		virtual int insertar(Clave *clave, char* &registro) = 0;
 		
 		/*
 		 * Este metodo elimina un elemento del indice.
 		 * Si es un índice primario también se elimina el registro de datos.
+		 * Si pudo eliminar devuelve ResultadosIndices::OK, en caso contrario
+		 * devuelve ResultadosIndices::REGISTRO_NO_ENCONTRADO.
 		 **/
 		virtual int eliminar(Clave *clave) = 0;
 		
@@ -48,24 +52,24 @@ class Indice
 		 * Este metodo busca un elemento dentro del indice.
 		 * y devuelve el bloque que contiene el registro de clave "clave"
 		 * dentro de "registro".
+		 * Si no se encontró la clave devuelve ResultadosIndices::CLAVE_NO_ENCONTRADA.
+		 * Si pudo consultar devuelve ResultadosIndices::OK, en caso contrario
+		 * devuelve ResultadosIndices::ERROR_CONSULTA.
 		 **/
 		virtual int buscar(Clave *clave, char* &registro) const = 0;
 		
 		/*
 		 * Método utilizado para saber si una clave ya se encuentra insertada en el índice
+		 * Si encontró la clave devuelve ResultadosIndices::CLAVE_ENCONTRADA, en caso contrario
+		 * devuelve ResultadosIndices::CLAVE_NO_ENCONTRADA.
 		 */
 		virtual int buscar(Clave *clave) const = 0;
 		
-		/* Método que busca una clave secundaria. Si la encuentra devuelve en setClavesPrimarias
-		 * una lista con las claves primarias correspondientes a esa clave secundaria.
-		 */
-		//virtual Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const = 0;
-		
 		/*
-		 * Devuelve ResultadosIndices::ERROR_MODIFICACION si claveVieja no se encuentra en el indice. 
-		 * En caso contrario devuelve ResultadosIndices::OK, reemplaza claveVieja
-		 * por claveNueva y reemplaza el viejo registro correspondiente
-		 * a "claveVieja" por "registroNuevo".
+		 * Devuelve ResultadosIndices::CLAVE_NO_ENCONTRADA si claveVieja no se encuentra en el indice
+		 * o ResultadosIndices::CLAVE_DUPLICADA si claveNueva ya se encuentra insertada.
+		 * En caso contrario devuelve ResultadosIndices::OK si pudo reemplazar el registro o
+		 * ResultadosIndices::ERROR_MODIFICACION si no pudo reemplazarlo.
 		 **/
 		virtual int modificar(Clave *claveVieja, Clave *claveNueva,
 				                       char* &registroNuevo) = 0;
@@ -73,6 +77,8 @@ class Indice
 		/*
 		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
 		 * para insertar un nuevo registro de tamaño 'tamRegistro'
+		 * Si encontró un bloque con espacio libre devuelve ResultadosIndices::REQUIERE_BLOQUE,
+		 * en caso contrario devuelve ResultadosIndices::BLOQUES_OCUPADOS.
 		 */
 		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos,
 										 unsigned int &nroBloque) = 0;

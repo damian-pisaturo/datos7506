@@ -3,7 +3,6 @@
 
 #include "../BTree/BTree.h"
 #include "NodoBStar.h"
-#include "../Manager/IndiceManager/IndiceManager.h"
 
 
 
@@ -17,7 +16,7 @@ class BStarTree : public BTree{
 		
 		NodoBStar* getRaiz();
 		
-		void insertar(Clave* clave);
+		bool insertar(Clave* clave);
 		
 		//Elimina la Clave clave si la encuentra, y devuelve true. En caso contrario devuelve false.
 		bool eliminar(Clave* clave);
@@ -26,7 +25,7 @@ class BStarTree : public BTree{
 		
 		//Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario, la reemplaza por claveNueva
 		//y devuelve true.
-		bool modificar(Clave* claveVieja, Clave* claveNueva);
+		int modificar(Clave* claveVieja, Clave* claveNueva);
 		
 		bool vacio() const { return (this->nodoRaiz == NULL); }
 		

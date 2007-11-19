@@ -49,11 +49,6 @@ class IndiceArbol: public Indice {
 		 */
 		virtual int buscar(Clave *clave) const;
 		
-		/* Método que busca una clave secundaria. Si la encuentra devuelve en setClavesPrimarias
-		 * una lista con las claves primarias correspondientes a esa clave secundaria.
-		 */
-		//virtual Clave* buscar(Clave* clave, SetClaves* &setClavesPrimarias) const = 0;
-		
 		/*
 		 * Devuelve ResultadosIndices::ERROR_MODIFICACION si claveVieja no se encuentra en el indice. 
 		 * En caso contrario devuelve ResultadosIndices::OK, reemplaza claveVieja

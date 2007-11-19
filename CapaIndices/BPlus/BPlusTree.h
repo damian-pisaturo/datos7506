@@ -22,7 +22,6 @@
 
 #include "../BTree/BTree.h"
 #include "NodoBPlus.h"
-#include "../Manager/IndiceManager/IndiceManager.h"
 
 
 #include <string>
@@ -57,7 +56,7 @@ class BPlusTree : public BTree
 	// Metodos publicos
 	//////////////////////////////////////////////////////////////////////
 	    /*Insertar clave en un arbol B+*/	
-		void insertar(Clave* clave);
+		bool insertar(Clave* clave);
 		
 		/*Eliminar clave pasada por parametro en un arbol B+*/
 		bool eliminar(Clave* clave);
@@ -69,7 +68,7 @@ class BPlusTree : public BTree
 		
 		//Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario, la reemplaza por claveNueva
 		//y devuelve true.
-		bool modificar(Clave* claveVieja, Clave* claveNueva);
+		int modificar(Clave* claveVieja, Clave* claveNueva);
 		
 		//Deja en nodoActual el primer nodo del set secuencial
 		void primero();
