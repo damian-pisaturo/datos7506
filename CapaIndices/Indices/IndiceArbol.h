@@ -4,6 +4,8 @@
 #include "../BTree/BTree.h"
 #include "../BStar/BStarTree.h"
 #include "../BPlus/BPlusTree.h"
+#include "../Manager/BloqueManager/BloqueDatosManager/BloqueDatosManager.h"
+#include "../Manager/BloqueManager/BloqueListaManager/BloqueListaManager.h"
 #include "../Common/IndiceManagerFactory.h"
 #include "Indice.h"
 
@@ -12,13 +14,15 @@ class IndiceArbol: public Indice {
 	private:
 		
 		BTree* bTree;
+		
+		BloqueManager* bloqueManager;
 	
 	public:
 		
 		IndiceArbol(unsigned char tipoIndice, unsigned short tamBloqueLista,
-					int tipoDato, ListaTipos* listaTipos,
-					unsigned char tipoEstructura, unsigned short tamNodo,
-					const string& nombreArchivo);
+					int tipoDato, ListaTipos* listaTipos, unsigned char tipoEstructura,
+					unsigned short tamNodo, unsigned short tamBloqueDato,
+					const string& nombreArchivo, unsigned char tipoOrg);
 		
 		virtual ~IndiceArbol();
 		

@@ -15,7 +15,7 @@ class IndiceManagerFactory {
 	
 		static IndiceManagerFactory& getInstance() { return instance; }
 		
-		IndiceManager* getIndiceManager(unsigned char tipoIndice, unsigned short tamBloqueLista,
+		IndiceManager* getIndiceManager(unsigned char tipoIndice,
 										int tipoDato, ListaTipos* listaTipos,
 										unsigned char tipoEstructura, unsigned short tamNodo,
 										unsigned int tamBucket, const string& nombreArchivo) const;

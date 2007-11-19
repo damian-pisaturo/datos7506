@@ -12,6 +12,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 	DefinitionsManager::NodoListaIndices nodoListaIndices;
 	DefinitionsManager::ListaTiposIndices *listaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
 	DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	char tipoOrg = (*(listaTiposAtributos->begin())).tipo;
 	
 	for (DefinitionsManager::ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
 		iter != listaTiposIndices->end(); ++iter) {
@@ -26,7 +27,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 			case TipoIndices::ARBOL_BS:
 				indice = new IndiceArbol(estructura.tipoIndice, estructura.tamanioBloque, estructura.tipoClave,
 										defManager.getListaTipos(nombreTipo), estructura.tipoEstructura, estructura.tamanioBloque,
-										estructura.nombreArchivo);
+										Tamanios::TAMANIO_BLOQUE_DATO, estructura.nombreArchivo, tipoOrg);
 				break;
 				
 			case TipoIndices::HASH:
@@ -63,7 +64,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	Clave *clave = NULL;
 	Indice* indice = NULL;
 	
-	char* bloqueDatosAEnviar = NULL; //TODO Ver si hay que reservar memoria para el bloque de datos
+	char* bloqueDatosAEnviar = NULL;
 	unsigned int nroBloque = 0; //Variable utilizada para almacenar el número de bloque
 								//en el cual se debe insertar un registro
 	
@@ -111,25 +112,35 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			break;
 		case OperacionesCapas::INDICES_INSERTAR:
 			unsigned short tamRegistro;
-			//TODO Leer del pipe el tamaño del registro
-			//pipe.leer(&tamRegistro);
+			pipe.leer(&tamRegistro);
 			//Se busca un bloque que contenga espacio suficiente para insertar el nuevo registro
-			indice->buscarBloqueDestino(tamRegistro, bloqueDatosAEnviar, nroBloque);
-			pipe.escribir(nroBloque);
-			//TODO Ver donde metemos el tamaño del bloque
-			pipe.escribir(bloqueDatosAEnviar, 4096);
-			//Recibo el bloque con el registro insertado
-			pipe.leer(4096, bloqueDatosAEnviar);
-			clave->setReferencia(nroBloque);
-			indice->insertar(clave, bloqueDatosAEnviar);
-			//TODO Actualizar los indices secundarios :S
+			resultado = indice->buscarBloqueDestino(tamRegistro, bloqueDatosAEnviar, nroBloque);
+			pipe.escribir(resultado);
+			if (resultado == ResultadosIndices::REQUIERE_REGISTRO) {
+				//El índice es un Hash
+				pipe.leer(tamRegistro, bloqueDatosAEnviar);
+			} else {
+				pipe.escribir(bloqueDatosAEnviar, Tamanios::TAMANIO_BLOQUE_DATO);
+				//Recibo el bloque con el registro insertado
+				pipe.leer(Tamanios::TAMANIO_BLOQUE_DATO, bloqueDatosAEnviar);				
+				clave->setReferencia(nroBloque);
+			}
+			resultado = indice->insertar(clave, bloqueDatosAEnviar);
+			pipe.escribir(resultado);
 			break;
 		case OperacionesCapas::INDICES_ELIMINAR:
 			indice->eliminar(clave);
-			//TODO Actualizar los indices secundarios (no es obligatorio)
 			break;
 		case OperacionesCapas::INDICES_MODIFICAR:
-			//TODO Ver si se trata de una clave primaria o secundaria
+			if (indice->getTipo() == TipoIndices::GRIEGO) {
+				indice->buscar(clave, bloqueDatosAEnviar);
+				
+				
+			} else {
+				
+				
+				
+			}
 			//TODO Leer del pipe el bloque con los datos modificados
 			//TODO Comprobar si se modificaron atributos que componen alguna clave
 			Clave* claveNueva;

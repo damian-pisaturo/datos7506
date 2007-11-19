@@ -2,12 +2,12 @@
 
 IndiceManagerFactory IndiceManagerFactory::instance;
 
-IndiceManager* IndiceManagerFactory::getIndiceManager(unsigned char tipoIndice, unsigned short tamBloqueLista,
+IndiceManager* IndiceManagerFactory::getIndiceManager(unsigned char tipoIndice,
 													  int tipoDato, ListaTipos* listaTipos,
 													  unsigned char tipoEstructura, unsigned short tamNodo,
 													  unsigned int tamBucket, const string& nombreArchivo) const {
 	
-	if ( (tipoIndice == TipoIndices::GRIEGO) || (tipoIndice == TipoIndices::ROMANO)){
+	if ( (tipoIndice == TipoIndices::GRIEGO) || (tipoIndice == TipoIndices::ROMANO) ){
 		
 		switch (tipoDato) {
 			

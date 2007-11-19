@@ -5,6 +5,7 @@
 #include "../../Common/Clave/Clave.h"
 #include "../Common/SetClaves.h"
 #include "../../Common/ResultadosIndices.h"
+#include "../../Common/Tamanios.h"
 #include <vector>
 #include <map>
 
@@ -21,12 +22,16 @@ typedef std::vector<Indice*> VectorIndices;
 class Indice
 {
 	protected:
+		IndiceManager* indiceManager;
+		
 		unsigned char tipoIndice;
+		
+		unsigned short tamBloqueDato;
 		
 	public:
 		Indice() {}
 		
-		virtual ~Indice() {}
+		virtual ~Indice() { if (indiceManager) delete indiceManager; }
 		
 		/*
 		 * Este metodo inserta un elemento en un indice y guarda el bloque de datos.
@@ -74,6 +79,7 @@ class Indice
 		
 		unsigned char getTipo() const { return this->tipoIndice; }
 		
+		unsigned short getTamanioBloqueDato() const { return this->tamBloqueDato; }
 		
 };
 
