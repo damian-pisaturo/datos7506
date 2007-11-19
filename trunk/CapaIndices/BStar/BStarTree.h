@@ -45,7 +45,7 @@ class BStarTree : public BTree{
 		
 		void insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* claveInsertada);
 		
-		void eliminarInterno(NodoBStar* nodoTarget, char* codigo, Clave* claveEliminada);
+		void eliminarInterno(NodoBStar* &nodoTarget, char* codigo, Clave* claveEliminada);
 		
 		//bool puedePasarseClaveDerecha(NodoBStar* nodoDestino, NodoBStar* &nodoPadre,
 		//							  	NodoBStar* &nodoHnoDer) const;
@@ -92,6 +92,9 @@ class BStarTree : public BTree{
 		//Este método concatena un nodo con underflow con un nodo hermano y con una clave del nodo
 		//padre. Esto sucede cuando el árbol sólo tiene dos niveles y el nodo raíz sólo tiene una clave.
 		void merge(NodoBStar* &nodoHijoIzq, NodoBStar* &nodoHijoDer, NodoBStar* nodoPadre);
+		
+	/*	bool puedeMergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
+									  Clave* clavePadre1, Clave* clavePadre2);*/
 		
 		//Este método concatena un nodo con underflow con dos nodos hermanos y con dos claves del nodo
 		//padre. Realiza el split internamente y devuelve la clave a promocionar.

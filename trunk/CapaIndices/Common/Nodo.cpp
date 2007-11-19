@@ -389,16 +389,10 @@ bool Nodo::puedeRecibirClaveDesdeIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* c
 	
 	if ( tamanioClavePadreARecibir > this->getEspacioLibre() ) return false;
 	
-	cout << "primeros bytes sobrantes: " << primerosBytesSobrantes << endl;
-	cout << "tamaño clave padre a recibir: " << tamanioClavePadreARecibir << endl;
-	cout << "bytes ultima clave sobrante: " << bytesUltimaClaveSobrante << endl;
-	cout << "tamaño clave padre: " << tamanioClavePadre << endl;
 	
 	if ( (this->puedeRecibir(primerosBytesSobrantes + tamanioClavePadreARecibir, 0))
 		&& ( nodoPadre->puedeRecibir(bytesUltimaClaveSobrante, tamanioClavePadre) ) )
 		return true;
-	
-	cout << "no puede recibir" << endl;
 	
 	return false;
 }
@@ -431,7 +425,7 @@ bool Nodo::puedeRecibirClaveDesdeDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* c
 
 
 bool Nodo::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* clavePadre) const {
-	
+
 	//Bytes requeridos por el hermano izquierdo
 	unsigned short bytesRequeridos = nodoHnoIzq->obtenerBytesRequeridos();
 	unsigned short bytesPropuestosPorMi = 0;
@@ -440,14 +434,15 @@ bool Nodo::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* cla
 	unsigned char clavesPropuestas = 0;
 	unsigned short tamanioClavePadreARecibir = tamanioClavePadre;
 	unsigned short tamanioClaveHaciaElPadre = this->obtenerPrimeraClave()->getTamanioEnDisco(bstar);
-
+	
 	if (this->getNivel() == 0) {
 		tamanioClavePadreARecibir -= Tamanios::TAMANIO_REFERENCIA;
 		tamanioClaveHaciaElPadre += Tamanios::TAMANIO_REFERENCIA;
 	}
-	
+
 	if ( ( tamanioClavePadreARecibir >= bytesRequeridos ) &&
-		 (nodoPadre->puedeRecibir(tamanioClaveHaciaElPadre, tamanioClavePadre)) ) 
+		 (nodoPadre->puedeRecibir(tamanioClaveHaciaElPadre, tamanioClavePadre)) &&
+		 (bytesACeder(this->obtenerPrimeraClave()->getTamanioEnDisco(bstar), clavesPropuestas) > 0) )
 		return true;
 	
 	bytesRequeridos -= tamanioClavePadreARecibir;
@@ -485,7 +480,8 @@ bool Nodo::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* cla
 	}
 	
 	if ( ( tamanioClavePadreARecibir >= bytesRequeridos ) &&
-		 (nodoPadre->puedeRecibir(tamanioClaveHaciaElPadre, tamanioClavePadre)) )
+		 (nodoPadre->puedeRecibir(tamanioClaveHaciaElPadre, tamanioClavePadre)) &&
+		 (bytesACeder(this->obtenerPrimeraClave()->getTamanioEnDisco(bstar), clavesPropuestas, false) > 0) )
 		return true;
 		
 	bytesRequeridos -= tamanioClavePadreARecibir;
