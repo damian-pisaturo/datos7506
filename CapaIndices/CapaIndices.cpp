@@ -129,22 +129,29 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			pipe.escribir(resultado);
 			break;
 		case OperacionesCapas::INDICES_ELIMINAR:
-			indice->eliminar(clave);
+			resultado = indice->eliminar(clave);
+			pipe.escribir(resultado);
 			break;
 		case OperacionesCapas::INDICES_MODIFICAR:
 			if (indice->getTipo() == TipoIndices::GRIEGO) {
-				indice->buscar(clave, bloqueDatosAEnviar);
-				
-				
+				resultado = indice->buscar(clave, bloqueDatosAEnviar);
+				pipe.escribir(resultado);
+				if (resultado == ResultadosIndices::OK) {
+					//Se envía el bloque antiguo
+					pipe.escribir(bloqueDatosAEnviar, Tamanios::TAMANIO_BLOQUE_DATO);
+					//Se recibe el bloque con los atributos modificados
+					pipe.leer(Tamanios::TAMANIO_BLOQUE_DATO, bloqueDatosAEnviar);
+					//TODO Pedirle la clave nueva a la Clase Registro de Nico.
+					Clave* claveNueva;
+					resultado = indice->modificar(clave, claveNueva, bloqueDatosAEnviar);
+					pipe.escribir(resultado);
+				}
 			} else {
 				
-				
+				//TODO Obtner la lista de claves primarias y modificar todos los registros
+				//correspondientes a cada clave de la lista.
 				
 			}
-			//TODO Leer del pipe el bloque con los datos modificados
-			//TODO Comprobar si se modificaron atributos que componen alguna clave
-			Clave* claveNueva;
-			indice->modificar(clave, claveNueva, bloqueDatosAEnviar);
 			break;
 	}
 	

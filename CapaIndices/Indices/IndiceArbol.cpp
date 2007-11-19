@@ -23,7 +23,7 @@ IndiceArbol::IndiceArbol(const unsigned char tipoIndice, unsigned short tamBloqu
 
 	switch (tipoIndice) {
 		case TipoIndices::GRIEGO:			
-			this->bloqueManager = new BloqueDatosManager(0, "hola", 'h');
+			this->bloqueManager = new BloqueDatosManager(tamBloqueDato, nombreArchivo, tipoOrg);
 			break;
 		case TipoIndices::ROMANO:
 			this->bloqueManager = new BloqueListaManager(tamBloqueLista, nombreArchivo);
@@ -44,7 +44,7 @@ IndiceArbol::~IndiceArbol() {
  */
 int IndiceArbol::insertar(Clave *clave, char* &registro) {
 	int resultado;
-	//TODO llamar a BloqueDatosManager para guardar el bloque de datos
+	//this->bloqueManager->escribirBloqueDatos();
 	//clave->setReferencia(numBloque);
 	bTree->insertar(clave);
 	return resultado;
