@@ -27,7 +27,7 @@
 
 #include "../../Common/Tamanios.h"
 #include "../../Common/TipoDatos.h"
-#include "../../CapaIndices/RegisterInfo/RegisterInfo.h"
+#include "../../Common/RegisterInfo/RegisterInfo.h"
 #include "../Clave/Clave.h"
 #include "../../Common/ResultadosIndices.h"
 

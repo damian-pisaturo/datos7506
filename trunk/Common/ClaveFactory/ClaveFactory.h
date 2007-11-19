@@ -17,7 +17,7 @@ class ClaveFactory {
 	
 		static const ClaveFactory& getInstance() { return instance; }
 		
-		Clave* getClave(const DefinitionsManager::ListaValoresClaves& listaValoresClaves, const ListaTipos& listaTipos) const;
+		Clave* getClave(const DefinitionsManager::ListaValoresClaves& listaValoresClaves, const ListaTipos &listaTipos) const;
 
 		Clave* getClave(const DefinitionsManager::ListaClaves& listaValoresClaves, const ListaNodos& listaNodos) const;
 		
