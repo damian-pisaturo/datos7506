@@ -266,9 +266,7 @@
 			 //almacenarlos a disco.
 			 for (unsigned int i = 0; ( (i < cantElem) && (resultado == ResultadosFisica::OK) ); i++)
 				 resultado = this->escribir(tabla + i);
-				 //if (resultado == ResFisica::OK)
-					 //resultado = this->posicionarse(i + 2);
-			 
+
 			 return resultado;			 
 		 } 
 		

@@ -852,32 +852,38 @@ void IndiceHashManager::leerTabla(unsigned int* tamanio, unsigned int* &buckets)
 		delete pipe;
 }
 
-void IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* buckets) 
+char IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* buckets) 
 {
-	char* bucketsTabla= NULL;
+	char resultado     = ResultadosFisica::OK;
+	char* bucketsTabla = NULL;
 
-	//Instancia del pipe
+	// Instancia del pipe
 	ComuDatos* pipe = this->instanciarPipe();
 
-	//Parametros de inicializacion de la Capa Fisica para
-	//actualizar la tabla de dispersion 
+	// Parametros de inicializacion de la Capa Fisica para
+	// actualizar la tabla de dispersion 
 	pipe->agregarParametro(OperacionesCapas::FISICA_ESCRIBIR_TABLA_HASH, 0); //Codigo de operacion
 	pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre de archivo.
 	pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño de un bucket en disco.
 
-	//Se lanza el proceso de la capa fisica. 
+	// Se lanza el proceso de la capa fisica. 
 	pipe->lanzar();
 
-	//Enviar el tamaño de la tabla por el pipe.
+	// Enviar el tamaño de la tabla por el pipe.
 	pipe->escribir(tamanio);
 
 	bucketsTabla = (char*) buckets;
 
-	//Enviar el contenido de la tabla por el pipe.
+	// Enviar el contenido de la tabla por el pipe.
 	pipe->escribir(bucketsTabla, tamanio*sizeof(unsigned int));
-
+	
+	// Obtener el resultado de la operacion.
+	pipe->leer(&resultado);
+	
 	if (pipe)
 		delete pipe;
+	
+	return resultado;
 }
 
 
