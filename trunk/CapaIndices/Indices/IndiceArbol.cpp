@@ -43,11 +43,14 @@ IndiceArbol::~IndiceArbol() {
  * Este metodo inserta una clave en un indice.
  */
 int IndiceArbol::insertar(Clave *clave, char* &registro) {
-	int resultado;
-	//this->bloqueManager->escribirBloqueDatos();
-	//clave->setReferencia(numBloque);
-	bTree->insertar(clave);
-	return resultado;
+	//int resultado = this->bloqueManager->escribirBloqueDatos(registro);
+	//if (resultado >= 0) {
+	//	clave->setReferencia(resultado);
+	//	if (bTree->insertar(clave))
+	//		return ResultadosIndices::OK;
+	//	else return ResultadosIndices::CLAVE_DUPLICADA;
+	//}
+	return ResultadosIndices::ERROR_INSERCION;
 }
 
 /*
@@ -56,7 +59,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro) {
  **/
 int IndiceArbol::eliminar(Clave *clave) {
 	if (bTree->eliminar(clave)) return ResultadosIndices::OK;
-	else return ResultadosIndices::ERROR_ELIMINACION;
+	else return ResultadosIndices::REGISTRO_NO_ENCONTRADO;
 }
 
 /*
@@ -66,9 +69,13 @@ int IndiceArbol::eliminar(Clave *clave) {
 int IndiceArbol::buscar(Clave *clave, char* &registro) const {
 	Clave* claveRecuperada = bTree->buscar(clave);
 	if (!claveRecuperada) return ResultadosIndices::CLAVE_NO_ENCONTRADA;
-	registro = new char[Tamanios::TAMANIO_BLOQUE_DATO];
-	//TODO llamar a BloqueDatosManager para cargar el bloque de datos
-	//correspondiente a la referencia de la clave
+	registro = new char[this->getTamanioBloqueDato()];
+	int resultado = this->bloqueManager->leerBloqueDatos(claveRecuperada->getReferencia(), registro);
+	if (resultado != ResultadosFisica::OK) {
+		delete registro;
+		registro = NULL;
+		return ResultadosIndices::ERROR_CONSULTA;
+	}
 	return ResultadosIndices::OK;
 }
 
@@ -78,30 +85,30 @@ int IndiceArbol::buscar(Clave *clave) const {
 }
 
 /*
- * Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario,
- * la reemplaza por claveNueva y devuelve true.
+ * Devuelve ResultadosIndices::ERROR_MODIFICACION si claveVieja no se encuentra en el indice. 
+ * En caso contrario devuelve ResultadosIndices::OK, reemplaza claveVieja
+ * por claveNueva y reemplaza el viejo registro correspondiente
+ * a "claveVieja" por "registroNuevo".
  **/
 int IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* &registroNuevo) {
-	//TODO llamar a BloqueDatosManager para sobreescribir el bloque y obtener el número
-	//de bloque para settearselo a la clave nueva
-	if (bTree->modificar(claveVieja, claveNueva))
-		return ResultadosIndices::OK;
-	else return ResultadosIndices::ERROR_MODIFICACION;
+	int resultado = bTree->modificar(claveVieja, claveNueva);
+	if (resultado == ResultadosIndices::OK) {
+		//resultado = this->bloqueManager->escribirBloqueDatos(claveNueva->getReferencia(), registroNuevo);
+		//if (resultado == ResultadosFisica::OK) return ResultadosIndices::OK;
+		//else return ResultadosIndices::ERROR_MODIFICACION;
+	}
+	return resultado;
 }
 
 
 int IndiceArbol::buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque) {
-	
-	//TODO llamar a BloqueDatosManager para que me diga el número de bloque en el que debo insertar
-	//el nuevo registro
-	return ResultadosIndices::REQUIERE_BLOQUE;
+	bloqueDatos = new char[this->getTamanioBloqueDato()]; //La memoria de debe liberar afuera
+	int resultado = this->bloqueManager->buscarEspacioLibre(bloqueDatos, tamRegistro);
+	if (resultado != ResultadosFisica::BLOQUES_OCUPADOS) {
+		nroBloque = resultado;
+		return ResultadosIndices::REQUIERE_BLOQUE;
+	}
+	return resultado;
 }
 
-/*
-Clave* IndiceArbol::buscar(Clave* clave, SetClaves* &setClavesPrimarias) const {
-	
-	//TODO Lamar al método de Nico...
-	return 0;
-}
-*/
 

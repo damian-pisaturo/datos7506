@@ -88,6 +88,10 @@ class DefinitionsManager {
 			return this->mapaNombresAtributos;
 		}
 		
+		unsigned char getTipoOrgRegistro(const string &nombreTipo) {
+			return this->mapaTiposAtributos[nombreTipo]->begin()->tipo;
+		}
+		
 	private:
 		DefinitionsManager();
 

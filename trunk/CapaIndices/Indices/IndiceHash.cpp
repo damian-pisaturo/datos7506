@@ -68,11 +68,3 @@
 		return ResultadosIndices::REQUIERE_REGISTRO;
 	}
 
-/*	
-	Clave* IndiceHash::buscar(Clave* clave, SetClaves* &setClavesPrimarias) const 
-	{		
-		//TODO Lamar al método de Nico...
-		return 0;
-	}
-*/
-

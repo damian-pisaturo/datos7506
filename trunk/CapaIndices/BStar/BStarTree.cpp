@@ -22,9 +22,9 @@ NodoBStar* BStarTree::getRaiz()
 	return this->nodoRaiz;
 }
 
-void BStarTree::insertar(Clave* clave) {
+bool BStarTree::insertar(Clave* clave) {
 	
-	if (!clave) return;
+	if (!clave) return false;
 	
 	if (this->vacio()) {
 		
@@ -37,7 +37,7 @@ void BStarTree::insertar(Clave* clave) {
 		NodoBStar* nodoDestino = buscarLugar(clave);
 		
 		//si nodoDestino == NULL significa que la clave ya esta insertada
-		if (!nodoDestino) return;
+		if (!nodoDestino) return false;
 		
 		char codigo;
 		
@@ -53,6 +53,8 @@ void BStarTree::insertar(Clave* clave) {
 		delete nodoDestino;
 		
 	}
+	
+	return true;
 
 }
 
@@ -466,20 +468,40 @@ Clave* BStarTree::buscar(Clave* clave) const {
 	
 	SetClaves::iterator iter = nodo->getClaves()->find(clave);
 	
+	Clave* claveBuscada = NULL;
+		
 	if (iter != nodo->getClaves()->end())
-		return *iter;
+		claveBuscada = (*iter)->copiar();
 	
-	return NULL;
+	delete nodo;
+	
+	return claveBuscada;
 	
 }
 
 		
-bool BStarTree::modificar(Clave* claveVieja, Clave* claveNueva) {
+int BStarTree::modificar(Clave* claveVieja, Clave* claveNueva) {
 	
-	if ( eliminar(claveVieja) ) insertar(claveNueva);
-	else return false;
+	int resultado = ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	
-	return true;
+	Clave* claveBuscada = this->buscar(claveVieja);
+	
+	if (!claveBuscada) return resultado;
+	
+	if (*claveBuscada == *claveVieja) {	
+	
+		claveNueva->setReferencia(claveBuscada->getReferencia());
+		if (this->eliminar(claveVieja)) {
+			if (this->insertar(claveNueva))
+				resultado = ResultadosIndices::OK;
+			else resultado = ResultadosIndices::CLAVE_DUPLICADA;
+		}
+	
+	}
+	
+	delete claveBuscada;
+	
+	return resultado;
 }
 
 

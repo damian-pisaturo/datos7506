@@ -15,6 +15,7 @@ class ResultadosIndices {
 		static const char REGISTRO_NO_ENCONTRADO	= -108;
 		static const char REQUIERE_REGISTRO			= -109;
 		static const char REQUIERE_BLOQUE			= -110;
+		static const char ERROR_CONSULTA			= -111;
 };
 
 #endif /*RESINDICES_H_*/

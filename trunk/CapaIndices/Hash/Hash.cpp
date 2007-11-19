@@ -196,7 +196,7 @@
 			// de registroNuevo
 			if (this->eliminarRegistro(claveVieja) == ResultadosIndices::OK)
 				return this->insertarRegistro(registroNuevo, claveNueva);
-			else return ResultadosIndices::ERROR_MODIFICACION;
+			else return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 		}
 
 		/*

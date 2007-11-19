@@ -3,7 +3,7 @@
 
 #include "../Common/Nodo.h"
 #include "../Manager/IndiceManager/IndiceManager.h"
-#include "../../Common/ResultadosFisica.h"
+#include "../../Common/ResultadosIndices.h"
 
 class BTree {
 	
@@ -18,11 +18,12 @@ class BTree {
 	
 	public:
 		
-		BTree(IndiceManager& indiceManager, unsigned short tamanioNodo);
+		BTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
+		: tamanioNodo(tamanioNodo), indiceManager((IndiceArbolManager&)indiceManager) {}
 		
-		virtual ~BTree();
+		virtual ~BTree() {}
 		
-		virtual void insertar(Clave* clave) = 0;
+		virtual bool insertar(Clave* clave) = 0;
 		
 		//Elimina la Clave clave si la encuentra, y devuelve true. En caso contrario devuelve false.
 		virtual bool eliminar(Clave* clave) = 0;
@@ -31,7 +32,7 @@ class BTree {
 		
 		//Devuelve false si claveVieja no se encuentra insertada en el arbol. En caso contrario,
 		//la reemplaza por claveNueva y devuelve true.
-		virtual bool modificar(Clave* claveVieja, Clave* claveNueva) = 0;
+		virtual int modificar(Clave* claveVieja, Clave* claveNueva) = 0;
 		
 };
 

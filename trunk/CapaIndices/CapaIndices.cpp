@@ -12,7 +12,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 	DefinitionsManager::NodoListaIndices nodoListaIndices;
 	DefinitionsManager::ListaTiposIndices *listaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
 	DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-	char tipoOrg = (*(listaTiposAtributos->begin())).tipo;
+	char tipoOrg = defManager.getTipoOrgRegistro(nombreTipo);
 	
 	for (DefinitionsManager::ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
 		iter != listaTiposIndices->end(); ++iter) {
