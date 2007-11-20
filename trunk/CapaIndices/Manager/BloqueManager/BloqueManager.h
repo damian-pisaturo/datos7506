@@ -58,13 +58,13 @@ class BloqueManager : public Manager
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo. 
 		 * Devuelve la posicion donde fue escrito finalmente.
 		 */
-		virtual int escribirBloqueDatos(const void* bloqueNuevo, unsigned int espLibre) = 0;
+		virtual int escribirBloqueDatos(const void* bloqueNuevo) = 0;
 		
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y
 		 * sobre-escribir el bloque modificado en el disco
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
 		 */
-		virtual int escribirBloqueDatos(unsigned short numBloque, const void* bloqueModif, unsigned int espLibre) = 0;
+		virtual int escribirBloqueDatos(unsigned short numBloque, const void* bloqueModif) = 0;
 		
 		/*Actualiza el archivo de espacio libre, indicando que el bloque cuya
 		 * posicion en el archivo es 'numBloque' esta disponible para escritura.

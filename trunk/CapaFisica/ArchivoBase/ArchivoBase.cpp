@@ -27,7 +27,7 @@
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 
-		ArchivoBase::ArchivoBase(string nombre, unsigned short tamBloque)
+		ArchivoBase::ArchivoBase(string nombre, unsigned char magic, unsigned short tamBloque)
 		{
 			//Abre el archivo en modo lectura - escritura binario  
 			this->archivo.open(nombre.c_str(), ios::in |ios::out |ios::binary);
@@ -43,7 +43,17 @@
 			    this->archivo.close();
 				    
 			    //Reabre el archivo para lectura - escritura binario
-			    this->archivo.open(nombre.c_str(),ios::in|ios::out|ios::binary);			    
+			    this->archivo.open(nombre.c_str(),ios::in|ios::out|ios::binary);
+			    
+			    //Escribe el numero magico identifiador.
+			    this->archivo.write(&magic, sizeof(unsigned char));
+			    
+			    this->archivoValido  = true;
+			}else{
+				unsigned char magicEnFile = 0;
+				
+				this->archivo.read(&magicEnFile, sizeof(unsigned char));				
+				this->archivoValido = (magicEnFile == magic);
 			}
 			
 			this->tamBloque = tamBloque;
@@ -134,20 +144,20 @@
 		char ArchivoBase::posicionarse(unsigned short posicion)
 		{
 			char resultado = ResultadosFisica::OK;
-			
-			//if (this->size() >= (posicion + 1)*this->tamBloque){
-				//Verifica que el archivo esté abierto
-				if (this->archivo.is_open()) {
-					//Mueve la posición actual según sea el tamano del bloque
-					this->archivo.seekg(posicion * this->tamBloque, ios_base::beg);
 		
-					//Chequea si se ha producido un error			
-					if (this->archivo.fail())
-						resultado = ResultadosFisica::ERROR_POSICION;
-				}else
-					resultado = ResultadosFisica::NO_ABIERTO;
-			//}else
-				//resultado = ResultadosFisica::ERROR_POSICION;
+			//Verifica que el archivo esté abierto
+			if (this->archivo.is_open()) {
+				//Mueve la posición actual según sea el tamano del bloque
+				//considerando la corrección por el identificador mágico.
+				this->archivo.seekg(posicion * this->tamBloque + sizeof(unsigned char),
+						ios_base::beg);
+	
+				//Chequea si se ha producido un error			
+				if (this->archivo.fail())
+					resultado = ResultadosFisica::ERROR_POSICION;
+			}else
+				resultado = ResultadosFisica::NO_ABIERTO;
+
 			
 			return resultado;
 		}
@@ -170,5 +180,10 @@
 		unsigned short ArchivoBase::getTamanioBloque()
 		{
 			return this->tamBloque;
+		}
+				
+		char ArchivoBase::esValido()
+		{
+			return this->archivoValido;
 		}
 

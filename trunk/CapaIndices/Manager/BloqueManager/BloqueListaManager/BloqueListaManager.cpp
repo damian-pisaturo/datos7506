@@ -61,10 +61,12 @@
 			
 			// Obtener tamaño de la lista
 			pipe->leer(&cantClaves);
-
+			
+			*(unsigned int*)listaLeida = cantClaves;
+			
 			if (cantClaves > 0)
 				//Se obtiene la lista solicitada.
-				pipe->leer(this->getTamanioBloque() - sizeof(unsigned int), (char*)listaLeida);
+				pipe->leer(this->getTamanioBloque() - sizeof(unsigned int), (char*)(listaLeida + sizeof(unsigned int));
 
 			if (pipe)
 				delete pipe;
@@ -72,7 +74,7 @@
 			return cantClaves;
 		}
 
-		int BloqueListaManager::escribirBloqueDatos(const void* listaNueva, unsigned int cantClaves)
+		int BloqueListaManager::escribirBloqueDatos(const void* listaNueva)
 		{
 			int numLista = 0; // Numero de bloque donde fue almacenada la lista en disco.
 			
@@ -89,10 +91,10 @@
 			pipe->lanzar();
 			
 			//Grabar la cantidad de claves en el archivo.
-			pipe->escribir(cantClaves);
+			pipe->escribir(*(unsigned int*)listaNueva);
 			
 			//Grabar el bloque en el archivo.
-			pipe->escribir((char*)listaNueva, this->getTamanioBloque() - sizeof(unsigned int));
+			pipe->escribir((char*)(listaNueva + sizeof(unsigned int)), this->getTamanioBloque() - sizeof(unsigned int));
 
 			//Obtener nueva posicion del bloque en el archivo. 
 			pipe->leer(&numLista);
@@ -104,7 +106,7 @@
 		}
 
 		
-		int BloqueListaManager::escribirBloqueDatos(unsigned short numLista, const void* listaModif, unsigned int cantClaves)
+		int BloqueListaManager::escribirBloqueDatos(unsigned short numLista, const void* listaModif)
 		{
 			int resultado = 0;
 
@@ -121,10 +123,10 @@
 			pipe->lanzar();
 	
 			//Grabar la cantidad de claves en el archivo.
-			pipe->escribir(cantClaves);
+			pipe->escribir(*(unsigned int*)listaModif);
 			
 			// Grabar la lista a disco.
-			pipe->escribir((char*)listaModif, this->getTamanioBloque() - sizeof(unsigned int));
+			pipe->escribir((char*)(listaModif + sizeof(unsigned int)), this->getTamanioBloque() - sizeof(unsigned int));
 
 			//Solicitar resultado de la comunicacion con la 
 			//capa fisica.

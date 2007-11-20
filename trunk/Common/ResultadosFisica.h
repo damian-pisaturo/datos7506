@@ -35,6 +35,7 @@ class ResultadosFisica
 		static const char BLOQUES_OCUPADOS         = -6;
 		static const char CANT_ARGUMENTOS_INVALIDA = -7;
 		static const char OPERACION_INVALIDA 	   = -8;
+		static const char ARCHIVO_INVALIDO   	   = -9;
 		
 		
 }; /*Fin clase ResultadosFisica*/

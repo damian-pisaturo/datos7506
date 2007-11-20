@@ -59,16 +59,19 @@ class BloqueDatosManager : public BloqueManager
 		int leerBloqueDatos(unsigned int numBloque, void* bloqueLeido);		
 
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y escribir
-		 * el bloqueNuevo en el archivo de datos especificado por nombreArchivo. 
-		 * Devuelve la posicion donde fue escrito finalmente.
+		 * el bloqueNuevo en el archivo de datos especificado por nombreArchivo.
+		 * Devuelve la posicion donde fue escrito finalmente. Se espera que el bloque
+		 * mantenga el formato fisico definido para él (ver Documentación).
 		 */
-		int escribirBloqueDatos(const void* bloqueNuevo, unsigned int espLibre = 0);
+		int escribirBloqueDatos(const void* bloqueNuevo);
 		
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y
 		 * sobre-escribir el bloque de datos modificado en el disco
 		 * el bloqueNuevo en el archivo especificado por nombreArchivo.
+		 * Se espera que el bloque mantenga el formato fisico definido 
+		 * para él (ver Documentación).
 		 */
-		int escribirBloqueDatos(unsigned short numBloque, const void* bloqueModif, unsigned int espLibre = 0);
+		int escribirBloqueDatos(unsigned short numBloque, const void* bloqueModif);
 		
 		/*Actualiza el archivo de espacio libre, indicando que el bloque cuya
 		 * posicion en el archivo es 'numBloque' esta disponible para escritura.
