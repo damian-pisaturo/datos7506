@@ -16,17 +16,15 @@ ComuDatos::ComuDatos()
 	this->fd_pipeP       = 0; 
 	this->fd_pipeH       = 0; 
 	this->cantParametros = 0;
-	this->pipeActivo     = false;
 }
 
 ComuDatos::ComuDatos(string nombreEjecutable)
 {
 	this->id_procesoHijo = 0;
-	this->fd_pipeP     = 0; 
-	this->fd_pipeH     = 0; 
+	this->fd_pipeP       = 0; 
+	this->fd_pipeH       = 0; 
 	this->cantParametros = 0;	
-	this->nombreProceso = nombreEjecutable;
-	this->pipeActivo    = false;
+	this->nombreProceso  = nombreEjecutable;
 }
 
 ComuDatos::ComuDatos(char** argv)
@@ -75,7 +73,7 @@ int ComuDatos::lanzar()
 		argumentos[0] = new char[sizeof(char)*(this->nombreProceso.length()+1)];
 		strcpy(argumentos[0], this->nombreProceso.c_str());
 		
-		for(unsigned int i=3; i<(paramSize + CORRIMIENTOARGUMENTO); i++)
+		for(unsigned int i = 3; i<(paramSize + CORRIMIENTOARGUMENTO); i++)
 		{
 			argumentos[i] = new char[sizeof(char)*(this->parametrosProceso.at(i-CORRIMIENTOARGUMENTO).length()+1)];
 			strcpy(argumentos[i], this->parametrosProceso.at(i-CORRIMIENTOARGUMENTO).c_str());
@@ -89,19 +87,18 @@ int ComuDatos::lanzar()
 		{
 			if (execv(argumentos[0], argumentos) == -1)
 				resultado = ERROR_EJECUCION;
-			else{
-				this->fd_pipeH   = open(pipeLee.c_str(), O_RDONLY);
-				this->fd_pipeP   = open(pipeEscribe.c_str(), O_WRONLY);
-				this->pipeActivo = true;
-			}
 		}
 		
-		for(unsigned int i = 0; i<(paramSize + CORRIMIENTOARGUMENTO); i++){
+		this->fd_pipeH = open(pipeLee.c_str(), O_RDONLY);
+		this->fd_pipeP = open(pipeEscribe.c_str(), O_WRONLY);
+		
+		for(unsigned int i = 0; i < (paramSize + CORRIMIENTOARGUMENTO); i++){
 			delete[] argumentos[i];
 		}
 	}
 	
-	delete[] argumentos;
+	if (argumentos)
+		delete[] argumentos;
 	
 	return resultado;
 }
@@ -315,7 +312,7 @@ char ComuDatos::leer(char* c)
 
 void ComuDatos::liberarRecursos()
 {
-	if ( (this->nombreProceso.length() > 0) && (this->pipeActivo) )
+	if (this->nombreProceso.length() > 0)
 	{
 		string nombre = this->nombreProceso + "_ComuDatosH";		
 		close(this->fd_pipeH);
