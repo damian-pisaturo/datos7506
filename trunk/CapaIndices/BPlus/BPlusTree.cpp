@@ -374,10 +374,15 @@ int BPlusTree::modificar(Clave* claveVieja, Clave* claveNueva) {
 	if (*claveBuscada == *claveVieja) {	
 	
 		claveNueva->setReferencia(claveBuscada->getReferencia());
-		if (this->eliminar(claveVieja)) {
+		
+		//Si no hubo cambios en la clave no hago nada!
+		if (*claveVieja == *claveNueva)
+			resultado = ResultadosIndices::OK;
+		else if (this->eliminar(claveVieja)) {
 			if (this->insertar(claveNueva))
 				resultado = ResultadosIndices::OK;
-			else resultado = ResultadosIndices::CLAVE_DUPLICADA;
+			else
+				resultado = ResultadosIndices::CLAVE_DUPLICADA;
 		}
 	
 	}

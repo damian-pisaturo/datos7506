@@ -77,8 +77,9 @@ class Indice
 		/*
 		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
 		 * para insertar un nuevo registro de tamaño 'tamRegistro'
-		 * Si encontró un bloque con espacio libre devuelve ResultadosIndices::REQUIERE_BLOQUE,
-		 * en caso contrario devuelve ResultadosIndices::BLOQUES_OCUPADOS.
+		 * Si el índice es un hash se devuelve ResultadosIndices::REQUIERE_REGISTRO.
+		 * Si encontró un bloque con espacio libre (el ìndices es un árbol) devuelve 
+		 * ResultadosIndices::REQUIERE_BLOQUE, en caso contrario devuelve ResultadosIndices::SIN_ESPACIO_LIBRE.
 		 */
 		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos,
 										 unsigned int &nroBloque) = 0;
