@@ -1,6 +1,9 @@
 #ifndef LISTAPRIMARIAMANAGER_H_
 #define LISTAPRIMARIAMANAGER_H_
 
+#include "../../../Common/Clave/Clave.h"
+#include "../../Common/TipoIndices.h"
+
 class ListaPrimariaManager {
 	
 	private:

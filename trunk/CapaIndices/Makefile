@@ -15,6 +15,7 @@ extension = cpp
 fuentes = Manager/Manager.cpp
 fuentes += Manager/BloqueManager/BloqueDatosManager/BloqueDatosManager.cpp 
 fuentes += Manager/BloqueManager/BloqueListaManager/BloqueListaManager.cpp
+fuentes += Manager/ListaPrimariaManager/ListaPrimariaManager.cpp
 fuentes += Manager/IndiceManager/IndiceManager.cpp
 fuentes += Indices/IndiceArbol.cpp
 fuentes += Indices/IndiceHash.cpp
