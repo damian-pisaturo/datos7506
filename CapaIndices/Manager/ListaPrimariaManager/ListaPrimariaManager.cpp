@@ -18,13 +18,13 @@ void ListaPrimariaManager::crearLista(char* &lista, const Clave* clave, const Li
 bool ListaPrimariaManager::insertarClave(char* lista, const Clave* clave, const ListaTipos* listaTipos) const {
 	
 	
-	
+	return false;
 }
 
 
 bool ListaPrimariaManager::eliminarClave(char* lista, const Clave* clave, const ListaTipos* listaTipos) const {
 	
 	
-	
+	return false;
 }
 
