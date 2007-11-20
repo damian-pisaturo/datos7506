@@ -742,6 +742,14 @@
 		return (strlen((char*)this->getValor()))*sizeof(char);
 	}
 	
+	
+	//Devuelve el tamaño del tipo de dato que usa internamente más el tamaño
+	//del atributo que se utilice como prefijo para almacenar la long por ej.
+	unsigned int ClaveVariable::getTamanioValorConPrefijo() const {
+		return this->getTamanioValor() + Tamanios::TAMANIO_LONGITUD_CADENA;
+	}
+	
+	
 	unsigned int ClaveVariable::getTamanioEnDisco(bool bstar) const
 	{
 		unsigned int tamanio = this->getTamanioValor() + Tamanios::TAMANIO_LONGITUD_CADENA + Tamanios::TAMANIO_REFERENCIA;
@@ -873,6 +881,18 @@
 	unsigned int ClaveCompuesta::getTamanioValor() const {
 		return this->calcularTamanioValoresClaves(*(this->getListaClaves()));
 	}
+	
+	unsigned int ClaveCompuesta::getTamanioValorConPrefijo() const {
+			
+		unsigned int tamanioValores = 0;
+		
+		for (ListaClaves::const_iterator iter = this->getListaClaves()->begin();
+			iter != this->getListaClaves()->end(); ++iter)
+			tamanioValores += (*iter)->getTamanioValorConPrefijo();
+		
+		return tamanioValores;
+		
+	}	
 	
 	ListaClaves* ClaveCompuesta::getListaClaves() const {
 		return (ListaClaves*)this->getValor();
