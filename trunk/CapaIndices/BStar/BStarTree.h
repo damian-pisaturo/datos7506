@@ -92,8 +92,8 @@ class BStarTree : public BTree{
 		//padre. Esto sucede cuando el árbol sólo tiene dos niveles y el nodo raíz sólo tiene una clave.
 		void merge(NodoBStar* &nodoHijoIzq, NodoBStar* &nodoHijoDer, NodoBStar* nodoPadre);
 		
-	/*	bool puedeMergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
-									  Clave* clavePadre1, Clave* clavePadre2);*/
+		bool puedeMergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
+									  Clave* clavePadre1, Clave* clavePadre2);
 		
 		//Este método concatena un nodo con underflow con dos nodos hermanos y con dos claves del nodo
 		//padre. Realiza el split internamente y devuelve la clave a promocionar.
