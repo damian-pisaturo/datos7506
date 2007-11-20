@@ -55,7 +55,7 @@ class BloqueListaManager : public BloqueManager
 		 *  por 'nombreArchivo'.
 		 * Devuelve la posicion donde fue escrita finalmente.
 		 */
-		int escribirBloqueDatos(const void* listaNueva, unsigned int cantClaves);
+		int escribirBloqueDatos(const void* listaNueva);
 		
 		/* Utiliza ComuDatos para comunicarse con la Capa Fisica y
 		 * sobre-escribir el bloque de listas de claves primarias en la posicion
@@ -63,13 +63,13 @@ class BloqueListaManager : public BloqueManager
 		 * modificada 'listaModif', contedora de una cantidad de claves igual
 		 * a 'cantClaves'.
 		 */
-		int escribirBloqueDatos(unsigned short numLista, const void* listaModif, unsigned int cantClaves);
+		int escribirBloqueDatos(unsigned short numLista, const void* listaModif);
 		
-		/* Este metodo abstracto heredado no recibe implementacion en esta clase
+		/* Este metodo abstracto heredado no recibe implementacion en esta clase.
 		 */
 		virtual int eliminarBloqueDatos(unsigned int numLista);
 		
-		/* Este metodo abstracto heredado no recibe implementacion en esta clase
+		/* Este metodo abstracto heredado no recibe implementacion en esta clase.
 		*/
 		virtual int buscarEspacioLibre(void* bloque, unsigned int espLibre);
 

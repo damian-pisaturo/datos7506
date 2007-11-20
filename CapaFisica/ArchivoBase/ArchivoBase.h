@@ -40,6 +40,8 @@ class ArchivoBase
 	///////////////////////////////////////////////////////////////////////
 		fstream archivo;  //Referencia al archivo
 	    unsigned short tamBloque;  //Tamaño en bytes del bloque
+	    bool archivoValido; //Indica si el archivo corresponde a uno perteneciente
+	    					//proyecto o no.
 
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -48,9 +50,10 @@ class ArchivoBase
 		
 		/*Abre el archivo. Si no existe lo crea. Los primeros
 		 * Tamanios::TAMANIO_LONGITUD bytes contienen el tamaño de
-		 * un bloque del archivo. 
+		 * un bloque del archivo. El primer byte del archivo contiene
+		 *  un identificador mágico.
 		 */
-		ArchivoBase(string nombre, unsigned short tamBloque);
+		ArchivoBase(string nombre, unsigned char magic, unsigned short tamBloque);
 		
 		/*Cierra el archivo*/
 		virtual ~ArchivoBase();
@@ -106,6 +109,7 @@ class ArchivoBase
 	// Getter
 	///////////////////////////////////////////////////////////////////////
 		unsigned short getTamanioBloque();
+		bool esValido();
 		
 }; /*Fin clase ArchivoBase*/
 

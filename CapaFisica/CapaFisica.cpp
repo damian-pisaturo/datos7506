@@ -37,17 +37,19 @@
 			ComuDatos pipe(argv);
 			
 			string nombreArchivo;
-			char* buffer  = NULL;
-			int accion    = 0;
-			int tamBloque = 0;
-			int numBloque = 0;
-			int espLibre  = 0;
+			char* buffer    = NULL;
+			int accion      = 0;
+			int tamBloque   = 0;
+			int numBloque   = 0;
+			int espLibre    = 0;
+			int magicNumber = 0;
 	
 			//Obtener parametros comunes a todas las acciones
 			//de la capa fisica.
 			pipe.parametro(0, &accion);       //Accion a procesar.
 			pipe.parametro(1, nombreArchivo); //Nombre del archivo a emplear.
 			pipe.parametro(2, &tamBloque);  //Tamanio del bloque/registro del archivo.
+			pipe.parametro(3, &magicNumer); //Identificar del archivo.
 			
 			switch(accion){
 			
@@ -56,21 +58,33 @@
 			{
 				//Obtencion del numero de nodo
 				//dentro del archivo.
-				pipe.parametro(3, &numBloque);
+				pipe.parametro(4, &numBloque);
 	
 				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 				
-				buffer = new char[tamBloque*sizeof(char) + 1];
-				
-				//Lectura del nodo dentro del archivo.
-				resultado = ((ArchivoIndiceArbol*)archivo)->leerBloque(buffer, numBloque);
-										
-				//Envio del resultado de la operacion de lectura.
-				pipe.escribir(resultado);
-							
-				if (resultado == ResultadosFisica::OK)
-					//Envio de datos a traves del pipe.
-					pipe.escribir(buffer, tamBloque);	
+				if (archivo->esValido()){
+					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					buffer = new char[tamBloque*sizeof(char) + 1];
+					
+					//Lectura del nodo dentro del archivo.
+					resultado = ((ArchivoIndiceArbol*)archivo)->leerBloque(buffer, numBloque);
+											
+					//Envio del resultado de la operacion de lectura.
+					pipe.escribir(resultado);
+								
+					if (resultado == ResultadosFisica::OK)
+						//Envio de datos a traves del pipe.
+						pipe.escribir(buffer, tamBloque);	
+					
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);					
+				}
 											
 			}break;
 			
@@ -78,49 +92,84 @@
 			case OperacionesCapas::FISICA_ESCRIBIR_NODO:
 			{	
 				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
-				buffer = new char[tamBloque*sizeof(char)];
-								
-				//Obtencion del nodo escribir a traves del pipe.
-				pipe.leer(tamBloque, buffer);
 				
-				//Escritura del nodo a disco.
-				//Se obtiene la posicion donde fue escrito.				
-				numBloque = ((ArchivoIndiceArbol*)archivo)->escribirBloque(buffer);
-				
-				//Se envia la nueva posicion del nodo.
-				pipe.escribir(numBloque);		
+				if (archivo->esValido()){
+					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					buffer = new char[tamBloque*sizeof(char)];
+									
+					//Obtencion del nodo escribir a traves del pipe.
+					pipe.leer(tamBloque, buffer);
+					
+					//Escritura del nodo a disco.
+					//Se obtiene la posicion donde fue escrito.				
+					numBloque = ((ArchivoIndiceArbol*)archivo)->escribirBloque(buffer);
+					
+					//Se envia la nueva posicion del nodo.
+					pipe.escribir(numBloque);
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);					
+				}				
 				
 			}break;
 				
 			case OperacionesCapas::FISICA_MODIFICAR_NODO:
 			{
 				buffer = new char[tamBloque*sizeof(char)];
-				pipe.parametro(3, &numBloque);
-				
+				pipe.parametro(4, &numBloque);				
+		
 				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 				
-			//Obtencion del nodo a escribir a traves del pipe.
-				pipe.leer(tamBloque, buffer);
-				
-				//Escritura del nodo a disco en la posicion pasada por parametro.
-				resultado = ((ArchivoIndice*)archivo)->escribirBloque(buffer, numBloque);
-				
-				//Envio del resultado de la operacion a traves del pipe.
-				pipe.escribir(resultado);
+				if (archivo->esValido()){
+											
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					//Obtencion del nodo a escribir a traves del pipe.
+					pipe.leer(tamBloque, buffer);
+					
+					//Escritura del nodo a disco en la posicion pasada por parametro.
+					resultado = ((ArchivoIndice*)archivo)->escribirBloque(buffer, numBloque);
+					
+					//Envio del resultado de la operacion a traves del pipe.
+					pipe.escribir(resultado);
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);					
+				}				
 				
 			}break;
 			
 			case OperacionesCapas::FISICA_ELIMINAR_NODO:			
 			{
-				pipe.parametro(3, &numBloque);
+				pipe.parametro(4, &numBloque);
 				
 				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 				
-				//Escritura del nodo a disco en la posicion pasada por parametro.				
-				resultado = ((ArchivoIndiceArbol*)archivo)->eliminarBloque(numBloque);
+				if (archivo->esValido()){
+											
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					//Escritura del nodo a disco en la posicion pasada por parametro.				
+					resultado = ((ArchivoIndiceArbol*)archivo)->eliminarBloque(numBloque);
+					
+					//Envio del resultado de la operacion a traves del pipe.
+					pipe.escribir(resultado);
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
+				}
 				
-				//Envio del resultado de la operacion a traves del pipe.
-				pipe.escribir(resultado);
 			}break;
 						
 			case OperacionesCapas::FISICA_LEER_BUCKET:
@@ -130,18 +179,29 @@
 				pipe.parametro(3, &numBloque);
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				
-				buffer = new char[tamBloque*sizeof(char)];
+				if (archivo->esValido()){
+					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					buffer = new char[tamBloque*sizeof(char)];									
+					
+					//Lectura del bucket dentro del archivo.
+					resultado = ((ArchivoIndiceHash*)archivo)->leerBloque(buffer, numBloque);					
+					
+					//Envio del resultado de la operacion a traves del pipe.
+					pipe.escribir(resultado);
+					
+					if (resultado == ResultadosFisica::OK)
+						//Envio de datos a traves del pipe.
+						pipe.escribir(buffer, tamBloque);				
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
+				}
 				
-				//Lectura del bucket dentro del archivo.
-				resultado = ((ArchivoIndiceHash*)archivo)->leerBloque(buffer, numBloque);
-				
-				
-				//Envio del resultado de la operacion a traves del pipe.
-				pipe.escribir(resultado);
-				
-				if (resultado == ResultadosFisica::OK)
-					//Envio de datos a traves del pipe.
-					pipe.escribir(buffer, tamBloque);
 				
 			}break;
 				
@@ -150,15 +210,27 @@
 				buffer  = new char[tamBloque*sizeof(char)];
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				
-				// Obtencion del bucket a escribir a traves del pipe.
-				pipe.leer(tamBloque, buffer);
+				if (archivo->esValido()){
+					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					// Obtencion del bucket a escribir a traves del pipe.
+					pipe.leer(tamBloque, buffer);
+					
+					// Escritura del bucket a disco.
+					// Se obtiene la posicion donde fue escrito.
+					numBloque = ((ArchivoIndiceHash*)archivo)->escribirBloque(buffer);
+					
+					// Se envia la nueva posicion del nodo.
+					pipe.escribir(numBloque);
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
+				}
 				
-				// Escritura del bucket a disco.
-				// Se obtiene la posicion donde fue escrito.
-				numBloque = ((ArchivoIndiceHash*)archivo)->escribirBloque(buffer);
-				
-				// Se envia la nueva posicion del nodo.
-				pipe.escribir(numBloque);				
 			}break;
 							
 			case OperacionesCapas::FISICA_MODIFICAR_BUCKET:
@@ -168,14 +240,26 @@
 				
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				
-				//Obtencion del bucket a escribir a traves del pipe.
-				pipe.leer(tamBloque, buffer);
+				if (archivo->esValido()){
+					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					//Obtencion del bucket a escribir a traves del pipe.
+					pipe.leer(tamBloque, buffer);
+					
+					//Escritura del bucket a disco en la posicion pasada por parametro.
+					resultado = ((ArchivoIndiceHash*)archivo)->escribirBloque(buffer, numBloque);
+					
+					//Envio del resultado de la operacion a traves del pipe.
+					pipe.escribir(resultado);
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
+				}
 				
-				//Escritura del bucket a disco en la posicion pasada por parametro.
-				resultado = ((ArchivoIndiceHash*)archivo)->escribirBloque(buffer, numBloque);
-				
-				//Envio del resultado de la operacion a traves del pipe.
-				pipe.escribir(resultado);
 			}break;
 							
 			case OperacionesCapas::FISICA_ELIMINAR_BUCKET:
@@ -184,70 +268,118 @@
 				
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 				
-				//Eliminacion del bucket				
-				resultado = ((ArchivoIndiceHash*)archivo)->eliminarBloque(numBloque);
-				
-				//Envio del resultado de la operacion a traves del pipe.
-				pipe.escribir(resultado);
+				if (archivo->esValido()){
+					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					//Eliminacion del bucket				
+					resultado = ((ArchivoIndiceHash*)archivo)->eliminarBloque(numBloque);
+					
+					//Envio del resultado de la operacion a traves del pipe.
+					pipe.escribir(resultado);
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
+				}
 				
 			}break;
 			
 			case OperacionesCapas::FISICA_LEER_TABLA_HASH:
 			{	
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
-				unsigned int tamanio  = 0;
-				unsigned int* buckets = NULL;
 				
-				((ArchivoIndiceHash*)archivo)->leerTabla(&tamanio, buckets);
-								
-				pipe.escribir(tamanio);
-				
-				if (tamanio > 0)
-					pipe.escribir((char*)buckets, tamanio*sizeof(unsigned int));					
-						
-				if (buckets)
-					delete[] buckets;
+				if (archivo->esValido()){
+					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					unsigned int tamanio  = 0;
+					unsigned int* buckets = NULL;
+					
+					((ArchivoIndiceHash*)archivo)->leerTabla(&tamanio, buckets);
+									
+					pipe.escribir(tamanio);
+					
+					if (tamanio > 0)
+						pipe.escribir((char*)buckets, tamanio*sizeof(unsigned int));					
+							
+					if (buckets)
+						delete[] buckets;
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
+				}
 	
 			}break;
 				
 			case OperacionesCapas::FISICA_ESCRIBIR_TABLA_HASH:
 			{
 				archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
-				int tamanio = 0;
-				unsigned int* buckets = NULL;
-								
-				pipe.leer(&tamanio);
 				
-				if ( (int)(tamanio*sizeof(unsigned int)) < tamBloque){
-					buckets = new unsigned int[tamanio];
-					pipe.leer(sizeof(unsigned int)*tamanio, (char*)buckets);
+				if (archivo->esValido()){
 					
-					((ArchivoIndiceHash*)archivo)->escribirTabla(tamanio, buckets);
-				}else resultado = ResultadosFisica::ERROR_ESCRITURA;
-				
-				pipe.escribir(resultado);
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
 					
-				if (buckets)
-					delete[] buckets;
+					int tamanio = 0;
+					unsigned int* buckets = NULL;
+									
+					pipe.leer(&tamanio);
+					
+					if ( (int)(tamanio*sizeof(unsigned int)) < tamBloque){
+						buckets = new unsigned int[tamanio];
+						pipe.leer(sizeof(unsigned int)*tamanio, (char*)buckets);
+						
+						((ArchivoIndiceHash*)archivo)->escribirTabla(tamanio, buckets);
+					}else resultado = ResultadosFisica::ERROR_ESCRITURA;
+					
+					//Se envia el resultado de la operacion.
+					pipe.escribir(resultado);					
+					
+					if (buckets)
+						delete[] buckets;
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
+				}	
+		
 			}break;
 			
 			case OperacionesCapas::FISICA_ESCRIBIR_NODO_DOBLE:
-			{
-				buffer = new char[2*tamBloque*sizeof(char)];
+			{				
 				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 				
-				// Obtencion del primer nodo a escribir a traves del pipe.
-				pipe.leer(tamBloque, buffer);
-				
-				// Obtencion del segundo nodo a escribir a traves del pipe.
-				pipe.leer(tamBloque, buffer + tamBloque);
-				
-				// Escritura del bucket a disco.
-				// Se obtiene la posicion donde fue escrito.
-				numBloque = ((ArchivoIndiceArbol*)archivo)->escribirBloqueDoble(buffer);
-				
-				// Se envia la nueva posicion del nodo.
-				pipe.escribir(numBloque);	
+				if (archivo->esValido()){					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					buffer = new char[2*tamBloque*sizeof(char)];
+									
+					// Obtencion del primer nodo a escribir a traves del pipe.
+					pipe.leer(tamBloque, buffer);
+					
+					// Obtencion del segundo nodo a escribir a traves del pipe.
+					pipe.leer(tamBloque, buffer + tamBloque);
+					
+					// Escritura del bucket a disco.
+					// Se obtiene la posicion donde fue escrito.
+					numBloque = ((ArchivoIndiceArbol*)archivo)->escribirBloqueDoble(buffer);
+					
+					// Se envia la nueva posicion del nodo.
+					pipe.escribir(numBloque);
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
+				}	
 				
 			}break;
 			
@@ -257,41 +389,64 @@
 				pipe.parametro(3, &numBloque);
 				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 				
-				buffer = new char[2*tamBloque*sizeof(char)];
-				
-				//Lectura del bucket dentro del archivo.
-				resultado = ((ArchivoIndiceArbol*)archivo)->leerBloqueDoble(buffer, numBloque);
-				
-				//Envio del resultado de la operacion a traves del pipe.
-				pipe.escribir(resultado);
-				
-				if (resultado == ResultadosFisica::OK){
-					//Envio del primer nodo a traves del pipe.
-					pipe.escribir(buffer, tamBloque);
+				if (archivo->esValido()){					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
 					
-					//Envio del segundi nodo a traves del pipe.
-					pipe.escribir(buffer + tamBloque, tamBloque);
+					buffer = new char[2*tamBloque*sizeof(char)];
+					
+					//Lectura del bucket dentro del archivo.
+					resultado = ((ArchivoIndiceArbol*)archivo)->leerBloqueDoble(buffer, numBloque);
+					
+					//Envio del resultado de la operacion a traves del pipe.
+					pipe.escribir(resultado);
+					
+					if (resultado == ResultadosFisica::OK){
+						//Envio del primer nodo a traves del pipe.
+						pipe.escribir(buffer, tamBloque);
+						
+						//Envio del segundi nodo a traves del pipe.
+						pipe.escribir(buffer + tamBloque, tamBloque);
+					}
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
 				}	
+				
 			}break;
 			
 			case OperacionesCapas::FISICA_MODIFICAR_NODO_DOBLE:
-			{
-				buffer = new char[2*tamBloque*sizeof(char)];
+			{				
 				pipe.parametro(3, &numBloque);
 				
-				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);				
+				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);	
 				
-				// Obtencion del primer nodo a escribir a traves del pipe.
-				pipe.leer(tamBloque, buffer);
+				if (archivo->esValido()){					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					buffer = new char[2*tamBloque*sizeof(char)];
 				
-				// Obtencion del segundo nodo a escribir a traves del pipe.
-				pipe.leer(tamBloque, buffer + tamBloque);
+					// Obtencion del primer nodo a escribir a traves del pipe.
+					pipe.leer(tamBloque, buffer);
+					
+					// Obtencion del segundo nodo a escribir a traves del pipe.
+					pipe.leer(tamBloque, buffer + tamBloque);
+					
+					//Escritura del nodo a disco en la posicion pasada por parametro.
+					resultado = ((ArchivoIndiceArbol*)archivo)->escribirBloqueDoble(buffer, numBloque);
+					
+					//Envio del resultado de la operacion a traves del pipe.
+					pipe.escribir(resultado);
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
+				}	
 				
-				//Escritura del nodo a disco en la posicion pasada por parametro.
-				resultado = ((ArchivoIndiceArbol*)archivo)->escribirBloqueDoble(buffer, numBloque);
-				
-				//Envio del resultado de la operacion a traves del pipe.
-				pipe.escribir(resultado);
 			}break;
 			
 			case OperacionesCapas::FISICA_ELIMINAR_NODO_DOBLE:
@@ -301,11 +456,21 @@
 				
 				archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 				
-				//Eliminacion de ambos nodos				
-				resultado = ((ArchivoIndiceArbol*)archivo)->eliminarBloqueDoble(numBloque);
-				
-				//Envio del resultado de la operacion a traves del pipe.
-				pipe.escribir(resultado);
+				if (archivo->esValido()){					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					//Eliminacion de ambos nodos				
+					resultado = ((ArchivoIndiceArbol*)archivo)->eliminarBloqueDoble(numBloque);
+					
+					//Envio del resultado de la operacion a traves del pipe.
+					pipe.escribir(resultado);
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
+				}	
 				
 			}break;
 			
@@ -323,19 +488,40 @@
 				buffer = new char[tamBloque*sizeof(char) + 1];
 				
 				if (tipoOrg == TipoOrganizacion::REG_VARIABLES){
-					archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
-				
-					//Lectura del bloque dentro del archivo.
-					resultado = ((ArchivoDatosBloques*)archivo)->leerBloque(buffer, numBloque);
+					archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);					
+					
+					if (archivo->esValido()){					
+						//Se informa a la capa superior que el archivo es valido.
+						pipe.escribir(resultado);
+						
+						//Lectura del bloque dentro del archivo.
+						resultado = ((ArchivoDatosBloques*)archivo)->leerBloque(buffer, numBloque);
+						
+						//Envio del resultado de la operacion de lectura.
+						pipe.escribir(resultado);
+					}else{
+						resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+						
+						//Se informa a la capa superior que el archivo es invalido.
+						pipe.escribir(resultado);	
+					}
+					
 				}else if (TipoOrganizacion::REG_FIJOS){
 					archivo = new ArchivoDatosRegistros(nombreArchivo, tamBloque);
 					
-					//Lectura del bloque dentro del archivo
-					resultado = ((ArchivoDatosRegistros*)archivo)->leerRegistro(buffer, numBloque);
+					if (archivo->esValido()){					
+						//Se informa a la capa superior que el archivo es valido.
+						pipe.escribir(resultado);
+						
+						//Lectura del bloque dentro del archivo
+						resultado = ((ArchivoDatosRegistros*)archivo)->leerRegistro(buffer, numBloque);
+					}else{
+						resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+						
+						//Se informa a la capa superior que el archivo es invalido.
+						pipe.escribir(resultado);	
+					}
 				}
-				
-				//Envio del resultado de la operacion de lectura.
-				pipe.escribir(resultado);
 							
 				if (resultado == ResultadosFisica::OK)
 					//Envio de datos a traves del pipe.
