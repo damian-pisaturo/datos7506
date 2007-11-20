@@ -21,6 +21,8 @@ class ClaveFactory {
 
 		Clave* getClave(const DefinitionsManager::ListaClaves& listaValoresClaves, const ListaNodos& listaNodos) const;
 		
+		Clave* getClave(const char* lista, const ListaTipos& listaTipos) const;
+		
 };
 
 #endif /*CLAVEFACTORY_H_*/

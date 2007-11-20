@@ -27,8 +27,10 @@
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 
-		ArchivoBase::ArchivoBase(string nombre, unsigned char magic, unsigned short tamBloque)
+		ArchivoBase::ArchivoBase(string &nombre, unsigned short tamBloque)
 		{
+			int id = this->generarID(nombre);
+			
 			//Abre el archivo en modo lectura - escritura binario  
 			this->archivo.open(nombre.c_str(), ios::in |ios::out |ios::binary);
 			
@@ -45,15 +47,16 @@
 			    //Reabre el archivo para lectura - escritura binario
 			    this->archivo.open(nombre.c_str(),ios::in|ios::out|ios::binary);
 			    
-			    //Escribe el numero magico identifiador.
-			    this->archivo.write(&magic, sizeof(unsigned char));
+			    //Escribe el numero magico identificador.
+			    cout << "Escribiendo ID " << id << " (" << nombre << ")" << endl;
+			    this->archivo.write((char*)&id, Tamanios::TAMANIO_IDENTIFICADOR);
 			    
 			    this->archivoValido  = true;
 			}else{
-				unsigned char magicEnFile = 0;
+				int idPresente = 0;
 				
-				this->archivo.read(&magicEnFile, sizeof(unsigned char));				
-				this->archivoValido = (magicEnFile == magic);
+				this->archivo.read((char*)&idPresente, Tamanios::TAMANIO_IDENTIFICADOR);				
+				this->archivoValido = (id == idPresente);
 			}
 			
 			this->tamBloque = tamBloque;
@@ -131,11 +134,13 @@
 		{
 			short pos = 0;
 			
-			//Verifica que el archivo esté abierto */
-			if (this->archivo.is_open())
+			//Verifica que el archivo esté abierto 
+			if (this->archivo.is_open()){
 				// Calcula el número de bloque según la posición del byte actual
-			    pos = this->archivo.tellg() / this->tamBloque;
-			else
+			    pos = this->archivo.tellg();
+				pos += Tamanios::TAMANIO_IDENTIFICADOR;
+				pos /= this->tamBloque;
+			}else
 				pos = ResultadosFisica::NO_ABIERTO;
 			
 			  return pos;
@@ -149,9 +154,9 @@
 			if (this->archivo.is_open()) {
 				//Mueve la posición actual según sea el tamano del bloque
 				//considerando la corrección por el identificador mágico.
-				this->archivo.seekg(posicion * this->tamBloque + sizeof(unsigned char),
+				this->archivo.seekg( (posicion*this->tamBloque) + Tamanios::TAMANIO_IDENTIFICADOR,
 						ios_base::beg);
-	
+
 				//Chequea si se ha producido un error			
 				if (this->archivo.fail())
 					resultado = ResultadosFisica::ERROR_POSICION;
@@ -164,7 +169,7 @@
 	
 		void ArchivoBase::posicionarseFin()
 		{
-			this->archivo.seekg(0,ios_base::end);
+			this->archivo.seekg(0, ios_base::end);
 		}
 		
 		long ArchivoBase::size()
@@ -174,7 +179,36 @@
 		}
 
 	///////////////////////////////////////////////////////////////////////
-	// Getter
+	// Metodo privado
+	///////////////////////////////////////////////////////////////////////
+		int ArchivoBase::generarID(string &nomArchivo)
+		{			
+			int id = 1;
+			string idString, nombre, extension;
+			char posPunto = nomArchivo.find_last_of('.');
+			
+			idString  = "_7506";
+			nombre    = nomArchivo.substr(0, posPunto);
+			extension = nomArchivo.substr(posPunto);
+			
+			if (nombre.length() > 4)
+				idString += nombre.substr(0,4);
+			else
+				idString += nombre;
+			
+			idString += extension;			
+			idString += '_';			
+			
+			for (string::const_iterator it = idString.begin(); 
+				it != idString.end(); ++it){
+				id *= (*it);
+			}
+			
+			return id / 97;
+		}
+
+	///////////////////////////////////////////////////////////////////////
+	// Getters
 	///////////////////////////////////////////////////////////////////////
 
 		unsigned short ArchivoBase::getTamanioBloque()
@@ -182,7 +216,7 @@
 			return this->tamBloque;
 		}
 				
-		char ArchivoBase::esValido()
+		bool ArchivoBase::esValido()
 		{
 			return this->archivoValido;
 		}

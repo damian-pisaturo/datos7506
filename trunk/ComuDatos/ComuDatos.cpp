@@ -13,9 +13,10 @@ int contarArgv(char **argv)
 ComuDatos::ComuDatos()
 {
 	this->id_procesoHijo = 0;
-	this->fd_pipeP     = 0; 
-	this->fd_pipeH     = 0; 
-	this->cantParametros = 0;	
+	this->fd_pipeP       = 0; 
+	this->fd_pipeH       = 0; 
+	this->cantParametros = 0;
+	this->pipeActivo     = false;
 }
 
 ComuDatos::ComuDatos(string nombreEjecutable)
@@ -25,6 +26,7 @@ ComuDatos::ComuDatos(string nombreEjecutable)
 	this->fd_pipeH     = 0; 
 	this->cantParametros = 0;	
 	this->nombreProceso = nombreEjecutable;
+	this->pipeActivo    = false;
 }
 
 ComuDatos::ComuDatos(char** argv)
@@ -36,7 +38,7 @@ ComuDatos::ComuDatos(char** argv)
 		if (this->fd_pipeP<0) return;
 		
 		this->fd_pipeH = open(argv[1], O_RDONLY);
-		if (this->fd_pipeH<0){
+		if (this->fd_pipeH < 0){
 			close(this->fd_pipeP);
 			perror("argv[]");
 			return;	
@@ -49,55 +51,59 @@ ComuDatos::ComuDatos(char** argv)
 }
 
 //! parametros tiene que ser NULL o tener un puntero a NULL en el último lugar del vector.
-void ComuDatos::lanzar()
+int ComuDatos::lanzar()
 {
+	int resultado = SIN_ERROR;
 	unsigned int paramSize = this->parametrosProceso.size();
 	char** argumentos = new char*[paramSize + CORRIMIENTOARGUMENTO + 1];
 	
 	if (this->nombreProceso.length() == 0)
-	{
-		cout << "Error en lanzar" << endl;
-		return; 
-	}
+		resultado = ERROR_EJECUCION; 
+	else{		
+		string pipeLee = this->nombreProceso + "_ComuDatosH";
+		string pipeEscribe = this->nombreProceso + "_ComuDatosP";
+		
+		mkfifo(pipeLee.c_str(), 0666);
+		mkfifo(pipeEscribe.c_str(), 0666);
+		
+		// Parametro 1 lectura y 2 escritura hijo.
+		argumentos[1] = new char[sizeof(char)*(pipeEscribe.length() + 1)];
+		strcpy(argumentos[1], pipeEscribe.c_str());
+		argumentos[2] = new char[sizeof(char)*(pipeLee.length() + 1)];
+		strcpy(argumentos[2], pipeLee.c_str());
+		
+		argumentos[0] = new char[sizeof(char)*(this->nombreProceso.length()+1)];
+		strcpy(argumentos[0], this->nombreProceso.c_str());
+		
+		for(unsigned int i=3; i<(paramSize + CORRIMIENTOARGUMENTO); i++)
+		{
+			argumentos[i] = new char[sizeof(char)*(this->parametrosProceso.at(i-CORRIMIENTOARGUMENTO).length()+1)];
+			strcpy(argumentos[i], this->parametrosProceso.at(i-CORRIMIENTOARGUMENTO).c_str());
+		}
+		
+		argumentos[paramSize + CORRIMIENTOARGUMENTO] = NULL;
 	
-	string pipeLee = this->nombreProceso + "_ComuDatosH";
-	string pipeEscribe = this->nombreProceso + "_ComuDatosP";
+		this->id_procesoHijo = fork();
 	
-	mkfifo(pipeLee.c_str(), 0666);
-	mkfifo(pipeEscribe.c_str(), 0666);
-	
-	// Parametro 1 lectura y 2 escritura hijo.
-	argumentos[1] = (char*) malloc (sizeof(char)*pipeEscribe.length()+1);
-	strcpy(argumentos[1], pipeEscribe.c_str());
-	argumentos[2] = (char*) malloc (sizeof(char)*pipeLee.length()+1);
-	strcpy(argumentos[2], pipeLee.c_str());
-	
-	argumentos[0] = (char*) malloc (sizeof(char)*(this->nombreProceso.length()+1));
-	strcpy(argumentos[0], this->nombreProceso.c_str());
-	
-	for(unsigned int i=3; i<(paramSize + CORRIMIENTOARGUMENTO); i++)
-	{
-		argumentos[i] = (char*) malloc (sizeof(char)*(this->parametrosProceso.at(i-CORRIMIENTOARGUMENTO).length()+1));
-		strcpy(argumentos[i], this->parametrosProceso.at(i-CORRIMIENTOARGUMENTO).c_str());
-	}
-	
-	argumentos[paramSize + CORRIMIENTOARGUMENTO] = NULL;
-
-	this->id_procesoHijo = fork();
-
-	if (this->id_procesoHijo > 0)
-	{
-		execv(argumentos[0], argumentos);
-	}
-	
-	this->fd_pipeH = open(pipeLee.c_str(), O_RDONLY);
-	this->fd_pipeP = open(pipeEscribe.c_str(), O_WRONLY);
-	
-	for(unsigned int i=0; i<(paramSize + CORRIMIENTOARGUMENTO); i++){
-		free(argumentos[i]);
+		if (this->id_procesoHijo > 0)
+		{
+			if (execv(argumentos[0], argumentos) == -1)
+				resultado = ERROR_EJECUCION;
+			else{
+				this->fd_pipeH   = open(pipeLee.c_str(), O_RDONLY);
+				this->fd_pipeP   = open(pipeEscribe.c_str(), O_WRONLY);
+				this->pipeActivo = true;
+			}
+		}
+		
+		for(unsigned int i = 0; i<(paramSize + CORRIMIENTOARGUMENTO); i++){
+			delete[] argumentos[i];
+		}
 	}
 	
 	delete[] argumentos;
+	
+	return resultado;
 }
 
 void ComuDatos::ejecutable(string nombreEjecutable)
@@ -309,7 +315,7 @@ char ComuDatos::leer(char* c)
 
 void ComuDatos::liberarRecursos()
 {
-	if (this->nombreProceso.length() > 0)
+	if ( (this->nombreProceso.length() > 0) && (this->pipeActivo) )
 	{
 		string nombre = this->nombreProceso + "_ComuDatosH";		
 		close(this->fd_pipeH);

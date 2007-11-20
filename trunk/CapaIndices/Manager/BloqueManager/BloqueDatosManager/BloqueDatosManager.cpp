@@ -61,12 +61,17 @@
 
 			//Se lanza el proceso de la capa fisica. 
 			pipe->lanzar();
-
-			//Se obtiene el resultado del proceso de lectura del bloque.
+			
+			//Se chequea la validez del archivo
 			pipe->leer(&resultado);
-
-			if (resultado == ResultadosFisica::OK)
-				pipe->leer(this->getTamanioBloque(), (char*)bloqueLeido);
+			
+			if (resultado == ResultadosFisica::OK){
+				//Se obtiene el resultado del proceso de lectura del bloque.
+				pipe->leer(&resultado);
+	
+				if (resultado == ResultadosFisica::OK)
+					pipe->leer(this->getTamanioBloque(), (char*)bloqueLeido);
+			}
 
 			if (pipe)
 				delete pipe;
@@ -76,7 +81,8 @@
 
 		int BloqueDatosManager::escribirBloqueDatos(const void* bloqueNuevo)
 		{
-			unsigned int numBloque = 0;
+			char resultado = 0;
+			int numBloque  = 0;
 			
 			//Instancia del pipe
 			ComuDatos* pipe = this->instanciarPipe();
@@ -89,16 +95,26 @@
 			pipe->agregarParametro(this->getTipoOrganizacion(), 3); //Tipo de organizacion del archivo de datos.
 			
 			if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES)
-				pipe->agregarParametro(this->getTamanioBloque() - *(unsigned short*)bloqueNuevo), 4); //Espacio libre dentro del bloque.
+				pipe->agregarParametro(this->getTamanioBloque() - *(unsigned short*)bloqueNuevo, 4); //Espacio libre dentro del bloque.
 
 			//Se lanza el proceso de la capa fisica. 
-			pipe->lanzar();
-
-			//Grabar el bloque en el archivo.
-			pipe->escribir((char*)bloqueNuevo , this->getTamanioBloque());
-
-			//Obtener nueva posicion del bloque en el archivo. 
-			pipe->leer(&numBloque);
+			resultado = pipe->lanzar();
+			
+			if (resultado == ComuDatos::SIN_ERROR){
+			
+				//Se chequea la validez del archivo
+				pipe->leer(&resultado);
+							
+				if (resultado == ResultadosFisica::OK){
+					//Grabar el bloque en el archivo.
+					pipe->escribir((char*)bloqueNuevo , this->getTamanioBloque());
+		
+					//Obtener nueva posicion del bloque en el archivo. 
+					pipe->leer(&numBloque);
+				}else
+					numBloque = resultado;
+			}else
+				numBloque = resultado;
 
 			if (pipe)
 				delete pipe;
@@ -112,7 +128,7 @@
 		 */
 		int BloqueDatosManager::escribirBloqueDatos(unsigned short numBloque, const void* bloqueModif)
 		{
-			int resultado = 0;
+			char resultado = 0;
 
 			//Instancia del pipe
 			ComuDatos* pipe = instanciarPipe();
@@ -125,17 +141,26 @@
 			pipe->agregarParametro(this->getTipoOrganizacion(), 4); //Tipo de organizacion del archivo de datos.
 			
 			if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES)
-				pipe->agregarParametro(this->getTamanioBloque() - *(unsigned short*)bloqueModif), 5); //Espacio libre dentro del bloque.
+				pipe->agregarParametro(this->getTamanioBloque() - *(unsigned short*)bloqueModif, 5); //Espacio libre dentro del bloque.
 			
 			//Se lanza el proceso de la capa fisica. 
-			pipe->lanzar();
+			resultado = pipe->lanzar();
+			
+			if (resultado == ComuDatos::SIN_ERROR){
+				
+				//Se chequea la validez del archivo
+				pipe->leer(&resultado);
+				
+				if (resultado == ResultadosFisica::OK){
 	
-			//Grabar el buffer en el archivo.
-			pipe->escribir((char*)bloqueModif, this->getTamanioBloque());
-
-			//Solicitar resultado de la comunicacion con la 
-			//capa fisica.
-			pipe->leer(&resultado);
+					//Grabar el buffer en el archivo.
+					pipe->escribir((char*)bloqueModif, this->getTamanioBloque());
+		
+					//Solicitar resultado de la comunicacion con la 
+					//capa fisica.
+					pipe->leer(&resultado);
+				}
+			}
 
 			if (pipe)
 				delete pipe;
@@ -159,11 +184,20 @@
 			pipe->agregarParametro(this->getTipoOrganizacion(), 4); //Tipo de organizacion del archivo de datos.
 
 			//Se lanza el proceso de la capa fisica. 
-			pipe->lanzar();
-
-			//Solicitar resultado de la comunicacion con la 
-			//capa fisica.
-			pipe->leer(&resultado);
+			resultado = pipe->lanzar();
+			
+			if (resultado == ComuDatos::SIN_ERROR){
+			
+				//Se chequea la validez del archivo
+				pipe->leer(&resultado);
+				
+				if (resultado == ResultadosFisica::OK){
+	
+					//Solicitar resultado de la comunicacion con la 
+					//capa fisica.
+					pipe->leer(&resultado);
+				}
+			}
 
 			if (pipe)
 				delete pipe;
@@ -173,7 +207,8 @@
 
 		int BloqueDatosManager::buscarEspacioLibre(void* bloque, unsigned int espLibre)
 		{
-			int numBloque = 0;			
+			char resultado = 0;
+			int numBloque  = 0;			
 
 			//Instancia del pipe
 			ComuDatos* pipe = instanciarPipe();
@@ -185,14 +220,25 @@
 			pipe->agregarParametro(espLibre, 3); //Espacio libre requerido dentro del bloque.			
 
 			//Se lanza el proceso de la capa fisica. 
-			pipe->lanzar();
+			resultado = pipe->lanzar();
 			
-			//Se obtiene el numero de bloque que contiene el espacio libre solicitado.
-			//Si ningun bloque cumple con el requisito, 'numBloque' valdra BLOQUES_OCUPADOS.
-			pipe->leer(&numBloque);
-			
-			if (numBloque != ResultadosFisica::BLOQUES_OCUPADOS)
-				pipe->leer(this->getTamanioBloque(), (char*)bloque);
+			if (resultado == ComuDatos::SIN_ERROR){
+				
+				//Se chequea la validez del archivo
+				pipe->leer(&resultado);
+				
+				if (resultado == ResultadosFisica::OK){
+				
+					//Se obtiene el numero de bloque que contiene el espacio libre solicitado.
+					//Si ningun bloque cumple con el requisito, 'numBloque' valdra BLOQUES_OCUPADOS.
+					pipe->leer(&numBloque);
+					
+					if (numBloque != ResultadosFisica::BLOQUES_OCUPADOS)
+						pipe->leer(this->getTamanioBloque(), (char*)bloque);
+				}else 
+					numBloque = resultado;
+			}else 
+				numBloque = resultado;
 
 			if (pipe)
 				delete pipe;

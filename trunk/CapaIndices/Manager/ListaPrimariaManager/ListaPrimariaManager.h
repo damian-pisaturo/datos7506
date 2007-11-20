@@ -1,10 +1,12 @@
 #ifndef LISTAPRIMARIAMANAGER_H_
 #define LISTAPRIMARIAMANAGER_H_
 
+#include "../../../Common/ClaveFactory/ClaveFactory.h"
 #include "../../../Common/Clave/Clave.h"
 #include "../../../Common/TipoDatos.h"
 #include "../../Common/TipoIndices.h"
 #include <list>
+#include <sstream>
 
 typedef list<std::string> ListaStrings;
 
@@ -27,6 +29,8 @@ class ListaPrimariaManager {
 		bool eliminarClave(char* &lista, Clave* clave, const ListaTipos* listaTipos) const;
 		
 		ListaStrings* convertirAListaStrings(char* lista, const ListaTipos* listaTipos) const;
+		
+		unsigned short getCantClaves(const char* lista) const;
 		
 		unsigned short getTamanioLista() const { return this->tamLista; }
 		

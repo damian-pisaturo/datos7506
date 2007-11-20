@@ -44,7 +44,7 @@
 
 		int BloqueListaManager::leerBloqueDatos(unsigned int numLista, void* listaLeida)
 		{
-			unsigned int cantClaves = 0; //Cantidad de claves contenidas en la lista.
+			char resultado = 0;
 
 			// Instancia del pipe		
 			ComuDatos* pipe = this->instanciarPipe();
@@ -57,26 +57,28 @@
 			pipe->agregarParametro(numLista, 3); // Numero de nodo a leer dentro del archivo.
 
 			// Se lanza el proceso de la capa fisica. 
-			pipe->lanzar();
+			resultado = pipe->lanzar();
 			
-			// Obtener tamaño de la lista
-			pipe->leer(&cantClaves);
+			if (resultado == ComuDatos::SIN_ERROR){
 			
-			*(unsigned int*)listaLeida = cantClaves;
+			//Se chequea la validez del archivo
+			pipe->leer(&resultado);
 			
-			if (cantClaves > 0)
+			if (resultado == ResultadosFisica::OK)
 				//Se obtiene la lista solicitada.
-				pipe->leer(this->getTamanioBloque() - sizeof(unsigned int), (char*)(listaLeida + sizeof(unsigned int));
+				pipe->leer(this->getTamanioBloque(), (char*)listaLeida);
+			}
 
 			if (pipe)
 				delete pipe;
 
-			return cantClaves;
+			return resultado;
 		}
 
 		int BloqueListaManager::escribirBloqueDatos(const void* listaNueva)
 		{
-			int numLista = 0; // Numero de bloque donde fue almacenada la lista en disco.
+			char resultado = 0;
+			int numLista   = 0; // Numero de bloque donde fue almacenada la lista en disco.
 			
 			//Instancia del pipe
 			ComuDatos* pipe = this->instanciarPipe();
@@ -88,16 +90,22 @@
 			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bloque en disco.
 		
 			//Se lanza el proceso de la capa fisica. 
-			pipe->lanzar();
+			resultado = pipe->lanzar();
 			
-			//Grabar la cantidad de claves en el archivo.
-			pipe->escribir(*(unsigned int*)listaNueva);
-			
-			//Grabar el bloque en el archivo.
-			pipe->escribir((char*)(listaNueva + sizeof(unsigned int)), this->getTamanioBloque() - sizeof(unsigned int));
-
-			//Obtener nueva posicion del bloque en el archivo. 
-			pipe->leer(&numLista);
+			if (resultado == ComuDatos::SIN_ERROR){
+				//Se chequea la validez del archivo
+				pipe->leer(&resultado);
+				
+				if (resultado == ResultadosFisica::OK){				
+					//Grabar el bloque con la lista en el archivo.
+					pipe->escribir((char*)listaNueva, this->getTamanioBloque());
+		
+					//Obtener nueva posicion del bloque en el archivo. 
+					pipe->leer(&numLista);
+				}else
+					numLista = resultado;
+			}else
+				numLista = resultado;
 
 			if (pipe)
 				delete pipe;
@@ -108,7 +116,7 @@
 		
 		int BloqueListaManager::escribirBloqueDatos(unsigned short numLista, const void* listaModif)
 		{
-			int resultado = 0;
+			char resultado = 0;
 
 			//Instancia del pipe
 			ComuDatos* pipe = instanciarPipe();
@@ -121,16 +129,21 @@
 				
 			//Se lanza el proceso de la capa fisica. 
 			pipe->lanzar();
-	
-			//Grabar la cantidad de claves en el archivo.
-			pipe->escribir(*(unsigned int*)listaModif);
 			
-			// Grabar la lista a disco.
-			pipe->escribir((char*)(listaModif + sizeof(unsigned int)), this->getTamanioBloque() - sizeof(unsigned int));
-
-			//Solicitar resultado de la comunicacion con la 
-			//capa fisica.
-			pipe->leer(&resultado);
+			if (resultado == ComuDatos::SIN_ERROR){
+				
+				//Se chequea la validez del archivo
+				pipe->leer(&resultado);
+				
+				if (resultado == ResultadosFisica::OK){
+					// Grabar la lista a disco.
+					pipe->escribir((char*)listaModif, this->getTamanioBloque());
+		
+					//Solicitar resultado de la comunicacion con la 
+					//capa fisica.
+					pipe->leer(&resultado);
+				}
+			}
 
 			if (pipe)
 				delete pipe;

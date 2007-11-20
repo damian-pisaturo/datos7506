@@ -22,7 +22,6 @@
 
 #include "../BloqueManager.h"
 
-
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
@@ -51,6 +50,11 @@ class BloqueDatosManager : public BloqueManager
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////
+		/*Todos los metodos de lectura/escritura a disco devuelven
+		 * ResultadosFisica::ARCHIVO_INVALIDO si el archivo siendo utilizado
+		 * no corresponde al archivo propio del proyecto esperado.
+		 */
+		
 		/*Recibe un bloque de datos creado/inicializado de tamaño 'tamanioBloque' 
 		 * y lo llena con la informacion leida del archivo de datos en 
 		 * la posicion 'numBloque'.

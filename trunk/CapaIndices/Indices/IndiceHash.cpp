@@ -3,11 +3,10 @@
 	IndiceHash::IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo) 
 	{
 		this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
-		this->tipoIndice = TipoIndices::GRIEGO;
+		this->tipoIndice    = TipoIndices::GRIEGO;
 		this->tamBloqueDato = tamBucket;
 		
-		hash = new Hash((IndiceHashManager*)indiceManager, listaParam, tamBucket);
-		
+		this->hash = new Hash((IndiceHashManager*)indiceManager, listaParam, tamBucket);		
 	}
 	
 	IndiceHash::~IndiceHash() 

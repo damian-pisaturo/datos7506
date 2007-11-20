@@ -18,6 +18,7 @@
 //		- Pisaturo, Damian;
 //		- Rodriguez, Maria Laura.
 ///////////////////////////////////////////////////////////////////////////
+
 #include "IndiceManager.h"
 #include "../../Hash/Bucket.h"
 
@@ -129,57 +130,66 @@ int IndiceArbolManager::leerBloque(unsigned int numBloque, BloqueIndice* bloqueL
 
 	//Se lanza el proceso de la capa fisica. 
 	//Se obtiene en buffer el contenido del Nodo solicitado.
-	pipe->lanzar();
-
-	pipe->leer(&resultado);
-
-	if (resultado == ResultadosFisica::OK) {
-		pipe->leer(this->getTamanioBloque(), data);
-
-		//Castear el header				
-		memcpy(&headerNodo.nivel, data, sizeof(unsigned char));
-		data += sizeof(unsigned char);
-
-		//El hijo izq se carga siempre y cuando no se trate de un nodo hoja de un árbol B*
-		if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
-			memcpy(&headerNodo.refNodo, data, sizeof(unsigned int));
-			data += sizeof(unsigned int);
-		} else headerNodo.refNodo = 0;
-
-		memcpy(&headerNodo.espacioLibre, data, sizeof(unsigned short));
-		data += sizeof(unsigned short);
-
-		//Settear el espacio libre, el nivel y la referencia del nodo
-		nodoLeido->setNivel(headerNodo.nivel);
-		nodoLeido->setEspacioLibre(headerNodo.espacioLibre);
-		nodoLeido->setRefNodo(headerNodo.refNodo);
-
-		//Recorrer el buffer desde donde quedo hasta que supere
-		//el espacio libre, interpretando clave por clave.
-		const char* punteroFinal = punteroAux + (this->getTamanioBloque()
-				- headerNodo.espacioLibre);
-
-		if (nodoLeido->getNivel() == 0) {
-			while (data < punteroFinal) {
-				//Leer la clave	
-				claveNueva = this->leerClaveHoja(data);
-				//Agregarla a la lista	
-				set->insert(claveNueva);
-			}
-		} else {
-			while (data < punteroFinal) {
-				//Leer la clave	
-				claveNueva = this->leerClaveNoHoja(data);
-				//Agregarla a la lista	
-				set->insert(claveNueva);
+	resultado = pipe->lanzar();
+	
+	if (resultado == ComuDatos::SIN_ERROR){
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK){
+			
+			//Se obtiene el resultado de la operacion de lectura.
+			pipe->leer(&resultado);
+		
+			if (resultado == ResultadosFisica::OK) {
+				pipe->leer(this->getTamanioBloque(), data);
+		
+				//Castear el header				
+				memcpy(&headerNodo.nivel, data, sizeof(unsigned char));
+				data += sizeof(unsigned char);
+		
+				//El hijo izq se carga siempre y cuando no se trate de un nodo hoja de un árbol B*
+				if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
+					memcpy(&headerNodo.refNodo, data, sizeof(unsigned int));
+					data += sizeof(unsigned int);
+				} else headerNodo.refNodo = 0;
+		
+				memcpy(&headerNodo.espacioLibre, data, sizeof(unsigned short));
+				data += sizeof(unsigned short);
+		
+				//Settear el espacio libre, el nivel y la referencia del nodo
+				nodoLeido->setNivel(headerNodo.nivel);
+				nodoLeido->setEspacioLibre(headerNodo.espacioLibre);
+				nodoLeido->setRefNodo(headerNodo.refNodo);
+		
+				//Recorrer el buffer desde donde quedo hasta que supere
+				//el espacio libre, interpretando clave por clave.
+				const char* punteroFinal = punteroAux + (this->getTamanioBloque()
+						- headerNodo.espacioLibre);
+		
+				if (nodoLeido->getNivel() == 0) {
+					while (data < punteroFinal) {
+						//Leer la clave	
+						claveNueva = this->leerClaveHoja(data);
+						//Agregarla a la lista	
+						set->insert(claveNueva);
+					}
+				} else {
+					while (data < punteroFinal) {
+						//Leer la clave	
+						claveNueva = this->leerClaveNoHoja(data);
+						//Agregarla a la lista	
+						set->insert(claveNueva);
+					}
+				}
+		
+				//Agregar el setClaves al nodo
+				nodoLeido->setClaves(set);
+		
+				//Settear la posicion del nodo en el archivo
+				nodoLeido->setPosicionEnArchivo(numBloque);
 			}
 		}
-
-		//Agregar el setClaves al nodo
-		nodoLeido->setClaves(set);
-
-		//Settear la posicion del nodo en el archivo
-		nodoLeido->setPosicionEnArchivo(numBloque);
 	}
 
 	if (pipe)
@@ -193,6 +203,8 @@ int IndiceArbolManager::leerBloque(unsigned int numBloque, BloqueIndice* bloqueL
 
 int IndiceArbolManager::escribirBloque(BloqueIndice* bloqueNuevo) 
 {
+	char resultado  = 0;
+	int numBloque   = 0;
 	Nodo* nodoNuevo = static_cast<Nodo*> (bloqueNuevo);
 
 	//Variables de escritura del buffer
@@ -214,48 +226,57 @@ int IndiceArbolManager::escribirBloque(BloqueIndice* bloqueNuevo)
 	pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
 
 	//Se lanza el proceso de la capa fisica. 
-	pipe->lanzar();
-
-	//Copiar el header al buffer
-	headerNodo.nivel = nodoNuevo->getNivel();
-	headerNodo.refNodo = nodoNuevo->getRefNodo();
-	headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
-
-	memcpy(data, &headerNodo.nivel, sizeof(char));
-	data+=sizeof(char);
+	resultado = pipe->lanzar();
 	
-	//El hijo izq se guarda siempre y cuando no se trate de un nodo hoja de un árbol B*
-	if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
-		memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
-		data+=sizeof(unsigned int);
-	} else headerNodo.refNodo = 0;
+	if (resultado == ComuDatos::SIN_ERROR){
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK){
 	
-	memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));
-	data+=sizeof(unsigned short);
-
-	//Obtener la lista de claves
-	set = nodoNuevo->getClaves();
-
-	//Recorrer la lista de claves copiando cada clave al buffer
-	if (nodoNuevo->getNivel() == 0) {
-		for (SetClaves::iterator iterClaves = set->begin(); iterClaves
-				!= set->end(); ++iterClaves)
-			this->copiarClaveHoja((Clave*)(*iterClaves), data);
-	} else {
-		for (SetClaves::iterator iterClaves = set->begin(); iterClaves
-				!= set->end(); ++iterClaves)
-			this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
-	}
-
-	//Grabar el buffer en el archivo.
-	pipe->escribir(punteroAux, this->getTamanioBloque());
-
-	//Obtener nueva posicion del bloque en el archivo. 
-	unsigned int numBloque = 0;
-	pipe->leer(&numBloque);
-
-	//Setear en el nodo la posicion donde se grabo el nodo.
-	nodoNuevo->setPosicionEnArchivo(numBloque);
+			//Copiar el header al buffer
+			headerNodo.nivel = nodoNuevo->getNivel();
+			headerNodo.refNodo = nodoNuevo->getRefNodo();
+			headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
+		
+			memcpy(data, &headerNodo.nivel, sizeof(char));
+			data+=sizeof(char);
+			
+			//El hijo izq se guarda siempre y cuando no se trate de un nodo hoja de un árbol B*
+			if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
+				memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
+				data+=sizeof(unsigned int);
+			} else headerNodo.refNodo = 0;
+			
+			memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));
+			data+=sizeof(unsigned short);
+		
+			//Obtener la lista de claves
+			set = nodoNuevo->getClaves();
+		
+			//Recorrer la lista de claves copiando cada clave al buffer
+			if (nodoNuevo->getNivel() == 0) {
+				for (SetClaves::iterator iterClaves = set->begin(); iterClaves
+						!= set->end(); ++iterClaves)
+					this->copiarClaveHoja((Clave*)(*iterClaves), data);
+			} else {
+				for (SetClaves::iterator iterClaves = set->begin(); iterClaves
+						!= set->end(); ++iterClaves)
+					this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
+			}
+		
+			//Grabar el buffer en el archivo.
+			pipe->escribir(punteroAux, this->getTamanioBloque());
+		
+			//Obtener nueva posicion del bloque en el archivo. 
+			pipe->leer(&numBloque);
+		
+			//Setear en el nodo la posicion donde se grabo el nodo.
+			nodoNuevo->setPosicionEnArchivo(numBloque);
+		}else
+			numBloque = resultado;
+	}else
+		numBloque = resultado;
 
 	if (pipe)
 		delete pipe;
@@ -290,49 +311,57 @@ int IndiceArbolManager::escribirBloque(unsigned short numNodo, BloqueIndice* blo
 	pipe->agregarParametro(numNodo, 3); //Numero de nodo a sobre-escribir.
 
 	//Se lanza el proceso de la capa fisica. 
-	pipe->lanzar();
-
-	//Copiar el header al buffer
-	headerNodo.nivel = nodoNuevo->getNivel();
-	headerNodo.refNodo = nodoNuevo->getRefNodo();
-	headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
-
-	memcpy(data, &headerNodo.nivel, sizeof(char));
-	data+=sizeof(char);
+	resultado = pipe->lanzar();
 	
-	//El hijo izq se guarda siempre y cuando no se trate de un nodo hoja de un árbol B*
-	if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
-		memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
-		data+=sizeof(unsigned int);
-	} else headerNodo.refNodo = 0;
+	if (resultado == ComuDatos::SIN_ERROR){
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK){
 	
-	memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));
-	data+=sizeof(unsigned short);
-
-	//Obtener la lista de claves
-	set = nodoNuevo->getClaves();
-
-	//Recorrer la lista de claves copiando cada clave al buffer
-	if (nodoNuevo->getNivel() == 0) {
-
-		for (SetClaves::iterator iterClaves = set->begin(); iterClaves
-				!= set->end(); ++iterClaves)
-			this->copiarClaveHoja((Clave*)(*iterClaves), data);
-
-	} else {
-
-		for (SetClaves::iterator iterClaves = set->begin(); iterClaves
-				!= set->end(); ++iterClaves)
-			this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
-
+			//Copiar el header al buffer
+			headerNodo.nivel = nodoNuevo->getNivel();
+			headerNodo.refNodo = nodoNuevo->getRefNodo();
+			headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
+		
+			memcpy(data, &headerNodo.nivel, sizeof(char));
+			data+=sizeof(char);
+			
+			//El hijo izq se guarda siempre y cuando no se trate de un nodo hoja de un árbol B*
+			if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
+				memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
+				data+=sizeof(unsigned int);
+			} else headerNodo.refNodo = 0;
+			
+			memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));
+			data+=sizeof(unsigned short);
+		
+			//Obtener la lista de claves
+			set = nodoNuevo->getClaves();
+		
+			//Recorrer la lista de claves copiando cada clave al buffer
+			if (nodoNuevo->getNivel() == 0) {
+		
+				for (SetClaves::iterator iterClaves = set->begin(); iterClaves
+						!= set->end(); ++iterClaves)
+					this->copiarClaveHoja((Clave*)(*iterClaves), data);
+		
+			} else {
+		
+				for (SetClaves::iterator iterClaves = set->begin(); iterClaves
+						!= set->end(); ++iterClaves)
+					this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
+		
+			}
+		
+			//Grabar el buffer en el archivo.
+			pipe->escribir(punteroAux, this->getTamanioBloque());
+		
+			//Solicitar resultado de la comunicacion con la 
+			//capa fisica.
+			pipe->leer(&resultado);
+		}
 	}
-
-	//Grabar el buffer en el archivo.
-	pipe->escribir(punteroAux, this->getTamanioBloque());
-
-	//Solicitar resultado de la comunicacion con la 
-	//capa fisica.
-	pipe->leer(&resultado);
 
 	if (pipe)
 		delete pipe;
@@ -357,21 +386,29 @@ int IndiceArbolManager::eliminarBloque(unsigned short posicion)
 	pipe->agregarParametro(posicion, 3); //Posicion del bloque a eliminar.
 
 	//Se lanza el proceso de la capa fisica. 
-	pipe->lanzar();
-
-	//Solicitar resultado de la comunicacion con la 
-	//capa fisica.
-	pipe->leer(&resultado);
-
-	if (pipe)
-		delete pipe;
+	resultado = pipe->lanzar();
+	
+	if (resultado == ComuDatos::SIN_ERROR){
+	
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK)	
+			//Solicitar resultado de la comunicacion con la 
+			//capa fisica.
+			pipe->leer(&resultado);
+	
+		if (pipe)
+			delete pipe;
+	}
 
 	return resultado;
 }
 
 int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo)
 {
-	unsigned int numBloque = 0;
+	char resultado  = 0;
+	int numBloque   = 0;
 	Nodo* nodoNuevo = static_cast<Nodo*> (bloqueNuevo);
 
 	//Variables de escritura del buffer
@@ -381,7 +418,7 @@ int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo)
 
 	//Variables de interpretacion del nodo
 	HeaderNodo headerNodo;
-	SetClaves* set= NULL;
+	SetClaves* set = NULL;
 
 	//Instancia del pipe
 	ComuDatos* pipe = this->instanciarPipe();
@@ -392,51 +429,61 @@ int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo)
 	pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
 
 	//Se lanza el proceso de la capa fisica. 
-	pipe->lanzar();
-
-	//Copiar el header al buffer
-	headerNodo.nivel = nodoNuevo->getNivel();
-	headerNodo.refNodo = nodoNuevo->getRefNodo();
-	headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
-
-	memcpy(data, &headerNodo.nivel, sizeof(char));
-	data+=sizeof(char);
+	resultado = pipe->lanzar();
 	
-	//El hijo izq se guarda siempre y cuando no se trate de un nodo hoja de un árbol B*
-	if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
-		memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
-		data+=sizeof(unsigned int);
-	} else headerNodo.refNodo = 0;
-	
-	memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));
-	data+=sizeof(unsigned short);
-
-	//Obtener la lista de claves
-	set = nodoNuevo->getClaves();
-
-	//Recorrer la lista de claves copiando cada clave al buffer
-	if (nodoNuevo->getNivel() == 0) {
-		for (SetClaves::iterator iterClaves = set->begin(); iterClaves
-				!= set->end(); ++iterClaves)
-			this->copiarClaveHoja((Clave*)(*iterClaves), data);
-
-	} else {
-		for (SetClaves::iterator iterClaves = set->begin(); iterClaves
-				!= set->end(); ++iterClaves)
-			this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
-	}
-
-	//Grabar el primer bloque en el archivo.	
-	pipe->escribir(punteroAux, this->getTamanioBloque());
-
-	//Grabar el segundo bloque en el archivo.
-	pipe->escribir(punteroAux + this->getTamanioBloque(),
-			this->getTamanioBloque());
-
-	//Obtener nueva posicion del primer nodo en el archivo
-	//y settearla en el nodo. La segunda posicion es contigua.
-	pipe->leer(&numBloque);
-	nodoNuevo->setPosicionEnArchivo(numBloque);
+	if (resultado == ComuDatos::SIN_ERROR){
+		
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK){
+		
+			//Copiar el header al buffer
+			headerNodo.nivel = nodoNuevo->getNivel();
+			headerNodo.refNodo = nodoNuevo->getRefNodo();
+			headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
+		
+			memcpy(data, &headerNodo.nivel, sizeof(char));
+			data+=sizeof(char);
+			
+			//El hijo izq se guarda siempre y cuando no se trate de un nodo hoja de un árbol B*
+			if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
+				memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
+				data+=sizeof(unsigned int);
+			} else headerNodo.refNodo = 0;
+			
+			memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));
+			data+=sizeof(unsigned short);
+		
+			//Obtener la lista de claves
+			set = nodoNuevo->getClaves();
+		
+			//Recorrer la lista de claves copiando cada clave al buffer
+			if (nodoNuevo->getNivel() == 0) {
+				for (SetClaves::iterator iterClaves = set->begin(); iterClaves
+						!= set->end(); ++iterClaves)
+					this->copiarClaveHoja((Clave*)(*iterClaves), data);
+		
+			} else {
+				for (SetClaves::iterator iterClaves = set->begin(); iterClaves
+						!= set->end(); ++iterClaves)
+					this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
+			}
+		
+			//Grabar el primer bloque en el archivo.	
+			pipe->escribir(punteroAux, this->getTamanioBloque());
+		
+			//Grabar el segundo bloque en el archivo.
+			pipe->escribir(punteroAux + this->getTamanioBloque(),
+					this->getTamanioBloque());
+		
+			//Obtener nueva posicion del primer nodo en el archivo
+			//y settearla en el nodo. La segunda posicion es contigua.
+			pipe->leer(&numBloque);
+			nodoNuevo->setPosicionEnArchivo(numBloque);
+		}else
+			numBloque = resultado;
+	}else numBloque = resultado;
 
 	if (pipe)
 		delete pipe;
@@ -459,7 +506,7 @@ int IndiceArbolManager::escribirBloqueDoble(unsigned short numBloque, BloqueIndi
 
 	//Variables de interpretacion del nodo
 	HeaderNodo headerNodo;
-	SetClaves* set= NULL;
+	SetClaves* set = NULL;
 
 	//Instancia del pipe
 	ComuDatos* pipe = this->instanciarPipe();
@@ -471,53 +518,62 @@ int IndiceArbolManager::escribirBloqueDoble(unsigned short numBloque, BloqueIndi
 	pipe->agregarParametro(numBloque, 3); // Numero del primer nodo a escribir a disco.
 
 	//Se lanza el proceso de la capa fisica. 
-	pipe->lanzar();
-
-	//Copiar el header al buffer
-	headerNodo.nivel = nodoNuevo->getNivel();
-	headerNodo.refNodo = nodoNuevo->getRefNodo();
-	headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
-
-	memcpy(data, &headerNodo.nivel, sizeof(char));
-	data+=sizeof(char);
+	resultado = pipe->lanzar();
 	
-	//El hijo izq se guarda siempre y cuando no se trate de un nodo hoja de un árbol B*
-	if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
-		memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
-		data+=sizeof(unsigned int);
-	} else headerNodo.refNodo = 0;
-	
-	memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));
-	data+=sizeof(unsigned short);
-
-	//Obtener la lista de claves
-	set = nodoNuevo->getClaves();
-
-	//Recorrer la lista de claves copiando cada clave al buffer
-	if (nodoNuevo->getNivel() == 0) {
-		for (SetClaves::iterator iterClaves = set->begin(); iterClaves
-				!= set->end(); ++iterClaves)
-			this->copiarClaveHoja((Clave*)(*iterClaves), data);
-
-	} else {
-		for (SetClaves::iterator iterClaves = set->begin(); iterClaves
-				!= set->end(); ++iterClaves)
-			this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
+	if (resultado == ComuDatos::SIN_ERROR){
+		
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK){	
+		
+			//Copiar el header al buffer
+			headerNodo.nivel = nodoNuevo->getNivel();
+			headerNodo.refNodo = nodoNuevo->getRefNodo();
+			headerNodo.espacioLibre = nodoNuevo->getEspacioLibre();
+		
+			memcpy(data, &headerNodo.nivel, sizeof(char));
+			data+=sizeof(char);
+			
+			//El hijo izq se guarda siempre y cuando no se trate de un nodo hoja de un árbol B*
+			if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
+				memcpy(data, &headerNodo.refNodo, sizeof(unsigned int));
+				data += sizeof(unsigned int);
+			} else headerNodo.refNodo = 0;
+			
+			memcpy(data, &headerNodo.espacioLibre, sizeof(unsigned short));
+			data+=sizeof(unsigned short);
+		
+			//Obtener la lista de claves
+			set = nodoNuevo->getClaves();
+		
+			//Recorrer la lista de claves copiando cada clave al buffer
+			if (nodoNuevo->getNivel() == 0) {
+				for (SetClaves::iterator iterClaves = set->begin(); iterClaves
+						!= set->end(); ++iterClaves)
+					this->copiarClaveHoja((Clave*)(*iterClaves), data);
+		
+			} else {
+				for (SetClaves::iterator iterClaves = set->begin(); iterClaves
+						!= set->end(); ++iterClaves)
+					this->copiarClaveNoHoja((Clave*)(*iterClaves), data);
+			}
+		
+			//Grabar el primer bloque en el archivo.	
+			pipe->escribir(punteroAux, this->getTamanioBloque());
+		
+			//Grabar el segundo bloque en el archivo.
+			pipe->escribir(punteroAux + this->getTamanioBloque(),
+					this->getTamanioBloque());
+		
+			//Solicitar resultado de la comunicacion con la 
+			//capa fisica.
+			pipe->leer(&resultado);
+		
+			// Settear la posicion del bloque en disco (pasada por parametro).
+			nodoNuevo->setPosicionEnArchivo(numBloque);
+		}
 	}
-
-	//Grabar el primer bloque en el archivo.	
-	pipe->escribir(punteroAux, this->getTamanioBloque());
-
-	//Grabar el segundo bloque en el archivo.
-	pipe->escribir(punteroAux + this->getTamanioBloque(),
-			this->getTamanioBloque());
-
-	//Solicitar resultado de la comunicacion con la 
-	//capa fisica.
-	pipe->leer(&resultado);
-
-	// Settear la posicion del bloque en disco (pasada por parametro).
-	nodoNuevo->setPosicionEnArchivo(numBloque);
 
 	if (pipe)
 		delete pipe;
@@ -553,61 +609,71 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque, BloqueIndice* 
 	pipe->agregarParametro(numBloque, 3); //Numero del primer nodo a leer dentro del archivo
 
 	//Se lanza el proceso de la capa fisica.
-	pipe->lanzar();
-
-	//Se obtiene el resultado de la lectura 
-	pipe->leer(&resultado);
-
-	if (resultado == ResultadosFisica::OK) {
-		//Se obtiene en buffer el contenido del primer nodo solicitado.
-		pipe->leer(this->getTamanioBloque(), data);
-
-		//Se obtiene en buffer el contenido del segundo nodo solicitado.
-		pipe->leer(this->getTamanioBloque(), data + this->getTamanioBloque());
-
-		//Castear el header				
-		memcpy(&headerNodo.nivel, data, sizeof(unsigned char));
-		data += sizeof(unsigned char);
-
-		//El hijo izq se carga siempre y cuando no se trate de un nodo hoja de un árbol B*
-		if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
-			memcpy(&headerNodo.refNodo, data, sizeof(unsigned int));
-			data += sizeof(unsigned int);
-		} else headerNodo.refNodo = 0;
-
-		memcpy(&headerNodo.espacioLibre, data, sizeof(unsigned short));
-		data += sizeof(unsigned short);
-
-		//Settear el espacio libre, el nivel y la referencia del nodo
-		nodoLeido->setNivel(headerNodo.nivel);
-		nodoLeido->setEspacioLibre(headerNodo.espacioLibre);
-		nodoLeido->setRefNodo(headerNodo.refNodo);
+	resultado = pipe->lanzar();
+	
+	if (resultado == ComuDatos::SIN_ERROR){
 		
-		//Recorrer el buffer desde donde quedo hasta que supere
-		//el espacio libre, interpretando clave por clave.
-		const char* punteroFinal = punteroAux + (2*this->getTamanioBloque() - headerNodo.espacioLibre);
-
-		if (nodoLeido->getNivel() == 0) {
-			while (data < punteroFinal) {
-				//Leer la clave	
-				claveNueva = this->leerClaveHoja(data);
-				//Agregarla a la lista	
-				set->insert(claveNueva);
-			}
-		} else {
-			while (data < punteroFinal) {
-				//Leer la clave	
-				claveNueva = this->leerClaveNoHoja(data);
-				//Agregarla a la lista	
-				set->insert(claveNueva);
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK){
+		
+		
+			//Se obtiene el resultado de la lectura 
+			pipe->leer(&resultado);
+		
+			if (resultado == ResultadosFisica::OK) {
+				//Se obtiene en buffer el contenido del primer nodo solicitado.
+				pipe->leer(this->getTamanioBloque(), data);
+		
+				//Se obtiene en buffer el contenido del segundo nodo solicitado.
+				pipe->leer(this->getTamanioBloque(), data + this->getTamanioBloque());
+		
+				//Castear el header				
+				memcpy(&headerNodo.nivel, data, sizeof(unsigned char));
+				data += sizeof(unsigned char);
+		
+				//El hijo izq se carga siempre y cuando no se trate de un nodo hoja de un árbol B*
+				if (!((this->getTipoIndice() == TipoIndices::ARBOL_BS) && (headerNodo.nivel == 0))) {
+					memcpy(&headerNodo.refNodo, data, sizeof(unsigned int));
+					data += sizeof(unsigned int);
+				} else headerNodo.refNodo = 0;
+		
+				memcpy(&headerNodo.espacioLibre, data, sizeof(unsigned short));
+				data += sizeof(unsigned short);
+		
+				//Settear el espacio libre, el nivel y la referencia del nodo
+				nodoLeido->setNivel(headerNodo.nivel);
+				nodoLeido->setEspacioLibre(headerNodo.espacioLibre);
+				nodoLeido->setRefNodo(headerNodo.refNodo);
+				
+				//Recorrer el buffer desde donde quedo hasta que supere
+				//el espacio libre, interpretando clave por clave.
+				const char* punteroFinal = punteroAux + (2*this->getTamanioBloque() - headerNodo.espacioLibre);
+		
+				if (nodoLeido->getNivel() == 0) {
+					while (data < punteroFinal) {
+						//Leer la clave	
+						claveNueva = this->leerClaveHoja(data);
+						//Agregarla a la lista	
+						set->insert(claveNueva);
+					}
+				} else {
+					while (data < punteroFinal) {
+						//Leer la clave	
+						claveNueva = this->leerClaveNoHoja(data);
+						//Agregarla a la lista	
+						set->insert(claveNueva);
+					}
+				}
+		
+				//Agregar el setClaves al nodo
+				nodoLeido->setClaves(set);
+				
+				//Setear la posicion del nodo en el archivo
+				nodoLeido->setPosicionEnArchivo(numBloque);
 			}
 		}
-
-		//Agregar el setClaves al nodo
-		nodoLeido->setClaves(set);
-		
-		//Setear la posicion del nodo en el archivo
-		nodoLeido->setPosicionEnArchivo(numBloque);
 	}
 
 	if (pipe)
@@ -633,11 +699,18 @@ int IndiceArbolManager::eliminarBloqueDoble(unsigned short posicion)
 	pipe->agregarParametro(posicion, 3); //Posicion del primer bloque a eliminar.
 
 	//Se lanza el proceso de la capa fisica. 
-	pipe->lanzar();
-
-	//Solicitar resultado de la comunicacion con la 
-	//capa fisica.
-	pipe->leer(&resultado);
+	resultado = pipe->lanzar();
+	
+	if (resultado == ComuDatos::SIN_ERROR){
+		
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK)
+			//Solicitar resultado de la comunicacion con la 
+			//capa fisica.
+			pipe->leer(&resultado);
+	}
 
 	return resultado;
 }
@@ -685,28 +758,38 @@ int IndiceHashManager::leerBloque(unsigned int numBucket, BloqueIndice* bloqueLe
 
 	//Se lanza el proceso de la capa fisica. 
 	//Se obtiene en buffer el contenido del Bucket solicitado.	
-	pipe->lanzar();
-
-	pipe->leer(&resultado);
-
-	if (resultado == ResultadosFisica::OK) {
-		pipe->leer(this->getTamanioBloque(), buffer);
-
-		bucketLeido->setDatos(buffer);
-
-		memcpy(&(headerBucket.espLibre), buffer, Tamanios::TAMANIO_ESPACIO_LIBRE);
-		buffer += Tamanios::TAMANIO_ESPACIO_LIBRE;
+	resultado = pipe->lanzar();
+	
+	if (resultado == ComuDatos::SIN_ERROR){
 		
-		memcpy(&(headerBucket.cantRegs), buffer,Tamanios::TAMANIO_CANTIDAD_REGISTROS);
-		buffer += Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
 		
-		memcpy(&(headerBucket.tamDispersion), buffer, Tamanios::TAMANIO_DISPERSION);
-
-		bucketLeido->setTamDispersion(headerBucket.tamDispersion);
-		bucketLeido->setEspacioLibre(headerBucket.espLibre);
-		bucketLeido->setCantRegs(headerBucket.cantRegs);
-		bucketLeido->setNroBloque(numBucket);
-
+		if (resultado == ResultadosFisica::OK){
+		
+			//Se obtiene el resultado de la operacion de lectura
+			pipe->leer(&resultado);
+		
+			if (resultado == ResultadosFisica::OK) {
+				pipe->leer(this->getTamanioBloque(), buffer);
+		
+				bucketLeido->setDatos(buffer);
+		
+				memcpy(&(headerBucket.espLibre), buffer, Tamanios::TAMANIO_ESPACIO_LIBRE);
+				buffer += Tamanios::TAMANIO_ESPACIO_LIBRE;
+				
+				memcpy(&(headerBucket.cantRegs), buffer,Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+				buffer += Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+				
+				memcpy(&(headerBucket.tamDispersion), buffer, Tamanios::TAMANIO_DISPERSION);
+		
+				bucketLeido->setTamDispersion(headerBucket.tamDispersion);
+				bucketLeido->setEspacioLibre(headerBucket.espLibre);
+				bucketLeido->setCantRegs(headerBucket.cantRegs);
+				bucketLeido->setNroBloque(numBucket);
+		
+			}
+		}
 	}
 
 	if (pipe)
@@ -717,6 +800,8 @@ int IndiceHashManager::leerBloque(unsigned int numBucket, BloqueIndice* bloqueLe
 
 int IndiceHashManager::escribirBloque(BloqueIndice* nuevoBloque)
 {
+	char resultado      = 0;
+	int numBucket       = 0;
 	Bucket* bucketLeido = static_cast<Bucket*> (nuevoBloque);
 
 	//Variable de escritura del buffer
@@ -732,19 +817,28 @@ int IndiceHashManager::escribirBloque(BloqueIndice* nuevoBloque)
 	pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bucket
 
 	//Se lanza el proceso de la capa fisica. 
-	pipe->lanzar();
-
-	data = bucketLeido->getDatos();
-
-	//Grabar el buffer en el archivo
-	pipe->escribir(data, this->getTamanioBloque());
-
-	//Obtener nueva posicion del bucket en el archivo. 
-	unsigned int numBucket = 0;
-	pipe->leer(&numBucket);
-
-	//Setear en el bucket la posicion donde se grabo.
-	bucketLeido->setNroBloque(numBucket);
+	resultado = pipe->lanzar();
+	
+	if (resultado == ComuDatos::SIN_ERROR){
+	
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK){
+	
+			data = bucketLeido->getDatos();
+		
+			//Grabar el buffer en el archivo
+			pipe->escribir(data, this->getTamanioBloque());
+		
+			//Obtener nueva posicion del bucket en el archivo. 
+			pipe->leer(&numBucket);
+		
+			//Setear en el bucket la posicion donde se grabo.
+			bucketLeido->setNroBloque(numBucket);
+		}else 
+			numBucket = resultado;
+	}else numBucket = resultado;
 
 	if (pipe)
 		delete pipe;
@@ -754,7 +848,7 @@ int IndiceHashManager::escribirBloque(BloqueIndice* nuevoBloque)
 
 int IndiceHashManager::escribirBloque(unsigned short numBucket, BloqueIndice* bloqueModif) 
 {
-	char resultado = ResultadosFisica::OK;
+	char resultado      = ResultadosFisica::OK;
 	Bucket* bucketLeido = static_cast<Bucket*> (bloqueModif);
 
 	//Variables de escritura del buffer
@@ -771,19 +865,27 @@ int IndiceHashManager::escribirBloque(unsigned short numBucket, BloqueIndice* bl
 	pipe->agregarParametro(numBucket, 3); //Numero de bucket a sobre-escribir.
 
 	//Se lanza el proceso de la capa fisica. 
-	pipe->lanzar();
-
-	buffer = bucketLeido->getDatos();
-
-	//Grabar el buffer en el archivo.
-	pipe->escribir(buffer, this->getTamanioBloque());
-
-	//Setear en el bucket la posicion donde se grabo.
-	bucketLeido->setNroBloque(numBucket);
-
-	//Solicitar resultado de la comunicacion con la 
-	//capa fisica.
-	pipe->leer(&resultado);
+	resultado = pipe->lanzar();
+	
+	if (resultado == ComuDatos::SIN_ERROR){
+		
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK){	
+			buffer = bucketLeido->getDatos();
+		
+			//Grabar el buffer en el archivo.
+			pipe->escribir(buffer, this->getTamanioBloque());
+		
+			//Setear en el bucket la posicion donde se grabo.
+			bucketLeido->setNroBloque(numBucket);
+		
+			//Solicitar resultado de la comunicacion con la 
+			//capa fisica.
+			pipe->leer(&resultado);
+		}
+	}
 
 	if (pipe)
 		delete pipe;
@@ -806,11 +908,18 @@ int IndiceHashManager::eliminarBloque(unsigned short numBucket)
 	pipe->agregarParametro(numBucket, 3); //Numero de bucket a eliminar dentro del archivo.
 
 	//Se lanza el proceso de la capa fisica. 
-	pipe->lanzar();
-
-	//Solicitar resultado de la comunicacion con la 
-	//capa fisica.
-	pipe->leer(&resultado);
+	resultado = pipe->lanzar();
+	
+	if (resultado == ComuDatos::SIN_ERROR){
+		
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK)	
+			//Solicitar resultado de la comunicacion con la 
+			//capa fisica.
+			pipe->leer(&resultado);
+	}
 
 	if (pipe)
 		delete pipe;
@@ -818,8 +927,9 @@ int IndiceHashManager::eliminarBloque(unsigned short numBucket)
 	return resultado;
 }
 
-void IndiceHashManager::leerTabla(unsigned int* tamanio, unsigned int* &buckets) 
+char IndiceHashManager::leerTabla(unsigned int* tamanio, unsigned int* &buckets) 
 {
+	char resultado     = 0;
 	char* bucketsTabla = NULL;
 
 	//Instancia del pipe
@@ -832,24 +942,34 @@ void IndiceHashManager::leerTabla(unsigned int* tamanio, unsigned int* &buckets)
 	pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño de un bucket en disco.
 
 	//Se lanza el proceso de la capa fisica. 
-	pipe->lanzar();
-
-	//Obtener tamaño de la tabla
-	pipe->leer(tamanio);
-
-	if (tamanio > 0) {
-		unsigned int sizeTabla = (sizeof(unsigned int))*(*tamanio);
-
-		bucketsTabla = new char[sizeTabla];
-
-		//Obtener datos de la tabla				
-		pipe->leer(sizeTabla, bucketsTabla);
+	resultado = pipe->lanzar();
+	
+	if (resultado == ComuDatos::SIN_ERROR){
+		
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK){
+			//Obtener tamaño de la tabla
+			pipe->leer(tamanio);
+		
+			if (tamanio > 0) {
+				unsigned int sizeTabla = (sizeof(unsigned int))*(*tamanio);
+		
+				bucketsTabla = new char[sizeTabla];
+		
+				//Obtener datos de la tabla				
+				pipe->leer(sizeTabla, bucketsTabla);
+			}
+		
+			buckets = (unsigned int*) bucketsTabla;
+		}
 	}
-
-	buckets = (unsigned int*) bucketsTabla;
 
 	if (pipe)
 		delete pipe;
+	
+	return resultado;
 }
 
 char IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* buckets) 
@@ -867,19 +987,29 @@ char IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* bucket
 	pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño de un bucket en disco.
 
 	// Se lanza el proceso de la capa fisica. 
-	pipe->lanzar();
-
-	// Enviar el tamaño de la tabla por el pipe.
-	pipe->escribir(tamanio);
-
-	bucketsTabla = (char*) buckets;
-
-	// Enviar el contenido de la tabla por el pipe.
-	pipe->escribir(bucketsTabla, tamanio*sizeof(unsigned int));
+	resultado = pipe->lanzar();
 	
-	// Obtener el resultado de la operacion.
-	pipe->leer(&resultado);
+	if (resultado == ComuDatos::SIN_ERROR){
+		
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK){
 	
+		
+			// Enviar el tamaño de la tabla por el pipe.
+			pipe->escribir(tamanio);
+		
+			bucketsTabla = (char*) buckets;
+		
+			// Enviar el contenido de la tabla por el pipe.
+			pipe->escribir(bucketsTabla, tamanio*sizeof(unsigned int));
+			
+			// Obtener el resultado de la operacion.
+			pipe->leer(&resultado);
+		}
+	}
+		
 	if (pipe)
 		delete pipe;
 	
@@ -1520,95 +1650,95 @@ Clave* IndiceCompuestoManager::leerClaveHoja(char* &buffer)
 		tipo = (*iterTipos);
 
 		switch(tipo){
+	
+			case TipoDatos::TIPO_ENTERO:
+			{
+				//Copia del valor de la clave
+				valor = new int;
+				tamanio = sizeof(int);
 		
-				case TipoDatos::TIPO_ENTERO:
-				{
-					//Copia del valor de la clave
-					valor = new int;
-					tamanio = sizeof(int);
-			
-					memcpy(valor, buffer, tamanio);
-					listaClaves.push_back(new ClaveEntera(*((int*)valor)));
-					
-				}break;
+				memcpy(valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveEntera(*((int*)valor)));
 				
-				case TipoDatos::TIPO_BOOL:
-				{
-					valor = new bool;
-					tamanio = sizeof(bool);
+			}break;
 			
-					memcpy(valor, buffer, tamanio);
-					listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
-					
-				}break;
+			case TipoDatos::TIPO_BOOL:
+			{
+				valor = new bool;
+				tamanio = sizeof(bool);
+		
+				memcpy(valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
 				
-				case TipoDatos::TIPO_CHAR:
-				{
-					valor = new char;
-					tamanio = sizeof(char);
+			}break;
 			
-					memcpy(valor, buffer, tamanio);
-					listaClaves.push_back(new ClaveChar(*((char*)valor)));
+			case TipoDatos::TIPO_CHAR:
+			{
+				valor = new char;
+				tamanio = sizeof(char);
+		
+				memcpy(valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveChar(*((char*)valor)));
+			
+			}break;
+			
+			case TipoDatos::TIPO_SHORT:
+			{
+				valor = new short;
+				tamanio = sizeof(short);
+		
+				memcpy(valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveShort(*((short*)valor)));
+			}break;
+			
+			case TipoDatos::TIPO_FLOAT:
+			{
+				valor = new float;
+				tamanio = sizeof(float);
+		
+				memcpy(valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveReal(*((float*)valor)));		
+			}break;
+			
+			case TipoDatos::TIPO_FECHA:
+			{
+				valor = new ClaveFecha::TFECHA;
+				tamanio = sizeof(ClaveFecha::TFECHA);
+		
+				//Se interpreta el valor TFECHA de la clave.
+				memcpy(&(((ClaveFecha::TFECHA*)valor)->anio), buffer, sizeof(unsigned short));
+				buffer += sizeof(unsigned short);
+		
+				memcpy(&(((ClaveFecha::TFECHA*)valor)->mes), buffer, sizeof(unsigned char));
+				buffer += sizeof(unsigned char);
+		
+				memcpy(&(((ClaveFecha::TFECHA*)valor)->dia), buffer, sizeof(unsigned char));
+				buffer += sizeof(unsigned char);
+		
+				listaClaves.push_back(new ClaveFecha(*((ClaveFecha::TFECHA*)valor)));			
+			}break;
+			
+			case TipoDatos::TIPO_STRING:
+			{
+				valor = new string;
+							
+				memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
 				
-				}break;
+				cadena = new char[sizeCadena + 1];
+				memcpy(cadena, buffer + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena);
 				
-				case TipoDatos::TIPO_SHORT:
-				{
-					valor = new short;
-					tamanio = sizeof(short);
-			
-					memcpy(valor, buffer, tamanio);
-					listaClaves.push_back(new ClaveShort(*((short*)valor)));
-				}break;
+				*(cadena + sizeCadena) = 0;			
+				valor = cadena;
 				
-				case TipoDatos::TIPO_FLOAT:
-				{
-					valor = new float;
-					tamanio = sizeof(float);
-			
-					memcpy(valor, buffer, tamanio);
-					listaClaves.push_back(new ClaveReal(*((float*)valor)));		
-				}break;
+				listaClaves.push_back(new ClaveVariable(*((string*)valor)));
 				
-				case TipoDatos::TIPO_FECHA:
-				{
-					valor = new ClaveFecha::TFECHA;
-					tamanio = sizeof(ClaveFecha::TFECHA);
-			
-					//Se interpreta el valor TFECHA de la clave.
-					memcpy(&(((ClaveFecha::TFECHA*)valor)->anio), buffer, sizeof(unsigned short));
-					buffer += sizeof(unsigned short);
-			
-					memcpy(&(((ClaveFecha::TFECHA*)valor)->mes), buffer, sizeof(unsigned char));
-					buffer += sizeof(unsigned char);
-			
-					memcpy(&(((ClaveFecha::TFECHA*)valor)->dia), buffer, sizeof(unsigned char));
-					buffer += sizeof(unsigned char);
-			
-					listaClaves.push_back(new ClaveFecha(*((ClaveFecha::TFECHA*)valor)));			
-				}break;
+				if (valor)
+					delete (string*)valor;
 				
-				case TipoDatos::TIPO_STRING:
-				{
-					valor = new string;
-								
-					memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
-					
-					cadena = new char[sizeCadena + 1];
-					memcpy(cadena, buffer + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena);
-					
-					*(cadena + sizeCadena) = 0;			
-					valor = cadena;
-					
-					listaClaves.push_back(new ClaveVariable(*((string*)valor)));
-					
-					if (valor)
-						delete (string*)valor;
-					
-					if (cadena)
-						delete[] cadena;
-											
-				}break;
+				if (cadena)
+					delete[] cadena;
+										
+			}break;
 		}
 
 		buffer += tamanio;
@@ -1641,95 +1771,95 @@ Clave* IndiceCompuestoManager::leerClaveNoHoja(char* &buffer)
 		tipo = (*iterTipos);
 
 		switch(tipo){
+	
+			case TipoDatos::TIPO_ENTERO:
+			{
+				//Copia del valor de la clave
+				valor = new int;
+				tamanio = sizeof(int);
 		
-				case TipoDatos::TIPO_ENTERO:
-				{
-					//Copia del valor de la clave
-					valor = new int;
-					tamanio = sizeof(int);
-			
-					memcpy(valor, buffer, tamanio);
-					listaClaves.push_back(new ClaveEntera(*((int*)valor)));
-					
-				}break;
+				memcpy(valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveEntera(*((int*)valor)));
 				
-				case TipoDatos::TIPO_BOOL:
-				{
-					valor = new bool;
-					tamanio = sizeof(bool);
+			}break;
 			
-					memcpy(valor, buffer, tamanio);
-					listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
-					
-				}break;
+			case TipoDatos::TIPO_BOOL:
+			{
+				valor = new bool;
+				tamanio = sizeof(bool);
+		
+				memcpy(valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
 				
-				case TipoDatos::TIPO_CHAR:
-				{
-					valor = new char;
-					tamanio = sizeof(char);
+			}break;
 			
-					memcpy(valor, buffer, tamanio);
-					listaClaves.push_back(new ClaveChar(*((char*)valor)));
+			case TipoDatos::TIPO_CHAR:
+			{
+				valor = new char;
+				tamanio = sizeof(char);
+		
+				memcpy(valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveChar(*((char*)valor)));
+			
+			}break;
+			
+			case TipoDatos::TIPO_SHORT:
+			{
+				valor = new short;
+				tamanio = sizeof(short);
+		
+				memcpy(valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveShort(*((short*)valor)));
+			}break;
+			
+			case TipoDatos::TIPO_FLOAT:
+			{
+				valor = new float;
+				tamanio = sizeof(float);
+		
+				memcpy(valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveReal(*((float*)valor)));		
+			}break;
+			
+			case TipoDatos::TIPO_FECHA:
+			{
+				valor = new ClaveFecha::TFECHA;
+				tamanio = sizeof(ClaveFecha::TFECHA);
+		
+				//Se interpreta el valor TFECHA de la clave.
+				memcpy(&(((ClaveFecha::TFECHA*)valor)->anio), buffer, sizeof(unsigned short));
+				buffer += sizeof(unsigned short);
+		
+				memcpy(&(((ClaveFecha::TFECHA*)valor)->mes), buffer, sizeof(unsigned char));
+				buffer += sizeof(unsigned char);
+		
+				memcpy(&(((ClaveFecha::TFECHA*)valor)->dia), buffer, sizeof(unsigned char));
+				buffer += sizeof(unsigned char);
+		
+				listaClaves.push_back(new ClaveFecha(*((ClaveFecha::TFECHA*)valor)));			
+			}break;
+			
+			case TipoDatos::TIPO_STRING:
+			{
+				valor = new string;
+							
+				memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
 				
-				}break;
+				cadena = new char[sizeCadena + 1];
+				memcpy(cadena, buffer + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena);
 				
-				case TipoDatos::TIPO_SHORT:
-				{
-					valor = new short;
-					tamanio = sizeof(short);
-			
-					memcpy(valor, buffer, tamanio);
-					listaClaves.push_back(new ClaveShort(*((short*)valor)));
-				}break;
+				*(cadena + sizeCadena) = 0;			
+				valor = cadena;
 				
-				case TipoDatos::TIPO_FLOAT:
-				{
-					valor = new float;
-					tamanio = sizeof(float);
-			
-					memcpy(valor, buffer, tamanio);
-					listaClaves.push_back(new ClaveReal(*((float*)valor)));		
-				}break;
+				listaClaves.push_back(new ClaveVariable(*((string*)valor)));
 				
-				case TipoDatos::TIPO_FECHA:
-				{
-					valor = new ClaveFecha::TFECHA;
-					tamanio = sizeof(ClaveFecha::TFECHA);
-			
-					//Se interpreta el valor TFECHA de la clave.
-					memcpy(&(((ClaveFecha::TFECHA*)valor)->anio), buffer, sizeof(unsigned short));
-					buffer += sizeof(unsigned short);
-			
-					memcpy(&(((ClaveFecha::TFECHA*)valor)->mes), buffer, sizeof(unsigned char));
-					buffer += sizeof(unsigned char);
-			
-					memcpy(&(((ClaveFecha::TFECHA*)valor)->dia), buffer, sizeof(unsigned char));
-					buffer += sizeof(unsigned char);
-			
-					listaClaves.push_back(new ClaveFecha(*((ClaveFecha::TFECHA*)valor)));			
-				}break;
+				if (valor)
+					delete (string*)valor;	
 				
-				case TipoDatos::TIPO_STRING:
-				{
-					valor = new string;
-								
-					memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
-					
-					cadena = new char[sizeCadena + 1];
-					memcpy(cadena, buffer + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena);
-					
-					*(cadena + sizeCadena) = 0;			
-					valor = cadena;
-					
-					listaClaves.push_back(new ClaveVariable(*((string*)valor)));
-					
-					if (valor)
-						delete (string*)valor;	
-					
-					if (cadena)
-						delete[] cadena;
-											
-				}break;
+				if (cadena)
+					delete[] cadena;
+										
+			}break;
 		}		
 
 		buffer += tamanio;

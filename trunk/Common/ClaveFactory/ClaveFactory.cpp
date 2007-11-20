@@ -181,3 +181,87 @@ Clave* ClaveFactory::getClave(const DefinitionsManager::ListaClaves& listaValore
 	
 }
 
+
+Clave* ClaveFactory::getClave(const char* lista, const ListaTipos& listaTipos) const {
+	
+	ListaTipos::const_iterator iterLT;
+	Clave* clave = NULL;
+	unsigned short offset = 0;
+	ListaClaves listaClaves;
+	
+	for (iterLT = listaTipos.begin(); iterLT != listaTipos.end(); ++iterLT) {
+		
+		switch(*iterLT) {
+					
+			case TipoDatos::TIPO_BOOL:
+			{	
+				bool valor = *((bool*)(lista + offset));
+				clave = new ClaveBoolean(valor);
+				offset += sizeof(bool);
+				break;
+			}
+			case TipoDatos::TIPO_CHAR:
+			{	
+				char valor = *(lista + offset);
+				clave = new ClaveChar(valor);
+				offset += sizeof(char);
+				break;
+			}
+			case TipoDatos::TIPO_SHORT:
+			{
+				short valor = *((short*)(lista + offset));
+				clave = new ClaveShort(valor);
+				offset += sizeof(short);
+				break;
+			}
+			case TipoDatos::TIPO_ENTERO:
+			{
+				int valor = *((int*)(lista + offset));
+				clave = new ClaveEntera(valor);
+				offset += sizeof(int);
+				break;
+			}
+			case TipoDatos::TIPO_FLOAT:
+			{
+				float valor = *((float*)(lista + offset));
+				clave = new ClaveReal(valor);
+				offset += sizeof(float);
+				break;
+			}
+			case TipoDatos::TIPO_FECHA:
+			{
+				ClaveFecha::TFECHA valor;
+				unsigned short anio;
+				unsigned char dia, mes;
+				anio = *((unsigned short*)(lista + offset));
+				offset += sizeof(unsigned short);
+				mes = *((unsigned char*)(lista + offset));
+				offset += sizeof(unsigned char);
+				dia = *((unsigned char*)(lista + offset));
+				offset += sizeof(unsigned char);
+				valor.crear(dia, mes, anio);
+				clave = new ClaveFecha(valor);
+				break;
+			}
+			case TipoDatos::TIPO_STRING:
+			{	
+				unsigned char longitud = *((unsigned char*)(lista + offset));
+				offset += sizeof(unsigned char);
+				string cadena(lista + offset, longitud);
+				clave = new ClaveVariable(cadena);
+				break;
+			}	
+		}
+		
+		listaClaves.push_back(clave);
+		
+	}
+	
+	if (listaClaves.size() > 1)
+		return new ClaveCompuesta(listaClaves);
+	
+	return clave;
+
+	
+}
+

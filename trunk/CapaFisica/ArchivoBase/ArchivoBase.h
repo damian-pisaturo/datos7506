@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -53,7 +54,7 @@ class ArchivoBase
 		 * un bloque del archivo. El primer byte del archivo contiene
 		 *  un identificador mágico.
 		 */
-		ArchivoBase(string nombre, unsigned char magic, unsigned short tamBloque);
+		ArchivoBase(string &nombre, unsigned short tamBloque);
 		
 		/*Cierra el archivo*/
 		virtual ~ArchivoBase();
@@ -106,10 +107,19 @@ class ArchivoBase
 		long size();
 
 	///////////////////////////////////////////////////////////////////////
-	// Getter
+	// Getters
 	///////////////////////////////////////////////////////////////////////
 		unsigned short getTamanioBloque();
 		bool esValido();
+	
+	private:
+	///////////////////////////////////////////////////////////////////////
+	// Metodo privado
+	///////////////////////////////////////////////////////////////////////
+		
+		/* Crea y devuelve un identificador unico para el archivo actual.
+		 */
+		virtual int generarID(string &nomArchivo);
 		
 }; /*Fin clase ArchivoBase*/
 

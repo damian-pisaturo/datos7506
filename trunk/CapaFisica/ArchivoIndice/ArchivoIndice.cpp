@@ -61,6 +61,7 @@
 				archivoEL->agregarRegistro(&valor);
 
 			}else{ 
+				 cout << "Encontre un bloque libre en el " << bloqueLibre << endl;
 				this->posicionarse(bloqueLibre);
 				archivoEL->modificarRegistro(&valor, bloqueLibre);
 			}
@@ -129,36 +130,14 @@
  	//	Metodos publicos
  	///////////////////////////////////////////////////////////////////////
 		
-		short ArchivoLista::escribirLista(const unsigned int cantClaves, const void* lista)
-		{
-			short posicion = 0;
-			
-			char* datos = new char[this->getTamanioBloque()];
-			
-			*((unsigned int*)datos) = cantClaves;
-			memcpy(datos, lista, this->getTamanioBloque() - sizeof(unsigned int));
-		
-			posicion = this->escribirBloque(datos);
-			
-			delete[] datos;
-			
-			return posicion;
+		short ArchivoLista::escribirLista(const void* lista)
+		{	
+			return this->escribirBloque(lista);
 		}				
 	
-		char ArchivoLista::escribirLista(const unsigned int cantClaves, const void* lista, unsigned short numBloque)
+		char ArchivoLista::escribirLista(const void* lista, unsigned short numBloque)
 		{
-			char resultado = ResultadosFisica::OK;
-			
-			char* datos = new char[this->getTamanioBloque()];
-			
-			*((unsigned int*)datos) = cantClaves;
-			memcpy(datos, lista, this->getTamanioBloque() - sizeof(unsigned int));
-			
-			resultado = this->escribirBloque(datos, numBloque);
-			
-			delete[] datos;
-			
-			return resultado;
+			return this->escribirBloque(lista, numBloque);
 		}
 				
 		char ArchivoLista::eliminarLista(unsigned short numBloque)
@@ -166,21 +145,9 @@
 			return this->eliminarBloque(numBloque);
 		}
 				
-		char ArchivoLista::leerLista(unsigned int* cantClaves, void* lista, unsigned short numBloque)
+		char ArchivoLista::leerLista(void* lista, unsigned short numBloque)
 		{
-			char resultado = ResultadosFisica::OK;
-			char* datos = new char[this->getTamanioBloque() + 1];
-			 
-			resultado = this->leerBloque(datos, numBloque);
-			
-			if (resultado == ResultadosFisica::OK){
-				*cantClaves = *((unsigned int*)datos);
-				memcpy(lista, datos + sizeof(unsigned int), this->getTamanioBloque() - sizeof(unsigned int));			
-			}else *cantClaves = 0;
-			
-			delete[] datos;
-			
-			return resultado;
+			return this->leerBloque(lista, numBloque);
 		}
 
 ///////////////////////////////////////////////////////////////////////////
@@ -200,7 +167,7 @@
 			//Escribe una cantidad de elementos inicial igual
 			//a cero, si la tabla se crea por primera vez, y un
 			//elemento inicial.
-			if (this->size() == 0){
+			if (this->size() == Tamanios::TAMANIO_IDENTIFICADOR){
 				unsigned int valorNulo = 0;
 				this->escribir(&valorNulo);
 				this->posicionarseFin();

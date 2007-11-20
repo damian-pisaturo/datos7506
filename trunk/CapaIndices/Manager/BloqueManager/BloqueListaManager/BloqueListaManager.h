@@ -42,6 +42,11 @@ class BloqueListaManager : public BloqueManager
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////
+		/*Todos los metodos de lectura/escritura a disco devuelven
+		 * ResultadosFisica::ARCHIVO_INVALIDO si el archivo siendo utilizado
+		 * no corresponde al archivo propio del proyecto esperado.
+		 */
+		
 		/*Recibe un buffer creado/inicializado de tamaño 'tamanioBloqueLista' 
 		 * y lo llena con la informacion leida del archivo de listas de
 		 * claves primarias en la posicion 'numBloque'.
