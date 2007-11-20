@@ -25,7 +25,6 @@ using namespace std;
 		string nombreProceso;
 	 	vector<string> parametrosProceso;
 	 	int cantParametros;
-	 	bool pipeActivo;
 		
 	 public:
 		 
