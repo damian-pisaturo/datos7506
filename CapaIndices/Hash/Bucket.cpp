@@ -48,57 +48,58 @@ Bucket::Bucket(unsigned int nroBucket,unsigned short tamDisp,unsigned int tamani
 	
 	//Los primeros 6 bytes se usan para guardar esplibre, cantRegs y tamDispersion.
 	unsigned short eLibre = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + 
-	  						Tamanios::TAMANIO_DISPERSION; 
+	  						Tamanios::TAMANIO_DISPERSION;
 	this->setEspacioLibre(eLibre);
 	
-	memcpy(datos,&eLibre,Tamanios::TAMANIO_ESPACIO_LIBRE);
+	memcpy(datos, &eLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
 
 	// El primer registro se encontrará donde esta el espacio libre al momento de la creación del bucket.
 	this->setOffsetADatos(eLibre);
 
 	// Actualiza el tamaño de dispersión dentro de la tira de bytes.
-	memcpy(&datos[Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS],&tamDisp,
+	memcpy(&datos[Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS], &tamDisp,
 		   Tamanios::TAMANIO_DISPERSION);
 }
 
 Bucket::~Bucket()
-{
-} 
+{ } 
 
 ///////////////////////////////////////////////////////////////////////
 // Metodos publicos
 ///////////////////////////////////////////////////////////////////////
 void Bucket::setTamDispersion(unsigned short tDisp)
 {
-	tamDispersion = tDisp;
+	this->tamDispersion = tDisp;
 	char * datos = getDatos();
+	
 	// Actualizo el tamaño de dispersión tambien en "datos".
-	memcpy(&datos[Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS],&tDisp,Tamanios::TAMANIO_DISPERSION);
+	memcpy(&datos[Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS],
+			&tDisp, Tamanios::TAMANIO_DISPERSION);	
 } 
 
 unsigned short Bucket::getTamDispersion()
 {
-	return tamDispersion;
+	return this->tamDispersion;
 }
 
 void Bucket::setCantRegs(unsigned short cRegs)
 {
-	cantRegs = cRegs;
+	this->cantRegs = cRegs;
 }
 
 unsigned short Bucket::getCantRegs()
 {
-	return cantRegs;
+	return this->cantRegs;
 }
 
 void Bucket::incrementarCantRegistros()
 {
-	cantRegs++;
+	this->cantRegs++;
 }
 
 void Bucket::decrementarCantRegistros()
 {
-	cantRegs--;
+	this->cantRegs--;
 }
 
 /*
@@ -106,9 +107,9 @@ void Bucket::decrementarCantRegistros()
  **/
 void Bucket::actualizarEspLibre()
 {
-	unsigned short espLibre;
-	memcpy(&espLibre,getDatos(),Tamanios::TAMANIO_ESPACIO_LIBRE);
-		   setEspacioLibre(espLibre);
+	unsigned short espLibre = 0;
+	memcpy(&espLibre, getDatos(), Tamanios::TAMANIO_ESPACIO_LIBRE);
+	setEspacioLibre(espLibre);
 }
 
 

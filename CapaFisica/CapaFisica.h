@@ -12,6 +12,7 @@
 
 using namespace std;
 
+char ejecutarOperacion(char** args);
 int main(int argc, char**argv);
 
 #endif /*CAPAFISICA_H_*/

@@ -15,12 +15,7 @@
 #include <iostream>
 #include <vector>
  
-#define TOPE_ENVIAR_STRING 4096
-#define FIN_PARAMETROS '\1'
-#define EXCEDE_TOPE '\3'
-#define SIN_ERROR '\2'
- 
- using namespace std;
+using namespace std;
 
  class ComuDatos {
 	 private:
@@ -30,8 +25,18 @@
 		string nombreProceso;
 	 	vector<string> parametrosProceso;
 	 	int cantParametros;
+	 	bool pipeActivo;
 		
 	 public:
+		 
+		 /*Constantes de error y definiciones
+		  */
+		static const unsigned int TOPE_ENVIAR_STRING = 4096;
+		static const unsigned char FIN_PARAMETROS = 1;
+		static const unsigned char EXCEDE_TOPE  = 3;
+		static const unsigned char SIN_ERROR = 2;
+		static const char ERROR_EJECUCION  = -1;
+		 
 		//! Crea una clase de comunicación vacía.
 		ComuDatos();
 	 	//! Crea una clase de comunicación y asigna el nombre del ejecutable a lanzar.
@@ -40,7 +45,7 @@
 	 	ComuDatos(char** argv);
 		
 	 	//! Lanza el proceso registrado e instancia los recursos de comunicación.
-		void lanzar();
+		int lanzar();
 	 
 	 	//! Asigna el nombre del proceso a ejecutar.
 	 	void ejecutable(string nombreEjecutable);

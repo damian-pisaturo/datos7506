@@ -6,9 +6,9 @@ RegisterInfo::RegisterInfo()
 	// TODO: Cambiar el tipo de dato de pk
 	nodoLista nodo;
 	
-	//El primer nodo de la lista indica s	cout << i << endl;i el registro es variable o no.
-	nodo.tipo = TipoDatos::TIPO_FIJO;
-	nodo.pk = "8";
+	//El primer nodo de la lista indica si el registro es variable o no.
+	nodo.tipo = TipoDatos::TIPO_VARIABLE;
+	nodo.pk = "";
 	nodo.cantClaves = 1;
 	
 	parameterList.push_back(nodo);
@@ -18,21 +18,15 @@ RegisterInfo::RegisterInfo()
 	
 	parameterList.push_back(nodo);
 	
-	nodo.tipo = TipoDatos::TIPO_CHAR;
+	nodo.tipo = TipoDatos::TIPO_STRING;
 	nodo.pk = "false";
 	
 	parameterList.push_back(nodo);
 	
-	nodo.tipo = TipoDatos::TIPO_SHORT;
+	nodo.tipo = TipoDatos::TIPO_FECHA;
 	nodo.pk = "true";
 		
-	parameterList.push_back(nodo);
-	
-	nodo.tipo = TipoDatos::TIPO_BOOL;
-	nodo.pk = "false";
-		
-	parameterList.push_back(nodo);
-	
+	parameterList.push_back(nodo);	
 } 
 
 RegisterInfo::~RegisterInfo()

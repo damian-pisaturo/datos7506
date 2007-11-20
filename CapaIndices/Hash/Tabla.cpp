@@ -26,9 +26,9 @@ Tabla::Tabla()
 	this->tamanio = 1;
 }
 
-Tabla::Tabla( IndiceHashManager* arch, unsigned int tamBucket)
+Tabla::Tabla(IndiceHashManager* arch, unsigned int tamBucket)
 {
-	unsigned int tamTabla = 0;
+	unsigned int tamTabla       = 0;
 	unsigned int * numerosTabla = NULL;
 	
 	
@@ -39,9 +39,9 @@ Tabla::Tabla( IndiceHashManager* arch, unsigned int tamBucket)
 		// Si la tabla no existe, en tamanio devuelve 0.
 		// En ese caso, se crea una tabla.
 		if (tamTabla == 0) 
-			this->crear( tamBucket);
+			this->crear(tamBucket);
 		else{
-			this->tamanio = tamTabla; 
+			this->tamanio   = tamTabla; 
 			this->nroBucket = numerosTabla;
 		}
 	}

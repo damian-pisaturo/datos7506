@@ -97,13 +97,12 @@ class ArchivoLista : public ArchivoIndice
 		 * por el archivo de control de espacio libre. Devuelve
 		 * el numero de bloque en el que fue insertada finalmente.
 		 */
-		short escribirLista(const unsigned int cantClaves, const void* lista);
+		short escribirLista(const void* lista);
 		
 		/*Modifica la lista cuyo numero en el archivo es numBloque con el 
-		 * contenido de 'lista' conteniendo una cantidad cantClaves 
-		 * de claves primarias.
+		 * contenido de 'lista'.
 		 */
-		char escribirLista(const unsigned int cantClaves, const void* lista, unsigned short numBloque);	
+		char escribirLista(const void* lista, unsigned short numBloque);	
 		
 		/*Actualiza el archivo de control de espacio libre, modificando
 		 * la entrada booleana correspondiente a numBloque.
@@ -111,10 +110,9 @@ class ArchivoLista : public ArchivoIndice
 		char eliminarLista(unsigned short numBloque);
 		
 		/*Devuelve en 'lista' el bloque del archivo de indice cuya 
-		 * posicion es numBloque y en cantClaves la cantidad de claves
-		 * contenida en la lista.
+		 * posicion es numBloque.
 		 */
-		virtual char leerLista(unsigned int* cantClaves, void* lista, unsigned short numBloque);
+		virtual char leerLista(void* lista, unsigned short numBloque);
 
 }; /*Fin clase ArchivoLista*/
 

@@ -59,6 +59,11 @@ class IndiceManager : public Manager
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////
+		/*Todos los metodos de lectura/escritura a disco devuelven
+		 * ResultadosFisica::ARCHIVO_INVALIDO si el archivo siendo utilizado
+		 * no corresponde al archivo propio del proyecto esperado.
+		 */
+		
 		/*Recibe un bloque creado y lo llena con la informacion leida
 		 * dependiendo del tipo de bloque (nodo arbol B+, nodo B*, bucket de hash).
 		 * Utiliza ComuDatos para comunicarse con la Capa Fisica.
@@ -142,6 +147,10 @@ class IndiceArbolManager : public IndiceManager
 	///////////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////////	
+		/*Todos los metodos de lectura/escritura a disco devuelven
+		 * ResultadosFisica::ARCHIVO_INVALIDO si el archivo siendo utilizado
+		 * no corresponde al archivo propio del proyecto esperado.
+		 */
 		
 		virtual int leerBloque(unsigned int numeroBloque, BloqueIndice* bloqueLeido);
 		
@@ -195,6 +204,11 @@ class IndiceHashManager : public IndiceManager
 	///////////////////////////////////////////////////////////////////////
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////
+		/*Todos los metodos de lectura/escritura a disco devuelven
+		 * ResultadosFisica::ARCHIVO_INVALIDO si el archivo siendo utilizado
+		 * no corresponde al archivo propio del proyecto esperado.
+		 */
+		
 		/*Lee el bucket cuya referencia en el archivo es numeroBloque y llena
 		 * una estructura Bucket con su informacion para ser consultada.
 		 */
@@ -223,7 +237,7 @@ class IndiceHashManager : public IndiceManager
 		 * numero de buckets igual a 'tamanio', reservando el 
 		 * espacio necesario.
 		 */
-		void leerTabla(unsigned int* tamanio, unsigned int* &buckets);
+		char leerTabla(unsigned int* tamanio, unsigned int* &buckets);
 
 };
 

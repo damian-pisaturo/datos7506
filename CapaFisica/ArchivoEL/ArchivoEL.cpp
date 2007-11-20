@@ -33,7 +33,7 @@
 		{
 			//Si el archivo esta vacio, agregar los dos primeros
 			//registros booleanos.
-			if (this->size() == 0){	
+			if (this->size() == Tamanios::TAMANIO_IDENTIFICADOR){	
 				bool valor = true;
 				this->agregarRegistro(&valor);
 				this->agregarRegistro(&valor);					

@@ -32,7 +32,7 @@
 			this->archivo    = arch;
 			this->listaParam = lista;
 			
-			this->tabla = new Tabla(this->archivo,tamBucket);
+			this->tabla = new Tabla(this->archivo, tamBucket);
 		}
 	
 		Hash::~Hash()
@@ -107,8 +107,10 @@
 				
 				bucket->setTamDispersion(bucket->getTamDispersion()*2);
 				
+				//TODO Por el amor de Cristo, que diantres es ESTO ? SAQUENLON !!
 				if (bucket->getTamDispersion() == 0)
 					exit(0);
+				
 				// Se crea un nuevo bucket vacío. Se devuelve en numBucketNuevo el número del mismo. 
 				unsigned int numBucketNuevo = 0;
 				

@@ -74,22 +74,14 @@
 					
 					case TipoDatos::TIPO_STRING:
 					{
-						char* cadena             = NULL;
-						unsigned char sizeCadena = 0;
+						unsigned char sizeCadena = *(unsigned char*)(lista + offset);
+						offset += sizeof(unsigned char);
 						
-						sizeCadena = *(unsigned char*)(data + offset);
-						
-						cadena = new char[sizeCadena + 1];
-						memcpy(cadena, data + offset + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena);
-						
-						*(cadena + sizeCadena) = 0;				
+						string cadena(lista + offset, sizeCadena);		
 						conversor << cadena;
 						
-						offset += sizeCadena + Tamanios::TAMANIO_LONGITUD_CADENA;
-						
-						if (cadena)
-							delete[] cadena;
-						
+						offset += sizeCadena;
+							
 					}break;
 					
 					this->listaAtributos->push_back(conversor.str());
