@@ -64,14 +64,19 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	Clave *clave = NULL;
 	Indice* indice = NULL;
 	
+	char* bufferPipe = NULL;
+	char* registroDatos = NULL;
 	char* bloqueDatosAEnviar = NULL;
+	unsigned short tamRegistro = 0;
 	unsigned int nroBloque = 0; //Variable utilizada para almacenar el número de bloque
 								//en el cual se debe insertar un registro
+	
+	//Si la operación es una inserción, recibo la clave o la lista de claves del índice primario
 	
 	//Leo el tamanio del buffer a recibir
 	pipe.leer(&tamanioBuffer);
 	
-	char *bufferPipe = new char[tamanioBuffer+1];
+	bufferPipe = new char[tamanioBuffer+1];
 	
 	//Leo los datos provenientes de la capa de metadata
 	if (tamanioBuffer <= CodigosPipe::BUFFER_SIZE)
@@ -82,7 +87,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			bytesLeidos += CodigosPipe::BUFFER_SIZE;
 		}
 	}
-
+	
 	bufferPipe[tamanioBuffer] = 0;
 	buffer = bufferPipe; //Copio el buffer en un string para parsearlo con más facilidad
 	
@@ -105,32 +110,60 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	
 	switch(codOp) {
 		case OperacionesCapas::INDICES_CONSULTAR:
+			//Si la consulta se hace a un índice primario, se envía el bloque de
+			//datos, sino se envía el bloque de la lista de claves primarias, y
+			//luego la Capa de Metadata deberá hacer las consultas que desee a través
+			//de esas claves primarias.
 			resultado = indice->buscar(clave, bloqueDatosAEnviar);
 			pipe.escribir(resultado);
 			if (resultado == ResultadosIndices::OK)
 				pipe.escribir(bloqueDatosAEnviar, Tamanios::TAMANIO_BLOQUE_DATO);
 			break;
 		case OperacionesCapas::INDICES_INSERTAR:
-			unsigned short tamRegistro;
 			pipe.leer(&tamRegistro);
 			//Se busca un bloque que contenga espacio suficiente para insertar el nuevo registro
 			resultado = indice->buscarBloqueDestino(tamRegistro, bloqueDatosAEnviar, nroBloque);
 			pipe.escribir(resultado);
+			
+			if (resultado == ResultadosIndices::SIN_ESPACIO_LIBRE) break;
+			
+			registroDatos = new char[tamRegistro];
+			//Recibo el registro de datos
+			pipe.leer(tamRegistro, registroDatos);
+			
 			if (resultado == ResultadosIndices::REQUIERE_REGISTRO) {
-				//El índice es un Hash
-				pipe.leer(tamRegistro, bloqueDatosAEnviar);
+				resultado = indice->insertar(clave, registroDatos);
 			} else {
 				pipe.escribir(bloqueDatosAEnviar, Tamanios::TAMANIO_BLOQUE_DATO);
 				//Recibo el bloque con el registro insertado
-				pipe.leer(Tamanios::TAMANIO_BLOQUE_DATO, bloqueDatosAEnviar);				
-				clave->setReferencia(nroBloque);
+				pipe.leer(Tamanios::TAMANIO_BLOQUE_DATO, bloqueDatosAEnviar);
+				resultado = indice->insertar(clave, bloqueDatosAEnviar);
 			}
-			resultado = indice->insertar(clave, bloqueDatosAEnviar);
+			
 			pipe.escribir(resultado);
+			
+			if (resultado == ResultadosIndices::OK) {
+				//Saco el índice primario para no volver a insertar.
+				mapaIndices.erase(listaNombresClaves);
+				delete indice;
+				
+				for (MapaIndices::iterator iter = mapaIndices.begin();
+					iter != mapaIndices.end(); ++iter) {
+					
+					
+					
+				}
+			}
+			
+			delete[] registroDatos;
+			
 			break;
 		case OperacionesCapas::INDICES_ELIMINAR:
 			resultado = indice->eliminar(clave);
 			pipe.escribir(resultado);
+			if (resultado == ResultadosIndices::OK) {
+				//TODO Actualizar indices secundarios
+			}
 			break;
 		case OperacionesCapas::INDICES_MODIFICAR:
 			if (indice->getTipo() == TipoIndices::GRIEGO) {
@@ -152,12 +185,18 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 				//correspondientes a cada clave de la lista.
 				
 			}
+			
+			if (resultado == ResultadosIndices::OK) {
+				//TODO Actualizar indices secundarios
+			}
+			
 			break;
 	}
 	
 	destruirIndices(mapaIndices);
 	
-	delete[] bufferPipe;
+	if (bufferPipe) delete[] bufferPipe;
+	if (bloqueDatosAEnviar) delete[] bloqueDatosAEnviar;
 	
 	return 0;
 	

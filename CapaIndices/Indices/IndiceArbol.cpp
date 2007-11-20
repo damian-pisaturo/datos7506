@@ -43,12 +43,16 @@ IndiceArbol::~IndiceArbol() {
  * Este metodo inserta una clave en un indice.
  */
 int IndiceArbol::insertar(Clave *clave, char* &registro) {
+	Clave* claveBuscada = bTree->buscar(clave);
+	if (claveBuscada) {
+		delete claveBuscada;
+		return ResultadosIndices::CLAVE_DUPLICADA;
+	}
 	//int resultado = this->bloqueManager->escribirBloqueDatos(registro);
 	//if (resultado >= 0) {
 	//	clave->setReferencia(resultado);
-	//	if (bTree->insertar(clave))
-	//		return ResultadosIndices::OK;
-	//	else return ResultadosIndices::CLAVE_DUPLICADA;
+		if (bTree->insertar(clave))
+			return ResultadosIndices::OK;
 	//}
 	return ResultadosIndices::ERROR_INSERCION;
 }
@@ -71,6 +75,7 @@ int IndiceArbol::buscar(Clave *clave, char* &registro) const {
 	if (!claveRecuperada) return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	registro = new char[this->getTamanioBloqueDato()];
 	int resultado = this->bloqueManager->leerBloqueDatos(claveRecuperada->getReferencia(), registro);
+	delete claveRecuperada;
 	if (resultado != ResultadosFisica::OK) {
 		delete registro;
 		registro = NULL;
@@ -80,7 +85,11 @@ int IndiceArbol::buscar(Clave *clave, char* &registro) const {
 }
 
 int IndiceArbol::buscar(Clave *clave) const {
-	if (bTree->buscar(clave)) return ResultadosIndices::CLAVE_ENCONTRADA;
+	Clave* claveBuscada = bTree->buscar(clave);
+	if (claveBuscada) {
+		delete claveBuscada;
+		return ResultadosIndices::CLAVE_ENCONTRADA;
+	}
 	else return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 }
 
@@ -107,8 +116,7 @@ int IndiceArbol::buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDa
 	if (resultado != ResultadosFisica::BLOQUES_OCUPADOS) {
 		nroBloque = resultado;
 		return ResultadosIndices::REQUIERE_BLOQUE;
-	}
-	return resultado;
+	} else return ResultadosIndices::SIN_ESPACIO_LIBRE;
 }
 
 
