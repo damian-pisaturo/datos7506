@@ -138,8 +138,7 @@
 				if (tipoDeRegistro == TipoDatos::TIPO_VARIABLE) {
 					bytesLong = Tamanios::TAMANIO_LONGITUD;
 					//Se obtiene la longitud del registro.
-					memcpy(&longRegistro, &(this->datos[offsetToReg]),
-							Tamanios::TAMANIO_LONGITUD);
+					memcpy(&longRegistro, &(this->datos[offsetToReg]), Tamanios::TAMANIO_LONGITUD);
 					
 				} else
 					// Se obtiene la longitud del registro.

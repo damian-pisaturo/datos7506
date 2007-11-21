@@ -22,12 +22,11 @@ void serializarListaClaves(string& s, DefinitionsManager::MapaValoresAtributos* 
 	DefinitionsManager::ListaNombresClaves::const_iterator iter;
 	
 	for (iter = listaNombres->begin(); iter != listaNombres->end(); ++iter){
-		s += *iter;
+		s += *iter; 
 		s += "=";
 		s += (*mapaValores)[*iter];
 		s += CodigosPipe::COD_FIN_CLAVE;
 	}
-	
 }
 
 void serializarListaClaves(string& s, DefinitionsManager::ListaClaves* listaClaves)
@@ -54,7 +53,7 @@ ComuDatos* instanciarPipe()
 
 int main(int argc, char* argv[]) 
 {
-	Error errorOut;
+	Error error;
 	int resultado = ResultadosIndices::OK;
 	
 	if (argc > 1){
@@ -92,16 +91,17 @@ int main(int argc, char* argv[])
 		// Clase de impresion y muestra por salida estandar.
 		Vista vista;
 		
-		while ( (parserOperaciones.proximaOperacion()) && (resultado == ResultadosIndices::OK) ){
+		while (parserOperaciones.proximaOperacion()){			
 			operacion   = parserOperaciones.getTipoOperacion();
 			listaClaves = parserOperaciones.getListaClaves();
 			nombreTipo  = parserOperaciones.getNombreTipo();			
-	
+			mapaValoresAtributos = parserOperaciones.getMapaValoresAtributos();
+			
 			switch(operacion){
 				case OperacionesCapas::METADATA_CONSULTA:
 				{
 					// Codigo de operacion de consulta para la Capa de Indices
-					pipe->agregarParametro(OperacionesCapas::INDICES_CONSULTAR, 0); 
+					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_CONSULTAR, 0); 
 					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
 					pipe->agregarParametro(nombreTipo, 1);
 					
@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
 							for (unsigned short i = 0; i < cantRegistros; i++){
 								// Se obtiene el tamano del registro a levantar
 								pipe->leer(&tamRegistro);
-								
+							
 								registro = new char[tamRegistro*sizeof(char)];
 								
 								// Se obtiene el registro de datos consultado.
@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
 				case OperacionesCapas::METADATA_BAJA:
 				{
 					// Codigo de operacion de consulta para la Capa de Indices
-					pipe->agregarParametro(OperacionesCapas::INDICES_ELIMINAR, 0); 
+					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_ELIMINAR, 0); 
 					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
 					pipe->agregarParametro(nombreTipo, 1);
 					
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
 				case OperacionesCapas::METADATA_MODIFICACION:
 				{				
 					// Codigo de operacion de consulta para la Capa de Indices
-					pipe->agregarParametro(OperacionesCapas::INDICES_MODIFICAR, 0); 
+					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_MODIFICAR, 0); 
 					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
 					pipe->agregarParametro(nombreTipo, 1);
 					
@@ -217,6 +217,7 @@ int main(int argc, char* argv[])
 								pipe->leer(&resultado);
 								
 								delete[] registro;
+								delete listaValAtributos;
 							}
 						}
 					}
@@ -229,7 +230,7 @@ int main(int argc, char* argv[])
 					
 					DefinitionsManager::ListaNombresClaves *listaNombres = defManager.getListaNombresClavesPrimarias(nombreTipo);
 					
-					pipe->agregarParametro(OperacionesCapas::INDICES_INSERTAR, 0); 
+					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_INSERTAR, 0); 
 					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
 					pipe->agregarParametro(nombreTipo, 1);
 					
@@ -241,15 +242,15 @@ int main(int argc, char* argv[])
 						// a modificar por el pipe.
 						serializarListaClaves(valoresClaves, mapaValoresAtributos, listaNombres);
 						
-						cout << "valores claves: " << valoresClaves << endl;
-						
 						pipe->escribir((unsigned short)valoresClaves.length());
 						pipe->escribir(valoresClaves);
+
+						valoresClaves.clear();
 						
 						// Se obtiene el resultado de la operacion.
 						pipe->leer(&resultado);
 						
-						if (resultado == ResultadosIndices::OK){
+						if (resultado == ResultadosIndices::CLAVE_NO_ENCONTRADA){
 						
 							listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, *mapaValoresAtributos);
 							listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
@@ -266,6 +267,8 @@ int main(int argc, char* argv[])
 							
 							// Se obtiene el resultado de la insercion
 							pipe->leer(&resultado);
+							
+							delete listaValAtributos;
 						}
 					}
 					
@@ -275,19 +278,14 @@ int main(int argc, char* argv[])
 					resultado = ResultadosMetadata::OPERACION_INVALIDA;
 			}
 			
-			pipe->liberarRecursos();
+			error << resultado;
+			cout <<"error: " << error << endl;
 			
-			errorOut << resultado; 
-		}
+			pipe->liberarRecursos();
+		}		
 		
 		if (registro)
 			delete[] registro;
-		
-		if (mapaValoresAtributos)
-			delete mapaValoresAtributos;
-		
-		if (listaClaves)
-			delete listaClaves;
 		
 		if (pipe)
 			delete pipe;

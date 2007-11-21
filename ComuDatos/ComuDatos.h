@@ -53,10 +53,12 @@ using namespace std;
 	 	//! Si no se han cargado las posiciones anteriores se las asinga con valor vacío.
 	 	void agregarParametro(int valorParametro, unsigned int posParametro);
 	 	void agregarParametro(string valorParametro, unsigned int posParametro);
+	 	void agregarParametro(unsigned char valorParametro, unsigned int posParametro);
+	 	void agregarParametro(unsigned int valorParametro, unsigned int posParametro);
 	 	
 	 	//! Obtiene el valor de la posición indicada 
 		char parametro(unsigned int posParametro, string &parametro);
-		char parametro(unsigned int posParametro, int* parametro);
+		char parametro(unsigned int posParametro, int &parametro);
 		char parametro(unsigned int posParametro, unsigned char &parametro);
 					 
 	 	//! Retorna el descriptor de archivo (tipo open, read, write) del canal de comunicación

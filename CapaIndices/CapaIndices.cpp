@@ -20,7 +20,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 		nodoListaIndices = *iter;
 		estructura = nodoListaIndices.estructTipoIndice;
 		tipoIndice = estructura.tipoEstructura;
-			
+	
 		switch (tipoIndice) {
 			
 			case TipoIndices::ARBOL_BP:
@@ -31,6 +31,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 				break;
 				
 			case TipoIndices::HASH:
+			
 				indice = new IndiceHash(listaTiposAtributos, estructura.tamanioBloque, estructura.nombreArchivo);
 				break;
 		}
@@ -71,23 +72,25 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	
 	//Leo el tamanio del buffer a recibir
 	pipe.leer(&tamanioBuffer);
+	
 	//Leo el buffer con los nombres y los valores de cada campo de la variable
 	pipe.leer(tamanioBuffer, buffer);
 	
 	//Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes (NOMBRE_CLAVE=VALOR_CLAVE)
-	while (posActual != string::npos) {
+	
+	posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
+	while ( (posActual != string::npos) ) {
+		auxStr = buffer.substr(posAnterior, posActual - posAnterior); //En auxStr tengo NOMBRE_CLAVE=VALOR_CLAVE
+		posSeparador = auxStr.find(SEPARADOR);
+		listaNombresClaves.push_back(auxStr.substr(0, posSeparador));
+		listaValoresClaves.push_back(auxStr.substr(posSeparador+1));
+		posAnterior = posActual + 1;
 		posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
-		if (posActual != string::npos) {
-			auxStr = buffer.substr(posAnterior, posActual - posAnterior); //En auxStr tengo NOMBRE_CLAVE=VALOR_CLAVE
-			posSeparador = auxStr.find(SEPARADOR);
-			listaNombresClaves.push_back(auxStr.substr(0, posSeparador));
-			listaValoresClaves.push_back(auxStr.substr(posSeparador));
-			posAnterior = posActual + 1;
-		}
 	}
 	
 	//Se crean los indices correspondientes al tipo 'nombreTipo'
 	crearIndices(nombreTipo, mapaIndices, defManager);
+	
 	indice = mapaIndices[listaNombresClaves];
 	clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *(defManager.getListaTiposClaves(nombreTipo, listaNombresClaves)));
 	
@@ -147,61 +150,68 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			break;
 		}
 		case OperacionesCapas::INDICES_INSERTAR:
-		{
+		{		
+			cout << "Insertando en el indice" << endl;
 			
-			
-			// Recibe el tamaño del registro a insertar.
-			pipe.leer(&tamRegistro);
-			//Recibe el registro de datos.
-			pipe.leer(tamRegistro,registroDatos);
-			
-			resultado = indice->insertar(clave,registroDatos,tamRegistro);
+			cout << "clave: " << *((int*)clave->getValor())<< endl;
+			resultado = indice->buscar(clave);
 			pipe.escribir(resultado);
-						
-			if (resultado == ResultadosIndices::OK) {
-				//Actualizo los indices secundarios
-				//Saco el índice primario para no volver a insertar.
-				mapaIndices.erase(listaNombresClaves);
-				delete indice;
-				
-				ListaPrimariaManager listaPrimariaManager(0);
-				char* registroLista = NULL;
-				Clave* claveSecundaria = NULL;
-				
-				for (MapaIndices::iterator iter = mapaIndices.begin();
-					iter != mapaIndices.end(); ++iter) {
-					
-					Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
-									  registroDatos, defManager.getListaTipos(nombreTipo),
-									  defManager.getListaNombresAtributos(nombreTipo));
-					
-					claveSecundaria = registro.getClave(iter->first);
-					indice = iter->second;
-					
-					resultado = indice->buscar(claveSecundaria, registroLista);
-					
-					listaPrimariaManager.setTamanioLista(indice->getTamanioBloqueLista());
-					
-					if (resultado == ResultadosIndices::OK) {
-						//La clave secundaria ya estaba insertada. Sólo se actualiza la lista de claves primaria.
-						listaPrimariaManager.insertarClave(registroLista, clave, defManager.getListaTipos(nombreTipo));
-						//TODO Modificar la lista en disco.
-						
-					} else {
-						//La clave no se encontró en el índice secundario.
-						//Creo la lista de claves primarias, inserto la clave primaria,
-						//e inserto la clave secundaria y la lista en el indice secundario.
-						listaPrimariaManager.crearLista(registroLista, clave, defManager.getListaTipos(nombreTipo));
-						indice->insertar(claveSecundaria, registroLista);						
-					}
-					
-					delete claveSecundaria;
-					
-				}
-			}
 			
-		
-			delete[] registroDatos;
+			if (resultado == ResultadosIndices::CLAVE_NO_ENCONTRADA) {
+				// Recibe el tamaño del registro a insertar.
+				pipe.leer(&tamRegistro);
+				
+				registroDatos = new char[tamRegistro];
+				
+				// Recibe el registro de datos.
+				pipe.leer(tamRegistro, registroDatos);
+	
+				resultado = indice->insertar(clave,registroDatos,tamRegistro);
+				pipe.escribir(resultado);
+				
+				if (resultado == ResultadosIndices::OK) {
+					//Actualizo los indices secundarios
+					//Saco el índice primario para no volver a insertar.
+					mapaIndices.erase(listaNombresClaves);
+					delete indice;
+					
+					ListaPrimariaManager listaPrimariaManager(0);
+					char* registroLista = NULL;
+					Clave* claveSecundaria = NULL;
+					
+					for (MapaIndices::iterator iter = mapaIndices.begin();
+						iter != mapaIndices.end(); ++iter) {
+						
+						Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
+										  registroDatos, defManager.getListaTipos(nombreTipo),
+										  defManager.getListaNombresAtributos(nombreTipo));
+						
+						claveSecundaria = registro.getClave(iter->first);
+						indice = iter->second;
+						
+						resultado = indice->buscar(claveSecundaria, registroLista);
+						
+						listaPrimariaManager.setTamanioLista(indice->getTamanioBloqueLista());
+						
+						if (resultado == ResultadosIndices::OK) {
+							//La clave secundaria ya estaba insertada. Sólo se actualiza la lista de claves primaria.
+							listaPrimariaManager.insertarClave(registroLista, clave, defManager.getListaTipos(nombreTipo));
+							//TODO Modificar la lista en disco.
+							
+						} else {
+							//La clave no se encontró en el índice secundario.
+							//Creo la lista de claves primarias, inserto la clave primaria,
+							//e inserto la clave secundaria y la lista en el indice secundario.
+							listaPrimariaManager.crearLista(registroLista, clave, defManager.getListaTipos(nombreTipo));
+							indice->insertar(claveSecundaria, registroLista);						
+						}
+						
+						delete claveSecundaria;
+						
+					}
+				}
+				
+			}
 			break;
 		}
 		case OperacionesCapas::INDICES_ELIMINAR:
@@ -264,10 +274,11 @@ int main(int argc, char* argv[]) {
 	cout << "Se llamó a Capa Indices" << endl;
 	
 	ComuDatos pipe(argv);
-	unsigned char codOp;
+	unsigned char codOp = 0;
 	string nombreTipo;
 	
 	pipe.parametro(0, codOp);
+	
 	pipe.parametro(1, nombreTipo);
 	
 	procesarOperacion(codOp, nombreTipo, pipe);

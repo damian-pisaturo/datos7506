@@ -27,7 +27,7 @@
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 
-		ArchivoBase::ArchivoBase(string &nombre, unsigned short tamBloque)
+		ArchivoBase::ArchivoBase(string nombre, unsigned short tamBloque)
 		{
 			int id = this->generarID(nombre);
 			
@@ -48,7 +48,6 @@
 			    this->archivo.open(nombre.c_str(),ios::in|ios::out|ios::binary);
 			    
 			    //Escribe el numero magico identificador.
-			    cout << "Escribiendo ID " << id << " (" << nombre << ")" << endl;
 			    this->archivo.write((char*)&id, Tamanios::TAMANIO_IDENTIFICADOR);
 			    
 			    this->archivoValido  = true;
@@ -185,26 +184,33 @@
 		{			
 			int id = 1;
 			string idString, nombre, extension;
-			char posPunto = nomArchivo.find_last_of('.');
+
+			size_t posPunto = nomArchivo.find_last_of('.');
 			
-			idString  = "_7506";
-			nombre    = nomArchivo.substr(0, posPunto);
-			extension = nomArchivo.substr(posPunto);
+			if (posPunto < 100){
+				
+				idString  = "_7506";
 			
-			if (nombre.length() > 4)
-				idString += nombre.substr(0,4);
-			else
-				idString += nombre;
+				nombre    = nomArchivo.substr(0, posPunto);
+				extension = nomArchivo.substr(posPunto);
+				
+				if (nombre.length() > 4)
+					idString += nombre.substr(0,4);
+				else
+					idString += nombre;
+				
+				idString += extension;			
+				idString += '_';			
+				
+				for (string::const_iterator it = idString.begin(); 
+					it != idString.end(); ++it){
+					id *= (*it);
+				}
+				
+				return id / 97;
+			}else 
+				return 954367;
 			
-			idString += extension;			
-			idString += '_';			
-			
-			for (string::const_iterator it = idString.begin(); 
-				it != idString.end(); ++it){
-				id *= (*it);
-			}
-			
-			return id / 97;
 		}
 
 	///////////////////////////////////////////////////////////////////////

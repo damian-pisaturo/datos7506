@@ -28,7 +28,8 @@ unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaVal
 	// Si el registro es de tipo variable le guardo la longitud al registro
 	if(regAttribute.tipo == TipoDatos::TIPO_VARIABLE){
 		// Guardo la longitud del registro en los primeros dos bytes del mismo
-		memcpy(registro,&longRegistro,Tamanios::TAMANIO_LONGITUD);
+		unsigned short longVariable = longRegistro - Tamanios::TAMANIO_LONGITUD;
+		memcpy(registro,&longVariable,Tamanios::TAMANIO_LONGITUD);
 		offsetToCampo = sizeof(unsigned short);
 	}
 	// Se itera la lista de atributos del registro.
@@ -45,6 +46,7 @@ unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaVal
 		}
 		else if(tipo == TipoDatos::TIPO_FECHA){
 			
+		
 			string subStr = campoRegistro.substr(0, 4);
 			unsigned short anio = atoi(subStr.c_str());
 			memcpy(&registro[offsetToCampo], &anio, sizeof(unsigned short));
@@ -59,7 +61,6 @@ unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaVal
 			unsigned char dia = atoi(subStr.c_str());
 			memcpy(&registro[offsetToCampo], &dia, sizeof(unsigned char));
 			offsetToCampo += sizeof(unsigned char);			
-			
 			
 		}
 		else if(tipo == TipoDatos::TIPO_FLOAT){

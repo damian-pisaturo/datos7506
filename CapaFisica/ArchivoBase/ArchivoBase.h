@@ -54,7 +54,7 @@ class ArchivoBase
 		 * un bloque del archivo. El primer byte del archivo contiene
 		 *  un identificador mágico.
 		 */
-		ArchivoBase(string &nombre, unsigned short tamBloque);
+		ArchivoBase(string nombre, unsigned short tamBloque);
 		
 		/*Cierra el archivo*/
 		virtual ~ArchivoBase();

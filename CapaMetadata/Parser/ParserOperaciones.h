@@ -54,7 +54,7 @@ class ParserOperaciones
 		unsigned short numOperacion; // Numero de operacion actual. 		
 		DefinitionsManager::ListaClaves* listaClaves; // Lista de claves presentes en cada operacion
 		DefinitionsManager::MapaValoresAtributos* mapValoresAtributos;
-		string nombreTipo; // Nombre del tipo de 
+		string nombreTipo;
 		unsigned char tipoOperacion; // Tipo de operaciones actual (Alta, Baja o Modificacion)
 		
 	public:

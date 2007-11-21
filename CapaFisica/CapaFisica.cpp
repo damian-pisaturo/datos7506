@@ -37,13 +37,13 @@
 		int tamBloque = 0;
 		int numBloque = 0;
 		int espLibre  = 0;
-		int accion    = 0;
+		unsigned char accion = 0;
 		
 		//Obtener parametros comunes a todas las acciones
 		//de la capa fisica.
-		pipe.parametro(0, &accion);       //Accion a procesar.
+		pipe.parametro(0, accion);       //Accion a procesar.
 		pipe.parametro(1, nombreArchivo); //Nombre del archivo a emplear.
-		pipe.parametro(2, &tamBloque);  //Tamanio del bloque/registro del archivo.
+		pipe.parametro(2, tamBloque);  //Tamanio del bloque/registro del archivo.
 		
 		switch(accion){
 		
@@ -52,7 +52,7 @@
 		{
 			//Obtencion del numero de nodo
 			//dentro del archivo.
-			pipe.parametro(3, &numBloque);
+			pipe.parametro(3, numBloque);
 	
 			archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 			
@@ -115,7 +115,7 @@
 		case OperacionesCapas::FISICA_MODIFICAR_NODO:
 		{
 			buffer = new char[tamBloque*sizeof(char)];
-			pipe.parametro(3, &numBloque);				
+			pipe.parametro(3, numBloque);				
 	
 			archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 			
@@ -143,7 +143,7 @@
 		
 		case OperacionesCapas::FISICA_ELIMINAR_NODO:			
 		{
-			pipe.parametro(3, &numBloque);
+			pipe.parametro(3, numBloque);
 			
 			archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 			
@@ -170,7 +170,7 @@
 		{				
 			//Obtencion su numero de bucket
 			//dentro del archivo.				
-			pipe.parametro(3, &numBloque);
+			pipe.parametro(3, numBloque);
 			archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 			
 			if (archivo->esValido()){
@@ -229,7 +229,7 @@
 		case OperacionesCapas::FISICA_MODIFICAR_BUCKET:
 		{
 			buffer = new char[tamBloque*sizeof(char)];
-			pipe.parametro(3, &numBloque);
+			pipe.parametro(3, numBloque);
 			
 			archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 			
@@ -257,7 +257,7 @@
 						
 		case OperacionesCapas::FISICA_ELIMINAR_BUCKET:
 		{
-			pipe.parametro(3, &numBloque);
+			pipe.parametro(3, numBloque);
 			
 			archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 			
@@ -380,7 +380,7 @@
 		case OperacionesCapas::FISICA_LEER_NODO_DOBLE:
 		{			
 			//Obtencion del primer numero de nodo a leer			
-			pipe.parametro(3, &numBloque);
+			pipe.parametro(3, numBloque);
 			archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 			
 			
@@ -417,7 +417,7 @@
 		
 		case OperacionesCapas::FISICA_MODIFICAR_NODO_DOBLE:
 		{				
-			pipe.parametro(3, &numBloque);
+			pipe.parametro(3, numBloque);
 			
 			archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);	
 			
@@ -450,7 +450,7 @@
 		case OperacionesCapas::FISICA_ELIMINAR_NODO_DOBLE:
 		{
 			//Obtencion del numero del primer nodo a eliminar
-			pipe.parametro(3, &numBloque);
+			pipe.parametro(3, numBloque);
 			
 			archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
 			
@@ -478,10 +478,10 @@
 			
 			//Obtencion del numero de bloque
 			//dentro del archivo.
-			pipe.parametro(3, &numBloque);
+			pipe.parametro(3, numBloque);
 			
 			//Obtencion del tipo de organizacion del archivo.
-			pipe.parametro(4, &tipoOrg);
+			pipe.parametro(4, tipoOrg);
 			
 			buffer = new char[tamBloque*sizeof(char) + 1];
 			
@@ -534,14 +534,14 @@
 			buffer  = new char[tamBloque*sizeof(char)];			
 			
 			//Obtencion del tipo de organizacion del archivo.
-			pipe.parametro(3, &tipoOrg);		
+			pipe.parametro(3, tipoOrg);		
 	
 			//Obtencion del bloque a escribir a traves del pipe.
 			pipe.leer(tamBloque, buffer);
 			
 			if (tipoOrg == TipoOrganizacion::REG_VARIABLES){
 				//Obtencion del espacio libre dentro del bloque.
-				pipe.parametro(4, &espLibre);
+				pipe.parametro(4, espLibre);
 							
 				archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
 				
@@ -590,17 +590,17 @@
 		{
 			int tipoOrg = 0;
 			buffer = new char[tamBloque*sizeof(char)];
-			pipe.parametro(3, &numBloque);				
+			pipe.parametro(3, numBloque);				
 	
 			//Obtencion del tipo de organizacion del archivo.
-			pipe.parametro(4, &tipoOrg);			
+			pipe.parametro(4, tipoOrg);			
 	
 			//Obtencion del bloque a escribir a traves del pipe.
 			pipe.leer(tamBloque, buffer);
 						
 			if (tipoOrg == TipoOrganizacion::REG_VARIABLES){
 				//Obtencion del espacio libre dentro del bloque.
-				pipe.parametro(5, &espLibre);
+				pipe.parametro(5, espLibre);
 	
 				archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);					
 				
@@ -643,10 +643,10 @@
 		case OperacionesCapas::FISICA_ELIMINAR_DATO:
 		{								
 			int tipoOrg = 0;
-			pipe.parametro(3, &numBloque);
+			pipe.parametro(3, numBloque);
 			
 			//Obtencion del tipo de organizacion del archivo.
-			pipe.parametro(4, &tipoOrg);
+			pipe.parametro(4, tipoOrg);
 							
 			if (tipoOrg == TipoOrganizacion::REG_VARIABLES){
 				archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);					
@@ -720,7 +720,7 @@
 		
 		case OperacionesCapas::FISICA_MODIFICAR_LISTA:
 		{
-			pipe.parametro(3, &numBloque);
+			pipe.parametro(3, numBloque);
 			
 			archivo = new ArchivoLista(nombreArchivo, tamBloque);
 			
@@ -751,7 +751,7 @@
 		
 		case OperacionesCapas::FISICA_LEER_LISTA:
 		{
-			pipe.parametro(3, &numBloque);
+			pipe.parametro(3, numBloque);
 			
 			archivo = new ArchivoLista(nombreArchivo, tamBloque);
 			
@@ -780,7 +780,7 @@
 		case OperacionesCapas::FISICA_BUSCAR_ESPACIO_LIBRE:
 		{				
 			//Obtencion del espacio libre a buscar.
-			pipe.parametro(3, &espLibre);
+			pipe.parametro(3, espLibre);
 			buffer = new char[tamBloque*sizeof(char)];
 			
 			archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
@@ -824,8 +824,7 @@
 		//Cierre del archivo.			
 		if (archivo)
 			delete archivo;
-	
-		pipe.liberarRecursos();
+
 		
 		return resultado;		
 	}
@@ -837,7 +836,7 @@
 //			(Funcion main() para la Capa Fisica que invoca a 
 //			ejecutarOperaciones() si la cantidad de argumentos es valida).
 ///////////////////////////////////////////////////////////////////////////
-	int main(int argc, char**argv)
+	int main(int argc, char** argv)
 	{
 		char resultado = ResultadosFisica::OK;
 		
