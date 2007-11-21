@@ -5,8 +5,8 @@
 class ResultadosMetadata
 {	
 	public:
-		static const char OK                 = -1;
-		static const char OPERACION_INVALIDA = -8;
+		static const char OK                 = -50;
+		static const char OPERACION_INVALIDA = -51;
 		
 		
 }; /*Fin clase ResultadosMetadata*/

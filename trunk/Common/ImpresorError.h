@@ -1,43 +1,54 @@
 #ifndef __IMPRESORERROR_H__
 #define __IMPRESORERROR_H__
 
-#include "common_error.h"
+#include "Error.h"
 #include <ostream>
 
 using namespace std;
 
 //Operador utilizado para imprimir el contenido del objeto
-//(en caso que la salida sea la salida est�ndar) o para enviar
-//el contenido del objeto a alg�n otro stream de salida
+//(en caso que la salida sea la salida estandar) o para enviar
+//el contenido del objeto a algun otro stream de salida
 ostream& operator << (ostream &out, const Error &e) {
     switch (e.getValue()){
-        case Error::ERR_COMANDO_INVALIDO:
-            out << "El comando no es valido"; break;
-        case Error::ERR_ENTERO_NO_VALIDO:
-            out << "El numero no es valido"; break;
-        case Error::ERR_DIVISION_POR_CERO:
-            out << "Division por cero"; break;
-        case Error::ERR_FORMATO_ARCHIVO:
-            out << "Error en el formato del archivo"; break;
-        case Error::ERR_ABRIR_ARCHIVO:
-            out << "Error al abrir el archivo"; break;
-        case Error::ERR_SINTAXIS:
-            out << "Error de sintaxis"; break;
-        case Error::ERR_SOCKET:
-            out << "Error de Socket"; break;
-        case Error::ERR_THREAD:
-            out << "Error al crear Thread"; break;
-        case Error::ERR_IP:
-            out << "La direccion IP no es valida"; break;
-        case Error::ERR_PUERTO:
-            out << "El puerto no es valido"; break;
-        case Error::ERR_CANT_CLIENTES:
-            out << "La cantidad de clientes no es valida"; break;
-        case Error::ERR_ENTERO_NO_PRIMO:
-            out << "El numero no es primo"; break;
-        case Error::ERR_OVERFLOW:
-            out << "Se produjo overflow";
+        case ResultadosFisica::OK:
+            out << "Operacion de capaFisica finalizada con exito."; break;
+        case ResultadosFisica::ARCHIVO_INVALIDO:
+            out << "Se ha intentado abrir algun archivo que esta corrupto, fue modificado o no pertenece al Framework de Persistencia."; break;
+        case ResultadosFisica::CANT_ARGUMENTOS_INVALIDA:
+            out << "La cantidad de argumentos de la llamada a capaFisica es invalida. "; break;
+        case ResultadosFisica::ERROR_ESCRITURA:
+            out << "Se ha producido un error al intentar escribir un archivo desde capaFisica."; break;
+        case ResultadosFisica::ERROR_LECTURA:
+            out << "Se ha producido un error al intentar leer un archivo desde capaFisica."; break;
+        case ResultadosFisica::ERROR_POSICION:
+            out << "Se ha producido un error al intentar posicionarse dentro de un archivo desde capaFisica."; break;
+        case ResultadosFisica::NO_ABIERTO:
+            out << "Se ha producido un error al intentar acceder a un archivo no abierto desde capaFisica."; break;
+        case ResultadosFisica::OPERACION_INVALIDA:
+            out << "Operacion de capaFisica invalida."; break;
+        case ResultadosIndices::OK:
+            out << "Operacion de capaIndices finalizada con exito."; break;
+        case ResultadosIndices::ERROR_CONSULTA:
+            out << "Se ha producido un error al intentar realizar una consulta desde capaIndices."; break;
+        case ResultadosIndices::ERROR_ELIMINACION:
+            out << "Se ha producido un error al intentar eliminar un registro desde capaIndices."; break;
+        case ResultadosIndices::ERROR_INSERCION:
+            out << "Se ha producido un error al intentar insertar un registro desde capaIndices."; break;
+        case ResultadosIndices::ERROR_MODIFICACION:
+            out << "Se ha producido un error al intentar modificar un registro desde capaIndices."; break;
+        case ResultadosIndices::REGISTRO_NO_ENCONTRADO:
+        	out << "El registro buscado en alguna operacion de la capaIndices no fue encontrado."; break;
+        case ResultadosIndices::CLAVE_DUPLICADA:
+        	out << "La clave a insertar ya existe."; break;
+        case ResultadosIndices::CLAVE_NO_ENCONTRADA:
+        	out << "La clave solicitada no existe."; break;
+        case ResultadosMetadata::OPERACION_INVALIDA:
+        	out << "Operacion de capaMetadata invalida."; break;
+        case ResultadosMetadata::OK:
+        	out << "Operacion de capaIndices finalizada con exito."; break;	
     }
+    
     return out;
 }
 
