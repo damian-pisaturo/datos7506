@@ -112,7 +112,6 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 				if (resultado == ResultadosIndices::OK) {
 					pipe.escribir(tamRegistro);
 					pipe.escribir(registroDatos, tamRegistro);
-					delete[] registroDatos;
 				}
 			}
 			else{
@@ -140,8 +139,6 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 							pipe.escribir(registroDatos, tamRegistro);
 						} else break;
 					}
-					
-					delete[] registroDatos;
 					delete listaClaves;
 				}
 				
@@ -167,7 +164,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 				pipe.leer(tamRegistro, registroDatos);
 	
 				resultado = indice->insertar(clave,registroDatos,tamRegistro);
-			cout << "safsafsafdsffafassadsadasdd" << endl;
+			
 				pipe.escribir(resultado);
 				
 				if (resultado == ResultadosIndices::OK) {

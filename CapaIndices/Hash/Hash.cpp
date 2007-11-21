@@ -204,7 +204,7 @@
 		 * Recupera un registro a partir de una clave. 
 		 * Si lo encuentra devuelve true. De lo contrario, devuelve false.
 		 **/	
-		bool Hash::recuperarRegistro(Clave &clave, char* &registro)
+		bool Hash::recuperarRegistro(Clave &clave, char* &registro, unsigned short &tamanioBloque)
 		{
 			// Se aplica la función de hash para ver en que bucket se debe buscar el
 			// registro a recuperar.
@@ -218,10 +218,11 @@
 			// Si no encuentro el registro buscado devuelvo false. Pero si lo encuentro,
 			// tengo el offset al mismo en offsetToReg.
 			if (bucket->buscarRegistro(this->listaParam, clave, &offsetToReg)){
-			
+		
 				unsigned short longReg = 0;	
 				char *datos = bucket->getDatos();
 				
+				tamanioBloque = bucket->getTamanioRegistrosConPrefijo(this->listaParam, datos + offsetToReg);
 				// Obtiene la longitud.
 				longReg = bucket->getTamanioRegistros(this->listaParam, datos + offsetToReg);	
 				

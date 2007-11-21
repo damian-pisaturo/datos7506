@@ -151,6 +151,7 @@ void ComuDatos::agregarParametro(string valorParametro, unsigned int posParametr
 	{
 		this->parametrosProceso.resize(posParametro+1);	
 	}
+	
 	this->parametrosProceso[posParametro] = valorParametro;
 }
 

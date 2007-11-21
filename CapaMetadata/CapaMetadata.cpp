@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
 							
 							// Se obtiene la cantidad de registros que responden 
 							// a la consulta realizada.
-							pipe->leer(&cantRegistros);
+							pipe->leer(&cantRegistros); 
 							
 							listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 							
@@ -131,10 +131,10 @@ int main(int argc, char* argv[])
 								// Se obtiene el tamano del registro a levantar
 								pipe->leer(&tamRegistro);
 							
-								registro = new char[tamRegistro*sizeof(char)];
+								registro = new char[tamRegistro];
 								
 								// Se obtiene el registro de datos consultado.
-								pipe->leer(tamRegistro*sizeof(char), registro);
+								pipe->leer(tamRegistro, registro);
 								vista.showRegister(registro, listaTiposAtributos);
 								
 								delete[] registro;
@@ -280,7 +280,7 @@ int main(int argc, char* argv[])
 			}
 			
 			error << resultado;
-			cout <<"error: " << error << endl;
+			cout << error << endl;
 			
 			delete pipe;
 			pipe = NULL;
@@ -289,7 +289,7 @@ int main(int argc, char* argv[])
 		if (registro)
 			delete[] registro;
 		
-		if (pipe)
+		if (pipe) 
 			delete pipe;
 	}
 	
