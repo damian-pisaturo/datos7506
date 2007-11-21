@@ -55,9 +55,9 @@ ComuDatos* instanciarPipe()
 int main(int argc, char* argv[]) 
 {
 	Error errorOut;
-	int resultado = ResultadosMetadata::OK;
+	int resultado = ResultadosIndices::OK;
 	
-	if (argc < 2){
+	if (argc > 1){
 		
 		ComuDatos* pipe = instanciarPipe(); //Instancia del pipe de comunicacion		
 		
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 		DataManager dataManager;
 		
 		// Parseador del archivo de operaciones.
-		ParserOperaciones parserOperaciones("../operaciones.txt");
+		ParserOperaciones parserOperaciones(argv[1]);
 		
 		// Clase de impresion y muestra por salida estandar.
 		Vista vista;
@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
 					if (resultado == ComuDatos::OK){						
 						// Envio de los valores de las claves a consultar por el pipe
 						serializarListaClaves(valoresClaves, listaClaves);
-						pipe->escribir(valoresClaves.length());
+						pipe->escribir((unsigned short)valoresClaves.length());
 						pipe->escribir(valoresClaves);
 						
 						// Obtencion del resultado de la operacion
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
 						// Envio de los valores de las claves de los registros
 						// a eliminar por el pipe.
 						serializarListaClaves(valoresClaves, listaClaves);
-						pipe->escribir(valoresClaves.length());
+						pipe->escribir((unsigned short)valoresClaves.length());
 						pipe->escribir(valoresClaves);
 						
 						// Se obtiene el resultado de la operacion
@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
 						// Envio de los valores de las claves de los registros
 						// a modificar por el pipe.
 						serializarListaClaves(valoresClaves, listaClaves);
-						pipe->escribir(valoresClaves.length());
+						pipe->escribir((unsigned short)valoresClaves.length());
 						pipe->escribir(valoresClaves);
 						
 						// Obtencion del resultado de la operacion
@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
 								tamRegistro = dataManager.crearRegistroModificacion(*listaTiposAtributos, *listaValAtributos, registro);
 								
 								// Se envia el tamano del registro modificado por el pipe.
-								pipe->escribir(tamRegistro*sizeof(char));
+								pipe->escribir((unsigned short)(tamRegistro*sizeof(char)));
 								
 								// Se envia el nuevo registro con la modificacion.
 								pipe->escribir(dataManager.getRegistro(), tamRegistro*sizeof(char));
@@ -225,6 +225,8 @@ int main(int argc, char* argv[])
 				
 				case OperacionesCapas::METADATA_ALTA:
 				{
+					cout << "Voy a dar un alta" << endl;
+					
 					DefinitionsManager::ListaNombresClaves *listaNombres = defManager.getListaNombresClavesPrimarias(nombreTipo);
 					
 					pipe->agregarParametro(OperacionesCapas::INDICES_INSERTAR, 0); 
@@ -237,8 +239,11 @@ int main(int argc, char* argv[])
 					if (resultado == ComuDatos::OK){
 						// Envio de los valores de las claves de los registros
 						// a modificar por el pipe.
-						serializarListaClaves(valoresClaves, mapaValoresAtributos, listaNombres);						
-						pipe->escribir(valoresClaves.length());
+						serializarListaClaves(valoresClaves, mapaValoresAtributos, listaNombres);
+						
+						cout << "valores claves: " << valoresClaves << endl;
+						
+						pipe->escribir((unsigned short)valoresClaves.length());
 						pipe->escribir(valoresClaves);
 						
 						// Se obtiene el resultado de la operacion.
@@ -252,8 +257,11 @@ int main(int argc, char* argv[])
 							// Se crea el registro a dar de alta y se obtiene su longitud
 							tamRegistro = dataManager.crearRegistroAlta(*listaValAtributos, *listaTiposAtributos);
 							
+							/******************/
+							vista.showRegister(dataManager.getRegistro(), listaTiposAtributos);
+							
 							// Se envia el registro a dar de alta por el pipe.
-							pipe->escribir(tamRegistro*sizeof(char));
+							pipe->escribir((unsigned short)(tamRegistro*sizeof(char)));
 							pipe->escribir(dataManager.getRegistro(), tamRegistro*sizeof(char));
 							
 							// Se obtiene el resultado de la insercion
@@ -284,6 +292,8 @@ int main(int argc, char* argv[])
 		if (pipe)
 			delete pipe;
 	}
+	
+	cout << "Fin Capa Metadata" << endl;
 	
 	/*cout << "Datos del registro" << endl;
 	

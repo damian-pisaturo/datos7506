@@ -111,7 +111,7 @@ void DefinitionsManager::cargarTiposAtributos() {
 	
 	//El primer nodo de la lista indica si el registro es variable o no.
 	nodo.tipo = TipoDatos::TIPO_FIJO;
-	nodo.pk = "34";
+	nodo.pk = "128";
 	nodo.cantClaves = 2;
 	
 	listaTiposAtributos->push_back(nodo);
@@ -152,7 +152,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	estructTipoIndice.tipoEstructura = TipoIndices::HASH;
 	estructTipoIndice.tamanioBloque = 4096;
 	estructTipoIndice.tipoClave = TipoDatos::TIPO_ENTERO;
-	estructTipoIndice.nombreArchivo = "persona1.hash";
+	estructTipoIndice.nombreArchivo = "persona";
 	
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("DNI");
@@ -171,13 +171,13 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaTiposIndices = new ListaTiposIndices();
 	listaTiposIndices->push_back(nodoListaIndices);
 	
-	
+/*	
 	//INDICE ROMANO (ARBOLB*)
 	estructTipoIndice.tipoIndice = TipoIndices::ROMANO;
 	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BS;
 	estructTipoIndice.tamanioBloque = 1024;
 	estructTipoIndice.tipoClave = TipoDatos::TIPO_COMPUESTO;
-	estructTipoIndice.nombreArchivo = "persona1.bstar";
+	estructTipoIndice.nombreArchivo = "persona";
 	
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("FECHANACIMIENTO");
@@ -201,7 +201,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BP;
 	estructTipoIndice.tamanioBloque = 2048;
 	estructTipoIndice.tipoClave = TipoDatos::TIPO_COMPUESTO;
-	estructTipoIndice.nombreArchivo = "persona1.bplus";
+	estructTipoIndice.nombreArchivo = "persona";
 	
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("NOMBRE");
@@ -218,7 +218,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	nodoListaIndices.listaTipos = listaTipos;
 	
 	listaTiposIndices->push_back(nodoListaIndices);
-	
+*/	
 	//Se inserta la lista de tipos de indices en el mapa de tipos de indices
 	this->mapaTiposIndices["PERSONA"] = listaTiposIndices;
 
@@ -230,7 +230,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BS;
 	estructTipoIndice.tamanioBloque = 2048;
 	estructTipoIndice.tipoClave = TipoDatos::TIPO_COMPUESTO;
-	estructTipoIndice.nombreArchivo = "pelicula1.bstar";
+	estructTipoIndice.nombreArchivo = "pelicula";
 	
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("TITULO");
@@ -256,7 +256,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BP;
 	estructTipoIndice.tamanioBloque = 1024;
 	estructTipoIndice.tipoClave = TipoDatos::TIPO_CHAR;
-	estructTipoIndice.nombreArchivo = "pelicula1.bplus";
+	estructTipoIndice.nombreArchivo = "pelicula";
 	
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("GENERO");
