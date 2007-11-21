@@ -12,7 +12,7 @@ DataManager::~DataManager()
 
 }
 
-void DataManager::crearRegistroAlta(const DefinitionsManager::ListaValoresAtributos &listaVA,
+unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaValoresAtributos &listaVA,
 									const DefinitionsManager::ListaTiposAtributos &listaTipos) {
 	
 	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTipos.begin();
@@ -90,11 +90,10 @@ void DataManager::crearRegistroAlta(const DefinitionsManager::ListaValoresAtribu
 			offsetToCampo += sizeof(bool);
 		}
 	}
-	if(this->registro){
-		delete[] this->registro;
-		this->registro = NULL;
-	}
-	this->registro = registro;
+	
+	this->setRegistro(registro);
+	
+	return longRegistro;
 }	
 unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
 											   const DefinitionsManager::ListaValoresAtributos &listaVA){

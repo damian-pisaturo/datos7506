@@ -4,7 +4,7 @@
 #include "../Common/CodigosPipe.h"
 #include "../Common/ResultadosMetadata.h"
 #include "../Common/ResultadosIndices.h"
-#include "../Common/Error.h"
+#include "../Common/ImpresorError.h"
 #include "../Common/NombresCapas.h"
 #include "../ComuDatos/ComuDatos.h"
 #include "../Common/DefManager/DefinitionsManager.h"

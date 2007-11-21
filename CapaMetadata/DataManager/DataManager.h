@@ -53,7 +53,7 @@ public:
 								   const DefinitionsManager::ListaValoresAtributos &listaVA,
 								   char *registroEnDisco);
 	
-	void crearRegistroAlta(const DefinitionsManager::ListaValoresAtributos &listaVA,
+	unsigned short crearRegistroAlta(const DefinitionsManager::ListaValoresAtributos &listaVA,
 						   const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos);
 	
 
