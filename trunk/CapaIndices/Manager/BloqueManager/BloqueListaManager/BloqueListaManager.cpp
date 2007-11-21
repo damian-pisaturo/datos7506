@@ -59,7 +59,7 @@
 			// Se lanza el proceso de la capa fisica. 
 			resultado = pipe->lanzar();
 			
-			if (resultado == ComuDatos::SIN_ERROR){
+			if (resultado == ComuDatos::OK){
 			
 			//Se chequea la validez del archivo
 			pipe->leer(&resultado);
@@ -92,7 +92,7 @@
 			//Se lanza el proceso de la capa fisica. 
 			resultado = pipe->lanzar();
 			
-			if (resultado == ComuDatos::SIN_ERROR){
+			if (resultado == ComuDatos::OK){
 				//Se chequea la validez del archivo
 				pipe->leer(&resultado);
 				
@@ -130,7 +130,7 @@
 			//Se lanza el proceso de la capa fisica. 
 			pipe->lanzar();
 			
-			if (resultado == ComuDatos::SIN_ERROR){
+			if (resultado == ComuDatos::OK){
 				
 				//Se chequea la validez del archivo
 				pipe->leer(&resultado);

@@ -132,8 +132,8 @@ int IndiceArbolManager::leerBloque(unsigned int numBloque, BloqueIndice* bloqueL
 	//Se obtiene en buffer el contenido del Nodo solicitado.
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
-		//Se chequea la validez del archivo
+	if (resultado == ComuDatos::OK){
+		//Se chequea la validez del archivoS
 		pipe->leer(&resultado);
 		
 		if (resultado == ResultadosFisica::OK){
@@ -228,7 +228,7 @@ int IndiceArbolManager::escribirBloque(BloqueIndice* bloqueNuevo)
 	//Se lanza el proceso de la capa fisica. 
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);
 		
@@ -313,7 +313,7 @@ int IndiceArbolManager::escribirBloque(unsigned short numNodo, BloqueIndice* blo
 	//Se lanza el proceso de la capa fisica. 
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);
 		
@@ -388,7 +388,7 @@ int IndiceArbolManager::eliminarBloque(unsigned short posicion)
 	//Se lanza el proceso de la capa fisica. 
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 	
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);
@@ -431,7 +431,7 @@ int IndiceArbolManager::escribirBloqueDoble(BloqueIndice* bloqueNuevo)
 	//Se lanza el proceso de la capa fisica. 
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 		
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);
@@ -520,7 +520,7 @@ int IndiceArbolManager::escribirBloqueDoble(unsigned short numBloque, BloqueIndi
 	//Se lanza el proceso de la capa fisica. 
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 		
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);
@@ -611,7 +611,7 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque, BloqueIndice* 
 	//Se lanza el proceso de la capa fisica.
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 		
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);
@@ -701,7 +701,7 @@ int IndiceArbolManager::eliminarBloqueDoble(unsigned short posicion)
 	//Se lanza el proceso de la capa fisica. 
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 		
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);
@@ -760,7 +760,7 @@ int IndiceHashManager::leerBloque(unsigned int numBucket, BloqueIndice* bloqueLe
 	//Se obtiene en buffer el contenido del Bucket solicitado.	
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 		
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);
@@ -819,7 +819,7 @@ int IndiceHashManager::escribirBloque(BloqueIndice* nuevoBloque)
 	//Se lanza el proceso de la capa fisica. 
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 	
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);
@@ -867,7 +867,7 @@ int IndiceHashManager::escribirBloque(unsigned short numBucket, BloqueIndice* bl
 	//Se lanza el proceso de la capa fisica. 
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 		
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);
@@ -910,7 +910,7 @@ int IndiceHashManager::eliminarBloque(unsigned short numBucket)
 	//Se lanza el proceso de la capa fisica. 
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 		
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);
@@ -944,7 +944,7 @@ char IndiceHashManager::leerTabla(unsigned int* tamanio, unsigned int* &buckets)
 	//Se lanza el proceso de la capa fisica. 
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 		
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);
@@ -989,7 +989,7 @@ char IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* bucket
 	// Se lanza el proceso de la capa fisica. 
 	resultado = pipe->lanzar();
 	
-	if (resultado == ComuDatos::SIN_ERROR){
+	if (resultado == ComuDatos::OK){
 		
 		//Se chequea la validez del archivo
 		pipe->leer(&resultado);

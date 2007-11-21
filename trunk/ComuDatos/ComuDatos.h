@@ -33,7 +33,7 @@ using namespace std;
 		static const unsigned int TOPE_ENVIAR_STRING = 4096;
 		static const unsigned char FIN_PARAMETROS = 1;
 		static const unsigned char EXCEDE_TOPE  = 3;
-		static const unsigned char SIN_ERROR = 2;
+		static const unsigned char OK = 2;
 		static const char ERROR_EJECUCION  = -1;
 		 
 		//! Crea una clase de comunicación vacía.

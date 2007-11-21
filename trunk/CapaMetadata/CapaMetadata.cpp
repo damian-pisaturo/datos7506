@@ -16,19 +16,187 @@
 
 #include "CapaMetadata.h"
 
+void serializarListaClaves(string& s, DefinitionsManager::ListaClaves* listaClaves)
+{
+	DefinitionsManager::ListaClaves::const_iterator iter;
+	
+	for (iter = listaClaves->begin(); iter != listaClaves->end(); ++iter)
+	{
+		s += (*iter).nombreClave;
+		s += "=";
+		s += (*iter).valorClave;
+		s += CodigosPipe::COD_FIN_CLAVE;
+	}	
+}
+
+ComuDatos* instanciarPipe()
+{
+	string path= RUTA_CAPA_INDICES;
+	path += NOMBRE_CAPA_INDICES;
+	
+	return new ComuDatos(path);
+}
+
+
 int main(int argc, char* argv[]) 
 {
+	Error errorOut;
+	int resultado = ResultadosMetadata::OK;
 	
-	
-	//if (argc < 2) return 1;
+	if (argc < 2){
 		
-	// Se instancia el DefinitionsManager. Esta clase tiene todas las definiciones.
-	//DefinitionsManager defManager;
+		ComuDatos* pipe = instanciarPipe(); //Instancia del pipe de comunicacion		
+		
+		unsigned char operacion      = 0;    // Tipo de operacion a ejecutar
+		unsigned short tamRegistro   = 0;	// Tamano de un registro.
+		unsigned short cantRegistros = 0;  //Cant. de registros que responden a la consulta dada.
+		char* registro               = NULL; // Buffer contenedor de un registro. 
+		string valoresClaves;
+		
+		// Lista de los valores de las claves y sus nombres dentro de un registro.
+		DefinitionsManager::ListaClaves* listaClaves = NULL; 
+		
+		// Mapa contenedor de los valores de los atributos, indexados por sus nombres.
+		DefinitionsManager::MapaValoresAtributos* mapaValoresAtributos = NULL; 
+		
+		// Se instancia el DefinitionsManager (conocedor absoluto del universo).
+		//DefinitionsManager& defManager = DefinitionsManager::getInstance();
+		
+		// Controlador de registros de datos
+		DataManager dataManager;
+		
+		// Parseador del archivo de operaciones.
+		ParserOperaciones parserOperaciones("../operaciones.txt");		
+		
+		while ( (parserOperaciones.proximaOperacion()) && (resultado == ResultadosIndices::OK) ){
+			operacion   = parserOperaciones.getTipoOperacion();
+			listaClaves = parserOperaciones.getListaClaves();
+			serializarListaClaves(valoresClaves, listaClaves);
 	
-	// Para probar esta capa hay cargadas definiciones de dos tipos (Persona y Pelicula)
-	
-	//ParserOperaciones parserOperaciones("../operaciones.txt");
-	//parserOperaciones.ejecutarOperaciones();
+			switch(operacion){
+				case OperacionesCapas::METADATA_CONSULTA:
+				{
+					// Codigo de operacion de consulta para la Capa de Indices
+					pipe->agregarParametro(OperacionesCapas::INDICES_CONSULTAR, 0); 
+					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
+					pipe->agregarParametro(parserOperaciones.getNombreTipo(), 1);
+					
+					// Se lanza el proceso de la Capa Indices.
+					resultado = pipe->lanzar();
+					
+					if (resultado == ComuDatos::OK){						
+						// Envio de los valores de las claves a consultar por el pipe
+						pipe->escribir(valoresClaves);
+						
+						// Obtencion del resultado de la operacion
+						pipe->leer(&resultado);
+						
+						if (resultado == ResultadosIndices::OK){
+							
+							// Se obtiene la cantidad de registros que responden 
+							// a la consulta realizada.
+							pipe->leer(&cantRegistros);
+							
+							for (unsigned short i = 0; i < cantRegistros; i++){
+								// Se obtiene el tamano del registro a levantar
+								pipe->leer(&tamRegistro);
+								
+								registro = new char[tamRegistro*sizeof(char)];
+								
+								// Se obtiene el registro de datos consultado.
+								pipe->leer(tamRegistro*sizeof(char), registro);
+								
+								//TODO Usar la vista para mostrar el resultado.
+								
+								delete[] registro;
+							}
+						}
+					}
+				}break;
+				
+				case OperacionesCapas::METADATA_BAJA:
+				{
+					// Codigo de operacion de consulta para la Capa de Indices
+					pipe->agregarParametro(OperacionesCapas::INDICES_ELIMINAR, 0); 
+					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
+					pipe->agregarParametro(parserOperaciones.getNombreTipo(), 1);
+					
+					// Se lanza el proceso de la Capa Indices.
+					resultado = pipe->lanzar();
+					
+					if (resultado == ComuDatos::OK){
+						// Envio de los valores de las claves de los registros
+						// a eliminar por el pipe.
+						pipe->escribir(valoresClaves);
+						
+						// Se obtiene el resultado de la operacion
+						pipe->leer(&resultado);
+					
+					}
+				}break;
+				
+				case OperacionesCapas::METADATA_MODIFICACION:
+				{
+					// Codigo de operacion de consulta para la Capa de Indices
+					pipe->agregarParametro(OperacionesCapas::INDICES_MODIFICAR, 0); 
+					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
+					pipe->agregarParametro(parserOperaciones.getNombreTipo(), 1);
+					
+					// Se lanza el proceso de la Capa Indices.
+					resultado = pipe->lanzar();
+					
+					if (resultado == ComuDatos::OK){
+						// Envio de los valores de las claves de los registros
+						// a modificar por el pipe.
+						pipe->escribir(valoresClaves);
+						
+						// Se obtiene la cantidad de registros a
+						// ser modificados.
+						pipe->leer(&cantRegistros);
+						
+						for (unsigned short i = 0; i < cantRegistros; i++){
+							// Se obtiene el tamano del registro original a 
+							// a modificar.
+							pipe->leer(&tamRegistro);
+							registro = new char[tamRegistro*sizeof(char)];
+							
+							pipe->leer(tamRegistro*sizeof(char), registro);
+							
+						//dataManager.crearRegistroModificacion(registro);
+						}
+						
+					}
+					
+				}break;
+				
+				case OperacionesCapas::METADATA_ALTA:
+				{
+					//TODO
+				}break;
+				
+				default:
+					resultado = ResultadosMetadata::OPERACION_INVALIDA;
+			}
+			
+			pipe->liberarRecursos();
+			
+		//	errorOut << resultado; 
+		}
+		
+		
+		
+		if (registro)
+			delete[] registro;
+		
+		if (mapaValoresAtributos)
+			delete mapaValoresAtributos;
+		
+		if (listaClaves)
+			delete listaClaves;
+		
+		if (pipe)
+			delete pipe;
+	}
 	
 	/*cout << "Datos del registro" << endl;
 	

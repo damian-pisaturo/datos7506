@@ -132,7 +132,7 @@
 	
 		short ArchivoBase::posicion()
 		{
-			short pos = 0;
+			 long int pos = 0;
 			
 			//Verifica que el archivo esté abierto 
 			if (this->archivo.is_open()){
