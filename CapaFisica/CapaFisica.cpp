@@ -378,18 +378,22 @@
 		}break;
 		
 		case OperacionesCapas::FISICA_LEER_NODO_DOBLE:
-		{
+		{			
 			//Obtencion del primer numero de nodo a leer			
 			pipe.parametro(3, &numBloque);
 			archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
+			
+			
 			
 			if (archivo->esValido()){					
 				//Se informa a la capa superior que el archivo es valido.
 				pipe.escribir(resultado);
 				
+				
+				
 				buffer = new char[2*tamBloque*sizeof(char)];
 				
-				//Lectura del bucket dentro del archivo.
+				//Lectura del bloque doble dentro del archivo.
 				resultado = ((ArchivoIndiceArbol*)archivo)->leerBloqueDoble(buffer, numBloque);
 				
 				//Envio del resultado de la operacion a traves del pipe.
@@ -834,10 +838,10 @@
 //			ejecutarOperaciones() si la cantidad de argumentos es valida).
 ///////////////////////////////////////////////////////////////////////////
 	int main(int argc, char**argv)
-	{			
+	{
 		char resultado = ResultadosFisica::OK;
 		
-		if (argc > 3)
+		if (argc > 3)			
 			resultado = ejecutarOperacion(argv);		
 		else resultado = ResultadosFisica::CANT_ARGUMENTOS_INVALIDA;
 	

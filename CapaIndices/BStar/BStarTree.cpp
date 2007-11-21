@@ -218,9 +218,9 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* cl
 bool BStarTree::eliminar(Clave* clave) {
 	
 	if ( (!clave) || (this->vacio()) ) return false;
-	
+
 	NodoBStar* nodoTarget = buscarClave(this->nodoRaiz, clave);
-	
+
 	//Se verifica si se encontró el nodo que puede llegar a contener la clave
 	if (!nodoTarget) return false;
 
@@ -253,17 +253,18 @@ bool BStarTree::eliminar(Clave* clave) {
 		}
 		else { //NodoTarget es un nodo hoja
 			nodoTarget->eliminarClave(claveBuscada, &codigoEliminacion);
-			this->eliminarInterno(nodoTarget, &codigoEliminacion,claveBuscada); //resuelve underflow y escribe en disco
-			
-			if ((this->nodoRaiz) && (*nodoTarget == *(this->nodoRaiz)))
+			this->eliminarInterno(nodoTarget, &codigoEliminacion,clave); //resuelve underflow y escribe en disco
+		
+			if ((this->nodoRaiz) && (nodoTarget) && (*nodoTarget == *(this->nodoRaiz)))
 				*(this->nodoRaiz) = *nodoTarget;
+
 		}
 	}
 	else{
 		if (nodoTarget) delete nodoTarget;
 		return false;
 	}
-
+	
 	
 	if (nodoTarget) delete nodoTarget;
 	
@@ -285,6 +286,7 @@ void BStarTree::eliminarInterno(NodoBStar* &nodoTarget, char* codigo, Clave* cla
 		Clave* clavePadreIzq = NULL;
 		//Puntero a la clave del nodo padre que se encuentra entre nodoTarget y su hermano der
 		Clave* clavePadreDer = NULL;
+		
 		NodoBStar *nodoPadre = this->buscarPadre(this->nodoRaiz, nodoTarget, claveEliminada);
 		NodoBStar *nodoHnoDer = NULL, *nodoHnoIzq = NULL, *nodoHnoHno = NULL;
 		
@@ -310,7 +312,6 @@ void BStarTree::eliminarInterno(NodoBStar* &nodoTarget, char* codigo, Clave* cla
 				indiceManager.escribirBloqueDoble(nodoTarget->getPosicionEnArchivo(), nodoTarget);
 			}
 		} else{
-		
 			//Se buscan los hermanos derecho e izquierdo de 'nodoTarget'
 			
 			//Se busca dentro del nodo padre la clave cuyo hijo derecho es nodoTarget
@@ -388,11 +389,17 @@ void BStarTree::eliminarInterno(NodoBStar* &nodoTarget, char* codigo, Clave* cla
 						this->pasarClaveHaciaIzquierda(nodoHnoDer, nodoPadre, nodoHnoHno, clavePadreIzq);
 						if ( pudoRedistribuir = nodoHnoDer->puedePasarClaveHaciaIzq(nodoTarget, nodoPadre, clavePadreDer))
 							this->pasarClaveHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer, clavePadreDer);
+						
+						if (!pudoRedistribuir)
+							this->pasarMaximoPosibleHaciaIzquierda(nodoHnoDer, nodoPadre, nodoHnoHno, clavePadreIzq);
 					}
 				} else {
 					if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre, clavePadreIzq))
 						this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
 				}
+				
+				if (!pudoRedistribuir)
+					this->pasarMaximoPosibleHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer, clavePadreDer);
 			} else { // tiene hermano izquierdo
 				if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre, clavePadreIzq))
 					this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
@@ -402,18 +409,39 @@ void BStarTree::eliminarInterno(NodoBStar* &nodoTarget, char* codigo, Clave* cla
 						this->pasarClaveHaciaDerecha(nodoHnoIzq, nodoPadre, nodoHnoHno, clavePadreDer);
 						if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre, clavePadreIzq))
 							this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
+						
+						if (!pudoRedistribuir)
+							this->pasarMaximoPosibleHaciaDerecha(nodoHnoIzq, nodoPadre, nodoHnoHno, clavePadreDer);
 					}
+					
 				}
+				if (!pudoRedistribuir)						
+					this->pasarMaximoPosibleHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
+									
 			}
 			
 			if (!pudoRedistribuir) { //Se realiza la concatenación de 'nodoTarget' con dos nodos hermanos y dos claves
 				//del nodo padre. Luego se realiza un split, generándose dos nodos y una clave a promocionar
 				//hacia el nodo padre.
 				Clave* clavePromocionada = NULL;
-				if ( (*nodoPadre == *(this->nodoRaiz)) && (nodoHnoDer) && (!nodoHnoIzq) && (!nodoHnoHno) )
-					this->merge(nodoTarget, nodoHnoDer, nodoPadre);
-				else if ( (*nodoPadre == *(this->nodoRaiz)) && (nodoHnoIzq) && (!nodoHnoDer) && (!nodoHnoHno) )
-					this->merge(nodoHnoIzq, nodoTarget, nodoPadre);
+				if ( (*nodoPadre == *(this->nodoRaiz)) && (nodoHnoDer) && (!nodoHnoIzq) && (!nodoHnoHno) ) {
+					if (puedeMerge(nodoTarget, nodoHnoDer, nodoPadre))
+						this->merge(nodoTarget, nodoHnoDer, nodoPadre);
+					else{
+						*codigo = Codigo::MODIFICADO;
+						this->eliminarInterno(nodoTarget, codigo, claveEliminada);
+					}
+						
+				}
+				else if ( (*nodoPadre == *(this->nodoRaiz)) && (nodoHnoIzq) && (!nodoHnoDer) && (!nodoHnoHno) ){
+					if (puedeMerge(nodoHnoIzq, nodoTarget, nodoPadre)){
+						this->merge(nodoHnoIzq, nodoTarget, nodoPadre);
+					}
+					else{
+						*codigo = Codigo::MODIFICADO;
+						this->eliminarInterno(nodoTarget, codigo, claveEliminada);
+					}
+				}
 				else {
 					bool pudoRealizarMerge = false;
 					if ((nodoHnoIzq) && (nodoHnoDer)){
@@ -421,11 +449,12 @@ void BStarTree::eliminarInterno(NodoBStar* &nodoTarget, char* codigo, Clave* cla
 							clavePromocionada = this->mergeSplitUnderflow(nodoHnoIzq, nodoTarget, nodoHnoDer, clavePadreIzq, clavePadreDer);
 					}
 					
-					else if (!(nodoHnoIzq))
+					else if (!nodoHnoIzq){
 						if (nodoHnoHno){
 							if (pudoRealizarMerge = this->puedeMergeSplitUnderflow(nodoTarget, nodoHnoDer, nodoHnoHno, clavePadreDer, clavePadreIzq))
 								clavePromocionada = this->mergeSplitUnderflow(nodoTarget, nodoHnoDer, nodoHnoHno, clavePadreDer, clavePadreIzq);
 						}
+					}
 					else if (nodoHnoHno){
 						if (pudoRealizarMerge = this->puedeMergeSplitUnderflow(nodoHnoHno, nodoHnoIzq, nodoTarget, clavePadreDer, clavePadreIzq))
 							clavePromocionada = this->mergeSplitUnderflow(nodoHnoHno, nodoHnoIzq, nodoTarget, clavePadreDer, clavePadreIzq);
@@ -441,7 +470,9 @@ void BStarTree::eliminarInterno(NodoBStar* &nodoTarget, char* codigo, Clave* cla
 							this->insertarInterno(nodoPadre, &codigoInsertar, clavePromocionada);
 						//Sino, se resuelve posible underflow al eliminar las claves separadoras. Si no hay underflow,
 						//este método se encargará de escribir nodoPadre en disco.
-						else this->eliminarInterno(nodoPadre, codigo, claveEliminada);
+						else
+							this->eliminarInterno(nodoPadre, codigo, claveEliminada);
+						
 					}
 					else{
 						*codigo = Codigo::MODIFICADO;
@@ -458,8 +489,7 @@ void BStarTree::eliminarInterno(NodoBStar* &nodoTarget, char* codigo, Clave* cla
 			if ( (nodoPadre) && (*nodoPadre == *(this->nodoRaiz)) )
 				*(this->nodoRaiz) = *nodoPadre;
 			
-			if (nodoPadre) delete nodoPadre;
-			
+			if (nodoPadre) delete nodoPadre;	
 		}
 		
 	}
@@ -519,7 +549,7 @@ int BStarTree::modificar(Clave* claveVieja, Clave* claveNueva) {
 }
 
 
-void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer, Clave* clavePadre){
+void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer, Clave* &clavePadre){
 	
 	char codigo;
 	unsigned short bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
@@ -550,13 +580,58 @@ void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodo
 		indiceManager.escribirBloqueDoble(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 	else
 		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	
+	clavePadre = clavePromocionada;
 
 }
 
 
-void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq, Clave* clavePadre) {
+void BStarTree::pasarMaximoPosibleHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer, Clave* &clavePadre){
 	
 	char codigo;
+	unsigned short bytesAEntregar;
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(true);
+	SetClaves* setIntercambio = NULL;
+	
+	if (nodoHnoDer->getTamanioEnDiscoSetClaves() > nodoHnoDer->getTamanioMinimo()){
+		bytesAEntregar = nodoHnoDer->getTamanioEnDiscoSetClaves() - nodoHnoDer->getTamanioMinimo();
+	
+		nodoPadre->extraerClave(clavePadre);
+		clavePadre->setHijoDer(nodoHnoDer->getHijoIzq());
+		
+		if ( tamanioClavePadre < bytesAEntregar){
+			setIntercambio = nodoHnoDer->cederBytes(bytesAEntregar - tamanioClavePadre);
+			nodoDestino->recibir(setIntercambio);
+			delete setIntercambio;
+		}
+		
+		Clave* clavePromocionada = nodoHnoDer->extraerPrimeraClave();
+		nodoHnoDer->setHijoIzq(clavePromocionada->getHijoDer());
+		clavePromocionada->setHijoDer(nodoHnoDer->getPosicionEnArchivo());
+		nodoPadre->insertarClave(clavePromocionada, &codigo);
+		
+		nodoDestino->insertarClave(clavePadre, &codigo);
+		
+		//Se actualizan los nodos
+		indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+		indiceManager.escribirBloque(nodoHnoDer->getPosicionEnArchivo(), nodoHnoDer);
+		
+		if (*nodoPadre == *(this->nodoRaiz))
+			indiceManager.escribirBloqueDoble(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+		else
+			indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+		
+		clavePadre = clavePromocionada;
+		
+	}
+
+}
+
+
+void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq, Clave* &clavePadre) {
+	
+	char codigo;
+	
 	unsigned short bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(true);
 	SetClaves* setIntercambio = NULL;
@@ -585,11 +660,55 @@ void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPa
 		indiceManager.escribirBloqueDoble(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 	else
 		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+	
+	clavePadre = clavePromocionada;
 
 }
 
 
-void BStarTree::recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer, Clave* clavePadre){
+void BStarTree::pasarMaximoPosibleHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq, Clave* &clavePadre) {
+	
+	char codigo;
+	
+	unsigned short bytesAEntregar;
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(true);
+	SetClaves* setIntercambio = NULL;
+	
+	if (nodoHnoIzq->getTamanioEnDiscoSetClaves() > nodoHnoIzq->getTamanioMinimo()){
+		bytesAEntregar = nodoHnoIzq->getTamanioEnDiscoSetClaves() - nodoHnoIzq->getTamanioMinimo();
+			
+		nodoPadre->extraerClave(clavePadre);
+		clavePadre->setHijoDer(nodoDestino->getHijoIzq());
+		
+		if ( tamanioClavePadre < bytesAEntregar){
+			setIntercambio = nodoHnoIzq->cederBytes(bytesAEntregar - tamanioClavePadre, false);
+			nodoDestino->recibir(setIntercambio);
+			delete setIntercambio;
+		}
+		
+		Clave* clavePromocionada = nodoHnoIzq->extraerUltimaClave();
+		nodoDestino->setHijoIzq(clavePromocionada->getHijoDer());
+		clavePromocionada->setHijoDer(nodoDestino->getPosicionEnArchivo());
+		nodoPadre->insertarClave(clavePromocionada, &codigo);
+		
+		nodoDestino->insertarClave(clavePadre, &codigo);
+		
+		//Se actualizan los nodos
+		indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+		indiceManager.escribirBloque(nodoHnoIzq->getPosicionEnArchivo(), nodoHnoIzq);
+		
+		if (*nodoPadre == *(this->nodoRaiz))
+			indiceManager.escribirBloqueDoble(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+		else
+			indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+		
+		clavePadre = clavePromocionada;
+	}
+
+}
+
+
+void BStarTree::recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer, Clave* &clavePadre){
 	
 	char codigo;
 	unsigned short cantClavesSobrantes;
@@ -622,10 +741,11 @@ void BStarTree::recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodo
 	else
 		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 
+	clavePadre = clavePromocionada;
 }
 
 
-void BStarTree::recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq, Clave* clavePadre){
+void BStarTree::recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq, Clave* &clavePadre){
 
 	char codigo;
 	unsigned short cantClavesSobrantes;
@@ -658,7 +778,7 @@ void BStarTree::recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* no
 	else
 		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 
-	
+	clavePadre = clavePromocionada;
 }
 
 
@@ -670,13 +790,11 @@ NodoBStar* BStarTree::buscarPadre(NodoBStar* padre, NodoBStar* hijo, Clave* clav
 	if ( (!padre) || (!hijo) || (*hijo == *(this->nodoRaiz)) ) return NULL;
 	
 	if (padre->esPadre(hijo, claveOrientadora, claveNodoHijo)) {
-		
 		auxNodo = new NodoBStar(0, 0, this->tamanioNodo);
 		//Devuelvo una copia del padre
 		*auxNodo = *padre; //Operador =
 		
 	} else {
-		
     	if (claveOrientadora == NULL) {
     		nuevoNodo = new NodoBStar(0, 0, this->tamanioNodo);
     		indiceManager.leerBloque(padre->getHijoIzq(), nuevoNodo);
@@ -873,6 +991,36 @@ VectorClaves* BStarTree::mergeSplitOverflow(NodoBStar* nodoTarget, NodoBStar* no
 	return vectorClaves;
 }
 
+bool BStarTree::puedeMerge(NodoBStar* nodoHijoIzq, NodoBStar* nodoHijoDer, NodoBStar* nodoPadre){
+	SetClaves set;
+	SetClaves::iterator iter;
+	
+	for (iter = nodoHijoIzq->getClaves()->begin(); iter != nodoHijoIzq->getClaves()->end(); ++iter)
+		set.insert(*iter);
+	
+	for (iter = nodoHijoDer->getClaves()->begin(); iter != nodoHijoDer->getClaves()->end(); ++iter)
+		set.insert(*iter);
+	
+	for (iter = nodoPadre->getClaves()->begin(); iter != nodoPadre->getClaves()->end(); ++iter)
+		set.insert(*iter);
+	
+	unsigned short i;
+	iter = set.begin();
+	
+	for (i = 0; iter != set.end(); ++iter){
+		i += (*iter)->getTamanioEnDisco(true);
+	}
+	
+	i -= Tamanios::TAMANIO_REFERENCIA*nodoPadre->getClaves()->size();
+		
+	bool puede = (i <= nodoPadre->getTamanioEspacioClaves());
+	
+	set.clear();
+	
+	return (puede);
+
+}
+
 //Método utilizado para mergear la raíz con dos hijos
 void BStarTree::merge(NodoBStar* &nodoHijoIzq, NodoBStar* &nodoHijoDer, NodoBStar* nodoPadre) {
 
@@ -894,12 +1042,12 @@ void BStarTree::merge(NodoBStar* &nodoHijoIzq, NodoBStar* &nodoHijoDer, NodoBSta
 	
 	delete nodoHijoDer;
 	nodoHijoDer = NULL;
-	
+
 }
 
 
 bool BStarTree::puedeMergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* nodoHno2,
-										 Clave* clavePadre1, Clave* clavePadre2) {
+										 Clave* clavePadre1, Clave* clavePadre2) {	
 	
 	SetClaves set;
 	SetClaves::iterator iter;
@@ -938,6 +1086,7 @@ bool BStarTree::puedeMergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoH
 	
 	set.clear();
 
+	
 	return (puede);
 
 	
@@ -946,7 +1095,7 @@ bool BStarTree::puedeMergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoH
 
 Clave* BStarTree::mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* &nodoHno2,
 									  Clave* clavePadre1, Clave* clavePadre2) {
-
+	
 	Clave* copiaClavePadre1 = clavePadre1->copiar();
 	Clave* copiaClavePadre2 = clavePadre2->copiar();
 	

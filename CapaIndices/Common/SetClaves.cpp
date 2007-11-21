@@ -75,6 +75,23 @@ VectorConjuntos* SetClaves::splitBStar(unsigned short minClaves, unsigned short 
 		
 	}
 	
+	if (this->size() == 0) {
+		if (((*vectorConj)[0])->size() > 1){
+			iter = ((*vectorConj)[1])->end();
+			this->insert(*(--iter));
+			((*vectorConj)[1])->erase(iter);
+		}
+		else{
+			iter = ((*vectorConj)[0])->end();
+			((*vectorConj)[1])->insert(*(--iter));
+			((*vectorConj)[0])->erase(iter);
+			
+			iter = ((*vectorConj)[1])->end();
+			this->insert(*(--iter));
+			((*vectorConj)[1])->erase(iter);
+		}
+	}
+	
 	return vectorConj;
 	
 }
