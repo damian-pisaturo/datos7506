@@ -54,17 +54,17 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 	
 	unsigned int nroBloque = 0;
 	char* contenidoBloque = new char[this->tamBloqueDato];
-	
-	// Lee de disco el contenido del bloque donde debe insertar.
-	int resultado = this->buscarBloqueDestino(tamRegistro, contenidoBloque, nroBloque);
-	
-	// Si hay lugar en el bloque de disco, le asigno su contenido
-	if (resultado != ResultadosIndices::BLOQUES_OCUPADOS){
-		bloque->setNroBloque(nroBloque);
-		bloque->setDatos(contenidoBloque);
+
+	int resultado;
+	if (!this->bTree->vacio()) {
+		// Lee de disco el contenido del bloque donde debe insertar.
+		resultado = this->buscarBloqueDestino(tamRegistro, contenidoBloque, nroBloque);
+		// Si hay lugar en el bloque de disco, le asigno su contenido
+		if (resultado != ResultadosIndices::BLOQUES_OCUPADOS)
+			bloque->setNroBloque(nroBloque);
 	}
-	else
-		delete[] contenidoBloque;
+	
+	bloque->setDatos(contenidoBloque);
 	
 	// Inserta el registro.
 	bloque->altaRegistro(this->listaNodos,registro);

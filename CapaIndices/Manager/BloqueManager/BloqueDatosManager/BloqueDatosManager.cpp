@@ -95,8 +95,8 @@
 			pipe->agregarParametro(this->getTipoOrganizacion(), 3); //Tipo de organizacion del archivo de datos.
 			
 			if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES)
-				pipe->agregarParametro(this->getTamanioBloque() - *(unsigned short*)bloqueNuevo, 4); //Espacio libre dentro del bloque.
-
+				pipe->agregarParametro(this->getTamanioBloque() - *((unsigned short*)bloqueNuevo), 4); //Espacio libre dentro del bloque.
+			
 			//Se lanza el proceso de la capa fisica. 
 			resultado = pipe->lanzar();
 			

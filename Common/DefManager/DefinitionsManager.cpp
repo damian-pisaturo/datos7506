@@ -149,7 +149,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	
 	//INDICE GRIEGO (HASH)
 	estructTipoIndice.tipoIndice = TipoIndices::GRIEGO;
-	estructTipoIndice.tipoEstructura = TipoIndices::HASH;
+	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BS;
 	estructTipoIndice.tamanioBloque = 4096;
 	estructTipoIndice.tipoClave = TipoDatos::TIPO_ENTERO;
 	estructTipoIndice.nombreArchivo = "persona";
@@ -171,7 +171,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaTiposIndices = new ListaTiposIndices();
 	listaTiposIndices->push_back(nodoListaIndices);
 	
-/*	
+/*
 	//INDICE ROMANO (ARBOLB*)
 	estructTipoIndice.tipoIndice = TipoIndices::ROMANO;
 	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BS;
@@ -194,8 +194,8 @@ void DefinitionsManager::cargarTiposIndices() {
 	nodoListaIndices.listaTipos = listaTipos;
 	
 	listaTiposIndices->push_back(nodoListaIndices);
-	
-	
+*/	
+/*	
 	//INDICE ROMANO (ARBOLB+)
 	estructTipoIndice.tipoIndice = TipoIndices::ROMANO;
 	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BP;

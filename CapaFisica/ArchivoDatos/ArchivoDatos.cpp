@@ -100,13 +100,14 @@
 		short ArchivoDatosBloques::buscarBloque(void* bloque, unsigned int espacioLibre)
 		{
 			short resultado = ResultadosFisica::OK;
-			short posicion = 0;
+			short posicion  = 0;
 			ArchivoELVariable* archivoEL = static_cast<ArchivoELVariable*>(this->getArchivoEL());
 			
 			posicion = archivoEL->buscarEspacioLibre(espacioLibre);
 			
 			if (posicion != ResultadosFisica::BLOQUES_OCUPADOS){
 				resultado = this->posicionarse(posicion);
+				
 				if (resultado == ResultadosFisica::OK)
 					resultado = this->leer(bloque);
 			}
@@ -166,3 +167,38 @@
 			
 			return archivoEL->modificarRegistro(&tamBloque, numBloque);			
 		}
+		
+
+		ArchivoDatosRegistros::ArchivoDatosRegistros(string nombreArchivo, unsigned short tamReg):
+			ArchivoDatos(nombreArchivo, tamReg, TipoOrganizacion::REG_FIJOS)
+		{ }
+		
+		ArchivoDatosRegistros::~ArchivoDatosRegistros()
+		{ }
+	
+	/////////////////////////////////////////////////////////////////////// 
+	// Metodos publicos
+	///////////////////////////////////////////////////////////////////////
+		/* Devuelve en 'registro' el registro cuya posicion en el archivo es 
+		 * numReg.
+		 */
+		char ArchivoDatosRegistros::leerRegistro(void* registro, unsigned short numReg){return 0;}	
+		
+		/*Sobre-escribe en la posicion relativa numReg el registro pasado
+		 * por parametro.
+		 */
+		char ArchivoDatosRegistros::escribirRegistro(void* registro, unsigned short numReg){return 0;}
+		
+		/*Escribe en el archivo de datos el registro pasado por parametro
+		 * en la posicion del primer registro libre que encuentre, utilizando
+		 * el archivo de control de espacio libre. Si todos los registro
+		 * se encuentran ocupados, appendea al final del archivo.
+		 * Devuelve la posicion en donde fue escrito finalmente.
+		 */
+		 short ArchivoDatosRegistros::escribirRegistro(void* registro){return 0;}
+		
+		/*Modifica el archivo de control de espacio libre
+		 * para que el bloque cuya posicion relativa en el archivo es
+		 * numBloque se considere vacio.
+		 */
+		char ArchivoDatosRegistros::eliminarRegistro(unsigned short numBloque){ return 0;}
