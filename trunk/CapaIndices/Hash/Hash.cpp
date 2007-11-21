@@ -30,8 +30,7 @@
 		Hash::Hash(IndiceHashManager* arch, ListaNodos* lista, unsigned int tamBucket)
 		{
 			this->archivo    = arch;
-			this->listaParam = lista;
-			
+			this->listaParam = lista;	
 			this->tabla = new Tabla(this->archivo, tamBucket);
 		}
 	

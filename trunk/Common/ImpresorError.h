@@ -41,6 +41,8 @@ ostream& operator << (ostream &out, const Error &e) {
         	out << "El registro buscado en alguna operacion de la capaIndices no fue encontrado."; break;
         case ResultadosIndices::CLAVE_DUPLICADA:
         	out << "La clave a insertar ya existe."; break;
+        case ResultadosIndices::CLAVE_ENCONTRADA:
+        	out << "La clave ya existe."; break;
         case ResultadosIndices::CLAVE_NO_ENCONTRADA:
         	out << "La clave solicitada no existe."; break;
         case ResultadosMetadata::OPERACION_INVALIDA:

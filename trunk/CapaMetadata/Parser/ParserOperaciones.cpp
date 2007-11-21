@@ -75,7 +75,6 @@ bool ParserOperaciones::proximaOperacion()
 	bool procesado = false;
 	
 	while ( (!this->archivo.fail()) && (!procesado) ){
-		
 		leyendoClaves = false;
 		getline(this->archivo, linea);
 		
@@ -124,8 +123,8 @@ bool ParserOperaciones::proximaOperacion()
 					case ALTA:
 						this->tipoOperacion = OperacionesCapas::METADATA_ALTA;
 						(*this->mapValoresAtributos)[nombreAtributo] = valorAtributo;
-						break;
-					
+						
+						break;					
 					case BAJA: {
 						this->tipoOperacion = OperacionesCapas::METADATA_BAJA;
 						DefinitionsManager::NodoListaClaves nodo;
@@ -159,8 +158,7 @@ bool ParserOperaciones::proximaOperacion()
 					}break;
 						
 				}
-			}		
-
+			}
 
 		}
 	}

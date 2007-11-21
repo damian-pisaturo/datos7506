@@ -19,6 +19,7 @@
 #include "../ArchivoBase/ArchivoBase.h"
 #include "../ArchivoEL/ArchivoEL.h"
 #include "../../Common/ResultadosFisica.h"
+#include <sstream>
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -31,6 +32,8 @@ class ArchivoIndice : public ArchivoBase
 {
 	private:
 		ArchivoEL* archivoEL;
+		
+		static unsigned int contador;
 	
 	public:
 		///////////////////////////////////////////////////////////////////////

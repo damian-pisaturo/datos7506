@@ -1,6 +1,5 @@
 #include "ComuDatos.h"
 
-
 #define CORRIMIENTOARGUMENTO 3
 	 
 int contarArgv(char **argv)
@@ -32,8 +31,12 @@ ComuDatos::ComuDatos(char** argv)
 	int contador = contarArgv(argv);
 	
 	if (contador >= CORRIMIENTOARGUMENTO){
+		
 		this->fd_pipeP = open(argv[2], O_WRONLY);
-		if (this->fd_pipeP<0) return;
+		if (this->fd_pipeP < 0) {
+			cout << "El open() lanza ERROR!" << endl;
+			return;
+			}
 		
 		this->fd_pipeH = open(argv[1], O_RDONLY);
 		if (this->fd_pipeH < 0){
@@ -41,10 +44,13 @@ ComuDatos::ComuDatos(char** argv)
 			perror("argv[]");
 			return;	
 		}	
+		
 		this->parametrosProceso.resize(contador-CORRIMIENTOARGUMENTO);
-		for (int i = 0; i<(contador-CORRIMIENTOARGUMENTO); i++)
+		
+		for (int i = 0; i < (contador-CORRIMIENTOARGUMENTO); i++)
 			this->parametrosProceso.at(i) = argv[i+CORRIMIENTOARGUMENTO];
 	}
+		
 	
 }
 
@@ -67,6 +73,7 @@ int ComuDatos::lanzar()
 		// Parametro 1 lectura y 2 escritura hijo.
 		argumentos[1] = new char[sizeof(char)*(pipeEscribe.length() + 1)];
 		strcpy(argumentos[1], pipeEscribe.c_str());
+		
 		argumentos[2] = new char[sizeof(char)*(pipeLee.length() + 1)];
 		strcpy(argumentos[2], pipeLee.c_str());
 		
@@ -123,14 +130,40 @@ void ComuDatos::agregarParametro(int valorParametro, unsigned int posParametro)
     
 }
 
+void ComuDatos::agregarParametro(unsigned int valorParametro, unsigned int posParametro)
+{	
+	char num[20];
+
+	sprintf(num, "%d", valorParametro);
+
+    if (posParametro >= this->parametrosProceso.size())
+    {
+    	this->parametrosProceso.resize(posParametro+1);
+    }
+    
+    this->parametrosProceso.at(posParametro) = num;
+    
+}
+
 void ComuDatos::agregarParametro(string valorParametro, unsigned int posParametro)
 {
-	if (posParametro+1 >= this->parametrosProceso.size())
+	if (posParametro + 1 >= this->parametrosProceso.size())
 	{
 		this->parametrosProceso.resize(posParametro+1);	
 	}
 	this->parametrosProceso[posParametro] = valorParametro;
 }
+
+void ComuDatos::agregarParametro(unsigned char valorParametro, unsigned int posParametro)
+{
+	if (posParametro + 1 >= this->parametrosProceso.size())
+	{
+		this->parametrosProceso.resize(posParametro+1);	
+	}
+	
+	this->parametrosProceso[posParametro] = valorParametro;
+}
+
 
 char ComuDatos::parametro(unsigned int posParametro, string &parametro)
 {	
@@ -139,19 +172,19 @@ char ComuDatos::parametro(unsigned int posParametro, string &parametro)
 	if (posParametro < this->parametrosProceso.size())
 		parametro = this->parametrosProceso[posParametro];
 	else
-		resultado = FIN_PARAMETROS;	
+		resultado = FIN_PARAMETROS;
 	
 	return resultado;
 }
 
-char ComuDatos::parametro(unsigned int posParametro, int* parametro)
+char ComuDatos::parametro(unsigned int posParametro, int &parametro)
 {	
 	char resultado = OK;
 	string aux;
 	
 	if (posParametro < this->parametrosProceso.size()){
 		aux = this->parametrosProceso[posParametro];
-		*parametro = atoi(aux.c_str());
+		parametro = atoi(aux.c_str());
 	}else
 		resultado = FIN_PARAMETROS;	
 	

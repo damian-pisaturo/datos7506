@@ -15,6 +15,8 @@
 ///////////////////////////////////////////////////////////////////////////
 #include "ArchivoIndice.h"
 
+unsigned int ArchivoIndice::contador = 0;
+
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
@@ -30,6 +32,9 @@
 		ArchivoIndice::ArchivoIndice(string nombreArchivo, unsigned short tamBloque) :
 			ArchivoBase(nombreArchivo, tamBloque)
 		{	
+			if (nombreArchivo == "")
+				nombreArchivo = "persona.hash";
+			
 			this->archivoEL = new ArchivoELFijo(nombreArchivo + ".nfo");
 		}
 		
@@ -250,7 +255,8 @@
 		ArchivoIndiceHash::ArchivoIndiceHash(string nombreArchivo, unsigned short tamBucket):
 		ArchivoIndice(nombreArchivo, tamBucket)
 		{
-			archivoTabla = new ArchivoTablaHash(nombreArchivo + ".tlb");
+			string s = nombreArchivo + ".tlb";
+			archivoTabla = new ArchivoTablaHash(s);
 		}
 		
 		 ArchivoIndiceHash::~ArchivoIndiceHash() 

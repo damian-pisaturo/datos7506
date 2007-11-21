@@ -77,6 +77,7 @@ void Vista::showRegister(char *registro, ListaNodos *listaTiposAtributos){
 			offset += longReg;
 			
 			cout << campoVariable <<endl;
+			delete[] campoVariable;
 			break;
 		
 		case TipoDatos::TIPO_SHORT:

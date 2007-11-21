@@ -34,7 +34,9 @@ Tabla::Tabla(IndiceHashManager* arch, unsigned int tamBucket)
 	
 	if (arch){
 		this->archivo = arch;
+	
 		this->archivo->leerTabla(&tamTabla, numerosTabla);
+	
 				
 		// Si la tabla no existe, en tamanio devuelve 0.
 		// En ese caso, se crea una tabla.

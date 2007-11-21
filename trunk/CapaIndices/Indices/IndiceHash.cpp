@@ -6,7 +6,6 @@
 		this->tipoIndice    = TipoIndices::GRIEGO;
 		this->tamBloqueDato = tamBucket;
 		this->tamBloqueLista = 0;
-		
 		this->hash = new Hash((IndiceHashManager*)indiceManager, listaParam, tamBucket);		
 	}
 	
@@ -23,16 +22,11 @@
 	{
 		return this->hash->insertarRegistro(registro, *clave);
 	}
-	
-	int IndiceHash::insertar(Clave *clave, char* &registro)
-	{	
-		return 0;
-	}
 
 	/*
 	 * Este metodo elimina un registro del indice.
 	 **/
-	int IndiceHash::eliminar(Clave *clave) 
+	int IndiceHash::eliminar(Clave *clave)  
 	{
 		return this->hash->eliminarRegistro(*clave);
 	}
@@ -46,19 +40,19 @@
 	{
 		char* registro = NULL;
 		
-		if (this->hash->recuperarBucket(*clave,registro,tamanioBloque)){
+		if (this->hash->recuperarRegistro(*clave,registro))
 			return ResultadosIndices::OK;
-		}
 		else return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	}
 	
 	int IndiceHash::buscar(Clave *clave) const
 	{
 		char* registro = NULL;
-		
+
 		if (this->hash->recuperarRegistro(*clave, registro))
 			return ResultadosIndices::CLAVE_ENCONTRADA;
-		else return ResultadosIndices::CLAVE_NO_ENCONTRADA;
+		else
+			return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	}
 
 	/*
