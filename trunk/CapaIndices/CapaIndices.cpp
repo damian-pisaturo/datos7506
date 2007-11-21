@@ -259,7 +259,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 
 int main(int argc, char* argv[]) {
 	
-/*	ComuDatos pipe(argv);
+	ComuDatos pipe(argv);
 	unsigned char codOp;
 	string nombreTipo;
 	
@@ -267,7 +267,6 @@ int main(int argc, char* argv[]) {
 	pipe.parametro(1, nombreTipo);
 	
 	procesarOperacion(codOp, nombreTipo, pipe);
-	*/
 	
 // MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
 /*	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BS, 48, 48, "locura", TipoDatos::TIPO_VARIABLE);
