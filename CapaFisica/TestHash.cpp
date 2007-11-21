@@ -3,7 +3,7 @@
 int main(int argc, char** argv)
 {
 	RegisterInfo regInfo;
-	
+	cout << "dsadsadsadsadsadsadsa" << endl; 
 	Indice *manuColoquio = new IndiceHash(regInfo.getParameterList(), 512, "testHash");
 	Clave* clave = NULL;
 	int entero1  = 0;
@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 		memcpy(registro + Tamanios::TAMANIO_LONGITUD + sizeof(int) + Tamanios::TAMANIO_LONGITUD_CADENA + longCadena + sizeof(short) + sizeof(char), &fecha.dia,sizeof(char));			
 		
 		clave = new ClaveFecha(fecha);
-		manuColoquio->insertar(clave, registro);
+		manuColoquio->insertar(clave, registro, tamReg);
 		
 		delete clave;
 	}

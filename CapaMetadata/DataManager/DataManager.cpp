@@ -1,5 +1,5 @@
 #include "DataManager.h"
-// listaAtributos { numeroNodoListaLoca:valor para modif}
+
 DataManager::DataManager()
 {
 	this->registro = NULL;
@@ -7,10 +7,9 @@ DataManager::DataManager()
 
 DataManager::~DataManager()
 {
-	if(this->registro){
+	if(this->registro)
 		delete[] registro;
-		this->registro = NULL;
-	}
+
 }
 
 void DataManager::crearRegistroAlta(const DefinitionsManager::ListaValoresAtributos &listaVA,
@@ -161,7 +160,7 @@ unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTi
  *  Genera un nuevo registro con los cambios pedidos en la modificacion
  *  Una vez que ya lo geenra lo setea en el atributo registro de dataManager
  * */
-void DataManager::crearRegistroModificacion(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
+unsigned short DataManager::crearRegistroModificacion(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
 											const DefinitionsManager::ListaValoresAtributos &listaVA,
 											char *registroEnDisco){
 	// Obtengo los iteradores de ambas listas
@@ -238,11 +237,10 @@ void DataManager::crearRegistroModificacion(const DefinitionsManager::ListaTipos
 	char *registroNuevo = new char [longRegNuevo];
 	
 	this->generarRegistroModificado(registroNuevo,registroEnDisco,longRegNuevo,listaTiposAtributos,listaVA);
-	if(this->registro){
-		delete[] this->registro;
-		this->registro = NULL;
-	}
-	this->registro = registroNuevo;
+	
+	this->setRegistro(registroNuevo);
+	
+	return longRegNuevo;
 }
 
 /*
@@ -390,17 +388,16 @@ void DataManager::generarRegistroModificado(char *registroNuevo, char *registroV
 	
 }
 
-int DataManager::insertar(const DefinitionsManager::ListaValoresAtributos* listaVA,
+/*int DataManager::insertar(const DefinitionsManager::ListaValoresAtributos* listaVA,
 				 		  const DefinitionsManager::ListaTiposAtributos* listaTipos, Bloque* bloque) {
 	
 	this->crearRegistroAlta(*listaVA, *listaTipos);
 	return bloque->altaRegistro(listaTipos, this->registro); 
 	
-}
+}*/
 
-/*
- * */
-int DataManager::eliminar(DefinitionsManager::ListaClaves* listaClaves,
+
+/*int DataManager::eliminar(DefinitionsManager::ListaClaves* listaClaves,
 						  const DefinitionsManager::ListaTiposAtributos* listaTipos, Bloque* bloque) {
 	
 	return bloque->bajaRegistro(listaTipos, *ClaveFactory::getInstance().getClave(*listaClaves, *listaTipos));
@@ -424,4 +421,4 @@ int DataManager::modificar(const DefinitionsManager::ListaValoresAtributos* list
 	return bloque->modificarRegistro(listaTipos, longReg, *ClaveFactory::getInstance().getClave(*listaClaves, *listaTipos), this->registro ); 
 
 }
-
+*/

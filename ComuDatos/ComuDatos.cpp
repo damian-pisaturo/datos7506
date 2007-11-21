@@ -51,7 +51,7 @@ ComuDatos::ComuDatos(char** argv)
 //! parametros tiene que ser NULL o tener un puntero a NULL en el último lugar del vector.
 int ComuDatos::lanzar()
 {
-	int resultado = SIN_ERROR;
+	int resultado = OK;
 	unsigned int paramSize = this->parametrosProceso.size();
 	char** argumentos = new char*[paramSize + CORRIMIENTOARGUMENTO + 1];
 	
@@ -134,7 +134,7 @@ void ComuDatos::agregarParametro(string valorParametro, unsigned int posParametr
 
 char ComuDatos::parametro(unsigned int posParametro, string &parametro)
 {	
-	char resultado = SIN_ERROR;
+	char resultado = OK;
 	
 	if (posParametro < this->parametrosProceso.size())
 		parametro = this->parametrosProceso[posParametro];
@@ -146,7 +146,7 @@ char ComuDatos::parametro(unsigned int posParametro, string &parametro)
 
 char ComuDatos::parametro(unsigned int posParametro, int* parametro)
 {	
-	char resultado = SIN_ERROR;
+	char resultado = OK;
 	string aux;
 	
 	if (posParametro < this->parametrosProceso.size()){
@@ -160,7 +160,7 @@ char ComuDatos::parametro(unsigned int posParametro, int* parametro)
 
 char ComuDatos::parametro(unsigned int posParametro, unsigned char &parametro)
 {	
-	char resultado = SIN_ERROR;
+	char resultado = OK;
 	
 	if (posParametro < this->parametrosProceso.size())
 		parametro = (this->parametrosProceso[posParametro])[0];
@@ -183,7 +183,7 @@ int ComuDatos::fd_escribir()
  
 char ComuDatos::escribir(const char* enviarDato, unsigned int size)
 {
-	char resultado = SIN_ERROR;
+	char resultado = OK;
 	
 	if (size <= TOPE_ENVIAR_STRING) {
 		write(this->fd_pipeP, enviarDato, size*sizeof(char));
@@ -194,7 +194,7 @@ char ComuDatos::escribir(const char* enviarDato, unsigned int size)
 
 char ComuDatos::escribir(int enviarDato)
 {
-	char resultado = SIN_ERROR;
+	char resultado = OK;
 	
 	if (sizeof(enviarDato) <= TOPE_ENVIAR_STRING)
 	{
@@ -206,7 +206,7 @@ char ComuDatos::escribir(int enviarDato)
 
 char ComuDatos::escribir(short enviarDato)
 {
-	char resultado = SIN_ERROR;
+	char resultado = OK;
 	
 	if (sizeof(enviarDato) <= TOPE_ENVIAR_STRING)
 	{
@@ -218,7 +218,7 @@ char ComuDatos::escribir(short enviarDato)
 
 char ComuDatos::escribir(unsigned short enviarDato)
 {
-	char resultado = SIN_ERROR;
+	char resultado = OK;
 	
 	if (sizeof(enviarDato) <= TOPE_ENVIAR_STRING)
 	{
@@ -230,7 +230,7 @@ char ComuDatos::escribir(unsigned short enviarDato)
 
 char ComuDatos::escribir(unsigned int enviarDato)
 {
-	char resultado = SIN_ERROR;
+	char resultado = OK;
 	
 	if (sizeof(enviarDato) <= TOPE_ENVIAR_STRING)
 	{
@@ -242,7 +242,7 @@ char ComuDatos::escribir(unsigned int enviarDato)
 
 char ComuDatos::escribir(char enviarDato)
 {
-	char resultado = SIN_ERROR;
+	char resultado = OK;
 	
 	if (sizeof(char) <= TOPE_ENVIAR_STRING)
 	{
@@ -251,11 +251,9 @@ char ComuDatos::escribir(char enviarDato)
 	
 	return resultado;
 }
-
-
 char ComuDatos::escribir(const string &enviarDato)
 {
-	char resultado = SIN_ERROR;
+	char resultado = OK;
 	
 	if (enviarDato.size() <= TOPE_ENVIAR_STRING)
 	{
@@ -265,10 +263,9 @@ char ComuDatos::escribir(const string &enviarDato)
 	return resultado;
 }
 
-
 char ComuDatos::leer(unsigned int cantidad, char* s)
 {
-	char resultado = SIN_ERROR;
+	char resultado = OK;
 
 	if (cantidad <= TOPE_ENVIAR_STRING){		
 		char leo[TOPE_ENVIAR_STRING];
@@ -285,7 +282,7 @@ char ComuDatos::leer(int* i)
 	read(this->fd_pipeH, &leo, sizeof(int));
 	*i = leo;
 	
-	return SIN_ERROR;
+	return OK;
 }
 
 char ComuDatos::leer(unsigned int* ui)
@@ -294,7 +291,7 @@ char ComuDatos::leer(unsigned int* ui)
 	read(this->fd_pipeH, &leo, sizeof(unsigned int));
 	*ui = leo;
 	
-	return SIN_ERROR;
+	return OK;
 }
 
 char ComuDatos::leer(short* s)
@@ -303,7 +300,7 @@ char ComuDatos::leer(short* s)
 	read(this->fd_pipeH, &leo, sizeof(short));
 	*s = leo;
 	
-	return SIN_ERROR;	
+	return OK;	
 }
 
 char ComuDatos::leer(unsigned short* us)
@@ -312,7 +309,7 @@ char ComuDatos::leer(unsigned short* us)
 	read(this->fd_pipeH, &leo, sizeof(unsigned short));
 	*us = leo;
 	
-	return SIN_ERROR;
+	return OK;
 }
 
 char ComuDatos::leer(char* c)
@@ -321,13 +318,12 @@ char ComuDatos::leer(char* c)
 	read(this->fd_pipeH, &leo, sizeof(char));
 	*c = leo;
 	
-	return SIN_ERROR;
+	return OK;
 }
-
 
 char ComuDatos::leer(unsigned int cantidad, string &cadena)
 {
-	char resultado = SIN_ERROR;
+	char resultado = OK;
 
 	if (cantidad <= TOPE_ENVIAR_STRING){		
 		char leo[TOPE_ENVIAR_STRING + 1];
@@ -338,7 +334,6 @@ char ComuDatos::leer(unsigned int cantidad, string &cadena)
 	
 	return resultado;
 }
-
 
 void ComuDatos::liberarRecursos()
 {
