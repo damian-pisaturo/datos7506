@@ -441,6 +441,8 @@ class IndiceCompuestoManager: public IndiceArbolManager
 	// Constructor
 	//////////////////////////////////////////////////////////////////////
 		IndiceCompuestoManager(unsigned int tamNodo, string nombreArchivo, unsigned char tipoIndice, ListaTipos* listaTipos);
+		
+		virtual ~IndiceCompuestoManager() { delete tipos; }
 	
 	private:
 	//////////////////////////////////////////////////////////////////////

@@ -53,7 +53,7 @@ class IndiceHash :public Indice
 		/*
 		 * Este metodo inserta un elemento en un indice y guarda el bloque de datos.
 		 **/
-		virtual int insertar(Clave *clave, char* &registro);
+		virtual int insertar(Clave *clave, char* &registro, unsigned short tamanioRegistro);
 		
 		/*
 		 * Este metodo elimina un elemento del indice.
@@ -66,7 +66,9 @@ class IndiceHash :public Indice
 		 * y devuelve el bloque que contiene el registro de clave "clave"
 		 * dentro de "registro".
 		 **/
-		virtual int buscar(Clave *clave, char* &registro) const;
+		virtual int buscar(Clave *clave, char* &registro, unsigned short &tamanioBucket) const;
+		
+		virtual int buscar(Clave *clave, char* &registro) const { return 0; }
 		
 		/*
 		 * Método utilizado para saber si una clave ya se encuentra insertada en el índice
@@ -80,7 +82,7 @@ class IndiceHash :public Indice
 		 * a "claveVieja" por "registroNuevo".
 		 **/
 		virtual int modificar(Clave *claveVieja, Clave *claveNueva,
-				                       char* &registroNuevo);
+				                       char* &registroNuevo, unsigned short tamanioRegistroNuevo);
 		
 		/*
 		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente

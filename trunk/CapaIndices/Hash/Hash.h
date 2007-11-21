@@ -78,6 +78,12 @@ class Hash
 		 **/
 		bool recuperarRegistro(Clave &clave, char* &registro); 		
 		
+		/*
+		 * Busca el bucket donde se encuantra almacenado el registro de clave "clave", y devuelve
+		 * una copia de sus datos dentro de datosBucket tal como se almacenan en disco.
+		 **/
+		bool recuperarBucket(Clave &clave, char* &datosBucket, unsigned short &tamanioBucket);
+		
 		
 	private:
 	///////////////////////////////////////////////////////////////////////

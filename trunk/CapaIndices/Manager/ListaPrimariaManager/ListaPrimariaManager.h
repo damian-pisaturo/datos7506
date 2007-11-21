@@ -5,6 +5,7 @@
 #include "../../../Common/Clave/Clave.h"
 #include "../../../Common/TipoDatos.h"
 #include "../../Common/TipoIndices.h"
+#include "../../../Common/CodigosPipe.h"
 #include <list>
 #include <sstream>
 
@@ -28,7 +29,8 @@ class ListaPrimariaManager {
 		
 		bool eliminarClave(char* &lista, Clave* clave, const ListaTipos* listaTipos) const;
 		
-		ListaStrings* convertirAListaStrings(char* lista, const ListaTipos* listaTipos) const;
+		ListaStrings* convertirAListaStrings(char* lista, const ListaTipos* listaTipos,
+				const DefinitionsManager::ListaNombresClaves* listaNombresClaves) const;
 		
 		unsigned short getCantClaves(const char* lista) const;
 		

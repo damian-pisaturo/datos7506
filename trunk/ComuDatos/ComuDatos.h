@@ -79,6 +79,8 @@ using namespace std;
 		char escribir(unsigned short enviarDato);
 	 	//! Escribe un char en el canal de comunicación de datos correspondiente.
 	 	char escribir(char enviarDato);
+	 	//! Escribe un string en el canal de comunicación de datos correspondiente.
+	 	char escribir(const string &enviarDato);
 	 			
 	 	//! Lee un string de longitud máxima "cantidad" del canal de comunicación de datos correspondiente.
 	 	char leer(unsigned int cantidad, char* s);
@@ -92,6 +94,8 @@ using namespace std;
 	 	char leer(unsigned short* us);
 	 	//! Lee un char del canal de comunicación de datos correspondiente.
 	 	char leer(char* c);
+	 	//! Lee un string en el canal de comunicación de datos correspondiente.
+	 	char leer(unsigned int cantidad, string &cadena);
 	 		 			 
 		//! Libera los recursos reservados para las comunicaciones.
 	 	void liberarRecursos();

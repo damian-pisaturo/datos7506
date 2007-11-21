@@ -252,6 +252,20 @@ char ComuDatos::escribir(char enviarDato)
 	return resultado;
 }
 
+
+char ComuDatos::escribir(const string &enviarDato)
+{
+	char resultado = SIN_ERROR;
+	
+	if (enviarDato.size() <= TOPE_ENVIAR_STRING)
+	{
+		write(this->fd_pipeP, enviarDato.c_str(), enviarDato.size()*sizeof(char));
+	}else resultado = EXCEDE_TOPE;
+	
+	return resultado;
+}
+
+
 char ComuDatos::leer(unsigned int cantidad, char* s)
 {
 	char resultado = SIN_ERROR;
@@ -309,6 +323,22 @@ char ComuDatos::leer(char* c)
 	
 	return SIN_ERROR;
 }
+
+
+char ComuDatos::leer(unsigned int cantidad, string &cadena)
+{
+	char resultado = SIN_ERROR;
+
+	if (cantidad <= TOPE_ENVIAR_STRING){		
+		char leo[TOPE_ENVIAR_STRING + 1];
+		read(this->fd_pipeH, leo, cantidad);
+		leo[cantidad] = 0;
+		cadena = leo;
+	}else resultado = EXCEDE_TOPE;
+	
+	return resultado;
+}
+
 
 void ComuDatos::liberarRecursos()
 {

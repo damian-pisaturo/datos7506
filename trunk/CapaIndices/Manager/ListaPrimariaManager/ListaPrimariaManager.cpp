@@ -92,13 +92,17 @@ bool ListaPrimariaManager::eliminarClave(char* &lista, Clave* clave, const Lista
 }
 
 
-ListaStrings* ListaPrimariaManager::convertirAListaStrings(char* lista, const ListaTipos* listaTipos) const {
+ListaStrings* ListaPrimariaManager::convertirAListaStrings(char* lista, const ListaTipos* listaTipos,
+							const DefinitionsManager::ListaNombresClaves* listaNombresClaves) const {
 	
 	unsigned short offset = Tamanios::TAMANIO_LONGITUD + Tamanios::TAMANIO_ESPACIO_LIBRE;
 	ListaStrings* listaStrings = new ListaStrings();
 	stringstream conversor;
+	DefinitionsManager::ListaNombresClaves::const_iterator iterNombres = listaNombresClaves->begin();
 	
-	for (ListaTipos::const_iterator iterTipos = listaTipos->begin(); iterTipos != listaTipos->end(); ++iterTipos){
+	for (ListaTipos::const_iterator iterTipos = listaTipos->begin(); iterTipos != listaTipos->end(); ++iterTipos, ++iterNombres){
+		
+		conversor << *iterNombres << "=";
 		
 		switch(*iterTipos){
 			case TipoDatos::TIPO_BOOL:
@@ -162,9 +166,10 @@ ListaStrings* ListaPrimariaManager::convertirAListaStrings(char* lista, const Li
 				
 			}break;
 			
+			conversor << CodigosPipe::COD_FIN_CLAVE;
 			listaStrings->push_back(conversor.str());
-			conversor.clear();
 		}
+		conversor.clear();
 	}
 	
 	return listaStrings;

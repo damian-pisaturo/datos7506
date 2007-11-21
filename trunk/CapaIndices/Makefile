@@ -34,6 +34,7 @@ fuentes += ../Common/Bloque/Bloque.cpp
 fuentes += ../Common/Clave/Clave.cpp
 fuentes += ../Common/ClaveFactory/ClaveFactory.cpp
 fuentes += ../Common/DefManager/DefinitionsManager.cpp
+fuentes += ../Common/Registro/Registro.cpp
 fuentes += ../ComuDatos/ComuDatos.cpp
 fuentes += CapaIndices.cpp
 
