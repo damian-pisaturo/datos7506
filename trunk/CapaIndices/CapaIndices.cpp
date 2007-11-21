@@ -167,6 +167,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 				pipe.leer(tamRegistro, registroDatos);
 	
 				resultado = indice->insertar(clave,registroDatos,tamRegistro);
+			cout << "safsafsafdsffafassadsadasdd" << endl;
 				pipe.escribir(resultado);
 				
 				if (resultado == ResultadosIndices::OK) {
@@ -213,6 +214,8 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 				
 			}
 			break;
+			
+			cout << "FIN ALTA" << endl;
 		}
 		case OperacionesCapas::INDICES_ELIMINAR:
 		{
