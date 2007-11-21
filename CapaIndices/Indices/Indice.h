@@ -28,6 +28,8 @@ class Indice
 		
 		unsigned short tamBloqueDato;
 		
+		unsigned short tamBloqueLista;
+		
 	public:
 		Indice() {}
 		
@@ -38,7 +40,7 @@ class Indice
 		 * Si pudo insertar devuelve ResultadosIndices::OK, en caso contrario
 		 * devuelve ResultadosIndices::CLAVE_DUPLICADA.
 		 **/
-		virtual int insertar(Clave *clave, char* &registro) = 0;
+		virtual int insertar(Clave *clave, char* &registro, unsigned short tamanioRegistroNuevo) = 0;
 		
 		/*
 		 * Este metodo elimina un elemento del indice.
@@ -56,6 +58,11 @@ class Indice
 		 * Si pudo consultar devuelve ResultadosIndices::OK, en caso contrario
 		 * devuelve ResultadosIndices::ERROR_CONSULTA.
 		 **/
+		virtual int buscar(Clave *clave, char* &registro, unsigned short &tamanioRegistro) const = 0;
+		
+		/*
+		 * Busca una clave secundaria y devuelve el bloque de la lista de claves primarias
+		 */
 		virtual int buscar(Clave *clave, char* &registro) const = 0;
 		
 		/*
@@ -71,8 +78,8 @@ class Indice
 		 * En caso contrario devuelve ResultadosIndices::OK si pudo reemplazar el registro o
 		 * ResultadosIndices::ERROR_MODIFICACION si no pudo reemplazarlo.
 		 **/
-		virtual int modificar(Clave *claveVieja, Clave *claveNueva,
-				                       char* &registroNuevo) = 0;
+		virtual int modificar(Clave *claveVieja, Clave *claveNueva, char* &registroNuevo, 
+							  unsigned short tamanioRegistroNuevo) = 0;
 		
 		/*
 		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
@@ -87,6 +94,8 @@ class Indice
 		unsigned char getTipo() const { return this->tipoIndice; }
 		
 		unsigned short getTamanioBloqueDato() const { return this->tamBloqueDato; }
+		
+		unsigned short getTamanioBloqueLista() const { return this->tamBloqueLista; }
 		
 };
 

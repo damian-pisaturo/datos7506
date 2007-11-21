@@ -38,7 +38,7 @@
 			this->datos   = NULL;
 			this->tamanio = 0;
 			this->numero  = 0;
-			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION;
 		}
 
 
@@ -52,9 +52,9 @@
 			this->tamanio      = tamanioBloque;
 			this->datos        = new char[tamanioBloque];
 			
-			memset(datos, 0, this->getTamanioBloque());
+			memset(this->datos, 0, this->getTamanioBloque());
 			
-			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION;
 			
 			// Inicializa el offset a espacio libre dentro del bloque.
 			unsigned short espLibre = this->offsetADatos;
@@ -760,7 +760,28 @@
 		
 			return longReg;
 		}
-
+		
+		unsigned short Bloque::getTamanioRegistrosConPrefijo(const ListaNodos* listaParam, char *registro)
+		{
+			ListaNodos::const_iterator it = listaParam->begin();
+			nodoLista regAtribute = *it;
+		
+			// Se obtiene el tipo de atributo del registro.
+			int tipo = regAtribute.tipo;
+			unsigned short longReg = 0;
+		
+			if (tipo == TipoDatos::TIPO_VARIABLE){
+				// Se obtiene la longitud del registro variable.
+				memcpy(&longReg, registro, Tamanios::TAMANIO_LONGITUD);
+				longReg += Tamanios::TAMANIO_LONGITUD;
+			}
+			else
+				// Se obtiene la longitud del registro fijo.
+				longReg = ((unsigned short)atoi(regAtribute.pk.c_str()));
+		
+			return longReg;
+		}
+		
 		unsigned int Bloque::getTamanioBloque() 
 		{
 			return this->tamanio;

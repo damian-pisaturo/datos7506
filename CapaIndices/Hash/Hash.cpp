@@ -248,6 +248,34 @@
 				delete bucket;
 			return false;
 		}
+		
+		/*
+		 * Busca el bucket donde se encuantra almacenado el registro de clave "clave", y devuelve
+		 * una copia de sus datos dentro de datosBucket tal como se almacenan en disco.
+		 **/
+		bool Hash::recuperarBucket(Clave &clave, char* &datosBucket, unsigned short &tamanioBucket)
+		{
+			// Se aplica la función de hash para ver que bucket se debe devolver.
+			int posicion           = aplicarHash(clave) % this->tabla->getTamanio();
+			unsigned int nroBucket = this->tabla->getNroBucket(posicion);
+				
+			// Se levanta dicho bucket.
+			Bucket * bucket = new Bucket(this->archivo, nroBucket);	
+			
+			unsigned short offsetToReg = 0;
+			tamanioBucket = bucket->getTamanioBloque();
+			
+			// Chequea que el registro esté dentro del bucket.
+			if (bucket->buscarRegistro(this->listaParam, clave, &offsetToReg)){
+				// Hago una copia del contenido del bucket para devolver.
+				memcpy(datosBucket,bucket->getDatos(), tamanioBucket);
+				
+				return true;
+			}
+			delete bucket;
+			
+			return false;
+		}
 
 	///////////////////////////////////////////////////////////////////////
 	// Metodos privados

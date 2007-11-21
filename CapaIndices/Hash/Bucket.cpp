@@ -31,9 +31,6 @@ Bucket::Bucket(IndiceHashManager* indiceHash, unsigned int nroBucket)
 	indiceHash->leerBloque(nroBucket, this);
 	
 	this->setTamanioBloque(indiceHash->getTamanioBloque());
-
-	this->setOffsetADatos(Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + 
-				   Tamanios::TAMANIO_DISPERSION);
 }
 
 /*

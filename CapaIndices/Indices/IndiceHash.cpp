@@ -5,11 +5,12 @@
 		this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
 		this->tipoIndice    = TipoIndices::GRIEGO;
 		this->tamBloqueDato = tamBucket;
+		this->tamBloqueLista = 0;
 		
 		this->hash = new Hash((IndiceHashManager*)indiceManager, listaParam, tamBucket);		
 	}
 	
-	IndiceHash::~IndiceHash() 
+	IndiceHash::~IndiceHash()
 	{
 		if (this->hash) 
 			delete this->hash;
@@ -18,7 +19,7 @@
 	/*
 	 * Este metodo inserta un registro en el indice.
 	 **/
-	int IndiceHash::insertar(Clave *clave, char* &registro) 
+	int IndiceHash::insertar(Clave *clave, char* &registro, unsigned short tamanioRegistro) 
 	{
 		return this->hash->insertarRegistro(registro, *clave);
 	}
@@ -34,12 +35,15 @@
 	/*
 	 * Este metodo busca un registro dentro del indice.
 	 * Devuelve el bloque que contiene el registro de clave "clave"
-	 * dentro de "registro".
+	 * dentro de "bloque".
 	 **/
-	int IndiceHash::buscar(Clave *clave, char* &registro) const
+	int IndiceHash::buscar(Clave *clave, char* &bloque, unsigned short &tamanioBloque) const
 	{
-		if (this->hash->recuperarRegistro(*clave,registro))
+		char* registro = NULL;
+		
+		if (this->hash->recuperarBucket(*clave,registro,tamanioBloque)){
 			return ResultadosIndices::OK;
+		}
 		else return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	}
 	
@@ -55,15 +59,15 @@
 	/*
 	 * Elimina al registro de clave "claveVieja" e inserta al registro "registroNuevo".
 	 **/
-	int IndiceHash::modificar(Clave *claveVieja, Clave *claveNueva, char* &registroNuevo) 
+	int IndiceHash::modificar(Clave *claveVieja, Clave *claveNueva, char* &bloque, unsigned short tamanioRegistroNuevo) 
 	{
-		return this->hash->modificarRegistro(*claveVieja, *claveNueva, registroNuevo);
+		return this->hash->modificarRegistro(*claveVieja, *claveNueva, bloque);
 	}
 
 
 	//El Hash no necesita esta funcionalidad por lo que retorna 0 para indicar que es un índice de este tipo
 	int IndiceHash::buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque) 
 	{	
-		return ResultadosIndices::REQUIERE_REGISTRO;
+		return 0;
 	}
 

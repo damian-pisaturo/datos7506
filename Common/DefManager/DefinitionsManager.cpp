@@ -144,7 +144,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	ListaTipos* listaTipos = NULL;
 	NodoListaIndices nodoListaIndices;
 	ListaTiposIndices* listaTiposIndices = NULL;
-	
+
 	//CARGO LAS DEFINICIONES DE LOS INDICES DEL TIPO "PERSONA"
 	
 	//INDICE GRIEGO (HASH)
@@ -156,6 +156,9 @@ void DefinitionsManager::cargarTiposIndices() {
 	
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("DNI");
+	
+	//Se carga la lista de los nombres de los campos de la clave primaria
+	this->mapaNombresClavesPrimarias["PERSONA"] = listaNombresClaves;
 	
 	listaTipos = new ListaTipos();
 	int tipo = TipoDatos::TIPO_ENTERO;
@@ -232,6 +235,8 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaNombresClaves = new ListaNombresClaves();
 	listaNombresClaves->push_back("TITULO");
 	listaNombresClaves->push_back("DIRECTOR");
+	
+	this->mapaNombresClavesPrimarias["PELICULA"] = listaNombresClaves;
 	
 	listaTipos = new ListaTipos();
 	tipo = TipoDatos::TIPO_STRING;

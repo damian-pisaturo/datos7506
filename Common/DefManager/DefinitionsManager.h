@@ -50,6 +50,8 @@ class DefinitionsManager {
 		
 		typedef std::map<std::string, ListaNombresAtributos*> MapaNombresAtributos;
 		
+		typedef std::map<std::string, ListaNombresClaves*> MapaNombresClavesPrimarias;
+		
 		typedef std::map<std::string, ListaTiposIndices*> MapaTiposIndices;
 		
 		//Destructor
@@ -92,6 +94,14 @@ class DefinitionsManager {
 			return this->mapaTiposAtributos[nombreTipo]->begin()->tipo;
 		}
 		
+		ListaNombresClaves* getListaNombresClavesPrimarias(const string &nombreTipo) {
+			return this->mapaNombresClavesPrimarias[nombreTipo];
+		}
+		
+		ListaNombresAtributos* getListaNombresAtributos(const string &nombreTipo) {
+			return this->mapaNombresAtributos[nombreTipo];
+		}
+		
 	private:
 		DefinitionsManager();
 
@@ -103,6 +113,8 @@ class DefinitionsManager {
 		MapaTiposIndices mapaTiposIndices;
 		
 		MapaNombresAtributos mapaNombresAtributos;
+		
+		MapaNombresClavesPrimarias mapaNombresClavesPrimarias;
 				
 		//Metodos
 		void cargarDefiniciones();

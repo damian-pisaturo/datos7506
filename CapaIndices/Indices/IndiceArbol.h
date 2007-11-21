@@ -7,6 +7,8 @@
 #include "../Manager/BloqueManager/BloqueDatosManager/BloqueDatosManager.h"
 #include "../Manager/BloqueManager/BloqueListaManager/BloqueListaManager.h"
 #include "../Common/IndiceManagerFactory.h"
+#include "../../Common/Bloque/Bloque.h"
+#include "../Common/TipoIndices.h"
 #include "Indice.h"
 
 class IndiceArbol: public Indice {
@@ -14,13 +16,13 @@ class IndiceArbol: public Indice {
 	private:
 		
 		BTree* bTree;
-		
 		BloqueManager* bloqueManager;
-	
+		ListaNodos* listaNodos;
+		
 	public:
 		
 		IndiceArbol(unsigned char tipoIndice, unsigned short tamBloqueLista,
-					int tipoDato, ListaTipos* listaTipos, unsigned char tipoEstructura,
+					int tipoDato, ListaNodos* listaTipos, unsigned char tipoEstructura,
 					unsigned short tamNodo, unsigned short tamBloqueDato,
 					const string& nombreArchivo, unsigned char tipoOrg);
 		
@@ -29,7 +31,7 @@ class IndiceArbol: public Indice {
 		/*
 		 * Este metodo inserta un elemento en un indice y guarda el bloque de datos.
 		 **/
-		virtual int insertar(Clave *clave, char* &registro);
+		virtual int insertar(Clave *clave, char* &registro, unsigned short tamanioRegistro);
 		
 		/*
 		 * Este metodo elimina un elemento del indice.
@@ -42,6 +44,9 @@ class IndiceArbol: public Indice {
 		 * y devuelve el bloque que contiene el registro de clave "clave"
 		 * dentro de "registro".
 		 **/
+		virtual int buscar(Clave *clave, char* &registro, unsigned short &tamanioRegistro) const;
+		
+		
 		virtual int buscar(Clave *clave, char* &registro) const;
 		
 		/*
@@ -55,15 +60,18 @@ class IndiceArbol: public Indice {
 		 * por claveNueva y reemplaza el viejo registro correspondiente
 		 * a "claveVieja" por "registroNuevo".
 		 **/
-		virtual int modificar(Clave *claveVieja, Clave *claveNueva,
-				                       char* &registroNuevo);
+		virtual int modificar(Clave *claveVieja, Clave *claveNueva, char* &registroNuevo,
+							  unsigned short tamanioRegistroNuevo);
 		
 		/*
 		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
 		 * para insertar un nuevo registro de tamaño 'tamRegistro'
 		 */
 		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos,
-										 unsigned int &nroBloque);
+										unsigned int &nroBloque);
+		
+	private:
+		ListaTipos* getListaTipos(ListaNodos *listaNodos) const;
 						                       
 		
 };

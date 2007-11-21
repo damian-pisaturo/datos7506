@@ -117,9 +117,15 @@ class Bloque
 		
 		/*
 		 * Devuelve la longitud del registro, ya sea de longitud fija o varaible.
+		 * No incluye los bytes que se utilizan para guardar la longitud de los registros variables.
 		 **/
 		unsigned short getTamanioRegistros(const ListaNodos *listaParam,char *registro);
-		
+
+		/*
+		 * Devuelve la longitud del registro, ya sea de longitud fija o varaible.
+		 * En este último caso incluye los bytes utilizados para guardar la longitud del mismo.
+		 **/
+		unsigned short getTamanioRegistrosConPrefijo(const ListaNodos* listaParam, char *registro);
 		/*
 		 * Devuelve la clave primaria de "registro".
 		 **/

@@ -13,10 +13,8 @@ class ResultadosIndices {
 		static const char CLAVE_DUPLICADA			= -106;
 		static const char SOBREFLUJO       			= -107;
 		static const char REGISTRO_NO_ENCONTRADO	= -108;
-		static const char REQUIERE_REGISTRO			= -109;
-		static const char REQUIERE_BLOQUE			= -110;
 		static const char ERROR_CONSULTA			= -111;
-		static const char SIN_ESPACIO_LIBRE			= -112;
+		static const char BLOQUES_OCUPADOS			= -112;
 };
 
 #endif /*RESINDICES_H_*/

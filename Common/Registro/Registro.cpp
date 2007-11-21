@@ -74,10 +74,10 @@
 					
 					case TipoDatos::TIPO_STRING:
 					{
-						unsigned char sizeCadena = *(unsigned char*)(lista + offset);
+						unsigned char sizeCadena = *(unsigned char*)(data + offset);
 						offset += sizeof(unsigned char);
 						
-						string cadena(lista + offset, sizeCadena);		
+						string cadena(data + offset, sizeCadena);		
 						conversor << cadena;
 						
 						offset += sizeCadena;
@@ -97,11 +97,7 @@
 	
 		Registro::~Registro()
 		{
-			if (this->listaNombresAtributos)
-				delete this->listaNombresAtributos;
-			
-			if (this->listaTipos)
-				delete this->listaTipos;
+			//No se libera la memoria de las listas xq son propias del DefinitionsManager
 		}
 
 	///////////////////////////////////////////////////////////////////////
@@ -144,7 +140,7 @@
 		}
 		
 		
-		Clave* Registro::getClave(DefinitionsManager::ListaNombresClaves* listaNombresClaves)
+		Clave* Registro::getClave(const DefinitionsManager::ListaNombresClaves &listaNombresClaves)
 		{
 			Clave* claveAux = NULL;
 			DefinitionsManager::ListaValoresClaves listaValoresClaves;
@@ -159,7 +155,7 @@
 			// atributos del registro, sus valores y sus tipos. Si se encuentra una coincidencia entre
 			// el nombre pasado y el nombre del atributo, se copia el valor de dicho atributo y su tipo
 			// a dos listas definidas para tal fin.
-			for (iterNomClaves = listaNombresClaves->begin(); iterNomClaves != listaNombresClaves->end();
+			for (iterNomClaves = listaNombresClaves.begin(); iterNomClaves != listaNombresClaves.end();
 				++iterNomClaves){
 				
 				for (iterNomAtributos = this->listaNombresAtributos->begin(), iterTipos = this->listaTipos->begin(), iterValAtributos = this->listaAtributos->begin();

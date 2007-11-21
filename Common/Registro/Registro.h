@@ -42,7 +42,7 @@ class Registro
 		int getTipoAtributo(unsigned char posicion);
 		string getNombreAtributo(unsigned char posicion);
 		
-		Clave* getClave(DefinitionsManager::ListaNombresClaves* listaNombreClaves);
+		Clave* getClave(const DefinitionsManager::ListaNombresClaves &listaNombreClaves);
 		
 	///////////////////////////////////////////////////////////////////////
     // Getter
