@@ -55,18 +55,22 @@ class BStarTree : public BTree{
 		//Pasa una clave de un hermano derecho a otro nodo
 		//Se usa en la eliminación de una clave
 		void pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
-							   		  NodoBStar* nodoHnoDer, Clave* clavePadre);
+							   		  NodoBStar* nodoHnoDer, Clave* &clavePadre);
+
+		void pasarMaximoPosibleHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer, Clave* &clavePadre);
 		
 		//Pasa una clave de un hermano izquierdo a otro nodo
 		//Se usa en la eliminación de una clave
 		void pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
-				   					NodoBStar* nodoHnoIzq, Clave* clavePadre);
+				   					NodoBStar* nodoHnoIzq, Clave* &clavePadre);
+		
+		void pasarMaximoPosibleHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq, Clave* &clavePadre);
 		
 		void recibirClaveDesdeDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
-							  		  NodoBStar* nodoHnoDer, Clave* clavePadre);
+							  		  NodoBStar* nodoHnoDer, Clave* &clavePadre);
 		
 		void recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre,
-										NodoBStar* nodoHnoIzq, Clave* clavePadre);
+										NodoBStar* nodoHnoIzq, Clave* &clavePadre);
 		
 		//Busca el padre del nodo pasado por parámetro
 		NodoBStar* buscarPadre(NodoBStar* padre, NodoBStar* hijo, Clave* claveNodoHijo) const;
@@ -87,6 +91,8 @@ class BStarTree : public BTree{
 		
 		//Parte dos nodos completos en tres y devuelve las dos claves promocionadas.
 		VectorClaves* mergeSplitOverflow(NodoBStar* nodoTarget, NodoBStar* nodoHnoDer, Clave* clavePadre);
+		
+		bool puedeMerge(NodoBStar* nodoHijoIzq, NodoBStar* nodoHijoDer, NodoBStar* nodoPadre);
 		
 		//Este método concatena un nodo con underflow con un nodo hermano y con una clave del nodo
 		//padre. Esto sucede cuando el árbol sólo tiene dos niveles y el nodo raíz sólo tiene una clave.

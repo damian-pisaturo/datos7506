@@ -440,11 +440,11 @@ bool Nodo::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* cla
 		tamanioClaveHaciaElPadre += Tamanios::TAMANIO_REFERENCIA;
 	}
 
-	if ( ( tamanioClavePadreARecibir >= bytesRequeridos ) &&
+/*	if ( ( tamanioClavePadreARecibir >= bytesRequeridos ) &&
 		 (nodoPadre->puedeRecibir(tamanioClaveHaciaElPadre, tamanioClavePadre)) &&
 		 (bytesACeder(this->obtenerPrimeraClave()->getTamanioEnDisco(bstar), clavesPropuestas) > 0) )
 		return true;
-	
+	*/
 	bytesRequeridos -= tamanioClavePadreARecibir;
 	bytesPropuestosPorMi = this->bytesACeder(bytesRequeridos, clavesPropuestas);
 	
@@ -479,11 +479,11 @@ bool Nodo::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* cla
 		tamanioClaveHaciaElPadre += Tamanios::TAMANIO_REFERENCIA;
 	}
 	
-	if ( ( tamanioClavePadreARecibir >= bytesRequeridos ) &&
+/*	if ( ( tamanioClavePadreARecibir >= bytesRequeridos ) &&
 		 (nodoPadre->puedeRecibir(tamanioClaveHaciaElPadre, tamanioClavePadre)) &&
 		 (bytesACeder(this->obtenerPrimeraClave()->getTamanioEnDisco(bstar), clavesPropuestas, false) > 0) )
 		return true;
-		
+	*/	
 	bytesRequeridos -= tamanioClavePadreARecibir;
 	bytesPropuestosPorMi = this->bytesACeder(bytesRequeridos, clavesPropuestas, false);
 	
