@@ -57,10 +57,6 @@ class ParserOperaciones
 		string nombreTipo; // Nombre del tipo de 
 		unsigned char tipoOperacion; // Tipo de operaciones actual (Alta, Baja o Modificacion)
 		
-		/* Genera la clave para pasarsela a la capa de indices
-		 */
-	//	string generarPrototipoClave(DefinitionsManager::ListaClaves &listaClaves);
-	
 	public:
 	//////////////////////////////////////////////////////////////////////
 	// Contructor/Destructor
