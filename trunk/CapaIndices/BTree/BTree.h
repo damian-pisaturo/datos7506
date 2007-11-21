@@ -34,6 +34,8 @@ class BTree {
 		//la reemplaza por claveNueva y devuelve true.
 		virtual int modificar(Clave* claveVieja, Clave* claveNueva) = 0;
 		
+		virtual bool vacio() const = 0;
+		
 };
 
 #endif /*BTREE_H_*/

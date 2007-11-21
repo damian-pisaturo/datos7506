@@ -30,15 +30,7 @@
 	///////////////////////////////////////////////////////////////////////
 		ArchivoEL::ArchivoEL(string nombre, unsigned short tamBloque) :
 			ArchivoBase(nombre, tamBloque)
-		{
-			//Si el archivo esta vacio, agregar los dos primeros
-			//registros booleanos.
-			if (this->size() == Tamanios::TAMANIO_IDENTIFICADOR){	
-				bool valor = true;
-				this->agregarRegistro(&valor);
-				this->agregarRegistro(&valor);					
-			}			
-		}
+		{ }
 		
 		ArchivoEL::~ArchivoEL()
 		{ }
@@ -78,7 +70,15 @@
 	///////////////////////////////////////////////////////////////////////
 		ArchivoELFijo::ArchivoELFijo(string nombre) :
 			ArchivoEL(nombre, sizeof(bool))
-		{ }
+		{
+			//Si el archivo esta vacio, agregar los dos primeros
+			//registros booleanos.
+			if (this->size() == Tamanios::TAMANIO_IDENTIFICADOR){	
+				bool valor = true;
+				this->agregarRegistro(&valor);
+				this->agregarRegistro(&valor);					
+			}
+	}
 		
 		ArchivoELFijo::~ArchivoELFijo() { }
 	
@@ -150,7 +150,12 @@
 	///////////////////////////////////////////////////////////////////////
 		ArchivoELVariable::ArchivoELVariable(string nombre) :
 			ArchivoEL(nombre, sizeof(unsigned short))
-		{ }
+		{ 
+			if (this->size() == Tamanios::TAMANIO_IDENTIFICADOR){	
+				short valor = Tamanios::TAMANIO_BLOQUE_DATO;
+				this->agregarRegistro(&valor);					
+			}
+		}
 		
 		ArchivoELVariable::~ArchivoELVariable() { }
 	
@@ -161,14 +166,16 @@
 		{
 			unsigned short espacioLibre = 0;
 			short numBloque = -1;
-					
-			while((espacioLibre <= espacioRequerido) && 
+			
+			this->posicionarse(0);
+			
+			while((espacioLibre < espacioRequerido) && 
 					(!this->fin())){
 				++numBloque;
 				this->leer(&espacioLibre);
 			}
 			
-			if (this->fin())
+			if (espacioLibre < espacioRequerido)
 				numBloque = ResultadosFisica::BLOQUES_OCUPADOS;
 			
 			return numBloque;		
@@ -176,5 +183,5 @@
 		
 		short ArchivoELVariable::buscarEspacioLibre()
 		{
-			return this->buscarEspacioLibre(this->getTamanioBloque());
+			return this->buscarEspacioLibre(Tamanios::TAMANIO_BLOQUE_DATO);
 		}

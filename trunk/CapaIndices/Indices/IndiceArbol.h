@@ -72,6 +72,7 @@ class IndiceArbol: public Indice {
 		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos,
 										unsigned int &nroBloque);
 		
+		
 	private:
 		ListaTipos* getListaTipos(ListaNodos *listaNodos) const;
 						                       

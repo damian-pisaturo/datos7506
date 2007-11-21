@@ -91,7 +91,7 @@ class IndiceHash :public Indice
 		 */
 		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos,
 										 unsigned int &nroBloque);
-			
+		
 };
 
 #endif /*INDICEHASH_H_*/

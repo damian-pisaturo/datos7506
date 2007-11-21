@@ -226,9 +226,7 @@ int main(int argc, char* argv[])
 				}break;
 				
 				case OperacionesCapas::METADATA_ALTA:
-				{
-					cout << "Voy a dar un alta" << endl;
-					
+				{					
 					DefinitionsManager::ListaNombresClaves *listaNombres = defManager.getListaNombresClavesPrimarias(nombreTipo);
 					
 					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_INSERTAR, 0); 
