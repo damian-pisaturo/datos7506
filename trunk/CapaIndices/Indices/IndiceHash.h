@@ -55,6 +55,7 @@ class IndiceHash :public Indice
 		 **/
 		virtual int insertar(Clave *clave, char* &registro, unsigned short tamanioRegistro);
 		
+		virtual int insertar(Clave *clave, char* &registro);
 		/*
 		 * Este metodo elimina un elemento del indice.
 		 * Si es un índice primario también se elimina el registro de datos.

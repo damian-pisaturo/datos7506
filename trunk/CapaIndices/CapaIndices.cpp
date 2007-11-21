@@ -54,7 +54,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	
 	int resultado = ResultadosIndices::OK;
 	string buffer(""), auxStr("");
-	unsigned short tamanioBuffer = 0, bytesLeidos = 0;
+	unsigned short tamanioBuffer = 0;
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
 	DefinitionsManager::ListaNombresClaves listaNombresClaves;
 	DefinitionsManager::ListaValoresClaves listaValoresClaves;
@@ -64,7 +64,6 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	Clave *clave = NULL;
 	Indice* indice = NULL;
 	
-	char* bufferPipe = NULL;
 	char* registroDatos = NULL;
 	unsigned short tamRegistro = 0;
 	
@@ -72,21 +71,8 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	
 	//Leo el tamanio del buffer a recibir
 	pipe.leer(&tamanioBuffer);
-	
-	bufferPipe = new char[tamanioBuffer+1];
-	
-	//Leo los datos provenientes de la capa de metadata
-	if (tamanioBuffer <= CodigosPipe::BUFFER_SIZE)
-		pipe.leer(tamanioBuffer, bufferPipe);
-	else {
-		while (bytesLeidos < tamanioBuffer) {
-			pipe.leer(CodigosPipe::BUFFER_SIZE, bufferPipe + bytesLeidos);
-			bytesLeidos += CodigosPipe::BUFFER_SIZE;
-		}
-	}
-	
-	bufferPipe[tamanioBuffer] = 0;
-	buffer = bufferPipe; //Copio el buffer en un string para parsearlo con más facilidad
+	//Leo el buffer con los nombres y los valores de cada campo de la variable
+	pipe.leer(tamanioBuffer, buffer);
 	
 	//Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes (NOMBRE_CLAVE=VALOR_CLAVE)
 	while (posActual != string::npos) {
@@ -109,10 +95,8 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 		case OperacionesCapas::INDICES_CONSULTAR:
 		{
 			// Si la consulta se hace a un índice primario, se envía el registro
-			// pedido, sino se envía la lista de claves primarias en una lista de 
-			// strings.
-			// Luego la Capa de Metadata deberá hacer las consultas que desee a través
-			// de esas claves primarias.
+			// pedido, sino se envían todos los registros correspondiente a las
+			// claves primarias de la lista del indice secundario.
 			unsigned short cantRegistros = 1;
 			if (indice->getTipo() == TipoIndices::GRIEGO) {
 				
@@ -122,7 +106,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 				//Envío la cantidad de registros
 				pipe.escribir(cantRegistros);
 				
-				if (resultado == ResultadosIndices::OK){
+				if (resultado == ResultadosIndices::OK) {
 					pipe.escribir(tamRegistro);
 					pipe.escribir(registroDatos, tamRegistro);
 					delete[] registroDatos;
@@ -133,7 +117,30 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 				resultado = indice->buscar(clave, registroDatos);
 				pipe.escribir(resultado);
 				
-				ListaPrimariaManager listaPrimariaManager(indice->getTamanioBloqueLista());
+				if (resultado == ResultadosIndices::OK) {
+					ListaPrimariaManager listaPrimariaManager(indice->getTamanioBloqueLista());
+					
+					ListaClaves* listaClaves = listaPrimariaManager.getListaClaves(registroDatos, defManager.getListaTipos(nombreTipo));
+					
+					//Envío la cantidad de registros
+					unsigned short cantReg = listaClaves->size();
+					pipe.escribir(cantReg);
+					
+					//Consulto el registro de datos de cada clave primaria
+					for (ListaClaves::iterator it = listaClaves->begin(); it != listaClaves->end(); ++it) {
+						
+						resultado = indice->buscar(*it, registroDatos, tamRegistro);
+						pipe.escribir(resultado);
+						
+						if (resultado == ResultadosIndices::OK) {
+							pipe.escribir(tamRegistro);
+							pipe.escribir(registroDatos, tamRegistro);
+						} else break;
+					}
+					
+					delete[] registroDatos;
+					delete listaClaves;
+				}
 				
 				
 			}
@@ -148,7 +155,6 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			
 			resultado = indice->insertar(clave,registroDatos,tamRegistro);
 			pipe.escribir(resultado);
-					
 						
 			if (resultado == ResultadosIndices::OK) {
 				//Actualizo los indices secundarios
@@ -170,12 +176,22 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 					claveSecundaria = registro.getClave(iter->first);
 					indice = iter->second;
 					
-					indice->buscar(claveSecundaria, registroLista);
+					resultado = indice->buscar(claveSecundaria, registroLista);
 					
 					listaPrimariaManager.setTamanioLista(indice->getTamanioBloqueLista());
-					listaPrimariaManager.insertarClave(registroLista, clave, defManager.getListaTipos(nombreTipo));
 					
-					//indice->insertar();
+					if (resultado == ResultadosIndices::OK) {
+						//La clave secundaria ya estaba insertada. Sólo se actualiza la lista de claves primaria.
+						listaPrimariaManager.insertarClave(registroLista, clave, defManager.getListaTipos(nombreTipo));
+						//TODO Modificar la lista en disco.
+						
+					} else {
+						//La clave no se encontró en el índice secundario.
+						//Creo la lista de claves primarias, inserto la clave primaria,
+						//e inserto la clave secundaria y la lista en el indice secundario.
+						listaPrimariaManager.crearLista(registroLista, clave, defManager.getListaTipos(nombreTipo));
+						indice->insertar(claveSecundaria, registroLista);						
+					}
 					
 					delete claveSecundaria;
 					
@@ -234,7 +250,6 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	
 	destruirIndices(mapaIndices);
 	
-	if (bufferPipe) delete[] bufferPipe;
 	if (registroDatos) delete[] registroDatos;
 	
 	return 0;
@@ -254,7 +269,7 @@ int main(int argc, char* argv[]) {
 	procesarOperacion(codOp, nombreTipo, pipe);
 	*/
 	
-	// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
+// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
 /*	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BS, 48, 48, "locura", TipoDatos::TIPO_VARIABLE);
 	
 	char* null = NULL; */  

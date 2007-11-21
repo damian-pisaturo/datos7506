@@ -36,6 +36,8 @@ class ListaPrimariaManager {
 		
 		unsigned short getTamanioLista() const { return this->tamLista; }
 		
+		ListaClaves* getListaClaves(const char* lista, ListaTipos* listaTipos) const;
+		
 		void setTamanioLista(unsigned short tamLista) { this->tamLista = tamLista; }
 		
 	private:

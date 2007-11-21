@@ -87,7 +87,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
  * Este metodo inserta una clave en un indice secundario, y su correspondiente
  * lista de claves primarias.
  */
-/*int IndiceArbol::insertar(Clave *clave, char* &registro) {
+int IndiceArbol::insertar(Clave *clave, char* &registro) {
 	Clave* claveBuscada = bTree->buscar(clave);
 	
 	if (claveBuscada) {
@@ -95,7 +95,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 		return ResultadosIndices::CLAVE_DUPLICADA;
 	}
 	
-	resultado = this->bloqueManager->escribirBloqueDatos(registro);
+	int resultado = this->bloqueManager->escribirBloqueDatos(registro);
 	
 	if (resultado >= 0) {
 		clave->setReferencia(resultado);
@@ -104,7 +104,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 	}
 	
 	return resultado;
-}*/
+}
 
 
 /*
