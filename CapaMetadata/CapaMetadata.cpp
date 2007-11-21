@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 	
 	if (argc > 1){
 		
-		ComuDatos* pipe = instanciarPipe(); //Instancia del pipe de comunicacion		
+		ComuDatos* pipe = NULL;//Instancia del pipe de comunicacion		
 		
 		unsigned char operacion      = 0;    // Tipo de operacion a ejecutar
 		unsigned short tamRegistro   = 0;	// Tamano de un registro.
@@ -91,7 +91,8 @@ int main(int argc, char* argv[])
 		// Clase de impresion y muestra por salida estandar.
 		Vista vista;
 		
-		while (parserOperaciones.proximaOperacion()){			
+		while (parserOperaciones.proximaOperacion()){
+			pipe = instanciarPipe(); 
 			operacion   = parserOperaciones.getTipoOperacion();
 			listaClaves = parserOperaciones.getListaClaves();
 			nombreTipo  = parserOperaciones.getNombreTipo();			
@@ -281,7 +282,8 @@ int main(int argc, char* argv[])
 			error << resultado;
 			cout <<"error: " << error << endl;
 			
-			pipe->liberarRecursos();
+			delete pipe;
+			pipe = NULL;
 		}		
 		
 		if (registro)
