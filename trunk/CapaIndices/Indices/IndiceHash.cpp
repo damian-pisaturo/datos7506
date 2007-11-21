@@ -38,9 +38,7 @@
 	 **/
 	int IndiceHash::buscar(Clave *clave, char* &bloque, unsigned short &tamanioBloque) const
 	{
-		char* registro = NULL;
-		
-		if (this->hash->recuperarRegistro(*clave,registro))
+		if (this->hash->recuperarRegistro(*clave,bloque,tamanioBloque))
 			return ResultadosIndices::OK;
 		else return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	}
@@ -49,7 +47,8 @@
 	{
 		char* registro = NULL;
 
-		if (this->hash->recuperarRegistro(*clave, registro))
+		unsigned short tam = 0;
+		if (this->hash->recuperarRegistro(*clave, registro,tam))
 			return ResultadosIndices::CLAVE_ENCONTRADA;
 		else
 			return ResultadosIndices::CLAVE_NO_ENCONTRADA;

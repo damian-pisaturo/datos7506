@@ -381,15 +381,11 @@
 		{			
 			//Obtencion del primer numero de nodo a leer			
 			pipe.parametro(3, numBloque);
-			archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);
-			
-			
+			archivo = new ArchivoIndiceArbol(nombreArchivo, tamBloque);		
 			
 			if (archivo->esValido()){					
 				//Se informa a la capa superior que el archivo es valido.
 				pipe.escribir(resultado);
-				
-				
 				
 				buffer = new char[2*tamBloque*sizeof(char)];
 				
@@ -530,8 +526,7 @@
 		case OperacionesCapas::FISICA_ESCRIBIR_DATO:
 		{
 			int tipoOrg  = 0;
-			archivo = new ArchivoIndice(nombreArchivo, tamBloque);
-			buffer  = new char[tamBloque*sizeof(char)];			
+			buffer       = new char[tamBloque*sizeof(char)];			
 			
 			//Obtencion del tipo de organizacion del archivo.
 			pipe.parametro(3, tipoOrg);		

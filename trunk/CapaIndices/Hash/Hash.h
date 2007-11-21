@@ -76,7 +76,7 @@ class Hash
 		 * A partir de una clave recupera un registro.
 		 * Si lo encuentra devuelve true; de lo contrario, devuelve false. 
 		 **/
-		bool recuperarRegistro(Clave &clave, char* &registro); 		
+		bool recuperarRegistro(Clave &clave, char* &registro, unsigned short &tamanioBloque); 		
 		
 		/*
 		 * Busca el bucket donde se encuantra almacenado el registro de clave "clave", y devuelve
