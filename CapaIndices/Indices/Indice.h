@@ -43,6 +43,10 @@ class Indice
 		virtual int insertar(Clave *clave, char* &registro, unsigned short tamanioRegistroNuevo) = 0;
 		
 		/*
+		 * Inserta una clave secundaria y su correspondiente lista de claves primarias
+		 */
+		virtual int insertar(Clave *clave, char* &registro) = 0;
+		/*
 		 * Este metodo elimina un elemento del indice.
 		 * Si es un índice primario también se elimina el registro de datos.
 		 * Si pudo eliminar devuelve ResultadosIndices::OK, en caso contrario

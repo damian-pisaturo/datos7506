@@ -23,6 +23,11 @@
 	{
 		return this->hash->insertarRegistro(registro, *clave);
 	}
+	
+	int IndiceHash::insertar(Clave *clave, char* &registro)
+	{	
+		return 0;
+	}
 
 	/*
 	 * Este metodo elimina un registro del indice.

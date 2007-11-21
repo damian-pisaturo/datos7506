@@ -221,3 +221,26 @@ unsigned short ListaPrimariaManager::getCantClaves(const char* lista) const {
 	return *((unsigned short*)lista);
 	
 }
+
+
+ListaClaves* ListaPrimariaManager::getListaClaves(const char* lista, ListaTipos* listaTipos) const {
+	
+	ListaClaves* listaClaves = new ListaClaves();
+	unsigned short offset = Tamanios::TAMANIO_LONGITUD + Tamanios::TAMANIO_ESPACIO_LIBRE;
+	unsigned short espLibre = *((unsigned short*)(lista + Tamanios::TAMANIO_LONGITUD));
+	const char* punteroFinal = lista + this->tamLista - espLibre;
+	Clave* clave = NULL;
+	
+	while ((lista + offset) < punteroFinal) {
+		
+		clave = ClaveFactory::getInstance().getClave(lista + offset, *listaTipos);
+		
+		offset += clave->getTamanioValorConPrefijo();
+		
+		listaClaves->push_back(clave);
+		
+	}
+	
+	return listaClaves;
+}
+
