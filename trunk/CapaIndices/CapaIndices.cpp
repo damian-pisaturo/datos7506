@@ -148,6 +148,8 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 		}
 		case OperacionesCapas::INDICES_INSERTAR:
 		{
+			
+			
 			// Recibe el tamaño del registro a insertar.
 			pipe.leer(&tamRegistro);
 			//Recibe el registro de datos.
@@ -258,6 +260,8 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 
 
 int main(int argc, char* argv[]) {
+	
+	cout << "Se llamó a Capa Indices" << endl;
 	
 	ComuDatos pipe(argv);
 	unsigned char codOp;

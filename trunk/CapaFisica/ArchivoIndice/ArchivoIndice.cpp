@@ -60,8 +60,7 @@
 				//en el archivo de espacio libre.
 				archivoEL->agregarRegistro(&valor);
 
-			}else{ 
-				 cout << "Encontre un bloque libre en el " << bloqueLibre << endl;
+			}else{
 				this->posicionarse(bloqueLibre);
 				archivoEL->modificarRegistro(&valor, bloqueLibre);
 			}

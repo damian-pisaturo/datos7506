@@ -229,7 +229,6 @@ void Tabla::actualizarReferencias(unsigned short tamDispActualizado,unsigned int
 	// haciendo que se apunte a nuevoNroBucket.
 	
 	int i = 0;
-	cout << "tamDsp: " << tamDispActualizado << endl;
 	
 	if (tamDispActualizado != 0)
 	{
