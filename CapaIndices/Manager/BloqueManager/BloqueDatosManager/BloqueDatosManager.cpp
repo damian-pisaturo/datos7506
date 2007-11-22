@@ -205,7 +205,7 @@
 			return resultado;
 		}
 
-		int BloqueDatosManager::buscarEspacioLibre(void* &bloque, unsigned int espLibre)
+		int BloqueDatosManager::buscarEspacioLibre(void* bloque, unsigned int espLibre)
 		{
 			char resultado = 0;
 			int numBloque  = 0;			

@@ -110,9 +110,9 @@
 				
 				bool finEL = archivoEL->fin();
 				
-				if ( (resultado == ResultadosFisica::OK) && (!fin) )
+				if ( (resultado == ResultadosFisica::OK) && (!finEL) )
 					resultado = this->leer(bloque);
-				else if (fin) resultado = ResultadosFisica::ARCHIVO_VACIO;
+				else if (finEL) resultado = ResultadosFisica::ARCHIVO_VACIO;
 			}
 			
 			if (resultado != ResultadosFisica::OK)

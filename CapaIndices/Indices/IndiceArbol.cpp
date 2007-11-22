@@ -71,7 +71,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 			bloque->altaRegistro(this->listaNodos,registro);
 			
 			// Sobreescribe el archivo de datos en la posicion 'nroBloque'
-			resultado = this->bloqueManager->escribirBloqueDatos(bloque->getDatos(), nroBloque);	
+			resultado = this->bloqueManager->escribirBloqueDatos(nroBloque, bloque->getDatos());	
 		}else{
 			bloque = new Bloque(0, this->tamBloqueDato);		
 
