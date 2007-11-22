@@ -64,7 +64,7 @@
 
 
 	//El Hash no necesita esta funcionalidad por lo que retorna 0 para indicar que es un índice de este tipo
-	int IndiceHash::buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque) 
+	int IndiceHash::buscarBloqueDestino(unsigned short tamRegistro, char* bloqueDatos) 
 	{	
 		return 0;
 	}

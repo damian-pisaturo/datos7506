@@ -92,8 +92,7 @@ class Indice
 		 * Si encontró un bloque con espacio libre (el ìndices es un árbol) devuelve 
 		 * ResultadosIndices::REQUIERE_BLOQUE, en caso contrario devuelve ResultadosIndices::SIN_ESPACIO_LIBRE.
 		 */
-		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos,
-										 unsigned int &nroBloque) = 0;
+		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* bloqueDatos) = 0;
 		
 		unsigned char getTipo() const { return this->tipoIndice; }
 		

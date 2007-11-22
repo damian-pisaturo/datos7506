@@ -149,7 +149,7 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		ArchivoELVariable::ArchivoELVariable(string nombre, unsigned short tamBloqueDatos) :
+		ArchivoELVariable::ArchivoELVariable(string nombre) :
 			ArchivoEL(nombre, sizeof(unsigned short))
 		{ }
 		

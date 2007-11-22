@@ -89,8 +89,7 @@ class IndiceHash :public Indice
 		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
 		 * para insertar un nuevo registro de tamaño 'tamRegistro'
 		 */
-		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos,
-										 unsigned int &nroBloque);
+		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* bloqueDatos);
 		
 };
 
