@@ -53,8 +53,8 @@ ComuDatos* instanciarPipe()
 
 int main(int argc, char* argv[]) 
 {
-	Error error;
-	int resultado = ResultadosIndices::OK;
+	Resultado resultado;
+	int pipeResult = ResultadosIndices::OK;
 	
 	if (argc > 1){
 		
@@ -107,18 +107,18 @@ int main(int argc, char* argv[])
 					pipe->agregarParametro(nombreTipo, 1);
 					
 					// Se lanza el proceso de la Capa Indices.
-					resultado = pipe->lanzar();
+					pipeResult = pipe->lanzar();
 					
-					if (resultado == ComuDatos::OK){						
+					if (pipeResult == ComuDatos::OK){						
 						// Envio de los valores de las claves a consultar por el pipe
 						serializarListaClaves(valoresClaves, listaClaves);
 						pipe->escribir((unsigned short)valoresClaves.length());
 						pipe->escribir(valoresClaves);
 						
 						// Obtencion del resultado de la operacion
-						pipe->leer(&resultado);
+						pipe->leer(&pipeResult);
 						
-						if (resultado == ResultadosIndices::OK){
+						if (pipeResult == ResultadosIndices::OK){
 							
 							// Se obtiene la cantidad de registros que responden 
 							// a la consulta realizada.
@@ -152,9 +152,9 @@ int main(int argc, char* argv[])
 					pipe->agregarParametro(nombreTipo, 1);
 					
 					// Se lanza el proceso de la Capa Indices.
-					resultado = pipe->lanzar();
+					pipeResult = pipe->lanzar();
 					
-					if (resultado == ComuDatos::OK){
+					if (pipeResult == ComuDatos::OK){
 						// Envio de los valores de las claves de los registros
 						// a eliminar por el pipe.
 						serializarListaClaves(valoresClaves, listaClaves);
@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
 						pipe->escribir(valoresClaves);
 						
 						// Se obtiene el resultado de la operacion
-						pipe->leer(&resultado);
+						pipe->leer(&pipeResult);
 					
 					}
 				}break;
@@ -175,9 +175,9 @@ int main(int argc, char* argv[])
 					pipe->agregarParametro(nombreTipo, 1);
 					
 					// Se lanza el proceso de la Capa Indices.
-					resultado = pipe->lanzar();
+					pipeResult = pipe->lanzar();
 					
-					if (resultado == ComuDatos::OK){
+					if (pipeResult == ComuDatos::OK){
 						// Envio de los valores de las claves de los registros
 						// a modificar por el pipe.
 						serializarListaClaves(valoresClaves, listaClaves);
@@ -185,15 +185,15 @@ int main(int argc, char* argv[])
 						pipe->escribir(valoresClaves);
 						
 						// Obtencion del resultado de la operacion
-						pipe->leer(&resultado);
+						pipe->leer(&pipeResult);
 						
-						if (resultado == ResultadosIndices::OK){
+						if (pipeResult == ResultadosIndices::OK){
 							
 							// Se obtiene la cantidad de registros a
 							// ser modificados.
 							pipe->leer(&cantRegistros);
 							
-							for (unsigned short i = 0; (i < cantRegistros) && (resultado == ResultadosIndices::OK);
+							for (unsigned short i = 0; (i < cantRegistros) && (pipeResult == ResultadosIndices::OK);
 								i++){
 								// Se obtiene el tamano del registro original a 
 								// a modificar.
@@ -215,7 +215,7 @@ int main(int argc, char* argv[])
 								pipe->escribir(dataManager.getRegistro(), tamRegistro*sizeof(char));
 								
 								// Se obtiene el resultado de la modificacion.
-								pipe->leer(&resultado);
+								pipe->leer(&pipeResult);
 								
 								delete[] registro;
 								delete listaValAtributos;
@@ -234,9 +234,9 @@ int main(int argc, char* argv[])
 					pipe->agregarParametro(nombreTipo, 1);
 					
 					// Se lanza el proceso de la Capa Indices.
-					resultado = pipe->lanzar();					
+					pipeResult = pipe->lanzar();					
 
-					if (resultado == ComuDatos::OK){
+					if (pipeResult == ComuDatos::OK){
 						// Envio de los valores de las claves de los registros
 						// a modificar por el pipe.
 						serializarListaClaves(valoresClaves, mapaValoresAtributos, listaNombres);
@@ -247,9 +247,9 @@ int main(int argc, char* argv[])
 						valoresClaves.clear();
 						
 						// Se obtiene el resultado de la operacion.
-						pipe->leer(&resultado);
+						pipe->leer(&pipeResult);
 						
-						if (resultado == ResultadosIndices::CLAVE_NO_ENCONTRADA){
+						if (pipeResult == ResultadosIndices::CLAVE_NO_ENCONTRADA){
 						
 							listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, *mapaValoresAtributos);
 							listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
 							pipe->escribir(dataManager.getRegistro(), tamRegistro*sizeof(char));
 							
 							// Se obtiene el resultado de la insercion
-							pipe->leer(&resultado);
+							pipe->leer(&pipeResult);
 							
 							delete listaValAtributos;
 						}
@@ -274,11 +274,12 @@ int main(int argc, char* argv[])
 				}break;
 				
 				default:
-					resultado = ResultadosMetadata::OPERACION_INVALIDA;
+					pipeResult = ResultadosMetadata::OPERACION_INVALIDA;
 			}
 			
-			error << resultado;
-			cout << error << endl;
+			resultado << pipeResult;
+			
+			cout << resultado << endl;
 			
 			delete pipe;
 			pipe = NULL;
