@@ -79,7 +79,8 @@ class Bloque
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		Bloque();
-		Bloque(unsigned int num,unsigned int tam);
+		Bloque(unsigned int tamanioBloque);
+		Bloque(unsigned int num, unsigned int tam);
 		virtual ~Bloque();
 	
 	///////////////////////////////////////////////////////////////////////

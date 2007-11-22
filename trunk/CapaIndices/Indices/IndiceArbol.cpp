@@ -45,39 +45,53 @@ IndiceArbol::~IndiceArbol() {
  * Este metodo inserta una clave en un indice.
  */
 int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegistro) {
-	Clave* claveBuscada = bTree->buscar(clave);
-	if (claveBuscada) {
-		delete claveBuscada;
-		return ResultadosIndices::CLAVE_DUPLICADA;
-	}
-	Bloque * bloque = new Bloque(0, this->tamBloqueDato);
+	int resultado         = 0;
+	int nroBloque         = 0;
+	Bloque* bloque        = NULL;
+	char* contenidoBloque = NULL;
+	Clave* claveBuscada   = bTree->buscar(clave);
 	
-	unsigned int nroBloque = 0;
-	char* contenidoBloque = new char[this->tamBloqueDato];
-
-	int resultado;
-	if (!this->bTree->vacio()) {
+	if (claveBuscada) 
+		resultado =  ResultadosIndices::CLAVE_DUPLICADA;
+	else{
+		contenidoBloque = new char[this->tamBloqueDato];
+		memset(contenidoBloque, 0, this->tamBloqueDato);
+		
 		// Lee de disco el contenido del bloque donde debe insertar.
-		resultado = this->buscarBloqueDestino(tamRegistro, contenidoBloque, nroBloque);
-		// Si hay lugar en el bloque de disco, le asigno su contenido
-		if (resultado != ResultadosIndices::BLOQUES_OCUPADOS)
-			bloque->setNroBloque(nroBloque);
-	}
-	
-	bloque->setDatos(contenidoBloque);
-	
-	// Inserta el registro.
-	bloque->altaRegistro(this->listaNodos,registro);
-	
-	resultado = this->bloqueManager->escribirBloqueDatos(bloque->getDatos());
-	
-	delete bloque;
-	
-	if (resultado >= 0) {
-		clave->setReferencia(resultado);
+		nroBloque = this->buscarBloqueDestino(tamRegistro, contenidoBloque);
+		
+		// Si hay lugar en el bloque de disco, le asigno su contenido	
+		if ( (nroBloque != ResultadosFisica::BLOQUES_OCUPADOS) && (nroBloque != ResultadosFisica::ARCHIVO_VACIO) ){
+			bloque = new Bloque(this->tamBloqueDato);
+			
+			bloque->setNroBloque(nroBloque);		
+			bloque->setDatos(contenidoBloque);
+			
+			// Inserta el registro.
+			bloque->altaRegistro(this->listaNodos,registro);
+			
+			// Sobreescribe el archivo de datos en la posicion 'nroBloque'
+			resultado = this->bloqueManager->escribirBloqueDatos(bloque->getDatos(), nroBloque);	
+		}else{
+			bloque = new Bloque(0, this->tamBloqueDato);		
+
+			// Inserta el registro.
+			bloque->altaRegistro(this->listaNodos, registro);		
+			
+			// Agrega un nuevo bloque de datos al archivo
+			nroBloque = this->bloqueManager->escribirBloqueDatos(bloque->getDatos());			
+		}
+		
+		clave->setReferencia(nroBloque);
 		if (bTree->insertar(clave))
 			resultado = ResultadosIndices::OK;
 	}
+	
+	if (claveBuscada)
+		delete claveBuscada;
+	
+	if (bloque)
+		delete bloque;
 	
 	return resultado;
 }
@@ -209,16 +223,16 @@ int IndiceArbol::buscar(Clave *clave) const {
  **/
 int IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* &registroNuevo, unsigned short tamanioRegistroNuevo) {
 	int resultado = this->eliminar(claveVieja);
+	
 	if (resultado == ResultadosIndices::OK)
 		resultado = this->insertar(claveNueva, registroNuevo, tamanioRegistroNuevo);
+	
 	return resultado;
 }
 
 
-int IndiceArbol::buscarBloqueDestino(unsigned short tamRegistro, char* &bloqueDatos, unsigned int &nroBloque) {
-	bloqueDatos = new char[this->getTamanioBloqueDato()]; //La memoria de debe liberar afuera
-	int resultado = this->bloqueManager->buscarEspacioLibre(bloqueDatos, tamRegistro);
-	return resultado;
+int IndiceArbol::buscarBloqueDestino(unsigned short tamRegistro, char* bloqueDatos) {
+	return this->bloqueManager->buscarEspacioLibre(bloqueDatos, tamRegistro);
 }
 
 

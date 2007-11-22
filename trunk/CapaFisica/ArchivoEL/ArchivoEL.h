@@ -96,7 +96,7 @@ class ArchivoELFijo : public ArchivoEL
 ///////////////////////////////////////////////////////////////////////////
 
 class ArchivoELVariable : public ArchivoEL
-{
+{	
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
@@ -113,7 +113,6 @@ class ArchivoELVariable : public ArchivoEL
 		 * requisito, devuelve ResFisica::BLOQUES_OCUPADOS.
 		 */
 		short buscarEspacioLibre(unsigned short espacioRequerido);
-		short buscarEspacioLibre();
-};
+}
 
 #endif /*ARCHIVOEL_H_*/

@@ -182,36 +182,29 @@
 	///////////////////////////////////////////////////////////////////////
 		int ArchivoBase::generarID(string &nomArchivo)
 		{
+			int id = 1;
+			string idString, nombre, extension;
+			size_t posPunto = nomArchivo.find_last_of('.');
+		
+			idString  = "_7506";
+		
+			nombre    = nomArchivo.substr(0, posPunto);
+			extension = nomArchivo.substr(posPunto);
 			
-//			int id = 1;
-//			string idString, nombre, extension;
-//
-//			size_t posPunto = nomArchivo.find_last_of('.');
-//			
-//			if (posPunto < 100){
-//				
-//				idString  = "_7506";
-//			
-//				nombre    = nomArchivo.substr(0, posPunto);
-//				extension = nomArchivo.substr(posPunto);
-//				
-//				if (nombre.length() > 4)
-//					idString += nombre.substr(0,4);
-//				else
-//					idString += nombre;
-//				
-//				idString += extension;			
-//				idString += '_';			
-//				
-//				for (string::const_iterator it = idString.begin(); 
-//					it != idString.end(); ++it){
-//					id *= (*it);
-//				}
-//				
-//				return id / 97;
-//			}else 
-//				return 954367;
-			return 0;
+			if (nombre.length() > 4)
+				idString += nombre.substr(0,4);
+			else
+				idString += nombre;
+			
+			idString += extension;			
+			idString += '_';			
+			
+			for (string::const_iterator it = idString.begin(); 
+				it != idString.end(); ++it){
+				id *= (*it);
+			}
+			
+			return id / 97;
 		}
 
 	///////////////////////////////////////////////////////////////////////

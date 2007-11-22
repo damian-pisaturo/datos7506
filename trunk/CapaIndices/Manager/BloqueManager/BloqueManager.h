@@ -75,7 +75,7 @@ class BloqueManager : public Manager
 		 * libre y buscar el primer bloque de datos que contenga, al menos,
 		 * una cantidad de bytes libres igual a 'espLibre'. Si lo encuentra,
 		 * lo devuelve en 'bloque'; en caso contrario 
-		 * devuelve ResultadosFisica::BLOQUES_OCUPADOS.
+		 * devuelve ResultadosFisica::BLOQUES_OCUPADOS o ResultadosFisica::ARCHIVO_VACIO.
 		 */
 		virtual int buscarEspacioLibre(void* bloque, unsigned int espLibre) = 0;
 
