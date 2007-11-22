@@ -205,7 +205,7 @@
 			return resultado;
 		}
 
-		int BloqueDatosManager::buscarEspacioLibre(void* bloque, unsigned int espLibre)
+		int BloqueDatosManager::buscarEspacioLibre(void* &bloque, unsigned int espLibre)
 		{
 			char resultado = 0;
 			int numBloque  = 0;			
@@ -231,9 +231,10 @@
 				
 					//Se obtiene el numero de bloque que contiene el espacio libre solicitado.
 					//Si ningun bloque cumple con el requisito, 'numBloque' valdra BLOQUES_OCUPADOS.
+					//Si el archivo aun no contiene ningun bloque, valdra ARCHIVO_VACIO.
 					pipe->leer(&numBloque);
 					
-					if (numBloque != ResultadosFisica::BLOQUES_OCUPADOS)
+					if ( (numBloque != ResultadosFisica::BLOQUES_OCUPADOS) && (numBloque != ResultadosFisica::ARCHIVO_VACIO) )
 						pipe->leer(this->getTamanioBloque(), (char*)bloque);
 				}else 
 					numBloque = resultado;

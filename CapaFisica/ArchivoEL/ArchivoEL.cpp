@@ -50,6 +50,7 @@
 			char resultado = ResultadosFisica::OK;
 			
 			resultado = this->posicionarse(numRegistro);
+			
 			if (resultado == ResultadosFisica::OK)
 				resultado = this->escribir(registro);
 			
@@ -148,16 +149,12 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		ArchivoELVariable::ArchivoELVariable(string nombre) :
+		ArchivoELVariable::ArchivoELVariable(string nombre, unsigned short tamBloqueDatos) :
 			ArchivoEL(nombre, sizeof(unsigned short))
-		{ 
-			if (this->size() == Tamanios::TAMANIO_IDENTIFICADOR){	
-				short valor = Tamanios::TAMANIO_BLOQUE_DATO;
-				this->agregarRegistro(&valor);					
-			}
-		}
+		{ }
 		
-		ArchivoELVariable::~ArchivoELVariable() { }
+		ArchivoELVariable::~ArchivoELVariable() 
+		{ }
 	
 	///////////////////////////////////////////////////////////////////////
 	//	Metodos publicos
@@ -179,9 +176,4 @@
 				numBloque = ResultadosFisica::BLOQUES_OCUPADOS;
 			
 			return numBloque;		
-		}
-		
-		short ArchivoELVariable::buscarEspacioLibre()
-		{
-			return this->buscarEspacioLibre(Tamanios::TAMANIO_BLOQUE_DATO);
 		}

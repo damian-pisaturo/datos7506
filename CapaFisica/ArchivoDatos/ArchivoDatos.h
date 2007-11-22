@@ -93,7 +93,7 @@ class ArchivoDatosBloques : public ArchivoDatos
 		 * la posicion relativa del bloque hallado.
 		 * Si ningun bloque cumple con el requisito, devuelve RefFisica::BLOQUES_OCUPADOS.
 		 */
-		short buscarBloque(void* bloque, unsigned int espacioLibre);
+		short buscarBloque(void* bloque, unsigned short espacioLibre);
 		
 		/*Sobre-escribe en la posicion relativa numBloque el bloque pasado
 		 * por parametro.

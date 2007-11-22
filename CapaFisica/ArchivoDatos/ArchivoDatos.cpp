@@ -97,7 +97,7 @@
 			return resultado;
 		}
 		
-		short ArchivoDatosBloques::buscarBloque(void* bloque, unsigned int espacioLibre)
+		short ArchivoDatosBloques::buscarBloque(void* bloque, unsigned short espacioLibre)
 		{
 			short resultado = ResultadosFisica::OK;
 			short posicion  = 0;
@@ -108,8 +108,11 @@
 			if (posicion != ResultadosFisica::BLOQUES_OCUPADOS){
 				resultado = this->posicionarse(posicion);
 				
-				if (resultado == ResultadosFisica::OK)
+				bool finEL = archivoEL->fin();
+				
+				if ( (resultado == ResultadosFisica::OK) && (!fin) )
 					resultado = this->leer(bloque);
+				else if (fin) resultado = ResultadosFisica::ARCHIVO_VACIO;
 			}
 			
 			if (resultado != ResultadosFisica::OK)
@@ -137,7 +140,7 @@
 		short ArchivoDatosBloques::escribirBloque(void* bloque, unsigned short espLibre)
 		{			
 			ArchivoELVariable* archivoEL = static_cast<ArchivoELVariable*>(this->getArchivoEL());
-			short bloqueLibre = archivoEL->buscarEspacioLibre();
+			short bloqueLibre = archivoEL->buscarEspacioLibre(this->getTamanioBloque());
 			
 			if (bloqueLibre == ResultadosFisica::BLOQUES_OCUPADOS){
 				//Si ningun bloque esta libre, appendea al
@@ -149,8 +152,7 @@
 				//en el archivo de espacio libre.
 				archivoEL->agregarRegistro(&espLibre);
 				
-			}else{
-				
+			}else{				
 				archivoEL->modificarRegistro(&espLibre, bloqueLibre);
 				this->posicionarse(bloqueLibre);
 			}			
@@ -169,6 +171,14 @@
 		}
 		
 
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoDatosRegistros
+//			(Implementa primitivas para el manejo de archivos
+//           de datos con organizacion de registros de longitud fija 
+//			 en disco).
+///////////////////////////////////////////////////////////////////////////
 		ArchivoDatosRegistros::ArchivoDatosRegistros(string nombreArchivo, unsigned short tamReg):
 			ArchivoDatos(nombreArchivo, tamReg, TipoOrganizacion::REG_FIJOS)
 		{ }

@@ -789,12 +789,12 @@
 				//espacio libre requerido
 				numBloque = ((ArchivoDatosBloques*)archivo)->buscarBloque(buffer, espLibre);
 				
-				if (numBloque != ResultadosFisica::BLOQUES_OCUPADOS)
+				pipe.escribir(numBloque);
+				
+				if ( (numBloque != ResultadosFisica::BLOQUES_OCUPADOS) && (numBloque != ResultadosFisica::ARCHIVO_VACIO) )
 					//Se envia el bloque si existe al menos uno que cumpla el
 					//criterio de busqueda (espacio libre suficiente).
-					pipe.escribir(buffer, tamBloque);	
-				
-				pipe.escribir(numBloque);
+					pipe.escribir(buffer, tamBloque);		
 			}else{
 				resultado = ResultadosFisica::ARCHIVO_INVALIDO;
 				
@@ -804,8 +804,7 @@
 		
 		}break;
 			
-		default:
-			
+		default:			
 			resultado = ResultadosFisica::OPERACION_INVALIDA;
 			
 		break;		

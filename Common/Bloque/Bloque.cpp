@@ -40,7 +40,14 @@
 			this->numero  = 0;
 			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION;
 		}
-
+		
+		Bloque::Bloque(unsigned int tamanioBloque) 
+		{
+			this->datos   = NULL;
+			this->tamanio = tamanioBloque;
+			this->numero  = 0;
+			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION;
+		}
 
 		/**
 		 * Este constructor recibe el número de bloque dentro del archivo, y el tamaño del 
