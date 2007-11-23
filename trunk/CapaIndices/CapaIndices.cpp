@@ -257,6 +257,9 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			
 			break;
 		}
+		default:
+			resultado = ResultadosIndices::OPERACION_INVALIDA;
+			pipe.escribir(resultado);
 	}
 	
 	destruirIndices(mapaIndices);
@@ -281,9 +284,10 @@ int main(int argc, char* argv[]) {
 	procesarOperacion(codOp, nombreTipo, pipe);
 	
 // MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
-/*	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_ENTERO, NULL, TipoIndices::ARBOL_BS, 48, 48, "locura", TipoDatos::TIPO_VARIABLE);
+//	DefinitionsManager::ListaTiposAtributos* lista = DefinitionsManager::getInstance().getListaTiposAtributos("PERSONA");
+//	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_ENTERO, lista, TipoIndices::ARBOL_BS, 48, 48, "locura", TipoDatos::TIPO_VARIABLE);
 	
-	char* null = NULL; */  
+//	char* null = NULL;
 /*	
 	indice.insertar(new ClaveVariable("hola"), null);
 	indice.insertar(new ClaveVariable("chau"), null);
