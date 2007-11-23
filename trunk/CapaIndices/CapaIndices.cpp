@@ -63,8 +63,12 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 	if (indice->getTipo() == TipoIndices::GRIEGO) {
 		
+		cout << "voy a consultar un registro..." << endl;
+		
 		resultado = indice->buscar(clave, registroDatos, tamRegistro);
 		pipe.escribir(resultado);
+		
+		cout << "consulté y escribi el resultado: " << resultado << endl;
 		
 		//Envío la cantidad de registros
 		pipe.escribir(cantRegistros);
@@ -75,7 +79,7 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 		}
 	}
 	else{
-						
+		
 		resultado = indice->buscar(clave, registroDatos);
 		pipe.escribir(resultado);
 		
@@ -185,6 +189,8 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 
 int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe) {
 	
+	cout << "VOY A PROCESAR LA OPERACION: " << (int)codOp << endl;
+	
 	int resultado = ResultadosIndices::OK;
 	string buffer(""), auxStr("");
 	unsigned short tamanioBuffer = 0;
@@ -226,18 +232,28 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	indice = mapaIndices[listaNombresClaves];
 	clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *(defManager.getListaTiposClaves(nombreTipo, listaNombresClaves)));
 	
+	cout << "ANTES DEL SWITCH" << endl;
+	
 	switch(codOp) {
 		case OperacionesCapas::INDICES_CONSULTAR:
 			// Si la consulta se hace a un índice primario, se envía el registro
 			// pedido, sino se envían todos los registros correspondiente a las
 			// claves primarias de la lista del indice secundario.
+			
+			cout << "CONSULTA: " << endl;
+			
 			consultar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 			break;
 		case OperacionesCapas::INDICES_INSERTAR:
+			
+			cout << "INSERCIÓN: " << endl;
+			
 			insertar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 			break;
 		case OperacionesCapas::INDICES_ELIMINAR:
 		{
+			cout << "ELIMINACIÓN: " << endl;
+			
 			resultado = indice->eliminar(clave);
 			pipe.escribir(resultado);
 			if (resultado == ResultadosIndices::OK) {
@@ -247,6 +263,9 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 		}
 		case OperacionesCapas::INDICES_MODIFICAR:
 		{
+			
+			cout << "MODIFICACIÓN: " << endl;
+			
 			if (indice->getTipo() == TipoIndices::GRIEGO) {
 				// Busca el registro viejo.
 				resultado = indice->buscar(clave, registroDatos, tamRegistro);
@@ -301,7 +320,6 @@ int main(int argc, char* argv[]) {
 	string nombreTipo;
 	
 	pipe.parametro(0, codOp);
-	
 	pipe.parametro(1, nombreTipo);
 	
 	procesarOperacion(codOp, nombreTipo, pipe);

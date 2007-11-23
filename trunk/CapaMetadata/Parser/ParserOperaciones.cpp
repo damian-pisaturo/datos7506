@@ -78,7 +78,7 @@ bool ParserOperaciones::proximaOperacion()
 		leyendoClaves = false;
 		getline(this->archivo, linea);
 		
-		if (linea.size() != 0){
+		if ( (linea.size() != 0) && (linea[0] != '#') ) {
 			if (this->mapValoresAtributos){
 				delete this->mapValoresAtributos;
 				this->mapValoresAtributos = NULL;
