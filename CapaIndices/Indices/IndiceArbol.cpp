@@ -109,7 +109,10 @@ int IndiceArbol::insertar(Clave *clave, char* &registro) {
 		return ResultadosIndices::CLAVE_DUPLICADA;
 	}
 	
-	int resultado = this->bloqueManager->escribirBloqueDatos(registro);
+	int resultado = 0;
+	
+	if (registro)
+		this->bloqueManager->escribirBloqueDatos(registro);
 	
 	if (resultado >= 0) {
 		clave->setReferencia(resultado);
