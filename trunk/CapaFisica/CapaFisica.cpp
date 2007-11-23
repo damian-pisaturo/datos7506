@@ -797,7 +797,7 @@
 				
 				pipe.escribir(numBloque);
 				
-				if (numBloque != ResultadosFisica::BLOQUES_OCUPADOS)
+				if ( (numBloque != ResultadosFisica::BLOQUES_OCUPADOS) && (numBloque != ResultadosFisica::ARCHIVO_VACIO) )
 					//Se envia el bloque si existe al menos uno que cumpla el
 					//criterio de busqueda (espacio libre suficiente).
 					pipe.escribir(buffer, tamBloque);		
