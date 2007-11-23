@@ -31,6 +31,9 @@ Bucket::Bucket(IndiceHashManager* indiceHash, unsigned int nroBucket)
 	indiceHash->leerBloque(nroBucket, this);
 	
 	this->setTamanioBloque(indiceHash->getTamanioBloque());
+	
+	this->setOffsetADatos(Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION);
+	
 }
 
 /*
@@ -44,15 +47,19 @@ Bucket::Bucket(unsigned int nroBucket,unsigned short tamDisp,unsigned int tamani
 	char* datos = getDatos();
 	
 	//Los primeros 6 bytes se usan para guardar esplibre, cantRegs y tamDispersion.
-	unsigned short eLibre = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + 
-	  						Tamanios::TAMANIO_DISPERSION;
+	unsigned short eLibre = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION;
+	
 	this->setEspacioLibre(eLibre);
 	
-	memcpy(datos, &eLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
-
 	// El primer registro se encontrará donde esta el espacio libre al momento de la creación del bucket.
 	this->setOffsetADatos(eLibre);
+	
+	// Actualiza el offset a espacio libre dentro de la tira de bytes.
+	memcpy(datos, &eLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
 
+	// Actualiza la cantidad de registros dentro de la tira de bytes.
+	memcpy(datos + Tamanios::TAMANIO_ESPACIO_LIBRE, &cantRegs, Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+	
 	// Actualiza el tamaño de dispersión dentro de la tira de bytes.
 	memcpy(&datos[Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS], &tamDisp,
 		   Tamanios::TAMANIO_DISPERSION);
