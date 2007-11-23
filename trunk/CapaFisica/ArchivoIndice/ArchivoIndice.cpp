@@ -374,11 +374,3 @@
 			
 			return resultado;
 		}
-					
-				
-
-		
-		
-				
-
-		

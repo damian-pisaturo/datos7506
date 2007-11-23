@@ -36,8 +36,8 @@
 		char* buffer  = NULL;
 		int tamBloque = 0;
 		int numBloque = 0;
-		unsigned int espLibre  = 0;
-		unsigned char accion = 0;
+		unsigned int espLibre = 0;
+		unsigned char accion  = 0;
 		
 		//Obtener parametros comunes a todas las acciones
 		//de la capa fisica.
@@ -797,7 +797,7 @@
 				
 				pipe.escribir(numBloque);
 				
-				if ( (numBloque != ResultadosFisica::BLOQUES_OCUPADOS) && (numBloque != ResultadosFisica::ARCHIVO_VACIO) )
+				if (numBloque != ResultadosFisica::BLOQUES_OCUPADOS)
 					//Se envia el bloque si existe al menos uno que cumpla el
 					//criterio de busqueda (espacio libre suficiente).
 					pipe.escribir(buffer, tamBloque);		
