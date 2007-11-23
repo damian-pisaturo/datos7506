@@ -269,7 +269,7 @@ bool BStarTree::eliminar(Clave* clave) {
 	if (nodoTarget) delete nodoTarget;
 	
 	//PARA PROBAR NOMAS
-	return false;// true;
+	return true;// true;
 }
 
 

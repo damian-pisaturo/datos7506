@@ -101,6 +101,9 @@ int main(int argc, char* argv[])
 			switch(operacion){
 				case OperacionesCapas::METADATA_CONSULTA:
 				{
+					
+					cout << "CONSULTA DESDE METADATA" << endl;
+					
 					// Codigo de operacion de consulta para la Capa de Indices
 					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_CONSULTAR, 0); 
 					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
@@ -108,6 +111,8 @@ int main(int argc, char* argv[])
 					
 					// Se lanza el proceso de la Capa Indices.
 					pipeResult = pipe->lanzar();
+					
+					cout << "resultado de lanzar el pipe para realizar una consulta: " << pipeResult << endl;
 					
 					if (pipeResult == ComuDatos::OK){						
 						// Envio de los valores de las claves a consultar por el pipe
@@ -117,6 +122,8 @@ int main(int argc, char* argv[])
 						
 						// Obtencion del resultado de la operacion
 						pipe->leer(&pipeResult);
+						
+						cout << "RECIBI EL RESULTADO DE OPERACION: " << pipeResult << endl;
 						
 						if (pipeResult == ResultadosIndices::OK){
 							
