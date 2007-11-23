@@ -38,7 +38,7 @@
 			this->datos   = NULL;
 			this->tamanio = 0;
 			this->numero  = 0;
-			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION;
+			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 		}
 		
 		Bloque::Bloque(unsigned int tamanioBloque) 
@@ -46,7 +46,7 @@
 			this->datos   = NULL;
 			this->tamanio = tamanioBloque;
 			this->numero  = 0;
-			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION;
+			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 		}
 
 		/**
@@ -61,7 +61,7 @@
 			
 			memset(this->datos, 0, this->getTamanioBloque());
 			
-			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION;
+			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 			
 			// Inicializa el offset a espacio libre dentro del bloque.
 			unsigned short espLibre = this->offsetADatos;
@@ -69,8 +69,7 @@
 			
 			// Inicializa la cantidad de registros dentro del bloque.
 			unsigned short cantRegs = 0;
-			memcpy(this->datos + Tamanios::TAMANIO_ESPACIO_LIBRE, &cantRegs,
-				   Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+			memcpy(this->datos + Tamanios::TAMANIO_ESPACIO_LIBRE, &cantRegs, Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 		}
 		
 		Bloque::~Bloque() 
@@ -102,10 +101,12 @@
 	
 			memcpy(&cantRegistros, &(this->datos[Tamanios::TAMANIO_ESPACIO_LIBRE]), Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 		
-			unsigned char cantClaves       = 0;
-			unsigned char clavesChequeadas = 0;
+			unsigned char cantClaves       = 0; // Indica la cantidad de claves por las que estan indexados los registros dentro
+												// del bloque.
+			unsigned char clavesChequeadas = 0; // Indica la cantidad de claves que han sido comparadas. Sirve para el caso de las
+												// claves compuestas.
 			unsigned char clavesIguales    = 0;
-			bool encontrado = false;
+			bool encontrado = false; // Indica si se encontro el registro buscado.
 			bool checkPk    = false; // Indica si ya reviso la clave primaria del registro.
 			char *registro  = NULL;
 			ListaNodos::const_iterator it;
@@ -130,6 +131,7 @@
 		
 			// Se obtiene el tipo de atributo del registro.
 			tipoDeRegistro = regAttribute.tipo;
+			
 			// Se obtiene la cantidad de claves primarias.
 			cantClaves = regAttribute.cantClaves;
 		
@@ -144,6 +146,7 @@
 		
 				if (tipoDeRegistro == TipoDatos::TIPO_VARIABLE) {
 					bytesLong = Tamanios::TAMANIO_LONGITUD;
+			
 					//Se obtiene la longitud del registro.
 					memcpy(&longRegistro, &(this->datos[offsetToReg]), Tamanios::TAMANIO_LONGITUD);
 					
@@ -159,8 +162,7 @@
 				// Se itera la lista de atributos del registro.
 				// Se arranco del segundo nodo ya que el primero se utiliza para guardar
 				// si el registro es de longitud fija o variable.
-				for (it = (++listaParam->begin()); ((it != listaParam->end())
-						&& (!checkPk)); ++it) {
+				for (it = (++listaParam->begin()); (it != listaParam->end()) && (!checkPk); ++it) {
 					regAttribute = *it;
 		
 					// Se obtiene el tipo de atributo del registro.
@@ -301,13 +303,11 @@
 			memcpy(&espLibre, this->datos, Tamanios::TAMANIO_ESPACIO_LIBRE);
 		
 			// Levanta la cantidad de registros del bloque.
-			memcpy(&cantRegs, &this->datos[Tamanios::TAMANIO_ESPACIO_LIBRE],
-					Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+			memcpy(&cantRegs, &this->datos[Tamanios::TAMANIO_ESPACIO_LIBRE], Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 		
 			// Se hace una copia del bloque omitiendo el bloque borrado.
 			memcpy(datosAux, this->datos, offsetToReg);
-			memcpy(&datosAux[offsetToReg], &this->datos[offsetToReg+longReg], this->tamanio
-					-offsetToReg-longReg);
+			memcpy(&datosAux[offsetToReg], &this->datos[offsetToReg+longReg], this->tamanio -offsetToReg-longReg);
 		
 			// Se actualizan los valores de espacio libre y cantidad de registros.
 			// Se resta la longitud del registro porque espLibre contiene el offset al espacio libre
@@ -315,8 +315,7 @@
 			espLibre -= longReg;
 			cantRegs -= 1;
 			memcpy(datosAux, &espLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
-			memcpy(&datosAux[Tamanios::TAMANIO_ESPACIO_LIBRE], &cantRegs,
-					Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+			memcpy(&datosAux[Tamanios::TAMANIO_ESPACIO_LIBRE], &cantRegs, Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 		
 			// Se actualizan los datos.
 			this->setDatos(datosAux);
