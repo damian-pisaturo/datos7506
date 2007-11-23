@@ -83,7 +83,7 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			DefinitionsManager::ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
 			indice = mapaIndices[*listaNombresClaves];
 			
-			ListaPrimariaManager listaPrimariaManager(indice->getTamanioBloqueLista());
+			BloqueListaPrimaria listaPrimariaManager(indice->getTamanioBloqueLista());
 			
 			ListaClaves* listaClaves = listaPrimariaManager.getListaClaves(registroDatos, defManager.getListaTipos(nombreTipo));
 			
@@ -139,7 +139,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 			mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
 			delete indice;
 			
-			ListaPrimariaManager listaPrimariaManager(0);
+			BloqueListaPrimaria listaPrimariaManager(0);
 			char* registroLista = NULL;
 			Clave* claveSecundaria = NULL;
 			

@@ -12,7 +12,7 @@
 #include "../Common/CodigosPipe.h"
 #include "../Common/OperacionesCapas.h"
 #include "../Common/ClaveFactory/ClaveFactory.h"
-#include "Manager/ListaPrimariaManager/ListaPrimariaManager.h"
+#include "Common/BloqueListaPrimaria/BloqueListaPrimaria.h"
  
 using namespace std;
 
