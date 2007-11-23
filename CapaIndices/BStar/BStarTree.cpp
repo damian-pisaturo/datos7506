@@ -33,20 +33,19 @@ bool BStarTree::insertar(Clave* clave) {
 		indiceManager.escribirBloqueDoble(this->nodoRaiz);
 		
 	} else {
-		
+
 		NodoBStar* nodoDestino = buscarLugar(clave);
-		
+	
 		//si nodoDestino == NULL significa que la clave ya esta insertada
 		if (!nodoDestino) return false;
 		
 		char codigo;
 		
 		nodoDestino->insertarClave(clave, &codigo);
-		
+
 		//La clave queda insertada independientemente de si hay OVERFLOW o no.
-		
 		insertarInterno(nodoDestino, &codigo, clave);
-		
+
 		if (*nodoDestino == *(this->nodoRaiz))
 			*(this->nodoRaiz) = *nodoDestino;
 		
@@ -77,6 +76,7 @@ void BStarTree::insertarInterno(NodoBStar* &nodoDestino, char* codigo, Clave* cl
 		} else indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
 	}
 	else if ( *codigo == Codigo::OVERFLOW ){
+		
 		//Puntero a la clave del nodo padre que se encuentra entre nodoDestino y su hermano izq
 		Clave* clavePadreIzq = NULL;
 		//Puntero a la clave del nodo padre que se encuentra entre nodoDestino y su hermano der
@@ -268,7 +268,8 @@ bool BStarTree::eliminar(Clave* clave) {
 	
 	if (nodoTarget) delete nodoTarget;
 	
-	return true;
+	//PARA PROBAR NOMAS
+	return false;// true;
 }
 
 
@@ -749,17 +750,18 @@ void BStarTree::recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* no
 
 	char codigo;
 	unsigned short cantClavesSobrantes;
-	unsigned short bytesSobrantes = nodoHnoIzq->obtenerBytesSobrantes(cantClavesSobrantes);
+	unsigned short bytesSobrantes = nodoHnoIzq->obtenerBytesSobrantes(cantClavesSobrantes, false);
 	SetClaves* setIntercambio = NULL;
 	
 	nodoPadre->extraerClave(clavePadre);
 	clavePadre->setHijoDer(nodoDestino->getHijoIzq());
 	
 	setIntercambio = nodoHnoIzq->cederBytes(bytesSobrantes, false);
-	
+
 	Clave* clavePromocionada = *(setIntercambio->begin());
+
 	setIntercambio->erase(setIntercambio->begin());
-	
+
 	nodoDestino->setHijoIzq(clavePromocionada->getHijoDer());
 	clavePromocionada->setHijoDer(nodoDestino->getPosicionEnArchivo());
 	nodoPadre->insertarClave(clavePromocionada, &codigo);
@@ -779,6 +781,7 @@ void BStarTree::recibirClaveDesdeIzquierda(NodoBStar* nodoDestino, NodoBStar* no
 		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 
 	clavePadre = clavePromocionada;
+	
 }
 
 

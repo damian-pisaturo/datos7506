@@ -284,8 +284,8 @@ int main(int argc, char* argv[]) {
 	procesarOperacion(codOp, nombreTipo, pipe);
 */	
 // MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
-/*
-	DefinitionsManager::ListaTiposAtributos* lista = DefinitionsManager::getInstance().getListaTiposAtributos("PERSONA");
+
+/*	DefinitionsManager::ListaTiposAtributos* lista = DefinitionsManager::getInstance().getListaTiposAtributos("PERSONA");
 	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_ENTERO, lista, TipoIndices::ARBOL_BS, 48, 48, "locura", TipoDatos::TIPO_VARIABLE);
 	
 	char* null = NULL;
@@ -324,58 +324,58 @@ int main(int argc, char* argv[]) {
 
 	
 	//Inserto en la raiz:
-/*	indice.insertar(new ClaveEntera(20), null, 48);
-	indice.insertar(new ClaveEntera(90), null, 48);
-	indice.insertar(new ClaveEntera(49), null, 48);
-	indice.insertar(new ClaveEntera(33), null, 48);
-	indice.insertar(new ClaveEntera(57), null, 48);
-	indice.insertar(new ClaveEntera(30), null, 48);
-	indice.insertar(new ClaveEntera(17), null, 48);
-	indice.insertar(new ClaveEntera(8), null, 48);
+/*	indice.insertar(new ClaveEntera(20), null);
+	indice.insertar(new ClaveEntera(90), null);
+	indice.insertar(new ClaveEntera(49), null);
+	indice.insertar(new ClaveEntera(33), null);
+	indice.insertar(new ClaveEntera(57), null);
+	indice.insertar(new ClaveEntera(30), null);
+	indice.insertar(new ClaveEntera(17), null);
+	indice.insertar(new ClaveEntera(8), null);
 	
 	//Splittea la raiz:
-	indice.insertar(new ClaveEntera(10), null, 48);
+	indice.insertar(new ClaveEntera(10), null);
 
 	//Alta común:
-	indice.insertar(new ClaveEntera(1), null, 48);
+	indice.insertar(new ClaveEntera(1), null);
 	
 	//Alta con redistribución
-	indice.insertar(new ClaveEntera(7), null, 48);
+	indice.insertar(new ClaveEntera(7), null);
 	
 	//Produce split:
-	indice.insertar(new ClaveEntera(86), null, 48);
+	indice.insertar(new ClaveEntera(86), null);
 
 	//Altas comunes:
-	indice.insertar(new ClaveEntera(6), null, 48);
-	indice.insertar(new ClaveEntera(19), null, 48);
-	indice.insertar(new ClaveEntera(60), null, 48);
-	indice.insertar(new ClaveEntera(88), null, 48);
-	indice.insertar(new ClaveEntera(97), null, 48);
+	indice.insertar(new ClaveEntera(6), null);
+	indice.insertar(new ClaveEntera(19), null);
+	indice.insertar(new ClaveEntera(60), null);
+	indice.insertar(new ClaveEntera(88), null);
+	indice.insertar(new ClaveEntera(97), null);
 	
 	//Produce split:
-	indice.insertar(new ClaveEntera(14), null, 48);
+	indice.insertar(new ClaveEntera(14), null);
 	
 	//Lleno la raiz:
-	indice.insertar(new ClaveEntera(2), null, 48);
-	indice.insertar(new ClaveEntera(3), null, 48);
-	indice.insertar(new ClaveEntera(4), null, 48);
-	indice.insertar(new ClaveEntera(5), null, 48);
-	indice.insertar(new ClaveEntera(9), null, 48);
-	indice.insertar(new ClaveEntera(11), null, 48);
-	indice.insertar(new ClaveEntera(12), null, 48);
-	indice.insertar(new ClaveEntera(13), null, 48);
-	indice.insertar(new ClaveEntera(15), null, 48);
-	indice.insertar(new ClaveEntera(16), null, 48);
-	indice.insertar(new ClaveEntera(18), null, 48);
-	indice.insertar(new ClaveEntera(21), null, 48);
-	indice.insertar(new ClaveEntera(22), null, 48);
-	indice.insertar(new ClaveEntera(23), null, 48);
-	indice.insertar(new ClaveEntera(100), null, 48);
-	indice.insertar(new ClaveEntera(121), null, 48);
-	indice.insertar(new ClaveEntera(93), null, 48);
+	indice.insertar(new ClaveEntera(2), null);
+	indice.insertar(new ClaveEntera(3), null);
+	indice.insertar(new ClaveEntera(4), null);
+	indice.insertar(new ClaveEntera(5), null);
+	indice.insertar(new ClaveEntera(9), null);
+	indice.insertar(new ClaveEntera(11), null);
+	indice.insertar(new ClaveEntera(12), null);
+	indice.insertar(new ClaveEntera(13), null);
+	indice.insertar(new ClaveEntera(15), null);
+	indice.insertar(new ClaveEntera(16), null);
+	indice.insertar(new ClaveEntera(18), null);
+	indice.insertar(new ClaveEntera(21), null);
+	indice.insertar(new ClaveEntera(22), null);
+	indice.insertar(new ClaveEntera(23), null);
+	indice.insertar(new ClaveEntera(100), null);
+	indice.insertar(new ClaveEntera(121), null);
+	indice.insertar(new ClaveEntera(93), null);
 	
 	//Splitteo la raiz:
-	indice.insertar(new ClaveEntera(28), null, 48);
+	indice.insertar(new ClaveEntera(28), null);
 	
 	//Baja común:
 	indice.eliminar(new ClaveEntera(11));
@@ -390,7 +390,7 @@ int main(int argc, char* argv[]) {
 	indice.eliminar(new ClaveEntera(23));
 
 	//Alta común
-	indice.insertar(new ClaveEntera(25), null, 48);
+	indice.insertar(new ClaveEntera(25), null);
 
 	//Bajas comunes
 	indice.eliminar(new ClaveEntera(57));
@@ -438,7 +438,7 @@ int main(int argc, char* argv[]) {
 	indice.eliminar(new ClaveEntera(21));
 
 	//Inserto en la raiz
-	indice.insertar(new ClaveEntera(125), null, 48); 
+	indice.insertar(new ClaveEntera(125), null); 
 */
 	/*
 	Clave* clave = NULL;
@@ -483,6 +483,35 @@ int main(int argc, char* argv[]) {
 	clave = new ClaveEntera(400);
 	indice.insertar(clave, null);
 	*/
+
+	
+	DefinitionsManager::ListaTiposAtributos* lista = DefinitionsManager::getInstance().getListaTiposAtributos("PERSONA");
+	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_STRING, lista, TipoIndices::ARBOL_BS, 48, 48, "locura", TipoDatos::TIPO_VARIABLE);
+	
+	char* null = NULL;
+	
+	//Inserto en la raiz
+	indice.insertar(new ClaveVariable("Manu"), null);
+	indice.insertar(new ClaveVariable("Coloquio"), null);
+	indice.insertar(new ClaveVariable("Rasputin"), null);
+	indice.insertar(new ClaveVariable("San"), null);
+	indice.insertar(new ClaveVariable("Lorenzo"), null);
+	
+	//Splittea la raiz
+	indice.insertar(new ClaveVariable("Holas"), null);
+	
+	//Alta común
+	indice.insertar(new ClaveVariable("Je"), null);
+	
+	//Alta con redistribución
+	indice.insertar(new ClaveVariable("Cantamontes"), null);
+	
+	//Produce split
+	indice.insertar(new ClaveVariable("Certant"), null);
+
+	//Produce redistribución
+	indice.insertar(new ClaveVariable("Otorinolaringologo"), null);
+	
 	cout << "Fin Main" << endl;
 }
 

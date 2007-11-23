@@ -187,9 +187,9 @@ bool Nodo::puedeRecibir(unsigned short bytesEntrantes, unsigned short bytesSalie
 }
 
 
-//Si puede ceder devuelve un conjunto con las claves a ceder, sino devuelve NULL.
+//Devuelve un conjunto con las claves a ceder
 SetClaves* Nodo::cederBytes(unsigned short bytesRequeridos, bool izquierda) {
-	
+
 	unsigned short sumaBytesRequeridos = 0;
 	
 	SetClaves* set = new SetClaves();
@@ -204,11 +204,7 @@ SetClaves* Nodo::cederBytes(unsigned short bytesRequeridos, bool izquierda) {
 			set->insert(*iter);
 		}
 		
-		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) >= this->getTamanioMinimo() ) {
-			this->getClaves()->erase(this->getClaves()->begin(), iter);
-			this->actualizarEspacioLibre();
-			return set;
-		}
+		this->getClaves()->erase(this->getClaves()->begin(), iter);
 		
 	}
 	else{ //if (derecha)
@@ -220,19 +216,13 @@ SetClaves* Nodo::cederBytes(unsigned short bytesRequeridos, bool izquierda) {
 			sumaBytesRequeridos += (*iter)->getTamanioEnDisco(bstar);
 			set->insert(*iter);
 		}
-		
-		if ( (getTamanioEnDiscoSetClaves() - sumaBytesRequeridos) >= this->getTamanioMinimo() ) {
-			this->getClaves()->erase(++iter, this->getClaves()->end());
-			this->actualizarEspacioLibre();
-			return set;
-		}
+
+		this->getClaves()->erase(++iter, this->getClaves()->end());
+
 	}
 	
-	set->clear();
-	delete set;
-	
-	return NULL;
-	
+	this->actualizarEspacioLibre();
+	return set;
 }
 
 
