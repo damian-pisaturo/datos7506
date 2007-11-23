@@ -2,9 +2,9 @@
 
 void BloqueListaPrimaria::crearLista(char* &lista) const {
 	
-	lista = new char[this->tamLista];
-	unsigned short cantClaves = 0, espLibre = this->tamLista;
-	memset(lista, 0, this->tamLista);
+	lista = new char[this->getTamanioBloque()];
+	unsigned short cantClaves = 0, espLibre = this->getTamanioBloque();
+	memset(lista, 0, this->getTamanioBloque());
 	memcpy(lista, &cantClaves, Tamanios::TAMANIO_LONGITUD);
 	memcpy(lista + Tamanios::TAMANIO_LONGITUD, &espLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
 	
@@ -13,9 +13,9 @@ void BloqueListaPrimaria::crearLista(char* &lista) const {
 
 void BloqueListaPrimaria::crearLista(char* &lista, Clave* clave, const ListaTipos* listaTipos) const {
 	
-	lista = new char[this->tamLista];
-	unsigned short cantClaves = 1, espLibre = this->tamLista - clave->getTamanioValorConPrefijo();
-	memset(lista, 0, this->tamLista);
+	lista = new char[this->getTamanioBloque()];
+	unsigned short cantClaves = 1, espLibre = this->getTamanioBloque() - clave->getTamanioValorConPrefijo();
+	memset(lista, 0, this->getTamanioBloque());
 	memcpy(lista, &cantClaves, Tamanios::TAMANIO_LONGITUD);
 	memcpy(lista + Tamanios::TAMANIO_LONGITUD, &espLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
 	this->insertarClave(lista, clave, listaTipos);
@@ -32,7 +32,7 @@ bool BloqueListaPrimaria::insertarClave(char* lista, Clave* clave, const ListaTi
 	
 	if (tamClave > espLibre) return false;
 	
-	char* punteroFinal = lista + this->tamLista - espLibre;
+	char* punteroFinal = lista + this->getTamanioBloque() - espLibre;
 	
 	++cantClaves;
 	espLibre -= clave->getTamanioValorConPrefijo();
@@ -75,14 +75,14 @@ bool BloqueListaPrimaria::eliminarClave(char* &lista, Clave* clave, const ListaT
 		espLibreViejo = espLibre;
 		espLibre += tamClave;
 		
-		char* listaAux = new char[this->tamLista];
-		memset(listaAux, 0, this->tamLista);
+		char* listaAux = new char[this->getTamanioBloque()];
+		memset(listaAux, 0, this->getTamanioBloque());
 		
 		memcpy(listaAux, &cantClaves, Tamanios::TAMANIO_LONGITUD);
 		memcpy(listaAux + Tamanios::TAMANIO_LONGITUD, &espLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
 		memcpy(listaAux + Tamanios::TAMANIO_LONGITUD + Tamanios::TAMANIO_ESPACIO_LIBRE, lista, offset);
 		memcpy(listaAux + Tamanios::TAMANIO_LONGITUD + Tamanios::TAMANIO_ESPACIO_LIBRE + offset,
-			   lista + offset + tamClave, this->tamLista - offset - tamClave - espLibreViejo);
+			   lista + offset + tamClave, this->getTamanioBloque() - offset - tamClave - espLibreViejo);
 		
 		delete[] lista;
 		lista = listaAux;
@@ -177,45 +177,6 @@ ListaStrings* BloqueListaPrimaria::convertirAListaStrings(char* lista, const Lis
 }
 
 
-char* BloqueListaPrimaria::serializarClave(Clave* clave, const ListaTipos* listaTipos) const {
-	
-	char* buffer = new char[clave->getTamanioValorConPrefijo()];
-	
-	ListaClaves listaClaves;
-	if (listaTipos->size() > 1) //'clave' es una clave compuesta
-		listaClaves = *(((ClaveCompuesta*)clave)->getListaClaves());
-	else listaClaves.push_back(clave);
-
-	ListaClaves::const_iterator iterClaves;
-	ListaTipos::const_iterator iterTipos;
-	Clave* claveAux = NULL;
-	char* cadena = NULL;
-	unsigned int sizeCadena = 0;
-	
-	for (iterClaves = listaClaves.begin(), iterTipos = listaTipos->begin();
-		(iterClaves != listaClaves.end()) && (iterTipos != listaTipos->end());
-		++iterClaves, ++iterTipos) {	
-		
-		claveAux = *iterClaves;
-		
-		if (*iterTipos == TipoDatos::TIPO_STRING) {
-			
-			cadena = (char*)claveAux->getValor();
-			sizeCadena = claveAux->getTamanioValor();
-		
-			memcpy(buffer, &sizeCadena, Tamanios::TAMANIO_LONGITUD_CADENA);
-			memcpy(buffer + Tamanios::TAMANIO_LONGITUD_CADENA, cadena, sizeCadena);
-			
-		} else memcpy(buffer, claveAux->getValor(), claveAux->getTamanioValor());
-		
-		buffer += claveAux->getTamanioValorConPrefijo();
-	}
-	
-	return buffer;
-	
-}
-
-
 unsigned short BloqueListaPrimaria::getCantClaves(const char* lista) const {
 	
 	return *((unsigned short*)lista);
@@ -228,7 +189,7 @@ ListaClaves* BloqueListaPrimaria::getListaClaves(const char* lista, ListaTipos* 
 	ListaClaves* listaClaves = new ListaClaves();
 	unsigned short offset = Tamanios::TAMANIO_LONGITUD + Tamanios::TAMANIO_ESPACIO_LIBRE;
 	unsigned short espLibre = *((unsigned short*)(lista + Tamanios::TAMANIO_LONGITUD));
-	const char* punteroFinal = lista + this->tamLista - espLibre;
+	const char* punteroFinal = lista + this->getTamanioBloque() - espLibre;
 	Clave* clave = NULL;
 	
 	while ((lista + offset) < punteroFinal) {

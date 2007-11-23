@@ -192,6 +192,20 @@ char ComuDatos::parametro(unsigned int posParametro, int &parametro)
 	return resultado;
 }
 
+char ComuDatos::parametro(unsigned int posParametro, unsigned int &parametro)
+{	
+	char resultado = OK;
+	string aux;
+	
+	if (posParametro < this->parametrosProceso.size()){
+		aux = this->parametrosProceso[posParametro];
+		parametro = atoi(aux.c_str());
+	}else
+		resultado = FIN_PARAMETROS;	
+	
+	return resultado;
+}
+
 char ComuDatos::parametro(unsigned int posParametro, unsigned char &parametro)
 {	
 	char resultado = OK;

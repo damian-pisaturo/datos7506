@@ -1,8 +1,6 @@
 #ifndef TIPOINDICES_H_
 #define TIPOINDICES_H_
 
-#include <list>
-
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
@@ -10,8 +8,6 @@
 //			(Clase utilitaria con constantes que designan tipos
 //			de indices utilizados).
 ///////////////////////////////////////////////////////////////////////////
-
-typedef list<int> ListaTipos;
 
 class TipoIndices
 {

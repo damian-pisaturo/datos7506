@@ -35,6 +35,9 @@ typedef vector<Clave*> VectorClaves;
 //ClaveCompuesta
 typedef list<Clave*> ListaClaves;
 
+//Definición del tipo de datos de la lista de los tipos de cada valor de una clave
+typedef list<int> ListaTipos;
+
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------

@@ -109,9 +109,10 @@
 				resultado = this->posicionarse(posicion);
 				
 				if ( (resultado == ResultadosFisica::OK) && 
-						(this->size() > Tamanios::TAMANIO_IDENTIFICADOR) ) 
+						(this->size() > Tamanios::TAMANIO_IDENTIFICADOR) ) {
+					this->posicionarse(posicion);
 					resultado = this->leer(bloque);
-				else resultado = ResultadosFisica::ARCHIVO_VACIO;
+				} else resultado = ResultadosFisica::ARCHIVO_VACIO;
 			}
 			
 			if (resultado != ResultadosFisica::OK)

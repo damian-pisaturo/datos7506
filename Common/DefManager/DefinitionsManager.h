@@ -1,8 +1,9 @@
 #ifndef DEFINITIONSMANAGER_H_
 #define DEFINITIONSMANAGER_H_
 
-#include "../../Common/RegisterInfo/RegisterInfo.h"
 #include "../../CapaIndices/Common/TipoIndices.h"
+#include "../RegisterInfo/RegisterInfo.h"
+#include "../Clave/Clave.h"
 #include "../TipoDatos.h"
 #include <list>
 #include <map>
@@ -60,7 +61,7 @@ class DefinitionsManager {
 		//Método para obtener la instancia de este objeto
 		static DefinitionsManager& getInstance() { return instance; }
 		
-		//Métodos públicos
+		//Devuelve la lista de los tipos de cada atributo de la clase 'nombreTipo'
 		ListaTiposAtributos* getListaTiposAtributos(const string &nombreTipo);
 		
 		ListaTipos* getListaTipos(const string &nombreTipo);

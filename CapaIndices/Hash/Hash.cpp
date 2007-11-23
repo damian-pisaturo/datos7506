@@ -222,7 +222,7 @@
 				unsigned short longReg = 0;	
 				char *datos = bucket->getDatos();
 				
-				tamanioBloque = bucket->getTamanioRegistrosConPrefijo(this->listaParam, datos + offsetToReg);
+				tamanioBloque = bucket->getTamanioRegistroConPrefijo(this->listaParam, datos + offsetToReg);
 				// Obtiene la longitud.
 				longReg = bucket->getTamanioRegistros(this->listaParam, datos + offsetToReg);	
 				

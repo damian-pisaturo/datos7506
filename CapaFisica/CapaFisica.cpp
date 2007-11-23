@@ -537,10 +537,14 @@
 							
 				archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
 				
+				cout << "voy a verificar la validez del archivo" << endl;
+				
 				if (archivo->esValido()){
 											
 					//Se informa a la capa superior que el archivo es valido.
-					pipe.escribir(resultado);					
+					pipe.escribir(resultado);
+					
+					cout << "el archivo es valido, escribi el resultado" << endl;					
 					
 					//Obtencion del bloque a escribir a traves del pipe.
 					pipe.leer(tamBloque, buffer);					
@@ -552,7 +556,9 @@
 					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
 					
 					//Se informa a la capa superior que el archivo es invalido.
-					pipe.escribir(resultado);	
+					pipe.escribir(resultado);
+					
+					cout << "el archivo es invalido, escribi el resultado" << endl;
 				}
 				
 			}else if (TipoOrganizacion::REG_FIJOS){

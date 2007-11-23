@@ -3,9 +3,13 @@
 
 #include "../../Common/DefManager/DefinitionsManager.h"
 #include "../../Common/Clave/Clave.h"
-#include "../Common/SetClaves.h"
+#include "../../Common/Bloque/Bloque.h"
 #include "../../Common/ResultadosIndices.h"
 #include "../../Common/Tamanios.h"
+#include "../Common/TipoIndices.h"
+#include "../Common/SetClaves.h"
+#include "../Common/IndiceManagerFactory.h"
+#include "../Common/BloqueListaPrimaria/BloqueListaPrimaria.h"
 #include <vector>
 #include <map>
 
@@ -26,9 +30,7 @@ class Indice
 		
 		unsigned char tipoIndice;
 		
-		unsigned short tamBloqueDato;
-		
-		unsigned short tamBloqueLista;
+		unsigned short tamBloque;
 		
 	public:
 		Indice() {}
@@ -96,9 +98,7 @@ class Indice
 		
 		unsigned char getTipo() const { return this->tipoIndice; }
 		
-		unsigned short getTamanioBloqueDato() const { return this->tamBloqueDato; }
-		
-		unsigned short getTamanioBloqueLista() const { return this->tamBloqueLista; }
+		unsigned short getTamanioBloque() const { return this->tamBloque; }
 		
 };
 
