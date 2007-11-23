@@ -51,6 +51,135 @@ void destruirIndices(MapaIndices &mapaIndices) {
 }
 
 
+void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
+			   Indice *indice, Clave *clave,
+			   DefinitionsManager &defManager, ComuDatos &pipe) {
+	
+	unsigned short cantRegistros = 1, tamRegistro = 0;
+	int resultado = 0;
+	char *registroDatos = NULL;
+	
+	if (indice->getTipo() == TipoIndices::GRIEGO) {
+		
+		resultado = indice->buscar(clave, registroDatos, tamRegistro);
+		pipe.escribir(resultado);
+		
+		//Envío la cantidad de registros
+		pipe.escribir(cantRegistros);
+		
+		if (resultado == ResultadosIndices::OK) {
+			pipe.escribir(tamRegistro);
+			pipe.escribir(registroDatos, tamRegistro);
+		}
+	}
+	else{
+						
+		resultado = indice->buscar(clave, registroDatos);
+		pipe.escribir(resultado);
+		
+		if (resultado == ResultadosIndices::OK) {
+			
+			//Obtengo el índice primario
+			DefinitionsManager::ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
+			indice = mapaIndices[*listaNombresClaves];
+			
+			ListaPrimariaManager listaPrimariaManager(indice->getTamanioBloqueLista());
+			
+			ListaClaves* listaClaves = listaPrimariaManager.getListaClaves(registroDatos, defManager.getListaTipos(nombreTipo));
+			
+			//Envío la cantidad de registros
+			cantRegistros = listaClaves->size();
+			pipe.escribir(cantRegistros);
+			
+			//Consulto el registro de datos de cada clave primaria
+			for (ListaClaves::iterator it = listaClaves->begin(); it != listaClaves->end(); ++it) {
+				
+				resultado = indice->buscar(*it, registroDatos, tamRegistro);
+				pipe.escribir(resultado);
+				
+				if (resultado == ResultadosIndices::OK) {
+					pipe.escribir(tamRegistro);
+					pipe.escribir(registroDatos, tamRegistro);
+				} else break;
+			}
+			
+			delete listaClaves;
+		}
+	}
+	
+}
+
+
+void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
+		   	  Indice *indice, Clave *clave,
+		   	  DefinitionsManager &defManager, ComuDatos &pipe) {
+	
+	unsigned short tamRegistro = 0;
+	char *registroDatos = NULL;
+	
+	int resultado = indice->buscar(clave);
+	pipe.escribir(resultado);
+	
+	if (resultado == ResultadosIndices::CLAVE_NO_ENCONTRADA) {
+		// Recibe el tamaño del registro a insertar.
+		pipe.leer(&tamRegistro);
+		
+		registroDatos = new char[tamRegistro];
+		
+		// Recibe el registro de datos.
+		pipe.leer(tamRegistro, registroDatos);
+
+		resultado = indice->insertar(clave,registroDatos,tamRegistro);
+
+		pipe.escribir(resultado);
+		
+		if (resultado == ResultadosIndices::OK) {
+			//Actualizo los indices secundarios
+			//Saco el índice primario para no volver a insertar.
+			mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
+			delete indice;
+			
+			ListaPrimariaManager listaPrimariaManager(0);
+			char* registroLista = NULL;
+			Clave* claveSecundaria = NULL;
+			
+			for (MapaIndices::iterator iter = mapaIndices.begin();
+				iter != mapaIndices.end(); ++iter) {
+				
+				Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
+								  registroDatos, defManager.getListaTipos(nombreTipo),
+								  defManager.getListaNombresAtributos(nombreTipo));
+				
+				claveSecundaria = registro.getClave(iter->first);
+				indice = iter->second;
+				
+				resultado = indice->buscar(claveSecundaria, registroLista);
+				
+				listaPrimariaManager.setTamanioLista(indice->getTamanioBloqueLista());
+				
+				if (resultado == ResultadosIndices::OK) {
+					//La clave secundaria ya estaba insertada. Sólo se actualiza la lista de claves primaria.
+					listaPrimariaManager.insertarClave(registroLista, clave, defManager.getListaTipos(nombreTipo));
+					//TODO Modificar la lista en disco.
+					
+				} else {
+					//La clave no se encontró en el índice secundario.
+					//Creo la lista de claves primarias, inserto la clave primaria,
+					//e inserto la clave secundaria y la lista en el indice secundario.
+					listaPrimariaManager.crearLista(registroLista, clave, defManager.getListaTipos(nombreTipo));
+					indice->insertar(claveSecundaria, registroLista);						
+				}
+				
+				delete claveSecundaria;
+				
+			}
+		}
+		
+	}
+	
+}
+
+
 int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe) {
 	
 	int resultado = ResultadosIndices::OK;
@@ -96,123 +225,14 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	
 	switch(codOp) {
 		case OperacionesCapas::INDICES_CONSULTAR:
-		{
 			// Si la consulta se hace a un índice primario, se envía el registro
 			// pedido, sino se envían todos los registros correspondiente a las
 			// claves primarias de la lista del indice secundario.
-			unsigned short cantRegistros = 1;
-			if (indice->getTipo() == TipoIndices::GRIEGO) {
-				
-				resultado = indice->buscar(clave, registroDatos, tamRegistro);
-				pipe.escribir(resultado);
-				
-				//Envío la cantidad de registros
-				pipe.escribir(cantRegistros);
-				
-				if (resultado == ResultadosIndices::OK) {
-					pipe.escribir(tamRegistro);
-					pipe.escribir(registroDatos, tamRegistro);
-				}
-			}
-			else{
-								
-				resultado = indice->buscar(clave, registroDatos);
-				pipe.escribir(resultado);
-				
-				if (resultado == ResultadosIndices::OK) {
-					ListaPrimariaManager listaPrimariaManager(indice->getTamanioBloqueLista());
-					
-					ListaClaves* listaClaves = listaPrimariaManager.getListaClaves(registroDatos, defManager.getListaTipos(nombreTipo));
-					
-					//Envío la cantidad de registros
-					unsigned short cantReg = listaClaves->size();
-					pipe.escribir(cantReg);
-					
-					//Consulto el registro de datos de cada clave primaria
-					for (ListaClaves::iterator it = listaClaves->begin(); it != listaClaves->end(); ++it) {
-						
-						resultado = indice->buscar(*it, registroDatos, tamRegistro);
-						pipe.escribir(resultado);
-						
-						if (resultado == ResultadosIndices::OK) {
-							pipe.escribir(tamRegistro);
-							pipe.escribir(registroDatos, tamRegistro);
-						} else break;
-					}
-					delete listaClaves;
-				}
-				
-				
-			}
+			consultar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 			break;
-		}
 		case OperacionesCapas::INDICES_INSERTAR:
-		{		
-			cout << "Insertando en el indice" << endl;
-			
-			cout << "clave: " << *((int*)clave->getValor())<< endl;
-			resultado = indice->buscar(clave);
-			pipe.escribir(resultado);
-			
-			if (resultado == ResultadosIndices::CLAVE_NO_ENCONTRADA) {
-				// Recibe el tamaño del registro a insertar.
-				pipe.leer(&tamRegistro);
-				
-				registroDatos = new char[tamRegistro];
-				
-				// Recibe el registro de datos.
-				pipe.leer(tamRegistro, registroDatos);
-	
-				resultado = indice->insertar(clave,registroDatos,tamRegistro);
-
-				pipe.escribir(resultado);
-				
-				if (resultado == ResultadosIndices::OK) {
-					//Actualizo los indices secundarios
-					//Saco el índice primario para no volver a insertar.
-					mapaIndices.erase(listaNombresClaves);
-					delete indice;
-					
-					ListaPrimariaManager listaPrimariaManager(0);
-					char* registroLista = NULL;
-					Clave* claveSecundaria = NULL;
-					
-					for (MapaIndices::iterator iter = mapaIndices.begin();
-						iter != mapaIndices.end(); ++iter) {
-						
-						Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
-										  registroDatos, defManager.getListaTipos(nombreTipo),
-										  defManager.getListaNombresAtributos(nombreTipo));
-						
-						claveSecundaria = registro.getClave(iter->first);
-						indice = iter->second;
-						
-						resultado = indice->buscar(claveSecundaria, registroLista);
-						
-						listaPrimariaManager.setTamanioLista(indice->getTamanioBloqueLista());
-						
-						if (resultado == ResultadosIndices::OK) {
-							//La clave secundaria ya estaba insertada. Sólo se actualiza la lista de claves primaria.
-							listaPrimariaManager.insertarClave(registroLista, clave, defManager.getListaTipos(nombreTipo));
-							//TODO Modificar la lista en disco.
-							
-						} else {
-							//La clave no se encontró en el índice secundario.
-							//Creo la lista de claves primarias, inserto la clave primaria,
-							//e inserto la clave secundaria y la lista en el indice secundario.
-							listaPrimariaManager.crearLista(registroLista, clave, defManager.getListaTipos(nombreTipo));
-							indice->insertar(claveSecundaria, registroLista);						
-						}
-						
-						delete claveSecundaria;
-						
-					}
-				}
-				
-			}
+			insertar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 			break;
-			
-		}
 		case OperacionesCapas::INDICES_ELIMINAR:
 		{
 			resultado = indice->eliminar(clave);
@@ -284,8 +304,8 @@ int main(int argc, char* argv[]) {
 	procesarOperacion(codOp, nombreTipo, pipe);
 */	
 // MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
-
-/*	DefinitionsManager::ListaTiposAtributos* lista = DefinitionsManager::getInstance().getListaTiposAtributos("PERSONA");
+/*
+	DefinitionsManager::ListaTiposAtributos* lista = DefinitionsManager::getInstance().getListaTiposAtributos("PERSONA");
 	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_ENTERO, lista, TipoIndices::ARBOL_BS, 48, 48, "locura", TipoDatos::TIPO_VARIABLE);
 	
 	char* null = NULL;
@@ -324,58 +344,58 @@ int main(int argc, char* argv[]) {
 
 	
 	//Inserto en la raiz:
-/*	indice.insertar(new ClaveEntera(20), null);
-	indice.insertar(new ClaveEntera(90), null);
-	indice.insertar(new ClaveEntera(49), null);
-	indice.insertar(new ClaveEntera(33), null);
-	indice.insertar(new ClaveEntera(57), null);
-	indice.insertar(new ClaveEntera(30), null);
-	indice.insertar(new ClaveEntera(17), null);
-	indice.insertar(new ClaveEntera(8), null);
+/*	indice.insertar(new ClaveEntera(20), null, 48);
+	indice.insertar(new ClaveEntera(90), null, 48);
+	indice.insertar(new ClaveEntera(49), null, 48);
+	indice.insertar(new ClaveEntera(33), null, 48);
+	indice.insertar(new ClaveEntera(57), null, 48);
+	indice.insertar(new ClaveEntera(30), null, 48);
+	indice.insertar(new ClaveEntera(17), null, 48);
+	indice.insertar(new ClaveEntera(8), null, 48);
 	
 	//Splittea la raiz:
-	indice.insertar(new ClaveEntera(10), null);
+	indice.insertar(new ClaveEntera(10), null, 48);
 
 	//Alta común:
-	indice.insertar(new ClaveEntera(1), null);
+	indice.insertar(new ClaveEntera(1), null, 48);
 	
 	//Alta con redistribución
-	indice.insertar(new ClaveEntera(7), null);
+	indice.insertar(new ClaveEntera(7), null, 48);
 	
 	//Produce split:
-	indice.insertar(new ClaveEntera(86), null);
+	indice.insertar(new ClaveEntera(86), null, 48);
 
 	//Altas comunes:
-	indice.insertar(new ClaveEntera(6), null);
-	indice.insertar(new ClaveEntera(19), null);
-	indice.insertar(new ClaveEntera(60), null);
-	indice.insertar(new ClaveEntera(88), null);
-	indice.insertar(new ClaveEntera(97), null);
+	indice.insertar(new ClaveEntera(6), null, 48);
+	indice.insertar(new ClaveEntera(19), null, 48);
+	indice.insertar(new ClaveEntera(60), null, 48);
+	indice.insertar(new ClaveEntera(88), null, 48);
+	indice.insertar(new ClaveEntera(97), null, 48);
 	
 	//Produce split:
-	indice.insertar(new ClaveEntera(14), null);
+	indice.insertar(new ClaveEntera(14), null, 48);
 	
 	//Lleno la raiz:
-	indice.insertar(new ClaveEntera(2), null);
-	indice.insertar(new ClaveEntera(3), null);
-	indice.insertar(new ClaveEntera(4), null);
-	indice.insertar(new ClaveEntera(5), null);
-	indice.insertar(new ClaveEntera(9), null);
-	indice.insertar(new ClaveEntera(11), null);
-	indice.insertar(new ClaveEntera(12), null);
-	indice.insertar(new ClaveEntera(13), null);
-	indice.insertar(new ClaveEntera(15), null);
-	indice.insertar(new ClaveEntera(16), null);
-	indice.insertar(new ClaveEntera(18), null);
-	indice.insertar(new ClaveEntera(21), null);
-	indice.insertar(new ClaveEntera(22), null);
-	indice.insertar(new ClaveEntera(23), null);
-	indice.insertar(new ClaveEntera(100), null);
-	indice.insertar(new ClaveEntera(121), null);
-	indice.insertar(new ClaveEntera(93), null);
+	indice.insertar(new ClaveEntera(2), null, 48);
+	indice.insertar(new ClaveEntera(3), null, 48);
+	indice.insertar(new ClaveEntera(4), null, 48);
+	indice.insertar(new ClaveEntera(5), null, 48);
+	indice.insertar(new ClaveEntera(9), null, 48);
+	indice.insertar(new ClaveEntera(11), null, 48);
+	indice.insertar(new ClaveEntera(12), null, 48);
+	indice.insertar(new ClaveEntera(13), null, 48);
+	indice.insertar(new ClaveEntera(15), null, 48);
+	indice.insertar(new ClaveEntera(16), null, 48);
+	indice.insertar(new ClaveEntera(18), null, 48);
+	indice.insertar(new ClaveEntera(21), null, 48);
+	indice.insertar(new ClaveEntera(22), null, 48);
+	indice.insertar(new ClaveEntera(23), null, 48);
+	indice.insertar(new ClaveEntera(100), null, 48);
+	indice.insertar(new ClaveEntera(121), null, 48);
+	indice.insertar(new ClaveEntera(93), null, 48);
 	
 	//Splitteo la raiz:
-	indice.insertar(new ClaveEntera(28), null);
+	indice.insertar(new ClaveEntera(28), null, 48);
 	
 	//Baja común:
 	indice.eliminar(new ClaveEntera(11));
@@ -390,7 +410,7 @@ int main(int argc, char* argv[]) {
 	indice.eliminar(new ClaveEntera(23));
 
 	//Alta común
-	indice.insertar(new ClaveEntera(25), null);
+	indice.insertar(new ClaveEntera(25), null, 48);
 
 	//Bajas comunes
 	indice.eliminar(new ClaveEntera(57));
@@ -438,7 +458,7 @@ int main(int argc, char* argv[]) {
 	indice.eliminar(new ClaveEntera(21));
 
 	//Inserto en la raiz
-	indice.insertar(new ClaveEntera(125), null); 
+	indice.insertar(new ClaveEntera(125), null, 48); 
 */
 	/*
 	Clave* clave = NULL;
