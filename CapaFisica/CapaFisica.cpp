@@ -36,7 +36,7 @@
 		char* buffer  = NULL;
 		int tamBloque = 0;
 		int numBloque = 0;
-		int espLibre  = 0;
+		unsigned int espLibre  = 0;
 		unsigned char accion = 0;
 		
 		//Obtener parametros comunes a todas las acciones
@@ -470,7 +470,7 @@
 		
 		case OperacionesCapas::FISICA_LEER_DATO:
 		{
-			int tipoOrg = 0;
+			unsigned char tipoOrg = 0;
 			
 			//Obtencion del numero de bloque
 			//dentro del archivo.
@@ -479,7 +479,7 @@
 			//Obtencion del tipo de organizacion del archivo.
 			pipe.parametro(4, tipoOrg);
 			
-			buffer = new char[tamBloque*sizeof(char) + 1];
+			buffer = new char[tamBloque*sizeof(char)];
 			
 			if (tipoOrg == TipoOrganizacion::REG_VARIABLES){
 				archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);					
@@ -525,15 +525,12 @@
 		
 		case OperacionesCapas::FISICA_ESCRIBIR_DATO:
 		{
-			int tipoOrg  = 0;
-			buffer       = new char[tamBloque*sizeof(char)];			
+			unsigned char tipoOrg = 0;
+			buffer                = new char[tamBloque*sizeof(char)];			
 			
 			//Obtencion del tipo de organizacion del archivo.
 			pipe.parametro(3, tipoOrg);		
-	
-			//Obtencion del bloque a escribir a traves del pipe.
-			pipe.leer(tamBloque, buffer);
-			
+
 			if (tipoOrg == TipoOrganizacion::REG_VARIABLES){
 				//Obtencion del espacio libre dentro del bloque.
 				pipe.parametro(4, espLibre);
@@ -543,7 +540,10 @@
 				if (archivo->esValido()){
 											
 					//Se informa a la capa superior que el archivo es valido.
-					pipe.escribir(resultado);
+					pipe.escribir(resultado);					
+					
+					//Obtencion del bloque a escribir a traves del pipe.
+					pipe.leer(tamBloque, buffer);					
 					
 					//Escritura del bloque a disco.
 					//Se obtiene la posicion donde fue escrito.
@@ -561,7 +561,10 @@
 				if (archivo->esValido()){
 											
 					//Se informa a la capa superior que el archivo es valido.
-					pipe.escribir(resultado);
+					pipe.escribir(resultado);					
+					
+					//Obtencion del bloque a escribir a traves del pipe.
+					pipe.leer(tamBloque, buffer);					
 				
 					//Escritura del registro a disco.
 					//Se obtiene la posicion donde fue escrito.
@@ -583,15 +586,12 @@
 						
 		case OperacionesCapas::FISICA_MODIFICAR_DATO:
 		{
-			int tipoOrg = 0;
+			unsigned char tipoOrg = 0;
 			buffer = new char[tamBloque*sizeof(char)];
 			pipe.parametro(3, numBloque);				
 	
 			//Obtencion del tipo de organizacion del archivo.
-			pipe.parametro(4, tipoOrg);			
-	
-			//Obtencion del bloque a escribir a traves del pipe.
-			pipe.leer(tamBloque, buffer);
+			pipe.parametro(4, tipoOrg);				
 						
 			if (tipoOrg == TipoOrganizacion::REG_VARIABLES){
 				//Obtencion del espacio libre dentro del bloque.
@@ -603,6 +603,9 @@
 											
 					//Se informa a la capa superior que el archivo es valido.
 					pipe.escribir(resultado);
+					
+					//Obtencion del bloque a escribir a traves del pipe.
+					pipe.leer(tamBloque, buffer);
 					
 					//Modificacion del bloque en disco.
 					resultado = ((ArchivoDatosBloques*)archivo)->escribirBloque(buffer, numBloque, espLibre);
@@ -620,6 +623,9 @@
 																
 					//Se informa a la capa superior que el archivo es valido.
 					pipe.escribir(resultado);
+					
+					//Obtencion del bloque a escribir a traves del pipe.
+					pipe.leer(tamBloque, buffer);
 					
 					//Modificacion del registro en disco.
 					resultado = ((ArchivoDatosRegistros*)archivo)->escribirRegistro(buffer, numBloque);

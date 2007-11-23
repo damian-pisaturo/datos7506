@@ -83,6 +83,7 @@
 		{
 			char resultado = 0;
 			int numBloque  = 0;
+			unsigned int espLibre = 0;
 			
 			//Instancia del pipe
 			ComuDatos* pipe = this->instanciarPipe();
@@ -94,8 +95,10 @@
 			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
 			pipe->agregarParametro(this->getTipoOrganizacion(), 3); //Tipo de organizacion del archivo de datos.
 			
-			if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES)
-				pipe->agregarParametro(this->getTamanioBloque() - *((unsigned short*)bloqueNuevo), 4); //Espacio libre dentro del bloque.
+			if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES){
+				espLibre = this->getTamanioBloque() - *((unsigned short*)bloqueNuevo);
+				pipe->agregarParametro(espLibre, 4); //Espacio libre dentro del bloque.
+			}				
 			
 			//Se lanza el proceso de la capa fisica. 
 			resultado = pipe->lanzar();
@@ -129,6 +132,7 @@
 		int BloqueDatosManager::escribirBloqueDatos(unsigned short numBloque, const void* bloqueModif)
 		{
 			char resultado = 0;
+			unsigned int espLibre = 0;
 
 			//Instancia del pipe
 			ComuDatos* pipe = instanciarPipe();
@@ -140,8 +144,10 @@
 			pipe->agregarParametro(numBloque, 3); //Numero de nodo a sobre-escribir.
 			pipe->agregarParametro(this->getTipoOrganizacion(), 4); //Tipo de organizacion del archivo de datos.
 			
-			if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES)
-				pipe->agregarParametro(this->getTamanioBloque() - *(unsigned short*)bloqueModif, 5); //Espacio libre dentro del bloque.
+			if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES){
+				espLibre = this->getTamanioBloque() - *((unsigned short*)bloqueNuevo);
+				pipe->agregarParametro(espLibre, 5); //Espacio libre dentro del bloque.
+			}	
 			
 			//Se lanza el proceso de la capa fisica. 
 			resultado = pipe->lanzar();
