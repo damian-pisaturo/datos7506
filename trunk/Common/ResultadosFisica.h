@@ -12,8 +12,8 @@
 class TipoOrganizacion
 {
 	public:
-		static const unsigned char REG_FIJOS     = 9;
 		static const unsigned char REG_VARIABLES = 8;
+		static const unsigned char REG_FIJOS     = 9;
 };
 
 ///////////////////////////////////////////////////////////////////////////

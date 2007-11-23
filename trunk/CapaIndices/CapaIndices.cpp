@@ -25,9 +25,11 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 			
 			case TipoIndices::ARBOL_BP:
 			case TipoIndices::ARBOL_BS:
-				indice = new IndiceArbol(estructura.tipoIndice, estructura.tamanioBloque, estructura.tipoClave,
-										defManager.getListaTiposAtributos(nombreTipo), estructura.tipoEstructura, estructura.tamanioBloque,
-										Tamanios::TAMANIO_BLOQUE_DATO, estructura.nombreArchivo, tipoOrg);
+				indice = new IndiceArbol(estructura.tipoIndice, estructura.tipoClave,
+										defManager.getListaTiposAtributos(nombreTipo),
+										estructura.tipoEstructura, estructura.tamanioBloque,
+										Tamanios::TAMANIO_BLOQUE_DATO, estructura.nombreArchivo,
+										tipoOrg);
 				break;
 				
 			case TipoIndices::HASH:
@@ -83,7 +85,7 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			DefinitionsManager::ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
 			indice = mapaIndices[*listaNombresClaves];
 			
-			BloqueListaPrimaria listaPrimariaManager(indice->getTamanioBloqueLista());
+			BloqueListaPrimaria listaPrimariaManager(indice->getTamanioBloque());
 			
 			ListaClaves* listaClaves = listaPrimariaManager.getListaClaves(registroDatos, defManager.getListaTipos(nombreTipo));
 			
@@ -132,7 +134,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		resultado = indice->insertar(clave,registroDatos,tamRegistro);
 
 		pipe.escribir(resultado);
-		
+/*	
 		if (resultado == ResultadosIndices::OK) {
 			//Actualizo los indices secundarios
 			//Saco el índice primario para no volver a insertar.
@@ -155,7 +157,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 				
 				resultado = indice->buscar(claveSecundaria, registroLista);
 				
-				listaPrimariaManager.setTamanioLista(indice->getTamanioBloqueLista());
+				listaPrimariaManager.setTamanioBloque(indice->getTamanioBloque());
 				
 				if (resultado == ResultadosIndices::OK) {
 					//La clave secundaria ya estaba insertada. Sólo se actualiza la lista de claves primaria.
@@ -174,6 +176,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 				
 			}
 		}
+*/
 		
 	}
 	
@@ -292,7 +295,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 
 
 int main(int argc, char* argv[]) {
-/*	
+	
 	ComuDatos pipe(argv);
 	unsigned char codOp = 0;
 	string nombreTipo;
@@ -302,11 +305,13 @@ int main(int argc, char* argv[]) {
 	pipe.parametro(1, nombreTipo);
 	
 	procesarOperacion(codOp, nombreTipo, pipe);
-*/	
+
 // MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
 /*
 	DefinitionsManager::ListaTiposAtributos* lista = DefinitionsManager::getInstance().getListaTiposAtributos("PERSONA");
-	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_ENTERO, lista, TipoIndices::ARBOL_BS, 48, 48, "locura", TipoDatos::TIPO_VARIABLE);
+	IndiceArbol indice(TipoIndices::GRIEGO, TipoDatos::TIPO_ENTERO, lista,
+					   TipoIndices::ARBOL_BS, 48, 48, "locura",
+					   TipoDatos::TIPO_VARIABLE);
 	
 	char* null = NULL;
 */
@@ -504,9 +509,11 @@ int main(int argc, char* argv[]) {
 	indice.insertar(clave, null);
 	*/
 
-	
+/*	
 	DefinitionsManager::ListaTiposAtributos* lista = DefinitionsManager::getInstance().getListaTiposAtributos("PERSONA");
-	IndiceArbol indice(TipoIndices::GRIEGO, 48, TipoDatos::TIPO_STRING, lista, TipoIndices::ARBOL_BS, 48, 48, "locura", TipoDatos::TIPO_VARIABLE);
+	IndiceArbol indice(TipoIndices::GRIEGO, TipoDatos::TIPO_STRING, lista,
+					   TipoIndices::ARBOL_BS, 48, 48, "locura",
+					   TipoDatos::TIPO_VARIABLE);
 	
 	char* null = NULL;
 	
@@ -531,7 +538,7 @@ int main(int argc, char* argv[]) {
 
 	//Produce redistribución
 	indice.insertar(new ClaveVariable("Otorinolaringologo"), null);
-	
-	cout << "Fin Main" << endl;
+*/	
+	cout << "Fin Main CapaIndices" << endl;
 }
 

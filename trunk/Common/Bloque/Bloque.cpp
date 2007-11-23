@@ -747,7 +747,7 @@
 		/*
 		 * Devuelve la longitud del registro, sin incluir los 2 bytes de la longitud.
 		 **/
-		unsigned short Bloque::getTamanioRegistros(const ListaNodos * listaParam, char *registro) 
+		unsigned short Bloque::getTamanioRegistros(const ListaNodos * listaParam, char *registro) const
 		{
 			ListaNodos::const_iterator it = listaParam->begin();
 			nodoLista regAtribute = *it;
@@ -766,7 +766,7 @@
 			return longReg;
 		}
 		
-		unsigned short Bloque::getTamanioRegistrosConPrefijo(const ListaNodos* listaParam, char *registro)
+		unsigned short Bloque::getTamanioRegistroConPrefijo(const ListaNodos* listaParam, char *registro) const
 		{
 			ListaNodos::const_iterator it = listaParam->begin();
 			nodoLista regAtribute = *it;
@@ -787,7 +787,7 @@
 			return longReg;
 		}
 		
-		unsigned int Bloque::getTamanioBloque() 
+		unsigned int Bloque::getTamanioBloque() const
 		{
 			return this->tamanio;
 		}
@@ -810,7 +810,7 @@
 			this->datos = data;
 		}
 	
-		unsigned int Bloque::getNroBloque() 
+		unsigned int Bloque::getNroBloque() const
 		{
 			return this->numero;
 		}
@@ -828,4 +828,42 @@
 		void Bloque::setOffsetADatos(unsigned short offset)
 		{
 			this->offsetADatos = offset;
+		}
+		
+		char* Bloque::serializarClave(Clave* clave, const ListaTipos* listaTipos) {
+			
+			char* buffer = new char[Tamanios::TAMANIO_LONGITUD + clave->getTamanioValorConPrefijo()];
+			
+			ListaClaves listaClaves;
+			if (listaTipos->size() > 1) //'clave' es una clave compuesta
+				listaClaves = *(((ClaveCompuesta*)clave)->getListaClaves());
+			else listaClaves.push_back(clave);
+
+			ListaClaves::const_iterator iterClaves;
+			ListaTipos::const_iterator iterTipos;
+			Clave* claveAux = NULL;
+			char* cadena = NULL;
+			unsigned int sizeCadena = 0;
+			
+			for (iterClaves = listaClaves.begin(), iterTipos = listaTipos->begin();
+				(iterClaves != listaClaves.end()) && (iterTipos != listaTipos->end());
+				++iterClaves, ++iterTipos) {	
+				
+				claveAux = *iterClaves;
+				
+				if (*iterTipos == TipoDatos::TIPO_STRING) {
+					
+					cadena = (char*)claveAux->getValor();
+					sizeCadena = claveAux->getTamanioValor();
+				
+					memcpy(buffer, &sizeCadena, Tamanios::TAMANIO_LONGITUD_CADENA);
+					memcpy(buffer + Tamanios::TAMANIO_LONGITUD_CADENA, cadena, sizeCadena);
+					
+				} else memcpy(buffer, claveAux->getValor(), claveAux->getTamanioValor());
+				
+				buffer += claveAux->getTamanioValorConPrefijo();
+			}
+			
+			return buffer;
+			
 		}

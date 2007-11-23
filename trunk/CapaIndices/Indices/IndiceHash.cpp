@@ -4,8 +4,7 @@
 	{
 		this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
 		this->tipoIndice    = TipoIndices::GRIEGO;
-		this->tamBloqueDato = tamBucket;
-		this->tamBloqueLista = 0;
+		this->tamBloque = tamBucket;
 		this->hash = new Hash((IndiceHashManager*)indiceManager, listaParam, tamBucket);		
 	}
 	

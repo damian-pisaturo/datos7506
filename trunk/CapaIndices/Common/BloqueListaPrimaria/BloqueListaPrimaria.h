@@ -13,15 +13,12 @@
 typedef list<std::string> ListaStrings;
 
 class BloqueListaPrimaria : public Bloque {
-	
-	private:
-		unsigned short tamLista;
 		
 	public:
-		BloqueListaPrimaria(unsigned short tamLista) : tamLista(tamLista) {}
+		BloqueListaPrimaria(unsigned short tamLista) : Bloque(0, tamLista) {}
 		
 		virtual ~BloqueListaPrimaria() {}
-		
+	
 		void crearLista(char* &lista) const;
 		
 		void crearLista(char* &lista, Clave* clave, const ListaTipos* listaTipos) const;
@@ -35,15 +32,9 @@ class BloqueListaPrimaria : public Bloque {
 		
 		unsigned short getCantClaves(const char* lista) const;
 		
-		unsigned short getTamanioLista() const { return this->tamLista; }
-		
 		ListaClaves* getListaClaves(const char* lista, ListaTipos* listaTipos) const;
-		
-		void setTamanioLista(unsigned short tamLista) { this->tamLista = tamLista; }
-		
-	private:
-		char* serializarClave(Clave* clave, const ListaTipos* listaTipos) const;
+
 		
 };
 
-#endif /*LISTAPRIMARIAMANAGER_H_*/
+#endif /*BLOQUELISTAPRIMARIA_H_*/

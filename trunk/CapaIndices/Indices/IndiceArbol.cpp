@@ -1,15 +1,16 @@
 #include "IndiceArbol.h"
 
-IndiceArbol::IndiceArbol(const unsigned char tipoIndice, unsigned short tamBloqueLista,
-						 int tipoDato, ListaNodos* listaTipos, const unsigned char tipoEstructura,
-						 unsigned short tamNodo, unsigned short tamBloqueDato,
+IndiceArbol::IndiceArbol(const unsigned char tipoIndice, int tipoDato,
+						 ListaNodos* listaTipos, const unsigned char tipoEstructura,
+						 unsigned short tamNodo, unsigned short tamBloque,
 						 const string& nombreArchivo, unsigned char tipoOrg) {
 	
-	this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(tipoIndice, tipoDato, this->getListaTipos(listaTipos), 
-																			   tipoEstructura, tamNodo, 0, nombreArchivo);
+	this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(tipoIndice, tipoDato,
+																			   this->getListaTipos(listaTipos), 
+																			   tipoEstructura, tamNodo, 0,
+																			   nombreArchivo);
 	this->tipoIndice = tipoIndice;
-	this->tamBloqueDato = tamBloqueDato;
-	this->tamBloqueLista = tamBloqueLista;
+	this->tamBloque = tamBloque;
 	this->listaNodos = listaTipos;
 	
 	switch (tipoEstructura) {
@@ -24,13 +25,16 @@ IndiceArbol::IndiceArbol(const unsigned char tipoIndice, unsigned short tamBloqu
 	}
 
 	switch (tipoIndice) {
-		case TipoIndices::GRIEGO:			
-			this->bloqueManager = new BloqueDatosManager(tamBloqueDato, nombreArchivo, tipoOrg);
+		case TipoIndices::GRIEGO:
+			this->bloque = new Bloque(0, tamBloque);
+			this->bloqueManager = new BloqueDatosManager(tamBloque, nombreArchivo, tipoOrg);
 			break;
 		case TipoIndices::ROMANO:
-			this->bloqueManager = new BloqueListaManager(tamBloqueLista, nombreArchivo);
+			this->bloque = new BloqueListaPrimaria(tamBloque);
+			this->bloqueManager = new BloqueListaManager(tamBloque, nombreArchivo);
 			break;
 		default:
+			this->bloque = NULL;
 			this->bloqueManager = NULL;
 	}
 
@@ -38,6 +42,7 @@ IndiceArbol::IndiceArbol(const unsigned char tipoIndice, unsigned short tamBloqu
 
 IndiceArbol::~IndiceArbol() {
 	if (this->bTree) delete this->bTree;
+	if (this->bloque) delete this->bloque;
 	if (this->bloqueManager) delete this->bloqueManager;
 }
 
@@ -54,15 +59,18 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 	if (claveBuscada) 
 		resultado =  ResultadosIndices::CLAVE_DUPLICADA;
 	else{
-		contenidoBloque = new char[this->tamBloqueDato];
-		memset(contenidoBloque, 0, this->tamBloqueDato);
+		contenidoBloque = new char[this->tamBloque];
+		memset(contenidoBloque, 0, this->tamBloque);
 		
 		// Lee de disco el contenido del bloque donde debe insertar.
 		nroBloque = this->buscarBloqueDestino(tamRegistro, contenidoBloque);
 		
+		cout << "nro de bloque devuelto por bucarBloqueDestino: " << nroBloque << endl;
+		
+		
 		// Si hay lugar en el bloque de disco, le asigno su contenido	
 		if ( (nroBloque != ResultadosFisica::BLOQUES_OCUPADOS) && (nroBloque != ResultadosFisica::ARCHIVO_VACIO) ){
-			bloque = new Bloque(this->tamBloqueDato);
+			bloque = new Bloque(this->tamBloque);
 			
 			bloque->setNroBloque(nroBloque);		
 			bloque->setDatos(contenidoBloque);
@@ -72,14 +80,18 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 			
 			// Sobreescribe el archivo de datos en la posicion 'nroBloque'
 			resultado = this->bloqueManager->escribirBloqueDatos(nroBloque, bloque->getDatos());	
-		}else{
-			bloque = new Bloque(0, this->tamBloqueDato);		
+		}else{			
+			bloque = new Bloque(0, this->tamBloque);		
 
 			// Inserta el registro.
 			bloque->altaRegistro(this->listaNodos, registro);		
 			
+			cout << "voy a escribir un nuevo bloque de datos" << endl;
+			
 			// Agrega un nuevo bloque de datos al archivo
-			nroBloque = this->bloqueManager->escribirBloqueDatos(bloque->getDatos());			
+			nroBloque = this->bloqueManager->escribirBloqueDatos(bloque->getDatos());
+			
+			cout << "termine de escribir el nuevo bloque de datos" << endl;
 		}
 		
 		clave->setReferencia(nroBloque);
@@ -110,7 +122,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro) {
 	}
 	
 	int resultado = 0;
-	
+	//TODO Cuando Manu termine de probar el arbol hay que volver a asignar resultado al escribirBloqueDatos()
 	if (registro)
 		this->bloqueManager->escribirBloqueDatos(registro);
 	
@@ -133,9 +145,9 @@ int IndiceArbol::eliminar(Clave *clave) {
 	Clave* claveBuscada = bTree->buscar(clave);
 	if (!claveBuscada) return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	if (bTree->eliminar(clave)) {
-		char *contenidoBloque =  new char[this->tamBloqueDato];
+		char *contenidoBloque =  new char[this->tamBloque];
 		if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), contenidoBloque) == ResultadosFisica::OK){
-			Bloque* bloque = new Bloque(0, this->tamBloqueDato);
+			Bloque* bloque = new Bloque(0, this->tamBloque);
 			bloque->setDatos(contenidoBloque);
 			bloque->bajaRegistro(this->listaNodos,*claveBuscada);
 			resultado = this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), bloque->getDatos());
@@ -155,18 +167,18 @@ int IndiceArbol::eliminar(Clave *clave) {
 int IndiceArbol::buscar(Clave *clave, char* &registro, unsigned short &tamanioRegistro) const {
 	Clave* claveRecuperada = bTree->buscar(clave);
 	if (!claveRecuperada) return ResultadosIndices::CLAVE_NO_ENCONTRADA;
-	char* bloqueDatos = new char[this->getTamanioBloqueDato()];
+	char* bloqueDatos = new char[this->getTamanioBloque()];
 	int resultado = this->bloqueManager->leerBloqueDatos(claveRecuperada->getReferencia(), bloqueDatos);
 	
 	if (resultado == ResultadosFisica::OK) {
-		Bloque* bloque = new Bloque(0, this->tamBloqueDato);
+		Bloque* bloque = new Bloque(0, this->tamBloque);
 		bloque->setDatos(bloqueDatos);
 	
 		unsigned short offsetToReg = 0;
 		
 		if (bloque->buscarRegistro(this->listaNodos, *clave, &offsetToReg)){
 		
-			unsigned short tamanioRegistro = bloque->getTamanioRegistrosConPrefijo(listaNodos, bloque->getDatos() + offsetToReg );
+			unsigned short tamanioRegistro = bloque->getTamanioRegistroConPrefijo(this->listaNodos, bloque->getDatos() + offsetToReg );
 			
 			if (registro)
 				delete[] registro;
@@ -194,7 +206,7 @@ int IndiceArbol::buscar(Clave *clave, char* &registro) const {
 	Clave* claveRecuperada = bTree->buscar(clave);
 	if (!claveRecuperada) return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	if (registro) delete[] registro;
-	registro = new char[this->tamBloqueLista];
+	registro = new char[this->tamBloque];
 	int resultado = this->bloqueManager->leerBloqueDatos(claveRecuperada->getReferencia(), registro);
 	
 	delete claveRecuperada;

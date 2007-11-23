@@ -28,8 +28,8 @@
 #include "../../Common/Tamanios.h"
 #include "../../Common/TipoDatos.h"
 #include "../../Common/RegisterInfo/RegisterInfo.h"
-#include "../Clave/Clave.h"
 #include "../../Common/ResultadosIndices.h"
+#include "../Clave/Clave.h"
 
 using namespace std;
 
@@ -121,13 +121,13 @@ class Bloque
 		 * Devuelve la longitud del registro, ya sea de longitud fija o varaible.
 		 * No incluye los bytes que se utilizan para guardar la longitud de los registros variables.
 		 **/
-		unsigned short getTamanioRegistros(const ListaNodos *listaParam, char *registro);
+		unsigned short getTamanioRegistros(const ListaNodos *listaParam, char *registro) const;
 
 		/*
 		 * Devuelve la longitud del registro, ya sea de longitud fija o varaible.
 		 * En este último caso incluye los bytes utilizados para guardar la longitud del mismo.
 		 **/
-		unsigned short getTamanioRegistrosConPrefijo(const ListaNodos *listaParam, char *registro);
+		unsigned short getTamanioRegistroConPrefijo(const ListaNodos *listaParam, char *registro) const;
 		
 		/*
 		 * Devuelve la clave primaria de "registro".
@@ -137,7 +137,7 @@ class Bloque
 		/*
 		 * Devuelve el tamaño del bloque.
 		 **/
-		unsigned int getTamanioBloque();
+		unsigned int getTamanioBloque() const;
 		
 		/*
 		 * Setea el tamaño del bloque.
@@ -157,7 +157,7 @@ class Bloque
 		/*
 		 * Devuelve el némero del bloque.
 		 **/
-		unsigned int getNroBloque();
+		unsigned int getNroBloque() const;
 		
 		/*
 		 * Setea el número del bloque.
@@ -167,6 +167,8 @@ class Bloque
 		unsigned short getOffsetADatos() const;
 		
 		void setOffsetADatos(unsigned short offset);
+		
+		static char* serializarClave(Clave* clave, const ListaTipos* listaTipos);
 
 };
 
