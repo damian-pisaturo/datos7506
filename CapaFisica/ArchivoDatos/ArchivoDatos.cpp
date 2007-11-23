@@ -108,12 +108,9 @@
 			if (posicion != ResultadosFisica::BLOQUES_OCUPADOS){
 				resultado = this->posicionarse(posicion);
 				
-				bool finEL = archivoEL->fin();
-				
-				if ( (resultado == ResultadosFisica::OK) && (!finEL) )
+				if (resultado == ResultadosFisica::OK)
 					resultado = this->leer(bloque);
-				else if (finEL) resultado = ResultadosFisica::ARCHIVO_VACIO;
-			}
+				}
 			
 			if (resultado != ResultadosFisica::OK)
 				posicion = resultado;
