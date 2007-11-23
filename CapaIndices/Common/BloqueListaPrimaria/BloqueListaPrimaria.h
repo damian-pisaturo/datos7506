@@ -1,8 +1,9 @@
-#ifndef LISTAPRIMARIAMANAGER_H_
-#define LISTAPRIMARIAMANAGER_H_
+#ifndef BLOQUELISTAPRIMARIA_H_
+#define BLOQUELISTAPRIMARIA_H_
 
 #include "../../../Common/ClaveFactory/ClaveFactory.h"
 #include "../../../Common/Clave/Clave.h"
+#include "../../../Common/Bloque/Bloque.h"
 #include "../../../Common/TipoDatos.h"
 #include "../../Common/TipoIndices.h"
 #include "../../../Common/CodigosPipe.h"
@@ -11,15 +12,15 @@
 
 typedef list<std::string> ListaStrings;
 
-class ListaPrimariaManager {
+class BloqueListaPrimaria : public Bloque {
 	
 	private:
 		unsigned short tamLista;
 		
 	public:
-		ListaPrimariaManager(unsigned short tamLista) : tamLista(tamLista) {}
+		BloqueListaPrimaria(unsigned short tamLista) : tamLista(tamLista) {}
 		
-		virtual ~ListaPrimariaManager() {}
+		virtual ~BloqueListaPrimaria() {}
 		
 		void crearLista(char* &lista) const;
 		

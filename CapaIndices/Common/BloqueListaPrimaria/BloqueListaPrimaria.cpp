@@ -1,6 +1,6 @@
-#include "ListaPrimariaManager.h"
+#include "BloqueListaPrimaria.h"
 
-void ListaPrimariaManager::crearLista(char* &lista) const {
+void BloqueListaPrimaria::crearLista(char* &lista) const {
 	
 	lista = new char[this->tamLista];
 	unsigned short cantClaves = 0, espLibre = this->tamLista;
@@ -11,7 +11,7 @@ void ListaPrimariaManager::crearLista(char* &lista) const {
 }
 	
 
-void ListaPrimariaManager::crearLista(char* &lista, Clave* clave, const ListaTipos* listaTipos) const {
+void BloqueListaPrimaria::crearLista(char* &lista, Clave* clave, const ListaTipos* listaTipos) const {
 	
 	lista = new char[this->tamLista];
 	unsigned short cantClaves = 1, espLibre = this->tamLista - clave->getTamanioValorConPrefijo();
@@ -23,7 +23,7 @@ void ListaPrimariaManager::crearLista(char* &lista, Clave* clave, const ListaTip
 }
 
 
-bool ListaPrimariaManager::insertarClave(char* lista, Clave* clave, const ListaTipos* listaTipos) const {
+bool BloqueListaPrimaria::insertarClave(char* lista, Clave* clave, const ListaTipos* listaTipos) const {
 	
 	unsigned short cantClaves = 0, espLibre = 0, tamClave = clave->getTamanioValorConPrefijo();
 	
@@ -50,7 +50,7 @@ bool ListaPrimariaManager::insertarClave(char* lista, Clave* clave, const ListaT
 }
 
 
-bool ListaPrimariaManager::eliminarClave(char* &lista, Clave* clave, const ListaTipos* listaTipos) const {
+bool BloqueListaPrimaria::eliminarClave(char* &lista, Clave* clave, const ListaTipos* listaTipos) const {
 	
 	bool encontrada = false;
 	Clave* claveAux = NULL;
@@ -92,7 +92,7 @@ bool ListaPrimariaManager::eliminarClave(char* &lista, Clave* clave, const Lista
 }
 
 
-ListaStrings* ListaPrimariaManager::convertirAListaStrings(char* lista, const ListaTipos* listaTipos,
+ListaStrings* BloqueListaPrimaria::convertirAListaStrings(char* lista, const ListaTipos* listaTipos,
 							const DefinitionsManager::ListaNombresClaves* listaNombresClaves) const {
 	
 	unsigned short offset = Tamanios::TAMANIO_LONGITUD + Tamanios::TAMANIO_ESPACIO_LIBRE;
@@ -177,7 +177,7 @@ ListaStrings* ListaPrimariaManager::convertirAListaStrings(char* lista, const Li
 }
 
 
-char* ListaPrimariaManager::serializarClave(Clave* clave, const ListaTipos* listaTipos) const {
+char* BloqueListaPrimaria::serializarClave(Clave* clave, const ListaTipos* listaTipos) const {
 	
 	char* buffer = new char[clave->getTamanioValorConPrefijo()];
 	
@@ -216,14 +216,14 @@ char* ListaPrimariaManager::serializarClave(Clave* clave, const ListaTipos* list
 }
 
 
-unsigned short ListaPrimariaManager::getCantClaves(const char* lista) const {
+unsigned short BloqueListaPrimaria::getCantClaves(const char* lista) const {
 	
 	return *((unsigned short*)lista);
 	
 }
 
 
-ListaClaves* ListaPrimariaManager::getListaClaves(const char* lista, ListaTipos* listaTipos) const {
+ListaClaves* BloqueListaPrimaria::getListaClaves(const char* lista, ListaTipos* listaTipos) const {
 	
 	ListaClaves* listaClaves = new ListaClaves();
 	unsigned short offset = Tamanios::TAMANIO_LONGITUD + Tamanios::TAMANIO_ESPACIO_LIBRE;

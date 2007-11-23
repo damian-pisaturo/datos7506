@@ -57,6 +57,7 @@ class Bloque
 		 * Organiza el bloque a luego de una baja dentro del mismo
 		 **/
 		void organizarBloque(int offsetToReg, int longReg);
+		
 		/*
 		 * Inserta un registro dentro del bloque, actualizando el offset a espacio libre
 		 **/
@@ -92,7 +93,7 @@ class Bloque
 		 * Si lo encuentra devuelve true y el offset al registro en "offsetReg"; de lo contrario, 
 		 * devuelve false.
 		 **/
-		bool buscarRegistro(const ListaNodos *listaParam, Clave &clavePrimaria, unsigned short* offsetReg);
+		bool buscarRegistro(const ListaNodos *listaParam, Clave &clavePrimaria, unsigned short *offsetReg);
 		
 		/*
 		 * Inserta un nuevo registro dentro del bloque
@@ -107,8 +108,8 @@ class Bloque
 		/*
 		 * Modifica el contenido de un registro.
 		 **/
-		int modificarRegistro(const ListaNodos *listaParam, unsigned short longReg,Clave &clavePrimaria, 
-							  char* registro);
+		int modificarRegistro(const ListaNodos *listaParam, unsigned short longReg, Clave &clavePrimaria, 
+							  char *registro);
 		
 		/*
 		 * Verifica que el registro a insertar tiene espacio dentro del bloque
@@ -120,17 +121,18 @@ class Bloque
 		 * Devuelve la longitud del registro, ya sea de longitud fija o varaible.
 		 * No incluye los bytes que se utilizan para guardar la longitud de los registros variables.
 		 **/
-		unsigned short getTamanioRegistros(const ListaNodos *listaParam,char *registro);
+		unsigned short getTamanioRegistros(const ListaNodos *listaParam, char *registro);
 
 		/*
 		 * Devuelve la longitud del registro, ya sea de longitud fija o varaible.
 		 * En este último caso incluye los bytes utilizados para guardar la longitud del mismo.
 		 **/
-		unsigned short getTamanioRegistrosConPrefijo(const ListaNodos* listaParam, char *registro);
+		unsigned short getTamanioRegistrosConPrefijo(const ListaNodos *listaParam, char *registro);
+		
 		/*
 		 * Devuelve la clave primaria de "registro".
 		 **/
-		Clave*  getClavePrimaria(const ListaNodos *listaParam, char* registro);
+		Clave*  getClavePrimaria(const ListaNodos *listaParam, char *registro);
 		
 		/*
 		 * Devuelve el tamaño del bloque.
@@ -145,7 +147,7 @@ class Bloque
 		/*
 		 * Devuelve un puntero al contenido del bloque.
 		 **/
-		char * getDatos();
+		char* getDatos();
 		
 		/*
 		 * Asigna el contenido al bloque.
