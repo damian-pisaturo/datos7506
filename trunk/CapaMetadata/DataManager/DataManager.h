@@ -7,7 +7,9 @@
 #include "../../Common/Clave/Clave.h"
 #include "../../Common/Bloque/Bloque.h"
 #include "../../Common/ClaveFactory/ClaveFactory.h"
+#include "../../Common/CodigosPipe.h"
 #include <string>
+#include <sstream>
 
 #define CAMPO_NO_MODIFICADO ""
 
@@ -56,6 +58,7 @@ public:
 	unsigned short crearRegistroAlta(const DefinitionsManager::ListaValoresAtributos &listaVA,
 						   const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos);
 	
+	unsigned short crearRegistroAltaRandom(string &valoresClaves, const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos);	
 
 	char* getRegistro() const
 	{

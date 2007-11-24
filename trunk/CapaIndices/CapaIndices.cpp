@@ -63,12 +63,8 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 	if (indice->getTipo() == TipoIndices::GRIEGO) {
 		
-		cout << "voy a consultar un registro..." << endl;
-		
 		resultado = indice->buscar(clave, registroDatos, tamRegistro);
 		pipe.escribir(resultado);
-		
-		cout << "consulté y escribi el resultado: " << resultado << endl;
 		
 		//Envío la cantidad de registros
 		pipe.escribir(cantRegistros);
@@ -130,6 +126,8 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		// Recibe el tamaño del registro a insertar.
 		pipe.leer(&tamRegistro);
 		
+		if (tamRegistro == 0) return;
+		
 		registroDatos = new char[tamRegistro];
 		
 		// Recibe el registro de datos.
@@ -187,9 +185,62 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 }
 
 
-int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe) {
+void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
+	   	  	  Indice *indice, Clave *clave,
+	   	  	  DefinitionsManager &defManager, ComuDatos &pipe) {
 	
-	cout << "VOY A PROCESAR LA OPERACION: " << (int)codOp << endl;
+	int resultado = indice->eliminar(clave);
+	pipe.escribir(resultado);
+	if (resultado == ResultadosIndices::OK) {
+		//TODO Actualizar indices secundarios
+	}
+	
+}
+
+
+void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
+ 	  	  	   Indice *indice, Clave *clave,
+ 	  	  	   DefinitionsManager &defManager, ComuDatos &pipe) {
+	
+	int resultado = ResultadosIndices::OK;
+	unsigned short tamRegistro = 0;
+	char *registroDatos = NULL;
+	
+	if (indice->getTipo() == TipoIndices::GRIEGO) {
+		// Busca el registro viejo.
+		resultado = indice->buscar(clave, registroDatos, tamRegistro);
+		pipe.escribir(resultado);
+		if (resultado == ResultadosIndices::OK) {
+			// Se envía el tamaño del registro a modificar.
+			pipe.escribir(tamRegistro);
+			//	Se envía el bloque antiguo
+			pipe.escribir(registroDatos, tamRegistro);
+			
+			// Se recibe el tamaño del registro modificado.
+			pipe.leer(&tamRegistro);
+			//Se recibe el bloque con los atributos modificados
+			pipe.leer(tamRegistro, registroDatos);
+	
+			//TODO Pedirle la clave nueva a la Clase Registro de Nico.
+			Clave* claveNueva;
+			resultado = indice->modificar(clave, claveNueva, registroDatos, tamRegistro);
+			pipe.escribir(resultado);
+		}
+	} else {
+		
+		//TODO Obtener la lista de claves primarias y modificar todos los registros
+		//correspondientes a cada clave de la lista.
+		
+	}
+	
+	if (resultado == ResultadosIndices::OK) {
+		//TODO Actualizar indices secundarios
+	}
+	
+}
+
+
+int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe) {
 	
 	int resultado = ResultadosIndices::OK;
 	string buffer(""), auxStr("");
@@ -203,9 +254,6 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	Clave *clave = NULL;
 	Indice* indice = NULL;
 	
-	char* registroDatos = NULL;
-	unsigned short tamRegistro = 0;
-	
 	//Si la operación es una inserción, recibo la clave o la lista de claves del índice primario
 	
 	//Leo el tamanio del buffer a recibir
@@ -215,6 +263,12 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	pipe.leer(tamanioBuffer, buffer);
 	
 	//Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes (NOMBRE_CLAVE=VALOR_CLAVE)
+	
+	if (buffer.size() < 4) {
+		resultado = ResultadosIndices::ERROR_VALORES_CLAVES;
+		pipe.escribir(resultado);
+		return resultado;
+	}
 	
 	posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
 	while ( (posActual != string::npos) ) {
@@ -228,87 +282,48 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	
 	//Se crean los indices correspondientes al tipo 'nombreTipo'
 	crearIndices(nombreTipo, mapaIndices, defManager);
-	
 	indice = mapaIndices[listaNombresClaves];
 	clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *(defManager.getListaTiposClaves(nombreTipo, listaNombresClaves)));
-	
-	cout << "ANTES DEL SWITCH" << endl;
 	
 	switch(codOp) {
 		case OperacionesCapas::INDICES_CONSULTAR:
 			// Si la consulta se hace a un índice primario, se envía el registro
 			// pedido, sino se envían todos los registros correspondiente a las
-			// claves primarias de la lista del indice secundario.
-			
-			cout << "CONSULTA: " << endl;
-			
+			// claves primarias de la lista del indice secundario.			
 			consultar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 			break;
 		case OperacionesCapas::INDICES_INSERTAR:
-			
-			cout << "INSERCIÓN: " << endl;
-			
+			// Siempre se inserta un registro a partir de su clave primaria,
+			// y luego se actualizan los índices secundarios.
 			insertar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 			break;
 		case OperacionesCapas::INDICES_ELIMINAR:
-		{
-			cout << "ELIMINACIÓN: " << endl;
-			
-			resultado = indice->eliminar(clave);
-			pipe.escribir(resultado);
-			if (resultado == ResultadosIndices::OK) {
-				//TODO Actualizar indices secundarios
-			}
+			// Si la eliminación se hace a partir de una clave primaria, se elimina
+			// dicha clave y su correspondiente registro de datos, y se actualizan
+			// todos los indices secundarios.
+			// Si la eliminación es a partir de una clave secundaria, se obtienen
+			// todas las claves primarias y se lleva a cabo la eliminación para cada
+			// una de ellas.
+			eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 			break;
-		}
 		case OperacionesCapas::INDICES_MODIFICAR:
-		{
-			
-			cout << "MODIFICACIÓN: " << endl;
-			
-			if (indice->getTipo() == TipoIndices::GRIEGO) {
-				// Busca el registro viejo.
-				resultado = indice->buscar(clave, registroDatos, tamRegistro);
-				pipe.escribir(resultado);
-				if (resultado == ResultadosIndices::OK) {
-					// Se envía el tamaño del registro a modificar.
-					pipe.escribir(tamRegistro);
-					//	Se envía el bloque antiguo
-					pipe.escribir(registroDatos, tamRegistro);
-					
-					// Se recibe el tamaño del registro modificado.
-					pipe.leer(&tamRegistro);
-					//Se recibe el bloque con los atributos modificados
-					pipe.leer(tamRegistro, registroDatos);
-
-					//TODO Pedirle la clave nueva a la Clase Registro de Nico.
-					Clave* claveNueva;
-					resultado = indice->modificar(clave, claveNueva, registroDatos, tamRegistro);
-					pipe.escribir(resultado);
-				}
-			} else {
-				
-				//TODO Obtner la lista de claves primarias y modificar todos los registros
-				//correspondientes a cada clave de la lista.
-				
-			}
-			
-			if (resultado == ResultadosIndices::OK) {
-				//TODO Actualizar indices secundarios
-			}
-			
+			// Si la modificación se hace a partir de una clave primaria, se modifica
+			// dicha clave y su correspondiente registro de datos, y se actualizan
+			// todos los indices secundarios.
+			// Si la modificación es a partir de una clave secundaria, se obtienen
+			// todas las claves primarias y se lleva a cabo la modificación para cada
+			// una de ellas.
+			modificar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 			break;
-		}
 		default:
+			//No se reconoce la operación
 			resultado = ResultadosIndices::OPERACION_INVALIDA;
 			pipe.escribir(resultado);
 	}
 	
 	destruirIndices(mapaIndices);
 	
-	if (registroDatos) delete[] registroDatos;
-	
-	return 0;
+	return resultado;
 	
 }
 
@@ -556,7 +571,7 @@ int main(int argc, char* argv[]) {
 
 	//Produce redistribución
 	indice.insertar(new ClaveVariable("Otorinolaringologo"), null);
-	
+
 	//Lleno la raiz
 	indice.insertar(new ClaveVariable("Aries"), null);
 	indice.insertar(new ClaveVariable("Tauro"), null);
@@ -612,6 +627,6 @@ int main(int argc, char* argv[]) {
 		delete clave;
 	}
 	*/
-	cout << "Fin Main CapaIndices" << endl;
+	cout << "Fin Capa Indices" << endl;
 }
 

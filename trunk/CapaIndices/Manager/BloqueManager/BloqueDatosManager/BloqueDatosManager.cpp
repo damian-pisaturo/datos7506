@@ -69,7 +69,7 @@
 				//Se obtiene el resultado del proceso de lectura del bloque.
 				pipe->leer(&resultado);
 	
-				if (resultado == ResultadosFisica::OK)
+				if (resultado == ResultadosFisica::OK) 
 					pipe->leer(this->getTamanioBloque(), (char*)bloqueLeido);
 			}
 
@@ -95,8 +95,6 @@
 			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del nodo en disco.
 			pipe->agregarParametro(this->getTipoOrganizacion(), 3); //Tipo de organizacion del archivo de datos.
 			
-			cout << "voy a calcular el espacio libre dentro del bloque" << endl;
-			
 			if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES){
 				espLibre = this->getTamanioBloque() - *((unsigned short*)bloqueNuevo);
 				pipe->agregarParametro(espLibre, 4); //Espacio libre dentro del bloque.
@@ -105,26 +103,19 @@
 			//Se lanza el proceso de la capa fisica. 
 			resultado = pipe->lanzar();
 			
-			cout << "calcule el espacio libre y lanze el pipe" << endl;
-			
 			if (resultado == ComuDatos::OK){
 			
 				//Se chequea la validez del archivo
 				pipe->leer(&resultado);
-				
-				cout << "leo el resultado de capa fisica" << endl;
 							
 				if (resultado == ResultadosFisica::OK){
+					
 					//Grabar el bloque en el archivo.
-					
-					cout << "voy a mandar el bloque a capa fisica" << endl;
-					
 					pipe->escribir((char*)bloqueNuevo , this->getTamanioBloque());
 		
 					//Obtener nueva posicion del bloque en el archivo. 
 					pipe->leer(&numBloque);
 					
-					cout << "leo el nro del bloque que me manda capa fisica" << endl;
 				}else
 					numBloque = resultado;
 			}else

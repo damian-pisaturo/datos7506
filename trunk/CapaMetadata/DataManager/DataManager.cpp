@@ -46,7 +46,12 @@ unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaVal
 		}
 		else if(tipo == TipoDatos::TIPO_FECHA){
 			
-		
+			//Se verifica que el formato de la fecha sea válido
+			if (campoRegistro.size() < 8) {
+				delete[] registro;
+				return 0;
+			}
+			
 			string subStr = campoRegistro.substr(0, 4);
 			unsigned short anio = atoi(subStr.c_str());
 			memcpy(&registro[offsetToCampo], &anio, sizeof(unsigned short));
@@ -95,7 +100,90 @@ unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaVal
 	this->setRegistro(registro);
 	
 	return longRegistro;
-}	
+}
+
+
+unsigned short DataManager::crearRegistroAltaRandom(string &valoresClaves, const DefinitionsManager::ListaTiposAtributos &listaTipos) {
+	
+	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTipos.begin();
+	DefinitionsManager::ListaValoresAtributos listaVA;
+	int tipo; //Indica si el tipo de campo del registro es variable o fijo
+	stringstream conversor;
+	
+	// Se itera la lista de atributos del registro.
+	// Y se van generando aleatoriamente los datos del registro.
+	for(++itTipos; itTipos != listaTipos.end(); ++itTipos) {
+		
+		tipo = itTipos->tipo;
+		
+		if(tipo == TipoDatos::TIPO_ENTERO){
+			
+			int entero = rand() % 50000001; //Genera un número entero hasta 50000000
+			conversor << entero;
+			
+			valoresClaves = "DNI=" + conversor.str() + CodigosPipe::COD_FIN_CLAVE;
+			
+		}
+		else if(tipo == TipoDatos::TIPO_FECHA){
+			
+			unsigned short cero = 0;
+			unsigned short anio = rand() % 10000;
+			conversor << anio;
+			unsigned longAnio = conversor.str().size();
+			if (longAnio < 4) {
+				conversor.str("");
+				for (unsigned i = 0; i < (4 - longAnio); ++i)
+					conversor << cero;
+				conversor << anio;
+			}
+			unsigned char mes = 1 + (rand() % 12);
+			if (mes < 10) conversor << cero;
+			conversor << (short)mes;
+			unsigned char dia = 1 + (rand() % 31);
+			if (dia < 10) conversor << cero;
+			conversor << (short)dia;
+			
+		}
+		else if(tipo == TipoDatos::TIPO_FLOAT){
+
+			float real = rand()*0.127;
+			conversor << real;
+			
+		}
+		else if(tipo == TipoDatos::TIPO_SHORT){
+			
+			short numero = rand() % 32001; //Genera un número entero hasta 32000
+			conversor << numero;
+			
+		}
+		else if(tipo == TipoDatos::TIPO_STRING){
+			
+			char c;
+			int longCadena = rand() % 300;
+			
+			for (int i = 0; i < longCadena; ++i) {
+				c = 97 + (rand() % 26); //Caracteres aleatorios de la 'a' a la 'z'
+				conversor << c;
+			}
+			
+		}
+		else if(tipo == TipoDatos::TIPO_BOOL){
+			
+			int campoBooleano = rand() % 2;
+			conversor << (bool)campoBooleano;
+			
+		}
+		
+		listaVA.push_back(conversor.str());
+		conversor.clear();
+		conversor.str("");
+	}
+	
+	return this->crearRegistroAlta(listaVA, listaTipos);
+	
+}
+
+
 unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
 											   const DefinitionsManager::ListaValoresAtributos &listaVA){
 	// Obtengo los iteradores de ambas listas
@@ -155,6 +243,7 @@ unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTi
 		}
 		return tamanioRegistro;
 }
+
 
 /*
  *  Genera un nuevo registro con los cambios pedidos en la modificacion
@@ -243,13 +332,13 @@ unsigned short DataManager::crearRegistroModificacion(const DefinitionsManager::
 	return longRegNuevo;
 }
 
+
 /*
  * Genera el nuevo registro con las modificaciones correspondientes
  * */
 void DataManager::generarRegistroModificado(char *registroNuevo, char *registroViejo, unsigned short longNuevoReg, 
 							   const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
-		   					   const DefinitionsManager::ListaValoresAtributos &listaVA
-		   					  ){
+		   					   const DefinitionsManager::ListaValoresAtributos &listaVA) {
 	// Obtengo los iteradores de ambas listas
 	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
 	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
@@ -314,7 +403,7 @@ void DataManager::generarRegistroModificado(char *registroNuevo, char *registroV
 			break;		
 
 		case TipoDatos::TIPO_FECHA:
-			if (estaModificado){
+			if ( (estaModificado) && (valorModificado.size() == 8) ) {
 				string subStr = valorModificado.substr(0, 4);
 				unsigned short anio = atoi(subStr.c_str());
 				memcpy(&registroNuevo[offsetRegNuevo], &anio, sizeof(unsigned short));
@@ -388,6 +477,7 @@ void DataManager::generarRegistroModificado(char *registroNuevo, char *registroV
 	
 }
 
+
 /*int DataManager::insertar(const DefinitionsManager::ListaValoresAtributos* listaVA,
 				 		  const DefinitionsManager::ListaTiposAtributos* listaTipos, Bloque* bloque) {
 	
@@ -403,6 +493,7 @@ void DataManager::generarRegistroModificado(char *registroNuevo, char *registroV
 	return bloque->bajaRegistro(listaTipos, *ClaveFactory::getInstance().getClave(*listaClaves, *listaTipos));
 	
 }
+
 
 int DataManager::modificar(const DefinitionsManager::ListaValoresAtributos* listaVA,
 			  			   const DefinitionsManager::ListaTiposAtributos* listaTipos,
@@ -422,3 +513,4 @@ int DataManager::modificar(const DefinitionsManager::ListaValoresAtributos* list
 
 }
 */
+

@@ -13,10 +13,10 @@ class Resultado {
         //Se define el tipo de dato del codigo de resultado
         typedef int tResultado;
         
-    	static const tResultado _NO_ERROR_ = 0;
+    	static const tResultado SIN_RESULTADO = 0;
         
         //Constructor por default
-        Resultado() { resultado = _NO_ERROR_; }
+        Resultado() { resultado = SIN_RESULTADO; }
         
         //Constructor de copia
         Resultado (const Resultado &e) { resultado = e.getValue(); }
