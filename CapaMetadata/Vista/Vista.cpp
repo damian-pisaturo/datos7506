@@ -8,7 +8,6 @@ Vista::~Vista()
 {
 }
 
-// TODO: SI EL REGISTRO ES VARIABLE CONTEMPLAR SI SE LE PASAN INCLUIDOS EN EL CHAR* LOS DOS BYTES DE LONGITUD
 void Vista::showRegister(char *registro, ListaNodos *listaTiposAtributos){
 	ListaNodos::const_iterator it = listaTiposAtributos->begin();
 	int tipo;
@@ -16,7 +15,7 @@ void Vista::showRegister(char *registro, ListaNodos *listaTiposAtributos){
 	unsigned short offset = 0; 
 	
 	if(it->tipo == 	TipoDatos::TIPO_VARIABLE)
-		offset += sizeof(unsigned short);
+		offset += Tamanios::TAMANIO_LONGITUD;
 	
 	for(++it; it != listaTiposAtributos->end(); ++it){
 		tipo = it->tipo;

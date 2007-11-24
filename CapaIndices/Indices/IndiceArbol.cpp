@@ -63,10 +63,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 		memset(contenidoBloque, 0, this->tamBloque);
 		
 		// Lee de disco el contenido del bloque donde debe insertar.
-		nroBloque = this->buscarBloqueDestino(tamRegistro, contenidoBloque);
-		
-		cout << "nro de bloque devuelto por bucarBloqueDestino: " << nroBloque << endl;
-		
+		nroBloque = this->buscarBloqueDestino(tamRegistro, contenidoBloque);		
 		
 		// Si hay lugar en el bloque de disco, le asigno su contenido	
 		if ( (nroBloque != ResultadosFisica::BLOQUES_OCUPADOS) && (nroBloque != ResultadosFisica::ARCHIVO_VACIO) ){
@@ -86,12 +83,10 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 			// Inserta el registro.
 			bloque->altaRegistro(this->listaNodos, registro);		
 			
-			cout << "voy a escribir un nuevo bloque de datos" << endl;
-			
 			// Agrega un nuevo bloque de datos al archivo
 			nroBloque = this->bloqueManager->escribirBloqueDatos(bloque->getDatos());
 			
-			cout << "termine de escribir el nuevo bloque de datos" << endl;
+			delete[] contenidoBloque;
 		}
 		
 		clave->setReferencia(nroBloque);
@@ -171,6 +166,7 @@ int IndiceArbol::buscar(Clave *clave, char* &registro, unsigned short &tamanioRe
 	int resultado = this->bloqueManager->leerBloqueDatos(claveRecuperada->getReferencia(), bloqueDatos);
 	
 	if (resultado == ResultadosFisica::OK) {
+		
 		Bloque* bloque = new Bloque(0, this->tamBloque);
 		bloque->setDatos(bloqueDatos);
 	
@@ -178,7 +174,7 @@ int IndiceArbol::buscar(Clave *clave, char* &registro, unsigned short &tamanioRe
 		
 		if (bloque->buscarRegistro(this->listaNodos, *clave, &offsetToReg)){
 		
-			unsigned short tamanioRegistro = bloque->getTamanioRegistroConPrefijo(this->listaNodos, bloque->getDatos() + offsetToReg );
+			tamanioRegistro = bloque->getTamanioRegistroConPrefijo(this->listaNodos, bloque->getDatos() + offsetToReg );
 			
 			if (registro)
 				delete[] registro;
@@ -186,16 +182,19 @@ int IndiceArbol::buscar(Clave *clave, char* &registro, unsigned short &tamanioRe
 			registro = new char[tamanioRegistro];
 			
 			memcpy(registro, bloque->getDatos() + offsetToReg, tamanioRegistro);
+			
+			resultado = ResultadosIndices::OK;			
+			
 		} else resultado = ResultadosIndices::REGISTRO_NO_ENCONTRADO;
+		
 		delete bloque;
+		
+	} else {
+		delete[] bloqueDatos;
+		registro = NULL;
 	}
 	
 	delete claveRecuperada;
-	
-	if (resultado != ResultadosFisica::OK) {
-		delete registro;
-		registro = NULL;
-	}
 	
 	return resultado;
 }

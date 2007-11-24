@@ -39,6 +39,8 @@ ostream& operator << (ostream &out, const Resultado &e) {
             out << "Se ha producido un error al intentar insertar un registro desde CapaIndices."; break;
         case ResultadosIndices::ERROR_MODIFICACION:
             out << "Se ha producido un error al intentar modificar un registro desde CapaIndices."; break;
+        case ResultadosIndices::ERROR_VALORES_CLAVES:
+        	out << "Se ha producido un error al intentar parsear los valores de las claves desde CapaIndices."; break;
         case ResultadosIndices::REGISTRO_NO_ENCONTRADO:
         	out << "El registro buscado en alguna operacion de la CapaIndices no fue encontrado."; break;
         case ResultadosIndices::CLAVE_DUPLICADA:
@@ -53,6 +55,10 @@ ostream& operator << (ostream &out, const Resultado &e) {
         	out << "Operación de CapaMetadata finalizada con éxito."; break;
         case ResultadosMetadata::OPERACION_INVALIDA:
         	out << "Operación de CapaMetadata inválida."; break;
+        case ResultadosMetadata::ERROR_FORMATO_FECHA:
+        	out << "El formato del campo de tipo Fecha es inválido.\nDebe ser de la forma AAAAMMDD."; break;
+        case Resultado::SIN_RESULTADO:
+        	out << "No se ha registrado ningún resultado."; break;
         default:
         	out << "Resultado inválido"; break;
     }

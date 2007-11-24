@@ -64,8 +64,8 @@ int main(int argc, char* argv[])
 		unsigned short tamRegistro   = 0;	// Tamano de un registro.
 		unsigned short cantRegistros = 0;  //Cant. de registros que responden a la consulta dada.
 		char* registro               = NULL; // Buffer contenedor de un registro. 
-		string valoresClaves;
-		string nombreTipo;
+		string valoresClaves("");
+		string nombreTipo("");
 		
 		// Lista de valores de todos los atributos dentro de un registro.
 		DefinitionsManager::ListaValoresAtributos* listaValAtributos = NULL;
@@ -91,19 +91,22 @@ int main(int argc, char* argv[])
 		// Clase de impresion y muestra por salida estandar.
 		Vista vista;
 		
-		while (parserOperaciones.proximaOperacion()){
+		while (parserOperaciones.proximaOperacion()) {
+		
+//		for (unsigned i = 0; i < 1000; ++i) {
+		
 			pipe = instanciarPipe(); 
 			operacion   = parserOperaciones.getTipoOperacion();
+//			operacion   = OperacionesCapas::METADATA_ALTA;
 			listaClaves = parserOperaciones.getListaClaves();
 			nombreTipo  = parserOperaciones.getNombreTipo();			
+//			nombreTipo  = "PERSONA";
 			mapaValoresAtributos = parserOperaciones.getMapaValoresAtributos();
+			valoresClaves.clear();
 			
 			switch(operacion){
 				case OperacionesCapas::METADATA_CONSULTA:
-				{
-					
-					cout << "CONSULTA DESDE METADATA" << endl;
-					
+				{					
 					// Codigo de operacion de consulta para la Capa de Indices
 					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_CONSULTAR, 0); 
 					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
@@ -111,8 +114,6 @@ int main(int argc, char* argv[])
 					
 					// Se lanza el proceso de la Capa Indices.
 					pipeResult = pipe->lanzar();
-					
-					cout << "resultado de lanzar el pipe para realizar una consulta: " << pipeResult << endl;
 					
 					if (pipeResult == ComuDatos::OK){						
 						// Envio de los valores de las claves a consultar por el pipe
@@ -122,8 +123,6 @@ int main(int argc, char* argv[])
 						
 						// Obtencion del resultado de la operacion
 						pipe->leer(&pipeResult);
-						
-						cout << "RECIBI EL RESULTADO DE OPERACION: " << pipeResult << endl;
 						
 						if (pipeResult == ResultadosIndices::OK){
 							
@@ -142,11 +141,13 @@ int main(int argc, char* argv[])
 								
 								// Se obtiene el registro de datos consultado.
 								pipe->leer(tamRegistro, registro);
+								
 								vista.showRegister(registro, listaTiposAtributos);
 								
 								delete[] registro;
 							}
 							cout << "========================================" <<endl;
+							registro = NULL;
 						}
 					}
 				}break;
@@ -241,17 +242,21 @@ int main(int argc, char* argv[])
 					pipe->agregarParametro(nombreTipo, 1);
 					
 					// Se lanza el proceso de la Capa Indices.
-					pipeResult = pipe->lanzar();					
+					pipeResult = pipe->lanzar();
 
 					if (pipeResult == ComuDatos::OK){
 						// Envio de los valores de las claves de los registros
 						// a modificar por el pipe.
 						serializarListaClaves(valoresClaves, mapaValoresAtributos, listaNombres);
 						
+						//LINEAS PARA PROBAR ALTAS MASIVAS
+						/*********/
+//						cout << endl << "ALTA NRO: " << i << endl;
+//						tamRegistro = dataManager.crearRegistroAltaRandom(valoresClaves, *defManager.getListaTiposAtributos(nombreTipo));
+						/*********/
+						
 						pipe->escribir((unsigned short)valoresClaves.length());
 						pipe->escribir(valoresClaves);
-
-						valoresClaves.clear();
 						
 						// Se obtiene el resultado de la operacion.
 						pipe->leer(&pipeResult);
@@ -264,18 +269,25 @@ int main(int argc, char* argv[])
 							// Se crea el registro a dar de alta y se obtiene su longitud
 							tamRegistro = dataManager.crearRegistroAlta(*listaValAtributos, *listaTiposAtributos);
 							
-							/******************/
-							vista.showRegister(dataManager.getRegistro(), listaTiposAtributos);
-							
-							// Se envia el registro a dar de alta por el pipe.
 							pipe->escribir((unsigned short)(tamRegistro*sizeof(char)));
-							pipe->escribir(dataManager.getRegistro(), tamRegistro*sizeof(char));
 							
-							// Se obtiene el resultado de la insercion
-							pipe->leer(&pipeResult);
+							if (tamRegistro > 0) {
+								
+								vista.showRegister(dataManager.getRegistro(), listaTiposAtributos);
+								
+								// Se envia el registro a dar de alta por el pipe.
+								pipe->escribir(dataManager.getRegistro(), tamRegistro*sizeof(char));
+								
+								// Se obtiene el resultado de la insercion
+								pipe->leer(&pipeResult);
+								
+							} else pipeResult = ResultadosMetadata::ERROR_FORMATO_FECHA;
 							
 							delete listaValAtributos;
+							
 						}
+						
+						cout << endl << endl;
 					}
 					
 				}break;
@@ -290,7 +302,10 @@ int main(int argc, char* argv[])
 			
 			delete pipe;
 			pipe = NULL;
-		}		
+			
+			usleep(1000); //Recibe microsegundos
+			
+		}
 		
 		if (registro)
 			delete[] registro;
@@ -301,122 +316,7 @@ int main(int argc, char* argv[])
 	
 	cout << "Fin Capa Metadata" << endl;
 	
-	/*cout << "Datos del registro" << endl;
-	
-	char *registro = new char [30];
-	int entero = 789;
-	int offset = 2;
-	string campoVariable = "Maria";
-	unsigned char longCampoVariable;
-	ListaNodos lista;
-	nodoLista nodo;
-	list<string> listaValoresAtributos;
-	listaValoresAtributos.push_back("");
-	listaValoresAtributos.push_back("Rodriguez");
-	listaValoresAtributos.push_back("20");
-	listaValoresAtributos.push_back("21");
-	listaValoresAtributos.push_back("");
-	listaValoresAtributos.push_back("20081212");
-	listaValoresAtributos.push_back("");
-	listaValoresAtributos.push_back("");
-	unsigned short longR = 28; 
-	nodo.tipo = TipoDatos::TIPO_VARIABLE;
-	lista.push_back(nodo);
-	short campoShort = 76;
-	nodo.pk = "fruta";
-	nodo.tipo  = TipoDatos::TIPO_STRING;
-	lista.push_back(nodo);
-	lista.push_back(nodo);
-	memcpy(registro,&longR,2);
-	**************** PRIMER CAMPO VARIABLE *********************
-
-	longCampoVariable = campoVariable.size();
-	
-	memcpy((registro + offset), &longCampoVariable, Tamanios::TAMANIO_LONGITUD_CADENA);
-	offset += Tamanios::TAMANIO_LONGITUD_CADENA;
-	
-	memcpy((registro + offset), campoVariable.c_str(), longCampoVariable);
-	offset += longCampoVariable;
-	
-	**************** SEGUNDO CAMPO VARIABLE *********************
-	
-	campoVariable = "Laura";
-
-	longCampoVariable = campoVariable.size();
-	
-	memcpy((registro + offset), &longCampoVariable, Tamanios::TAMANIO_LONGITUD_CADENA);
-	offset += Tamanios::TAMANIO_LONGITUD_CADENA;
-	
-	memcpy((registro + offset), campoVariable.c_str(), longCampoVariable);
-	offset += longCampoVariable;
-	
-	nodo.tipo = TipoDatos::TIPO_SHORT;
-	lista.push_back(nodo);
-	nodo.tipo = TipoDatos::TIPO_ENTERO;
-	memcpy((registro + offset), &campoShort, sizeof(short));
-	offset += sizeof(short);
-	
-	lista.push_back(nodo);
-	memcpy((registro + offset), &entero, sizeof(int));
-	offset += sizeof(int);
-	entero = 2;
-	lista.push_back(nodo);
-	memcpy((registro + offset), &entero, sizeof(int));
-	offset += sizeof(int);
-	
-	nodo.tipo = TipoDatos::TIPO_FECHA;
-	lista.push_back(nodo);
-	unsigned short anio = 2007;
-	unsigned char mes = 11;
-	unsigned char dia = 14;
-	
-	memcpy((registro + offset), &anio, sizeof(unsigned short));
-	offset += sizeof(unsigned short);
-	
-	memcpy((registro + offset), &mes, sizeof(unsigned char));
-	offset += sizeof(unsigned char);
-	
-	memcpy((registro + offset), &dia, sizeof(unsigned char));
-	offset += sizeof(unsigned char);
-	
-	nodo.tipo = TipoDatos::TIPO_BOOL;
-	lista.push_back(nodo);
-	lista.push_back(nodo);
-	
-	bool pepe = true;
-	memcpy((registro + offset), &pepe, sizeof(bool));
-	offset += sizeof(bool);
-	
-	pepe = false;
-	memcpy((registro + offset), &pepe, sizeof(bool));
-	offset += sizeof(bool);
-	Vista *vista = new Vista();
-	
-	vista->showRegister(registro,&lista);
-	
-	DataManager *dataManager = new DataManager();
-	dataManager->crearRegistroModificacion(lista, listaValoresAtributos, registro);
-	
-	cout << "El modificado" <<endl;
-	
-	vista->showRegister(dataManager->getRegistro(),&lista);
-	
-	cout << "Pruebo como genero un registro para un alta" <<endl;
-	list<string> listaValoresA;
-	    listaValoresA.push_back("Juan");
-		listaValoresA.push_back("Ramon");
-		listaValoresA.push_back("67");
-		listaValoresA.push_back("68");
-		listaValoresA.push_back("25");
-		listaValoresA.push_back("20071212");
-		listaValoresA.push_back("1");
-		listaValoresA.push_back("1");
-		
-		dataManager->crearRegistroAlta(listaValoresA,lista);
-		
-		vista->showRegister(dataManager->getRegistro(),&lista);
-	return 0;
-*/	
+	return pipeResult;
 	
 }
 

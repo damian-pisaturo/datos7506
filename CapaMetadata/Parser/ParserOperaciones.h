@@ -22,6 +22,7 @@
 #define SEPARATOR_CAMPOS ';'
 #define SEPARATOR_ATRIBUTOS ','
 #define ASIGNACION_ATRIBUTOS '='
+#define CARACTER_COMENTARIO '#'
 
 #define ALTA 'A'
 #define BAJA 'B'
