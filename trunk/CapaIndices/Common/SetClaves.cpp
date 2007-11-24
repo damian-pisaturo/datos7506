@@ -22,7 +22,7 @@ Clave* SetClaves::findClave(Clave* clave) const {
 	
 }
 
-SetClaves* SetClaves::splitBPlus(unsigned short minClaves, unsigned short maxClaves, bool bstar) {
+SetClaves* SetClaves::splitBPlus(unsigned short minClaves, unsigned short maxClaves, bool bstar, bool hoja) {
 	
 	//minClaves contiene la cantidad minima de claves (en bytes) que debe
 	//contener cada conjunto.
@@ -43,10 +43,8 @@ SetClaves* SetClaves::splitBPlus(unsigned short minClaves, unsigned short maxCla
 	
 	this->erase(iter, this->end());
 	
-	//TODO: Se busca impedir que queden nodos vacíos. Distinguir entre hoja e interno (en BStar siempre
-	//utilizar el correspondiente a los internos)
-	//Los dos ifs irían si se trata de nodoInterno. En nodosHoja sólo iría el segundo if. Revisar eso luego
-/*	if ( (conjClavesMayores->size() == 0) && (this->size() > 2) ){
+	//Se busca impedir que queden nodos vacíos.
+	if ( ((bstar) || (!hoja)) && (conjClavesMayores->size() == 0) && (this->size() > 2) ){
 		iter = this->end();
 		conjClavesMayores->insert(*(--iter));
 		this->erase(iter);
@@ -57,7 +55,7 @@ SetClaves* SetClaves::splitBPlus(unsigned short minClaves, unsigned short maxCla
 		iter = this->end();
 		conjClavesMayores->insert(*(--iter));
 		this->erase(iter);
-	}*/
+	}
 	
 	
 	return conjClavesMayores;

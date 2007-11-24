@@ -430,14 +430,14 @@ bool Nodo::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* cla
 		tamanioClaveHaciaElPadre += Tamanios::TAMANIO_REFERENCIA;
 	}
 
-/*	if ( ( tamanioClavePadreARecibir >= bytesRequeridos ) &&
+	if ( ( tamanioClavePadreARecibir >= bytesRequeridos ) &&
 		 (nodoPadre->puedeRecibir(tamanioClaveHaciaElPadre, tamanioClavePadre)) &&
 		 (bytesACeder(this->obtenerPrimeraClave()->getTamanioEnDisco(bstar), clavesPropuestas) > 0) )
 		return true;
-	*/
+	
 	bytesRequeridos -= tamanioClavePadreARecibir;
 	bytesPropuestosPorMi = this->bytesACeder(bytesRequeridos, clavesPropuestas);
-	
+
 	if ( (bytesPropuestosPorMi > 0)
 		&& (nodoHnoIzq->puedeRecibir(bytesPropuestosPorMi + tamanioClavePadreARecibir, 0))
 		&& ( (bytesHaciaElPadre = this->bytesACeder(clavesPropuestas + 1)) > 0 ) ) {
@@ -469,11 +469,11 @@ bool Nodo::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* cla
 		tamanioClaveHaciaElPadre += Tamanios::TAMANIO_REFERENCIA;
 	}
 	
-/*	if ( ( tamanioClavePadreARecibir >= bytesRequeridos ) &&
+	if ( ( tamanioClavePadreARecibir >= bytesRequeridos ) &&
 		 (nodoPadre->puedeRecibir(tamanioClaveHaciaElPadre, tamanioClavePadre)) &&
 		 (bytesACeder(this->obtenerPrimeraClave()->getTamanioEnDisco(bstar), clavesPropuestas, false) > 0) )
 		return true;
-	*/	
+		
 	bytesRequeridos -= tamanioClavePadreARecibir;
 	bytesPropuestosPorMi = this->bytesACeder(bytesRequeridos, clavesPropuestas, false);
 	
@@ -544,7 +544,7 @@ bool Nodo::tieneUnderflow() const {
 
 
 SetClaves* Nodo::splitB(unsigned short minClaves) {
-	SetClaves* set = this->getClaves()->splitBPlus(minClaves, this->getTamanioEspacioClaves(), bstar);
+	SetClaves* set = this->getClaves()->splitBPlus(minClaves, this->getTamanioEspacioClaves(), bstar, this->getNivel() == 0);
 	this->actualizarEspacioLibre();
 	return set;
 }
