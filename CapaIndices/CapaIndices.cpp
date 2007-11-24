@@ -556,7 +556,43 @@ int main(int argc, char* argv[]) {
 
 	//Produce redistribución
 	indice.insertar(new ClaveVariable("Otorinolaringologo"), null);
-*/	
+	
+	//Lleno la raiz
+	indice.insertar(new ClaveVariable("Aries"), null);
+	indice.insertar(new ClaveVariable("Tauro"), null);
+	indice.insertar(new ClaveVariable("Geminis"), null);
+	indice.insertar(new ClaveVariable("Cancer"), null);
+	indice.insertar(new ClaveVariable("Leo"), null);
+	indice.insertar(new ClaveVariable("Virgo"), null);
+	indice.insertar(new ClaveVariable("Libra"), null);
+	indice.insertar(new ClaveVariable("Escorpio"), null);
+	
+	//Split en hoja y raiz
+	indice.insertar(new ClaveVariable("Sagitario"), null);
+	
+	//Elimino todo
+	
+	//Baja con redistribución
+	indice.eliminar(new ClaveVariable("Cantamontes"));
+	*/
+//	indice.eliminar(new ClaveVariable("Escorpio"));
+//	indice.eliminar(new ClaveVariable("Geminis"));
+/*	indice.eliminar(new ClaveVariable("Otorinolaringologo"));
+	indice.eliminar(new ClaveVariable("Aries"));
+	indice.eliminar(new ClaveVariable("Certant"));
+	indice.eliminar(new ClaveVariable("Je"));
+	indice.eliminar(new ClaveVariable("Tauro"));
+	indice.eliminar(new ClaveVariable("Coloquio"));
+	indice.eliminar(new ClaveVariable("Lorenzo"));
+	indice.eliminar(new ClaveVariable("Libra"));
+	indice.eliminar(new ClaveVariable("Holas"));
+	indice.eliminar(new ClaveVariable("Manu"));
+	indice.eliminar(new ClaveVariable("San"));
+	indice.eliminar(new ClaveVariable("Virgo"));
+	indice.eliminar(new ClaveVariable("Rasputin"));
+	indice.eliminar(new ClaveVariable("Cancer"));
+	indice.eliminar(new ClaveVariable("Leo"));
+	*/
 	cout << "Fin Main CapaIndices" << endl;
 }
 

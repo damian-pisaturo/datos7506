@@ -43,6 +43,23 @@ SetClaves* SetClaves::splitBPlus(unsigned short minClaves, unsigned short maxCla
 	
 	this->erase(iter, this->end());
 	
+	//TODO: Se busca impedir que queden nodos vacíos. Distinguir entre hoja e interno (en BStar siempre
+	//utilizar el correspondiente a los internos)
+	//Los dos ifs irían si se trata de nodoInterno. En nodosHoja sólo iría el segundo if. Revisar eso luego
+/*	if ( (conjClavesMayores->size() == 0) && (this->size() > 2) ){
+		iter = this->end();
+		conjClavesMayores->insert(*(--iter));
+		this->erase(iter);
+		conjClavesMayores->insert(*(--iter));
+		this->erase(iter);
+	}
+	else if ( (conjClavesMayores->size() == 1) && (this->size() > 1) ){
+		iter = this->end();
+		conjClavesMayores->insert(*(--iter));
+		this->erase(iter);
+	}*/
+	
+	
 	return conjClavesMayores;
 }
 
@@ -67,21 +84,25 @@ VectorConjuntos* SetClaves::splitBStar(unsigned short minClaves, unsigned short 
 				nuevoConj->insert(*iter);
 		}
 		
-		if (iter != this->end()) nuevoConj->insert(*iter);
+		if (iter != this->end()){
+			nuevoConj->insert(*iter);
+			++iter;
+		}
 		
 		vectorConj->push_back(nuevoConj);
 		
-		this->erase(this->begin(), ++iter);
+		this->erase(this->begin(), iter);
 		
 	}
 	
+	//Se busca impedir que queden nodos vacíos
 	if (this->size() == 0) {
-		if (((*vectorConj)[0])->size() > 1){
+		if (((*vectorConj)[1])->size() > 2){
 			iter = ((*vectorConj)[1])->end();
 			this->insert(*(--iter));
 			((*vectorConj)[1])->erase(iter);
 		}
-		else{
+		else if ( (((*vectorConj)[0])->size() > 2) && (((*vectorConj)[1])->size() > 1) ){
 			iter = ((*vectorConj)[0])->end();
 			((*vectorConj)[1])->insert(*(--iter));
 			((*vectorConj)[0])->erase(iter);
