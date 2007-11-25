@@ -134,9 +134,14 @@ int main(int argc, char* argv[])
 							
 							cout << "======= Resultado de la consulta =======" << endl;
 							for (unsigned short i = 0; i < cantRegistros; i++){
-								// Se obtiene el tamano del registro a levantar
+								// Se obtiene el tamaño del registro a levantar
 								pipe->leer(&tamRegistro);
 							
+								if (tamRegistro == 0) {
+									pipeResult = ResultadosIndices::ERROR_CONSULTA;
+									break;
+								}
+								
 								registro = new char[tamRegistro];
 								
 								// Se obtiene el registro de datos consultado.

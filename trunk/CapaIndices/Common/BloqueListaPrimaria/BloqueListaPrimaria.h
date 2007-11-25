@@ -18,7 +18,7 @@ class BloqueListaPrimaria : public Bloque {
 		BloqueListaPrimaria(unsigned short tamLista) : Bloque(0, tamLista) {}
 		
 		virtual ~BloqueListaPrimaria() {}
-	
+/*	
 		void crearLista(char* &lista) const;
 		
 		void crearLista(char* &lista, Clave* clave, const ListaTipos* listaTipos) const;
@@ -31,7 +31,7 @@ class BloqueListaPrimaria : public Bloque {
 				const DefinitionsManager::ListaNombresClaves* listaNombresClaves) const;
 		
 		unsigned short getCantClaves(const char* lista) const;
-		
+*/		
 		ListaClaves* getListaClaves(const char* lista, ListaTipos* listaTipos) const;
 
 		

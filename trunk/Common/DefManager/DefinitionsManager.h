@@ -61,22 +61,27 @@ class DefinitionsManager {
 		//Método para obtener la instancia de este objeto
 		static DefinitionsManager& getInstance() { return instance; }
 		
-		//Devuelve la lista de los tipos de cada atributo de la clase 'nombreTipo'
+		//Devuelve la lista de los tipos de cada atributo de la clase 'nombreTipo'.
+		//NO hay que liberar la memoria de la lista.
 		ListaTiposAtributos* getListaTiposAtributos(const string &nombreTipo);
 		
+		//Devuelve la lista de los tipos de cada atributo de la clase 'nombreTipo'.
+		//HAY que liberar la memoria de la lista.
 		ListaTipos* getListaTipos(const string &nombreTipo);
 		
+		//Devuelve la lista de los tipos de cada valor de una clave.
+		//NO hay que liberar la memoria de la lista.
 		ListaTipos* getListaTiposClaves(const string &nombreTipo, const ListaNombresClaves &listaNombresClaves);
 		
 		//Devuelve una lista con los valores de los atributos ordenados segun el archivo de definiciones.
-		//Si 'insercion == true' significa que la lista de valores de atributos se utilizara en una alta,
-		//por lo cual el campo 'debeModificar' de cada nodo de la lista tendra el valor false.
-		//Si 'insercion == false' significa que la lista de valores de atributos se utilizara en una modificacion,
-		//por lo cual el campo 'debeModificar' de cada nodo de la lista que se haya encontrado en el mapa de valores
-		//tendra el valor true, y los nodos que no se encontraron en el mapa tendran el valor false.
+		//En caso que en el mapa no se encuentre algun atributo, el string correspondiente al mismo en la
+		//lista quedará vacío.
+		//HAY que liberar la memoria de la lista.
 		ListaValoresAtributos* getListaValoresAtributos(const string &nombreTipo,
-															  const MapaValoresAtributos &mapaValoresAtributos);
+														const MapaValoresAtributos &mapaValoresAtributos);
 		
+		//Devuelve una lista con todos los datos correspondientes a cada índice de la clase 'nombreTipo'.
+		//NO hay que liberar la memoria de la lista.
 		ListaTiposIndices* getListaTiposIndices(const string &nombreTipo);
 		
 		const MapaTiposAtributos& getMapaTiposAtributos() const {
@@ -95,10 +100,14 @@ class DefinitionsManager {
 			return this->mapaTiposAtributos[nombreTipo]->begin()->tipo;
 		}
 		
+		//Devuelve una lista con los nombres de los campos de la clave primaria.
+		//NO hay que liberar la memoria de la lista.
 		ListaNombresClaves* getListaNombresClavesPrimarias(const string &nombreTipo) {
 			return this->mapaNombresClavesPrimarias[nombreTipo];
 		}
 		
+		//Devuelve una lista con los nombres de todos los atributos/campos de la clase 'nombreTipo'.
+		//NO hay que liberar la memoria de la lista.
 		ListaNombresAtributos* getListaNombresAtributos(const string &nombreTipo) {
 			return this->mapaNombresAtributos[nombreTipo];
 		}

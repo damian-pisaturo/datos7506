@@ -1,5 +1,6 @@
 #include "BloqueListaPrimaria.h"
 
+/*
 void BloqueListaPrimaria::crearLista(char* &lista) const {
 	
 	lista = new char[this->getTamanioBloque()];
@@ -182,23 +183,22 @@ unsigned short BloqueListaPrimaria::getCantClaves(const char* lista) const {
 	return *((unsigned short*)lista);
 	
 }
-
+*/
 
 ListaClaves* BloqueListaPrimaria::getListaClaves(const char* lista, ListaTipos* listaTipos) const {
 	
 	ListaClaves* listaClaves = new ListaClaves();
-	unsigned short offset = Tamanios::TAMANIO_LONGITUD + Tamanios::TAMANIO_ESPACIO_LIBRE;
-	unsigned short espLibre = *((unsigned short*)(lista + Tamanios::TAMANIO_LONGITUD));
-	const char* punteroFinal = lista + this->getTamanioBloque() - espLibre;
+	unsigned short offset = this->getOffsetADatos() + Tamanios::TAMANIO_LONGITUD;
+	unsigned short cantClaves = *((unsigned short*)(lista + Tamanios::TAMANIO_ESPACIO_LIBRE));
 	Clave* clave = NULL;
 	
-	while ((lista + offset) < punteroFinal) {
+	for (unsigned short i = 0; i < cantClaves; ++i) {
 		
 		clave = ClaveFactory::getInstance().getClave(lista + offset, *listaTipos);
 		
-		offset += clave->getTamanioValorConPrefijo();
-		
 		listaClaves->push_back(clave);
+		
+		offset += clave->getTamanioValorConPrefijo() + Tamanios::TAMANIO_LONGITUD;
 		
 	}
 	
