@@ -61,7 +61,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 		memset(contenidoBloque, 0, this->tamBloque);
 		
 		// Lee de disco el contenido del bloque donde debe insertar.
-		nroBloque = this->buscarBloqueDestino(tamRegistro, contenidoBloque);		
+		nroBloque = this->buscarBloqueDestino(tamRegistro, contenidoBloque);
 		
 		// Si hay lugar en el bloque de disco, le asigno su contenido	
 		if ( (nroBloque != ResultadosFisica::BLOQUES_OCUPADOS) && (nroBloque != ResultadosFisica::ARCHIVO_VACIO) ){
@@ -114,6 +114,54 @@ int IndiceArbol::insertar(Clave *clave, char* &registro) {
 		if (bTree->insertar(clave))
 			resultado = ResultadosIndices::OK;
 	}
+	
+	return resultado;
+}
+
+
+/*
+ * Este metodo inserta una clave primaria en la lista de claves primarias
+ * de una clave secundaria. 
+ */
+int IndiceArbol::insertar(Clave *claveSecundaria, Clave* clavePrimaria) {
+	Clave* claveBuscada = bTree->buscar(claveSecundaria);
+	int resultado = ResultadosIndices::OK;
+	
+	ListaNodos* listaNodos = this->getListaNodosClavePrimaria();
+	ListaTipos* listaTipos = this->getListaTiposClavePrimaria();
+	char* claveSerializada = Bloque::serializarClave(clavePrimaria, listaTipos);
+	
+	if (claveBuscada) {
+
+		char* bloqueLista = new char[this->tamBloque];
+		
+		if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), bloqueLista) == ResultadosFisica::OK) {
+			this->bloque->setDatos(bloqueLista);
+			this->bloque->altaRegistro(listaNodos, claveSerializada);
+			this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
+		} else {
+			delete[] bloqueLista;
+			resultado = ResultadosIndices::ERROR_INSERCION;
+		}
+		
+		delete claveBuscada;
+		
+	} else {
+	
+		this->bloque->altaRegistro(listaNodos, claveSerializada);
+		resultado = this->bloqueManager->escribirBloqueDatos(this->bloque->getDatos());
+		
+		if (resultado >= 0) {
+			claveSecundaria->setReferencia(resultado);
+			if (!bTree->insertar(claveSecundaria))
+				resultado = ResultadosIndices::ERROR_INSERCION;
+		} else resultado = ResultadosIndices::ERROR_INSERCION;
+	
+	}
+	
+	delete listaNodos;
+	delete listaTipos;
+	delete[] claveSerializada;
 	
 	return resultado;
 }
@@ -270,5 +318,44 @@ ListaTipos* IndiceArbol::getListaTiposClavePrimaria() const {
 	
 	return listaTipos;
 	
+}
+
+
+ListaNodos* IndiceArbol::getListaNodosClavePrimaria() const {
+	
+	ListaNodos* listaTipos = new ListaNodos();
+	ListaNodos::iterator it = this->listaNodos->begin();
+	unsigned short i = 0;
+	
+	nodoLista nodo;
+	nodo.cantClaves = it->cantClaves;
+	nodo.pk = "";
+	nodo.tipo = TipoDatos::TIPO_VARIABLE;
+	
+	listaTipos->push_back(nodo);
+	
+	for (++it; (i < nodo.cantClaves) && (it != this->listaNodos->end()); ++it) {
+		if (it->pk == "true") {
+			listaTipos->push_back(*it);
+			++i;
+		}
+	}
+	
+	return listaTipos;
+	
+}
+
+
+SetEnteros IndiceArbol::getConjuntoBloques() {
+	SetEnteros conjuntoBloques;
+	return conjuntoBloques;
+}
+
+
+Bloque* IndiceArbol::leerBloque(unsigned int nroBloque) {
+	char* bloqueDatos = new char[this->tamBloque];
+	this->bloqueManager->leerBloqueDatos(nroBloque, bloqueDatos);
+	this->bloque->setDatos(bloqueDatos);
+	return this->bloque;
 }
 
