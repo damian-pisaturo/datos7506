@@ -34,6 +34,7 @@ Bucket::Bucket(IndiceHashManager* indiceHash, unsigned int nroBucket)
 	
 	this->setOffsetADatos(Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION);
 	
+	this->setOffsetToReg(this->getOffsetADatos());
 }
 
 /*
@@ -54,6 +55,8 @@ Bucket::Bucket(unsigned int nroBucket,unsigned short tamDisp,unsigned int tamani
 	// El primer registro se encontrará donde esta el espacio libre al momento de la creación del bucket.
 	this->setOffsetADatos(eLibre);
 	
+	this->setOffsetToReg(eLibre);
+	
 	// Actualiza el offset a espacio libre dentro de la tira de bytes.
 	memcpy(datos, &eLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
 
@@ -63,6 +66,19 @@ Bucket::Bucket(unsigned int nroBucket,unsigned short tamDisp,unsigned int tamani
 	// Actualiza el tamaño de dispersión dentro de la tira de bytes.
 	memcpy(&datos[Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS], &tamDisp,
 		   Tamanios::TAMANIO_DISPERSION);
+}
+
+Bucket::Bucket(IndiceHashManager *indiceHash, unsigned int numBucket, int tipoOrganizacion):Bloque()
+{
+	indiceHash->leerBloque(numBucket, this);
+		
+	this->setTamanioBloque(indiceHash->getTamanioBloque());
+		
+	this->setOffsetADatos(Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + Tamanios::TAMANIO_DISPERSION);
+		
+	this->setOffsetToReg(this->getOffsetADatos());
+
+	this->setTipoOrganizacion(tipoOrganizacion);
 }
 
 Bucket::~Bucket()

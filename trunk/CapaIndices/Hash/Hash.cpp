@@ -493,3 +493,27 @@
 				
 		}
 
+		/*
+		 * Retorna una copia de las entradas de la tabla y el tamaño de la misma
+		 * */
+		unsigned int* Hash::getCopiaTabla(unsigned int& tamanioTabla)
+		{
+			tamanioTabla = this->tabla->getTamanio();
+			
+			unsigned int * tabla = new unsigned int [tamanioTabla];
+			
+			memcpy(tabla, this->tabla->getContenido(), tamanioTabla);
+			
+			return tabla;
+			
+		}
+		
+		Bucket* Hash::leerBucket(unsigned int nroBucket)
+		{
+			return new Bucket(this->archivo, nroBucket, this->getTipoOrganizacion());
+		}
+		
+		int Hash::getTipoOrganizacion()
+		{
+			return this->listaParam->begin()->tipo; 
+		}

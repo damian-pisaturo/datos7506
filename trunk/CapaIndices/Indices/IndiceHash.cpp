@@ -1,5 +1,6 @@
 #include "IndiceHash.h"
 
+
 	IndiceHash::IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo) 
 	{
 		this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
@@ -67,4 +68,25 @@
 	{	
 		return 0;
 	}
+	
+	
+	
+	set<unsigned int> IndiceHash::getConjuntoBloques()
+	{
+		set<unsigned int> conjuntoBloques;
+		unsigned int tamanioTabla;
+		unsigned int *tabla = this->hash->getCopiaTabla(tamanioTabla);
+		set<unsigned int>::iterator it;
+		
+		for(unsigned int i = 0; i<tamanioTabla; i++)
+			conjuntoBloques.insert(tabla[i]);
+		
+		delete[] tabla;
+		return conjuntoBloques;
+	}
 
+	
+	Bloque* IndiceHash::leerBloque(unsigned int nroBloque)
+	{
+		return this->hash->leerBucket(nroBloque);
+	}

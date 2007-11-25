@@ -60,17 +60,57 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 	unsigned short cantRegistros = 1, tamRegistro = 0;
 	int resultado = 0;
 	char *registroDatos = NULL;
+	unsigned short cantidadBloques = 1;
 	
 	if (indice->getTipo() == TipoIndices::GRIEGO) {
 		
-		resultado = indice->buscar(clave, registroDatos, tamRegistro);
-		pipe.escribir(resultado);
-		
-		if (resultado == ResultadosIndices::OK) {
-			//Envío la cantidad de registros
-			pipe.escribir(cantRegistros);
-			pipe.escribir(tamRegistro);
-			pipe.escribir(registroDatos, tamRegistro);
+		if (clave)
+		{
+			resultado = indice->buscar(clave, registroDatos, tamRegistro);
+			pipe.escribir(resultado);
+			
+			// Se manda 1, para que metadata sepa que tiene que iterar solo una vez.
+			pipe.escribir(cantidadBloques);
+			
+			if (resultado == ResultadosIndices::OK) {
+				//Envío la cantidad de registros
+				pipe.escribir(cantRegistros);
+				pipe.escribir(tamRegistro);
+				pipe.escribir(registroDatos, tamRegistro);
+			}
+			
+		}
+		else
+		{
+			// Se devuelven todos los registros almacenados en el indice.
+			
+			set<unsigned int> conjuntoBloques = indice->getConjuntoBloques();
+			set<unsigned int>::iterator it;
+			
+			// Metadata esta esperando el resultado de la busqueda de clave. 
+			// Como en este caso no se manda una clave en particular, no es necesario hacer dicha búsqueda
+			// y siempre se retorna ResultadosIndices::OK.
+			pipe.escribir(ResultadosIndices::OK);
+			
+			Bloque* bloque;
+			unsigned short cantidadBloques = conjuntoBloques.size();
+			
+			// Envio la cantidad de bloques a la capa de arriba para saber la cant de iteraciones 
+			pipe.escribir(cantidadBloques);
+			
+			for (it = conjuntoBloques.begin(); it != conjuntoBloques.end(); ++it) {
+				bloque = indice->leerBloque(*it);
+			
+				pipe.escribir(bloque->getCantidadRegistros());
+				
+				for(unsigned short i = 0; i<bloque->getCantidadRegistros(); i++){
+					tamRegistro = bloque->getTamanioRegistros();
+					pipe.escribir(tamRegistro);
+					registroDatos = bloque->getNextRegister();
+					pipe.escribir(registroDatos, tamRegistro);
+				}
+			}
+			delete bloque;
 		}
 	}
 	else{ //Indice Secundario
@@ -80,6 +120,8 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 		pipe.escribir(resultado);
 		
 		if (resultado == ResultadosIndices::OK) {
+			
+			pipe.escribir(cantidadBloques);
 			
 			//Obtengo el índice primario
 			DefinitionsManager::ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);

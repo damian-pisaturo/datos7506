@@ -846,6 +846,16 @@
 			return this->tipoOrganizacion;
 		}
 		
+		void Bloque::setOffsetToReg(unsigned int offset)
+		{
+			this->offsetToProxReg = offset;
+		}
+		
+		unsigned int Bloque::getOffsetToReg()
+		{
+			return this->offsetToProxReg;
+		}
+		
 		
 		char* Bloque::serializarClave(Clave* clave, const ListaTipos* listaTipos) {
 			
@@ -933,27 +943,45 @@
 		}
 		
 		/*
-		 * Para el caso de organizacion de registros fijos, devuelve la longitud de los mismos
+		 * Si el tipo de organizacion es de registros de longitud fija calcula el tamanio de los mismos.
+		 * Si es de longitud variable, obtiene la longitud del registro corriente
 		 * */
 		
 		unsigned short Bloque::getTamanioRegistros() const
 		{
 			unsigned short offsetEspLibre;
 			unsigned short cantRegistros;
+			unsigned short longRegistro;
 			
-			// Obtengo el espacio libre dentro del bloque
-			memcpy(&offsetEspLibre, this->datos, Tamanios::TAMANIO_ESPACIO_LIBRE);
+			if(this->getTipoOrganizacion() == TipoDatos::TIPO_FIJO)
+			{
+				// Obtengo el espacio libre dentro del bloque
+				memcpy(&offsetEspLibre, this->datos, Tamanios::TAMANIO_ESPACIO_LIBRE);
 			
-			// Obtengo la cantidad de registros dentro del bloque
-			memcpy(&cantRegistros, &this->datos[Tamanios::TAMANIO_ESPACIO_LIBRE], Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+				// Obtengo la cantidad de registros dentro del bloque
+				memcpy(&cantRegistros, &this->datos[Tamanios::TAMANIO_ESPACIO_LIBRE], Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 						
-			
-			unsigned short longRegistro  = (this->tamanio - this->offsetADatos - (this->tamanio - offsetEspLibre)) / cantRegistros;
+				longRegistro  = (this->tamanio - this->offsetADatos - (this->tamanio - offsetEspLibre)) / cantRegistros;
+			}
+			else{
+				// Obtengo la longitud variable del registro corriente
+				memcpy(&longRegistro, this->datos + this->offsetToProxReg, Tamanios::TAMANIO_LONGITUD);
+			}
 			
 			return longRegistro;
 		}
 		
+		
 		void Bloque::resetOffsetToReg()
 		{
 			this->offsetToProxReg = this->offsetADatos;
+		}
+		
+		
+		unsigned short Bloque::getCantidadRegistros()
+		{
+			unsigned short cantRegs;
+			memcpy(&cantRegs, &this->datos[Tamanios::TAMANIO_ESPACIO_LIBRE], Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+			
+			return cantRegs;
 		}

@@ -22,6 +22,9 @@
 
 #include "../Hash/Hash.h"
 #include "Indice.h"
+#include <set>
+
+using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -89,6 +92,10 @@ class IndiceHash :public Indice
 		 * para insertar un nuevo registro de tamaño 'tamRegistro'
 		 */
 		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* bloqueDatos);
+		
+		set<unsigned int> getConjuntoBloques();
+		
+		Bloque* leerBloque(unsigned int nroBloque);
 		
 };
 

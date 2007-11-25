@@ -59,6 +59,11 @@ class Bucket : public Bloque , public BloqueIndice
 		 **/
 		Bucket(unsigned int nroBucket,unsigned short tamDispersion,unsigned int tamanioBloque);
 		
+		/*
+		 * Constructor utilizado para crear un bucket en memoria con el tipo de  organizacion del mismo
+		 * */
+		Bucket(IndiceHashManager* indiceHash, unsigned int numBucket, int tipoOrganizacion);
+		
 		virtual ~Bucket();
 
 	
