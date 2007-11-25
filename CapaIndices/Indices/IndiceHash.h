@@ -56,7 +56,11 @@ class IndiceHash :public Indice
 		 **/
 		virtual int insertar(Clave *clave, char* &registro, unsigned short tamanioRegistro);
 		
-		virtual int insertar(Clave *clave, char* &registro) {return 0;}
+		virtual int insertar(Clave *clave, char* &registro) { return 0; }
+		
+		//TODO Implementar!!
+		virtual int insertar(Clave *claveSecundaria, Clave* clavePrimaria) { return 0; }
+		
 		/*
 		 * Este metodo elimina un elemento del indice.
 		 * Si es un índice primario también se elimina el registro de datos.
@@ -93,7 +97,7 @@ class IndiceHash :public Indice
 		 */
 		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* bloqueDatos);
 		
-		set<unsigned int> getConjuntoBloques();
+		SetEnteros getConjuntoBloques();
 		
 		Bloque* leerBloque(unsigned int nroBloque);
 		

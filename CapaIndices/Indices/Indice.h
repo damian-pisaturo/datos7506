@@ -12,7 +12,7 @@
 #include "../Common/BloqueListaPrimaria/BloqueListaPrimaria.h"
 #include <vector>
 #include <map>
-
+#include <set>
 
 
 class Indice;
@@ -23,6 +23,8 @@ typedef std::map<std::string, MapaIndices*> MapaMapaIndices;
 
 typedef std::vector<Indice*> VectorIndices;
 
+typedef std::set<unsigned int> SetEnteros;
+
 class Indice
 {
 	protected:
@@ -31,7 +33,6 @@ class Indice
 		unsigned char tipoIndice;
 		
 		unsigned short tamBloque;
-		
 		
 	public:
 		Indice() {}
@@ -49,6 +50,9 @@ class Indice
 		 * Inserta una clave secundaria y su correspondiente lista de claves primarias
 		 */
 		virtual int insertar(Clave *clave, char* &registro) = 0;
+		
+		virtual int insertar(Clave *claveSecundaria, Clave* clavePrimaria) = 0;
+		
 		/*
 		 * Este metodo elimina un elemento del indice.
 		 * Si es un índice primario también se elimina el registro de datos.
@@ -100,9 +104,9 @@ class Indice
 		/*
 		 * Retorna un conjunto con todos los numeros de bloques
 		 * */
-		virtual set<unsigned int> getConjuntoBloques();
+		virtual SetEnteros getConjuntoBloques() = 0;
 		
-		virtual Bloque* leerBloque(unsigned int nroBloque);
+		virtual Bloque* leerBloque(unsigned int nroBloque) = 0;
 		
 		unsigned char getTipo() const { return this->tipoIndice; }
 		

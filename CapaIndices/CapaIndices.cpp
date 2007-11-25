@@ -84,8 +84,8 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 		{
 			// Se devuelven todos los registros almacenados en el indice.
 			
-			set<unsigned int> conjuntoBloques = indice->getConjuntoBloques();
-			set<unsigned int>::iterator it;
+			SetEnteros conjuntoBloques = indice->getConjuntoBloques();
+			SetEnteros::iterator it;
 			
 			// Metadata esta esperando el resultado de la busqueda de clave. 
 			// Como en este caso no se manda una clave en particular, no es necesario hacer dicha búsqueda
@@ -172,18 +172,16 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		// Recibe el registro de datos.
 		pipe.leer(tamRegistro, registroDatos);
 
-		resultado = indice->insertar(clave,registroDatos,tamRegistro);
+		resultado = indice->insertar(clave, registroDatos, tamRegistro);
 
 		pipe.escribir(resultado);
-/*	
+
 		if (resultado == ResultadosIndices::OK) {
 			//Actualizo los indices secundarios
 			//Saco el índice primario para no volver a insertar.
 			mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
 			delete indice;
 			
-			BloqueListaPrimaria listaPrimariaManager(0);
-			char* registroLista = NULL;
 			Clave* claveSecundaria = NULL;
 			
 			for (MapaIndices::iterator iter = mapaIndices.begin();
@@ -196,28 +194,14 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 				claveSecundaria = registro.getClave(iter->first);
 				indice = iter->second;
 				
-				resultado = indice->buscar(claveSecundaria, registroLista);
-				
-				listaPrimariaManager.setTamanioBloque(indice->getTamanioBloque());
-				
-				if (resultado == ResultadosIndices::OK) {
-					//La clave secundaria ya estaba insertada. Sólo se actualiza la lista de claves primaria.
-					listaPrimariaManager.insertarClave(registroLista, clave, defManager.getListaTipos(nombreTipo));
-					//TODO Modificar la lista en disco.
-					
-				} else {
-					//La clave no se encontró en el índice secundario.
-					//Creo la lista de claves primarias, inserto la clave primaria,
-					//e inserto la clave secundaria y la lista en el indice secundario.
-					listaPrimariaManager.crearLista(registroLista, clave, defManager.getListaTipos(nombreTipo));
-					indice->insertar(claveSecundaria, registroLista);						
-				}
+				indice->insertar(claveSecundaria, clave);
 				
 				delete claveSecundaria;
 				
 			}
 		}
-*/
+		
+		delete[] registroDatos;
 		
 	}
 	
@@ -228,14 +212,57 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 	   	  	  Indice *indice, Clave *clave,
 	   	  	  DefinitionsManager &defManager, ComuDatos &pipe) {
 	
-	int resultado = indice->eliminar(clave);
-	pipe.escribir(resultado);
-	if (resultado == ResultadosIndices::OK) {
-		//TODO Actualizar indices secundarios
+	int resultado = 0;
+	
+	if (indice->getTipo() == TipoIndices::GRIEGO) {
+		
+		char* registroDatos = NULL;
+		unsigned short tamRegistro;
+		resultado = indice->buscar(clave, registroDatos, tamRegistro);
+		
+		if (resultado == ResultadosIndices::OK) {
+			
+			//Elimino la clave primaria
+			resultado = indice->eliminar(clave);
+			
+			pipe.escribir(resultado);
+			
+			if (resultado == ResultadosIndices::OK) {
+				
+				//Actualizo los indices secundarios
+				//Saco el índice primario para no volver a insertar.
+				mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
+				delete indice;
+				
+				Clave* claveSecundaria = NULL;
+				
+				for (MapaIndices::iterator iter = mapaIndices.begin();
+					iter != mapaIndices.end(); ++iter) {
+					
+					Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
+									  registroDatos, defManager.getListaTipos(nombreTipo),
+									  defManager.getListaNombresAtributos(nombreTipo));
+					
+					claveSecundaria = registro.getClave(iter->first);
+					indice = iter->second;
+					
+					indice->insertar(claveSecundaria, clave);
+					
+					delete claveSecundaria;
+					
+				}
+				
+			}
+		} else pipe.escribir(resultado);
+		
+		delete[] registroDatos;
+		
+	} else {
+		
+		
 	}
 	
 }
-
 
 void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
  	  	  	   Indice *indice, Clave *clave,
@@ -301,28 +328,32 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	//Leo el buffer con los nombres y los valores de cada campo de la variable
 	pipe.leer(tamanioBuffer, buffer);
 	
-	//Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes (NOMBRE_CLAVE=VALOR_CLAVE)
+	//Se crean los indices correspondientes al tipo 'nombreTipo'
+	crearIndices(nombreTipo, mapaIndices, defManager);
 	
-	if (buffer.size() < 4) {
+	if (buffer.size() > 3) {
+		
+		//Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes (NOMBRE_CLAVE=VALOR_CLAVE)
+		posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
+		while ( (posActual != string::npos) ) {
+			auxStr = buffer.substr(posAnterior, posActual - posAnterior); //En auxStr tengo NOMBRE_CLAVE=VALOR_CLAVE
+			posSeparador = auxStr.find(SEPARADOR);
+			listaNombresClaves.push_back(auxStr.substr(0, posSeparador));
+			listaValoresClaves.push_back(auxStr.substr(posSeparador+1));
+			posAnterior = posActual + 1;
+			posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
+		}
+		
+		indice = mapaIndices[listaNombresClaves];
+		clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *(defManager.getListaTiposClaves(nombreTipo, listaNombresClaves)));
+		
+	} else if ( (buffer.size() < 3) || (buffer[0] != COD_CONSULTAR_TODO) ) {
+		
 		resultado = ResultadosIndices::ERROR_VALORES_CLAVES;
 		pipe.escribir(resultado);
 		return resultado;
-	}
-	
-	posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
-	while ( (posActual != string::npos) ) {
-		auxStr = buffer.substr(posAnterior, posActual - posAnterior); //En auxStr tengo NOMBRE_CLAVE=VALOR_CLAVE
-		posSeparador = auxStr.find(SEPARADOR);
-		listaNombresClaves.push_back(auxStr.substr(0, posSeparador));
-		listaValoresClaves.push_back(auxStr.substr(posSeparador+1));
-		posAnterior = posActual + 1;
-		posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
-	}
-	
-	//Se crean los indices correspondientes al tipo 'nombreTipo'
-	crearIndices(nombreTipo, mapaIndices, defManager);
-	indice = mapaIndices[listaNombresClaves];
-	clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *(defManager.getListaTiposClaves(nombreTipo, listaNombresClaves)));
+		
+	} else indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
 	
 	switch(codOp) {
 		case OperacionesCapas::INDICES_CONSULTAR:

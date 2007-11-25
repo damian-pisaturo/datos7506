@@ -33,6 +33,8 @@ class IndiceArbol: public Indice {
 		
 		virtual int insertar(Clave *clave, char* &registro);
 		
+		virtual int insertar(Clave *claveSecundaria, Clave* clavePrimaria);
+		
 		/*
 		 * Este metodo elimina un elemento del indice.
 		 * Si es un índice primario también se elimina el registro de datos.
@@ -69,10 +71,15 @@ class IndiceArbol: public Indice {
 		 */
 		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* bloqueDatos);
 		
+		virtual SetEnteros getConjuntoBloques();
+				
+		virtual Bloque* leerBloque(unsigned int nroBloque);
+		
 		
 	private:
 		ListaTipos* getListaTipos() const;
 		ListaTipos* getListaTiposClavePrimaria() const;
+		ListaNodos* getListaNodosClavePrimaria() const;
 						                       
 		
 };

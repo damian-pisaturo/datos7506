@@ -71,12 +71,12 @@
 	
 	
 	
-	set<unsigned int> IndiceHash::getConjuntoBloques()
+	SetEnteros IndiceHash::getConjuntoBloques()
 	{
-		set<unsigned int> conjuntoBloques;
+		SetEnteros conjuntoBloques;
 		unsigned int tamanioTabla;
 		unsigned int *tabla = this->hash->getCopiaTabla(tamanioTabla);
-		set<unsigned int>::iterator it;
+		SetEnteros::iterator it;
 		
 		for(unsigned int i = 0; i<tamanioTabla; i++)
 			conjuntoBloques.insert(tabla[i]);
