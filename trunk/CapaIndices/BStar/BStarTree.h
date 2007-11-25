@@ -89,6 +89,8 @@ class BStarTree : public BTree{
 		//la clave recibida por parámetro.
 		NodoBStar* buscarMenorMayores(NodoBStar* nodo, Clave* clave) const;
 		
+		NodoBStar* buscarMayorMenores(NodoBStar* nodo, Clave* clave) const;
+		
 		//Parte dos nodos completos en tres y devuelve las dos claves promocionadas.
 		VectorClaves* mergeSplitOverflow(NodoBStar* nodoTarget, NodoBStar* nodoHnoDer, Clave* clavePadre);
 		
