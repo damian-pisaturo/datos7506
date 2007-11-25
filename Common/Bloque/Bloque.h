@@ -75,12 +75,7 @@ class Bloque
 		 * */
 		char* getRegisterAtribute(string registro, int offsetCampo, int longCampo) const;
 		
-		/*
-		 * Obtiene el tamaño de los registros en el bloque para un tipo de organizacion
-		 * de registros fijos
-		 * */
-		unsigned short getTamanioRegistros() const;
-
+		
 	
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -189,10 +184,23 @@ class Bloque
 		
 		int getTipoOrganizacion() const;
 		
+		void setOffsetToReg(unsigned int offset);
+		
+		unsigned int getOffsetToReg();
+		
 		/*
 		 * Resetea el offset a los registros al primero del bloque
 		 * */
 		void resetOffsetToReg();
+		
+		unsigned short getCantidadRegistros();
+		
+		/*
+		 * Si el tipo de organizacion es de registros de longitud fija calcula el tamanio de los mismos.
+		 * Si es de longitud variable, obtiene la longitud del registro corriente
+		 * */
+		unsigned short getTamanioRegistros() const;
+
 };
 
 #endif /*BLOQUE_H_*/

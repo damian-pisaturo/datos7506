@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 //	Archivo   : Hash.h
 //  Namespace : CapaIndice 
 ////////////////////////////////////////////////////////////////////////////
@@ -70,6 +70,7 @@ class Hash
 		 **/
 		int eliminarRegistro(Clave &clave);
 		
+		
 		int modificarRegistro(Clave &claveVieja, Clave &claveNueva, char* registroNuevo);
 	
 		/*
@@ -84,6 +85,14 @@ class Hash
 		 **/
 		bool recuperarBucket(Clave &clave, char* &datosBucket, unsigned short &tamanioBucket);
 		
+		unsigned int* getCopiaTabla(unsigned int& tamanioTabla);
+		
+		Bucket* leerBucket(unsigned int nroBucket);
+		
+		/*
+		 * Retorna el tipo de organizacion de los bloques
+		 * */
+		int getTipoOrganizacion();
 		
 	private:
 	///////////////////////////////////////////////////////////////////////
@@ -114,6 +123,9 @@ class Hash
 		bool esRegistroVariable();		
 		
 		char* serializarClave(void** clave);
+		
+		
+		
 };
 
 #endif /*HASH_H_*/

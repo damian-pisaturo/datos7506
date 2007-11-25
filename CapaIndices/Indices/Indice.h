@@ -32,6 +32,7 @@ class Indice
 		
 		unsigned short tamBloque;
 		
+		
 	public:
 		Indice() {}
 		
@@ -95,6 +96,13 @@ class Indice
 		 * ResultadosIndices::REQUIERE_BLOQUE, en caso contrario devuelve ResultadosIndices::SIN_ESPACIO_LIBRE.
 		 */
 		virtual int buscarBloqueDestino(unsigned short tamRegistro, char* bloqueDatos) = 0;
+		
+		/*
+		 * Retorna un conjunto con todos los numeros de bloques
+		 * */
+		virtual set<unsigned int> getConjuntoBloques();
+		
+		virtual Bloque* leerBloque(unsigned int nroBloque);
 		
 		unsigned char getTipo() const { return this->tipoIndice; }
 		
