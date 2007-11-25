@@ -5,14 +5,13 @@ IndiceArbol::IndiceArbol(const unsigned char tipoIndice, int tipoDato,
 						 unsigned short tamNodo, unsigned short tamBloque,
 						 const string& nombreArchivo, unsigned char tipoOrg) {
 	
-	this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(tipoIndice, tipoDato,
-																			   this->getListaTipos(listaTipos), 
-																			   tipoEstructura, tamNodo, 0,
-																			   nombreArchivo);
 	this->tipoIndice = tipoIndice;
 	this->tamBloque = tamBloque;
 	this->listaNodos = listaTipos;
-	
+	this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(tipoIndice, tipoDato,
+																			   this->getListaTipos(), 
+																			   tipoEstructura, tamNodo, 0,
+																			   nombreArchivo);
 	switch (tipoEstructura) {
 		case TipoIndices::ARBOL_BP:
 			this->bTree = new BPlusTree(*indiceManager, tamNodo);
@@ -52,7 +51,6 @@ IndiceArbol::~IndiceArbol() {
 int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegistro) {
 	int resultado         = 0;
 	int nroBloque         = 0;
-	Bloque* bloque        = NULL;
 	char* contenidoBloque = NULL;
 	Clave* claveBuscada   = bTree->buscar(clave);
 	
@@ -67,25 +65,17 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 		
 		// Si hay lugar en el bloque de disco, le asigno su contenido	
 		if ( (nroBloque != ResultadosFisica::BLOQUES_OCUPADOS) && (nroBloque != ResultadosFisica::ARCHIVO_VACIO) ){
-			bloque = new Bloque(this->tamBloque);
-			
-			bloque->setNroBloque(nroBloque);		
-			bloque->setDatos(contenidoBloque);
-			
+			this->bloque->setNroBloque(nroBloque);		
+			this->bloque->setDatos(contenidoBloque);
 			// Inserta el registro.
-			bloque->altaRegistro(this->listaNodos,registro);
-			
+			this->bloque->altaRegistro(this->listaNodos, registro);
 			// Sobreescribe el archivo de datos en la posicion 'nroBloque'
-			resultado = this->bloqueManager->escribirBloqueDatos(nroBloque, bloque->getDatos());	
-		}else{			
-			bloque = new Bloque(0, this->tamBloque);		
-
+			resultado = this->bloqueManager->escribirBloqueDatos(nroBloque, this->bloque->getDatos());	
+		}else{
 			// Inserta el registro.
-			bloque->altaRegistro(this->listaNodos, registro);		
-			
+			this->bloque->altaRegistro(this->listaNodos, registro);
 			// Agrega un nuevo bloque de datos al archivo
-			nroBloque = this->bloqueManager->escribirBloqueDatos(bloque->getDatos());
-			
+			nroBloque = this->bloqueManager->escribirBloqueDatos(this->bloque->getDatos());
 			delete[] contenidoBloque;
 		}
 		
@@ -97,9 +87,6 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 	if (claveBuscada)
 		delete claveBuscada;
 	
-	if (bloque)
-		delete bloque;
-	
 	return resultado;
 }
 
@@ -108,6 +95,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
  * Este metodo inserta una clave en un indice secundario, y su correspondiente
  * lista de claves primarias.
  */
+//TODO Este método vuela!!
 int IndiceArbol::insertar(Clave *clave, char* &registro) {
 	Clave* claveBuscada = bTree->buscar(clave);
 	
@@ -117,7 +105,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro) {
 	}
 	
 	int resultado = 0;
-	//TODO Cuando Manu termine de probar el arbol hay que volver a asignar resultado al escribirBloqueDatos()
+	
 	if (registro)
 		this->bloqueManager->escribirBloqueDatos(registro);
 	
@@ -132,7 +120,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro) {
 
 
 /*
- * Este metodo elimina una clave del indice. 
+ * Este metodo elimina una clave del indice primario. 
  * Si la encuentra devuelve OK; y si no, devuelve ERROR_ELIMINACION.
  **/
 int IndiceArbol::eliminar(Clave *clave) {
@@ -142,11 +130,9 @@ int IndiceArbol::eliminar(Clave *clave) {
 	if (bTree->eliminar(clave)) {
 		char *contenidoBloque =  new char[this->tamBloque];
 		if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), contenidoBloque) == ResultadosFisica::OK){
-			Bloque* bloque = new Bloque(0, this->tamBloque);
-			bloque->setDatos(contenidoBloque);
-			bloque->bajaRegistro(this->listaNodos,*claveBuscada);
-			resultado = this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), bloque->getDatos());
-			delete bloque;
+			this->bloque->setDatos(contenidoBloque);
+			this->bloque->bajaRegistro(this->listaNodos, *claveBuscada);
+			resultado = this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
 		} else
 			delete[] contenidoBloque;
 	}
@@ -156,7 +142,7 @@ int IndiceArbol::eliminar(Clave *clave) {
 }
 
 /*
- * Este metodo busca una clave dentro del indice, y devuelve el
+ * Este metodo busca una clave dentro del indice primario, y devuelve el
  * registro de datos correspondiente a dicha clave.
  **/
 int IndiceArbol::buscar(Clave *clave, char* &registro, unsigned short &tamanioRegistro) const {
@@ -167,27 +153,23 @@ int IndiceArbol::buscar(Clave *clave, char* &registro, unsigned short &tamanioRe
 	
 	if (resultado == ResultadosFisica::OK) {
 		
-		Bloque* bloque = new Bloque(0, this->tamBloque);
-		bloque->setDatos(bloqueDatos);
+		this->bloque->setDatos(bloqueDatos);
 	
 		unsigned short offsetToReg = 0;
 		
-		if (bloque->buscarRegistro(this->listaNodos, *clave, &offsetToReg)){
+		if (this->bloque->buscarRegistro(this->listaNodos, *clave, &offsetToReg)) {
 		
-			tamanioRegistro = bloque->getTamanioRegistroConPrefijo(this->listaNodos, bloque->getDatos() + offsetToReg );
+			tamanioRegistro = this->bloque->getTamanioRegistroConPrefijo(this->listaNodos, this->bloque->getDatos() + offsetToReg);
 			
-			if (registro)
-				delete[] registro;
+			if (registro) delete[] registro;
 			
 			registro = new char[tamanioRegistro];
 			
-			memcpy(registro, bloque->getDatos() + offsetToReg, tamanioRegistro);
+			memcpy(registro, this->bloque->getDatos() + offsetToReg, tamanioRegistro);
 			
 			resultado = ResultadosIndices::OK;			
 			
 		} else resultado = ResultadosIndices::REGISTRO_NO_ENCONTRADO;
-		
-		delete bloque;
 		
 	} else {
 		delete[] bloqueDatos;
@@ -199,23 +181,33 @@ int IndiceArbol::buscar(Clave *clave, char* &registro, unsigned short &tamanioRe
 	return resultado;
 }
 
-
-int IndiceArbol::buscar(Clave *clave, char* &registro) const {
+/*
+ * Este método busca una clave secundaria y devuelve la lista de claves primarias
+ * correspondiente a dicha clave.
+ */
+int IndiceArbol::buscar(Clave *claveSecundaria, ListaClaves* &listaClavesPrimarias) const {
 	
-	Clave* claveRecuperada = bTree->buscar(clave);
+	Clave* claveRecuperada = bTree->buscar(claveSecundaria);
 	if (!claveRecuperada) return ResultadosIndices::CLAVE_NO_ENCONTRADA;
-	if (registro) delete[] registro;
-	registro = new char[this->tamBloque];
-	int resultado = this->bloqueManager->leerBloqueDatos(claveRecuperada->getReferencia(), registro);
 	
+	char *bloqueDatos = new char[this->tamBloque];
+	
+	int resultado = this->bloqueManager->leerBloqueDatos(claveRecuperada->getReferencia(), bloqueDatos);
+	
+	if (resultado == ResultadosFisica::OK) {
+		
+		ListaTipos* listaTiposClavePrimaria = this->getListaTiposClavePrimaria();
+		listaClavesPrimarias = ((BloqueListaPrimaria*)this->bloque)->getListaClaves(bloqueDatos, listaTiposClavePrimaria);
+		delete listaTiposClavePrimaria;
+		
+		resultado = ResultadosIndices::OK;
+		
+	} else resultado = ResultadosIndices::ERROR_CONSULTA;
+		
 	delete claveRecuperada;
+	delete bloqueDatos;
 	
-	if (resultado != ResultadosFisica::OK) {
-		delete registro;
-		registro = NULL;
-	}
-	
-	return resultado;	
+	return resultado;
 	
 }
 
@@ -234,6 +226,7 @@ int IndiceArbol::buscar(Clave *clave) const {
  * En caso contrario devuelve ResultadosIndices::OK, reemplaza claveVieja
  * por claveNueva y reemplaza el viejo registro correspondiente
  * a "claveVieja" por "registroNuevo".
+ * Este método se usa para claves primarias.
  **/
 int IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* &registroNuevo, unsigned short tamanioRegistroNuevo) {
 	int resultado = this->eliminar(claveVieja);
@@ -250,13 +243,32 @@ int IndiceArbol::buscarBloqueDestino(unsigned short tamRegistro, char* bloqueDat
 }
 
 
-ListaTipos* IndiceArbol::getListaTipos(ListaNodos *listaNodos) const {
+ListaTipos* IndiceArbol::getListaTipos() const {
 	
 	ListaTipos* listaTipos = new ListaTipos();
 	
-	for (ListaNodos::iterator it = listaNodos->begin(); it != listaNodos->end(); ++it)
+	for (ListaNodos::iterator it = ++(this->listaNodos->begin()); it != this->listaNodos->end(); ++it)
 		listaTipos->push_back(it->tipo);
 	
 	return listaTipos;
 	
 }
+
+
+ListaTipos* IndiceArbol::getListaTiposClavePrimaria() const {
+	
+	ListaTipos* listaTipos = new ListaTipos();
+	ListaNodos::iterator it = this->listaNodos->begin();
+	unsigned short cantClaves = it->cantClaves, i = 0;
+	
+	for (++it; (i < cantClaves) && (it != this->listaNodos->end()); ++it) {
+		if (it->pk == "true") {
+			listaTipos->push_back(it->tipo);
+			++i;
+		}
+	}
+	
+	return listaTipos;
+	
+}
+

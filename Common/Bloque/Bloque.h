@@ -68,18 +68,18 @@ class Bloque
 		 * Retorna un registro a partir del offset del mismo dentro del bloque
 		 * y la longitud del registro
 		 * */
-		char* getRegistro(int longReg, int offsetToReg);	
+		char* getRegistro(int longReg, int offsetToReg) const;	
 		
 		/**
 		 * Retorna un campo específico del registro
 		 * */
-		char* getRegisterAtribute(string registro, int offsetCampo, int longCampo);
+		char* getRegisterAtribute(string registro, int offsetCampo, int longCampo) const;
 		
 		/*
 		 * Obtiene el tamaño de los registros en el bloque para un tipo de organizacion
 		 * de registros fijos
 		 * */
-		unsigned short getTamanioRegistros();
+		unsigned short getTamanioRegistros() const;
 
 	
 	public:
@@ -87,7 +87,6 @@ class Bloque
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		Bloque();
-		Bloque(unsigned int tamanioBloque);
 		Bloque(unsigned int num, unsigned int tam);
 		Bloque(unsigned int tamanioBloque, int tipoOrga); 
 		virtual ~Bloque();
@@ -188,7 +187,7 @@ class Bloque
 		 * */
 		void setTipoOrganizacion(int tipo);
 		
-		int getTipoOrganizacion();
+		int getTipoOrganizacion() const;
 		
 		/*
 		 * Resetea el offset a los registros al primero del bloque

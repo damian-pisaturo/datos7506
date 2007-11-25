@@ -66,17 +66,17 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 		resultado = indice->buscar(clave, registroDatos, tamRegistro);
 		pipe.escribir(resultado);
 		
-		//Envío la cantidad de registros
-		pipe.escribir(cantRegistros);
-		
 		if (resultado == ResultadosIndices::OK) {
+			//Envío la cantidad de registros
+			pipe.escribir(cantRegistros);
 			pipe.escribir(tamRegistro);
 			pipe.escribir(registroDatos, tamRegistro);
 		}
 	}
-	else{
+	else{ //Indice Secundario
 		
-		resultado = indice->buscar(clave, registroDatos);
+		ListaClaves* listaClaves = NULL;
+		resultado = indice->buscar(clave, listaClaves);
 		pipe.escribir(resultado);
 		
 		if (resultado == ResultadosIndices::OK) {
@@ -84,10 +84,6 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			//Obtengo el índice primario
 			DefinitionsManager::ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
 			indice = mapaIndices[*listaNombresClaves];
-			
-			BloqueListaPrimaria listaPrimariaManager(indice->getTamanioBloque());
-			
-			ListaClaves* listaClaves = listaPrimariaManager.getListaClaves(registroDatos, defManager.getListaTipos(nombreTipo));
 			
 			//Envío la cantidad de registros
 			cantRegistros = listaClaves->size();
@@ -97,12 +93,13 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			for (ListaClaves::iterator it = listaClaves->begin(); it != listaClaves->end(); ++it) {
 				
 				resultado = indice->buscar(*it, registroDatos, tamRegistro);
-				pipe.escribir(resultado);
 				
-				if (resultado == ResultadosIndices::OK) {
-					pipe.escribir(tamRegistro);
+				//Si el tamaño del registro es 0, la capa de metadata sabe que se produjo un error. 
+				pipe.escribir(tamRegistro);
+				
+				if (resultado == ResultadosIndices::OK)
 					pipe.escribir(registroDatos, tamRegistro);
-				} else break;
+				else break;
 			}
 			
 			delete listaClaves;

@@ -339,8 +339,8 @@ ListaTipos* DefinitionsManager::getListaTiposClaves(const string &nombreTipo, co
 	
 	for (ListaTiposIndices::iterator iter = listaTiposIndices->begin(); iter != listaTiposIndices->end(); ++iter) {
 		
-		if (*((*iter).listaNombresClaves) == listaNombresClaves)
-			return (*iter).listaTipos;
+		if (*(iter->listaNombresClaves) == listaNombresClaves)
+			return iter->listaTipos;
 		
 	}
 	

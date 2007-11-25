@@ -67,7 +67,8 @@ class IndiceHash :public Indice
 		 **/
 		virtual int buscar(Clave *clave, char* &registro, unsigned short &tamanioBucket) const;
 		
-		virtual int buscar(Clave *clave, char* &registro) const { return 0; }
+		//TODO Implementar!!!
+		virtual int buscar(Clave *clave, ListaClaves* &listaClaves) const { return 0; }
 		
 		/*
 		 * Método utilizado para saber si una clave ya se encuentra insertada en el índice

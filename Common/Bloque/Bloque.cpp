@@ -39,7 +39,7 @@
 			this->tamanio = 0;
 			this->numero  = 0;
 			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
-			this->offsetToProxReg = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+			this->offsetToProxReg = this->offsetADatos;
 		}
 		
 		/*
@@ -53,7 +53,7 @@
 			this->tamanio = tamanioBloque;
 			this->numero  = 0;
 			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
-			this->offsetToProxReg = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+			this->offsetToProxReg = this->offsetADatos;
 			this->tipoOrganizacion = tipoOrga;
 		}
 		
@@ -72,7 +72,7 @@
 			memset(this->datos, 0, this->getTamanioBloque());
 			
 			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
-			this->offsetToProxReg = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+			this->offsetToProxReg = this->offsetADatos;
 			
 			// Inicializa el offset a espacio libre dentro del bloque.
 			unsigned short espLibre = this->offsetADatos;
@@ -615,7 +615,7 @@
 		/*
 		 * Este método devuelve el registro que empieza en datos[offsetToRegs] y tiene longitud longReg.
 		 **/
-		char* Bloque::getRegistro(int longReg, int offsetToReg) 
+		char* Bloque::getRegistro(int longReg, int offsetToReg) const
 		{
 			char* registro = new char [longReg];
 			
@@ -730,7 +730,7 @@
 						offsetToProxCampo += sizeof(unsigned short);
 						memcpy(&campoFecha.mes, &registro[offsetToProxCampo], sizeof(unsigned char));
 						offsetToProxCampo += sizeof(unsigned char);
-						memcpy(&campoFecha.dia,&registro[offsetToProxCampo], sizeof(unsigned char));
+						memcpy(&campoFecha.dia,&registro[offsetToProxCampo],sizeof(unsigned char));
 						offsetToProxCampo += sizeof(unsigned char);
 		
 						listaClaves.push_back(new ClaveFecha(campoFecha));
@@ -841,7 +841,7 @@
 			this->tipoOrganizacion = tipo;
 		}
 		
-		int Bloque::getTipoOrganizacion()
+		int Bloque::getTipoOrganizacion() const
 		{
 			return this->tipoOrganizacion;
 		}
@@ -849,9 +849,14 @@
 		
 		char* Bloque::serializarClave(Clave* clave, const ListaTipos* listaTipos) {
 			
-			char* buffer = new char[Tamanios::TAMANIO_LONGITUD + clave->getTamanioValorConPrefijo()];
-			
 			ListaClaves listaClaves;
+			unsigned int tamanioClave = clave->getTamanioValorConPrefijo(), offset = 2;
+			char* buffer = new char[Tamanios::TAMANIO_LONGITUD + tamanioClave];
+			
+			//Guardo la longitud de la clave completa, para seguir la convención
+			//de los registros de tamaño variable.
+			memcpy(buffer, &tamanioClave, Tamanios::TAMANIO_LONGITUD);
+			
 			if (listaTipos->size() > 1) //'clave' es una clave compuesta
 				listaClaves = *(((ClaveCompuesta*)clave)->getListaClaves());
 			else listaClaves.push_back(clave);
@@ -873,12 +878,12 @@
 					cadena = (char*)claveAux->getValor();
 					sizeCadena = claveAux->getTamanioValor();
 				
-					memcpy(buffer, &sizeCadena, Tamanios::TAMANIO_LONGITUD_CADENA);
-					memcpy(buffer + Tamanios::TAMANIO_LONGITUD_CADENA, cadena, sizeCadena);
+					memcpy(buffer + offset, &sizeCadena, Tamanios::TAMANIO_LONGITUD_CADENA);
+					memcpy(buffer + offset + Tamanios::TAMANIO_LONGITUD_CADENA, cadena, sizeCadena);
 					
-				} else memcpy(buffer, claveAux->getValor(), claveAux->getTamanioValor());
+				} else memcpy(buffer + offset, claveAux->getValor(), claveAux->getTamanioValor());
 				
-				buffer += claveAux->getTamanioValorConPrefijo();
+				offset += claveAux->getTamanioValorConPrefijo();
 			}
 			
 			return buffer;
@@ -931,7 +936,7 @@
 		 * Para el caso de organizacion de registros fijos, devuelve la longitud de los mismos
 		 * */
 		
-		unsigned short Bloque::getTamanioRegistros()
+		unsigned short Bloque::getTamanioRegistros() const
 		{
 			unsigned short offsetEspLibre;
 			unsigned short cantRegistros;

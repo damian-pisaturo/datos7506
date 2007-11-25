@@ -67,9 +67,9 @@ class Indice
 		virtual int buscar(Clave *clave, char* &registro, unsigned short &tamanioRegistro) const = 0;
 		
 		/*
-		 * Busca una clave secundaria y devuelve el bloque de la lista de claves primarias
+		 * Busca una clave secundaria y devuelve la lista de claves primarias
 		 */
-		virtual int buscar(Clave *clave, char* &registro) const = 0;
+		virtual int buscar(Clave *clave, ListaClaves* &listaClavesPrimarias) const = 0;
 		
 		/*
 		 * Método utilizado para saber si una clave ya se encuentra insertada en el índice
