@@ -44,11 +44,12 @@ class Bloque
 	////////////////////////////////////////////////////////////////
 	// Atributos
 	////////////////////////////////////////////////////////////////
-		unsigned int numero;		// Representa al numero de bloque dentro del archivo.
-		unsigned int tamanio;		// Es el tamaño del bloque en bytes.
-		unsigned int offsetADatos;	// Es el offset al primer registro del bloque.
-		char *datos;				// Es una cadena de bytes tal cual se persiste en disco.
-	
+		unsigned int numero;		  // Representa al numero de bloque dentro del archivo.
+		unsigned int tamanio;		  // Es el tamaño del bloque en bytes.
+		unsigned int offsetADatos;	  // Es el offset al primer registro del bloque.
+		char *datos;				  // Es una cadena de bytes tal cual se persiste en disco.
+		unsigned int offsetToProxReg; // Es el offset al proximo registro, utilizado para recuperar todos los registros de un bloque.
+		int tipoOrganizacion;         // Indica si la organizacion del bloque es de registros variables o fijos.
 	///////////////////////////////////////////////////////////////////////
 	// Metodos privados
 	///////////////////////////////////////////////////////////////////////
@@ -73,6 +74,12 @@ class Bloque
 		 * Retorna un campo específico del registro
 		 * */
 		char* getRegisterAtribute(string registro, int offsetCampo, int longCampo);
+		
+		/*
+		 * Obtiene el tamaño de los registros en el bloque para un tipo de organizacion
+		 * de registros fijos
+		 * */
+		unsigned short getTamanioRegistros();
 
 	
 	public:
@@ -82,6 +89,7 @@ class Bloque
 		Bloque();
 		Bloque(unsigned int tamanioBloque);
 		Bloque(unsigned int num, unsigned int tam);
+		Bloque(unsigned int tamanioBloque, int tipoOrga); 
 		virtual ~Bloque();
 	
 	///////////////////////////////////////////////////////////////////////
@@ -155,7 +163,7 @@ class Bloque
 		void setDatos(char* data);
 		
 		/*
-		 * Devuelve el némero del bloque.
+		 * Devuelve el número del bloque.
 		 **/
 		unsigned int getNroBloque() const;
 		
@@ -169,7 +177,23 @@ class Bloque
 		void setOffsetADatos(unsigned short offset);
 		
 		static char* serializarClave(Clave* clave, const ListaTipos* listaTipos);
-
+		
+		/*
+		 * Obtiene el proximo registro dentro del bloque
+		 * */
+		char* getNextRegister();
+		
+		/*
+		 * Asigna el tipo de organizacion al bloque
+		 * */
+		void setTipoOrganizacion(int tipo);
+		
+		int getTipoOrganizacion();
+		
+		/*
+		 * Resetea el offset a los registros al primero del bloque
+		 * */
+		void resetOffsetToReg();
 };
 
 #endif /*BLOQUE_H_*/

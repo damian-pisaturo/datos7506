@@ -39,15 +39,25 @@
 			this->tamanio = 0;
 			this->numero  = 0;
 			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+			this->offsetToProxReg = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 		}
 		
-		Bloque::Bloque(unsigned int tamanioBloque) 
+		/*
+		 * Crea un bloque vacio.
+		 * Levanta bloques de disco y setea elt tipo de organizacion del mismo, se utiliza para
+		 * listar todos los registros del bloque
+		 * */
+		Bloque::Bloque(unsigned int tamanioBloque, int tipoOrga) 
 		{
 			this->datos   = NULL;
 			this->tamanio = tamanioBloque;
 			this->numero  = 0;
 			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+			this->offsetToProxReg = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+			this->tipoOrganizacion = tipoOrga;
 		}
+		
+		
 
 		/**
 		 * Este constructor recibe el número de bloque dentro del archivo, y el tamaño del 
@@ -62,6 +72,7 @@
 			memset(this->datos, 0, this->getTamanioBloque());
 			
 			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+			this->offsetToProxReg = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 			
 			// Inicializa el offset a espacio libre dentro del bloque.
 			unsigned short espLibre = this->offsetADatos;
@@ -360,12 +371,7 @@
 		 * Da de baja dentro del bloque al registro cuya clave es clavePrimaria.
 		 **/
 		int Bloque::bajaRegistro(const ListaNodos *listaParam, Clave &clave) 
-		{			
-			// TODO Que alguien, por favor, me explique por que este metodo repite exactamente
-			// lo mismo que el buscarRegistro(). Si no entiendo mal, la baja debiera ser buscar
-			// el registro con la clave usando el buscarRegistro(), levantar su longitud, y armarse
-			// un nuevo bloque que no contenga los bytes de ese registro, alineando "a izquierda". 
-			
+		{						
 			void** clavePrimaria = clave.getValorParaHash();
 			unsigned short offsetToReg = this->offsetADatos;
 			unsigned short offsetToProxCampo = 0;
@@ -724,7 +730,7 @@
 						offsetToProxCampo += sizeof(unsigned short);
 						memcpy(&campoFecha.mes, &registro[offsetToProxCampo], sizeof(unsigned char));
 						offsetToProxCampo += sizeof(unsigned char);
-						memcpy(&campoFecha.dia,&registro[offsetToProxCampo],sizeof(unsigned char));
+						memcpy(&campoFecha.dia,&registro[offsetToProxCampo], sizeof(unsigned char));
 						offsetToProxCampo += sizeof(unsigned char);
 		
 						listaClaves.push_back(new ClaveFecha(campoFecha));
@@ -745,7 +751,7 @@
 		}
 
 		/*
-		 * Devuelve la longitud del registro, sin incluir los 2 bytes de la longitud.
+		 * Devuelve la longitud del registro, sin incluir los bytes de longitud.
 		 **/
 		unsigned short Bloque::getTamanioRegistros(const ListaNodos * listaParam, char *registro) const
 		{
@@ -830,6 +836,17 @@
 			this->offsetADatos = offset;
 		}
 		
+		void Bloque::setTipoOrganizacion(int tipo)
+		{
+			this->tipoOrganizacion = tipo;
+		}
+		
+		int Bloque::getTipoOrganizacion()
+		{
+			return this->tipoOrganizacion;
+		}
+		
+		
 		char* Bloque::serializarClave(Clave* clave, const ListaTipos* listaTipos) {
 			
 			char* buffer = new char[Tamanios::TAMANIO_LONGITUD + clave->getTamanioValorConPrefijo()];
@@ -866,4 +883,72 @@
 			
 			return buffer;
 			
+		}
+		
+		/*
+		 * Retorna un registro segun la el offset al mismo y prepara este para que apunte al siguiente registro
+		 * */
+		
+		char* Bloque::getNextRegister()
+		{
+			unsigned short longReg;
+			unsigned int offsetToReg = this->offsetToProxReg;
+			unsigned short offsetEspLibre;
+			
+			// Obtengo el espacio libre
+			memcpy(&offsetEspLibre, this->datos, Tamanios::TAMANIO_ESPACIO_LIBRE);
+			
+			// Si el offset al proximo registro esta apuntando al espacio libre reseteo el mismo, y retorno null
+			if(offsetToReg == offsetEspLibre){
+				this->resetOffsetToReg();
+				return NULL;
+			}
+			
+			// Si el tipo de registro es variable el offsetToProxReg apunta a la longitud del mismo
+			if(this->getTipoOrganizacion() == TipoDatos::TIPO_VARIABLE)
+			{
+				memcpy(&longReg, &this->datos[offsetToReg], Tamanios::TAMANIO_LONGITUD);
+				
+				// Actualizo la variable que apunta al registro
+				offsetToReg += Tamanios::TAMANIO_LONGITUD;
+				
+				// Actualizo el offset al prox registro
+				this->offsetToProxReg += longReg + Tamanios::TAMANIO_LONGITUD;
+				
+				return getRegistro(longReg, offsetToReg);
+				
+			}
+			else
+			{
+				// Calculo la longitud del registro fijo
+				longReg = getTamanioRegistros();
+				this->offsetToProxReg += longReg;
+				return getRegistro(longReg, offsetToReg);
+			}
+		}
+		
+		/*
+		 * Para el caso de organizacion de registros fijos, devuelve la longitud de los mismos
+		 * */
+		
+		unsigned short Bloque::getTamanioRegistros()
+		{
+			unsigned short offsetEspLibre;
+			unsigned short cantRegistros;
+			
+			// Obtengo el espacio libre dentro del bloque
+			memcpy(&offsetEspLibre, this->datos, Tamanios::TAMANIO_ESPACIO_LIBRE);
+			
+			// Obtengo la cantidad de registros dentro del bloque
+			memcpy(&cantRegistros, &this->datos[Tamanios::TAMANIO_ESPACIO_LIBRE], Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+						
+			
+			unsigned short longRegistro  = (this->tamanio - this->offsetADatos - (this->tamanio - offsetEspLibre)) / cantRegistros;
+			
+			return longRegistro;
+		}
+		
+		void Bloque::resetOffsetToReg()
+		{
+			this->offsetToProxReg = this->offsetADatos;
 		}
