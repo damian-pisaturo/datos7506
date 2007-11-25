@@ -423,7 +423,9 @@ bool Nodo::puedePasarClaveHaciaIzq(Nodo* nodoHnoIzq, Nodo* nodoPadre, Clave* cla
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(bstar);
 	unsigned char clavesPropuestas = 0;
 	unsigned short tamanioClavePadreARecibir = tamanioClavePadre;
-	unsigned short tamanioClaveHaciaElPadre = this->obtenerPrimeraClave()->getTamanioEnDisco(bstar);
+	Clave* primeraClave = this->obtenerPrimeraClave();
+	if (!primeraClave) return false;
+	unsigned short tamanioClaveHaciaElPadre = primeraClave->getTamanioEnDisco(bstar);
 	
 	if (this->getNivel() == 0) {
 		tamanioClavePadreARecibir -= Tamanios::TAMANIO_REFERENCIA;
@@ -462,7 +464,9 @@ bool Nodo::puedePasarClaveHaciaDer(Nodo* nodoHnoDer, Nodo* nodoPadre, Clave* cla
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(bstar);
 	unsigned char clavesPropuestas = 0;
 	unsigned short tamanioClavePadreARecibir = tamanioClavePadre;
-	unsigned short tamanioClaveHaciaElPadre = this->obtenerPrimeraClave()->getTamanioEnDisco(bstar);
+	Clave* primeraClave = this->obtenerPrimeraClave();
+	if (!primeraClave) return false;
+	unsigned short tamanioClaveHaciaElPadre = primeraClave->getTamanioEnDisco(bstar);
 
 	if (this->getNivel() == 0) {
 		tamanioClavePadreARecibir -= Tamanios::TAMANIO_REFERENCIA;
