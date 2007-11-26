@@ -17,7 +17,7 @@ void Vista::showRegister(char *registro, ListaNodos *listaTiposAtributos){
 	if(it->tipo == 	TipoDatos::TIPO_VARIABLE)
 		offset += Tamanios::TAMANIO_LONGITUD;
 	
-	for(++it; it != listaTiposAtributos->end(); ++it){
+	for (++it; it != listaTiposAtributos->end(); ++it) {
 		tipo = it->tipo;
 		
 		switch (tipo){
@@ -87,8 +87,6 @@ void Vista::showRegister(char *registro, ListaNodos *listaTiposAtributos){
 			cout << campoShort << endl;
 			break;
 		}
-			
-			
 		
 	}
 	

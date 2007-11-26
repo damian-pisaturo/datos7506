@@ -417,6 +417,8 @@ int main(int argc, char* argv[]) {
 	pipe.parametro(1, nombreTipo);
 	
 	procesarOperacion(codOp, nombreTipo, pipe);
+	
+//	usleep(1000000); //Recibe microsegundos
 
 	// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
 	/*
