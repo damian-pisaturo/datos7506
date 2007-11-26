@@ -30,7 +30,12 @@
 		ArchivoBase* archivo = NULL;			
 		
 		//Instancia del pipe de comunicacion entre capas.
+		
+		cout << "voy a instancia el pipe en capa fisica" << endl;
+		
 		ComuDatos pipe(args);
+		
+		cout << "despues de instanciar el pipe en capa fisica" << endl;
 		
 		string nombreArchivo;
 		char* buffer  = NULL;

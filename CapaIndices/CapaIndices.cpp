@@ -104,6 +104,7 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			
 				cout << "nro bloque (del set): " << *it << endl;
 				cout << "cant de reg del bloque: " << bloque->getCantidadRegistros() << endl;
+				cout << "cant de bloques dentro del conj: " << conjuntoBloques.size() << endl;
 				
 				pipe.escribir(bloque->getCantidadRegistros());
 				

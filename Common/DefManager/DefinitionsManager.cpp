@@ -150,7 +150,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	//INDICE GRIEGO (HASH)
 	estructTipoIndice.tipoIndice = TipoIndices::GRIEGO;
 	estructTipoIndice.tipoEstructura = TipoIndices::HASH;
-	estructTipoIndice.tamanioBloque = 1024;
+	estructTipoIndice.tamanioBloque = 128;
 	estructTipoIndice.tipoClave = TipoDatos::TIPO_ENTERO;
 	estructTipoIndice.nombreArchivo = "persona";
 	
