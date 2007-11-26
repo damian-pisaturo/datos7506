@@ -184,7 +184,7 @@
 		{
 			int id = 1;
 			string idString, nombre, extension;
-			size_t posPunto = nomArchivo.find_last_of('.');
+			size_t posPunto = nomArchivo.rfind('.');			
 		
 			idString  = "_7506";
 		

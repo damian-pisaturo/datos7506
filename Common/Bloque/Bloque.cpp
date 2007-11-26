@@ -40,6 +40,7 @@
 			this->numero  = 0;
 			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 			this->offsetToProxReg = this->offsetADatos;
+			this->tipoOrganizacion = 0;
 		}
 		
 		/*
@@ -47,14 +48,25 @@
 		 * Levanta bloques de disco y setea elt tipo de organizacion del mismo, se utiliza para
 		 * listar todos los registros del bloque
 		 * */
-		Bloque::Bloque(unsigned int tamanioBloque, int tipoOrga) 
+		Bloque::Bloque(unsigned int numBloque, unsigned int tamanioBloque, int tipoOrga) 
 		{
-			this->datos   = NULL;
-			this->tamanio = tamanioBloque;
-			this->numero  = 0;
+			this->numero       = numBloque;
+			this->tamanio      = tamanioBloque;
+			
+			this->datos        = new char[tamanioBloque];
+			memset(this->datos, 0, this->getTamanioBloque());
+			
 			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 			this->offsetToProxReg = this->offsetADatos;
 			this->tipoOrganizacion = tipoOrga;
+			
+			// Inicializa el offset a espacio libre dentro del bloque.
+			unsigned short espLibre = this->offsetADatos;
+			memcpy(this->datos, &espLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
+			
+			// Inicializa la cantidad de registros dentro del bloque.
+			unsigned short cantRegs = 0;
+			memcpy(this->datos + Tamanios::TAMANIO_ESPACIO_LIBRE, &cantRegs, Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 		}
 		
 		
@@ -73,6 +85,7 @@
 			
 			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 			this->offsetToProxReg = this->offsetADatos;
+			this->tipoOrganizacion = 0;
 			
 			// Inicializa el offset a espacio libre dentro del bloque.
 			unsigned short espLibre = this->offsetADatos;
@@ -927,10 +940,15 @@
 				// Actualizo la variable que apunta al registro
 				offsetToReg += Tamanios::TAMANIO_LONGITUD;
 				
+				char * registro = new char[longReg + Tamanios::TAMANIO_LONGITUD];
+				
+				memcpy(registro, this->datos + this->offsetToProxReg, longReg + Tamanios::TAMANIO_LONGITUD);
+				
 				// Actualizo el offset al prox registro
 				this->offsetToProxReg += longReg + Tamanios::TAMANIO_LONGITUD;
 				
-				return getRegistro(longReg, offsetToReg);
+				
+				return registro;
 				
 			}
 			else
@@ -938,6 +956,7 @@
 				// Calculo la longitud del registro fijo
 				longReg = getTamanioRegistros();
 				this->offsetToProxReg += longReg;
+				
 				return getRegistro(longReg, offsetToReg);
 			}
 		}
@@ -961,11 +980,14 @@
 				// Obtengo la cantidad de registros dentro del bloque
 				memcpy(&cantRegistros, &this->datos[Tamanios::TAMANIO_ESPACIO_LIBRE], Tamanios::TAMANIO_CANTIDAD_REGISTROS);
 						
-				longRegistro  = (this->tamanio - this->offsetADatos - (this->tamanio - offsetEspLibre)) / cantRegistros;
+				longRegistro  = (offsetEspLibre - this->offsetADatos) / cantRegistros;
 			}
 			else{
 				// Obtengo la longitud variable del registro corriente
 				memcpy(&longRegistro, this->datos + this->offsetToProxReg, Tamanios::TAMANIO_LONGITUD);
+				
+				// Le sumo los bytes de la longitud
+				longRegistro += Tamanios::TAMANIO_LONGITUD;
 			}
 			
 			return longRegistro;

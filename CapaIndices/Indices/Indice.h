@@ -46,11 +46,6 @@ class Indice
 		 **/
 		virtual int insertar(Clave *clave, char* &registro, unsigned short tamanioRegistroNuevo) = 0;
 		
-		/*
-		 * Inserta una clave secundaria y su correspondiente lista de claves primarias
-		 */
-		virtual int insertar(Clave *clave, char* &registro) = 0;
-		
 		virtual int insertar(Clave *claveSecundaria, Clave* clavePrimaria) = 0;
 		
 		/*

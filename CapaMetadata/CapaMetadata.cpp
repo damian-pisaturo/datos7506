@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
 		
 		while (parserOperaciones.proximaOperacion()) {
 		
-//		for (unsigned i = 0; i < 1000; ++i) {
+//		for (unsigned i = 0; i < 100; ++i) {
 		
 			pipe = instanciarPipe(); 
 			operacion   = parserOperaciones.getTipoOperacion();
@@ -219,9 +219,9 @@ int main(int argc, char* argv[])
 								// Se obtiene el tamano del registro original a 
 								// a modificar.
 								pipe->leer(&tamRegistro);
-								registro = new char[tamRegistro*sizeof(char)];
+								registro = new char[tamRegistro];
 								
-								pipe->leer(tamRegistro*sizeof(char), registro);
+								pipe->leer(tamRegistro, registro);
 								
 								listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 								listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, *mapaValoresAtributos);
@@ -230,10 +230,10 @@ int main(int argc, char* argv[])
 								tamRegistro = dataManager.crearRegistroModificacion(*listaTiposAtributos, *listaValAtributos, registro);
 								
 								// Se envia el tamano del registro modificado por el pipe.
-								pipe->escribir((unsigned short)(tamRegistro*sizeof(char)));
+								pipe->escribir(tamRegistro);
 								
 								// Se envia el nuevo registro con la modificacion.
-								pipe->escribir(dataManager.getRegistro(), tamRegistro*sizeof(char));
+								pipe->escribir(dataManager.getRegistro(), tamRegistro);
 								
 								// Se obtiene el resultado de la modificacion.
 								pipe->leer(&pipeResult);
@@ -282,14 +282,14 @@ int main(int argc, char* argv[])
 							// Se crea el registro a dar de alta y se obtiene su longitud
 							tamRegistro = dataManager.crearRegistroAlta(*listaValAtributos, *listaTiposAtributos);
 							
-							pipe->escribir((unsigned short)(tamRegistro*sizeof(char)));
+							pipe->escribir(tamRegistro);
 							
 							if (tamRegistro > 0) {
 								
 								vista.showRegister(dataManager.getRegistro(), listaTiposAtributos);
 								
 								// Se envia el registro a dar de alta por el pipe.
-								pipe->escribir(dataManager.getRegistro(), tamRegistro*sizeof(char));
+								pipe->escribir(dataManager.getRegistro(), tamRegistro);
 								
 								// Se obtiene el resultado de la insercion
 								pipe->leer(&pipeResult);

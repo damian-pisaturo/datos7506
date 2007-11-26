@@ -90,7 +90,8 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			// Metadata esta esperando el resultado de la busqueda de clave. 
 			// Como en este caso no se manda una clave en particular, no es necesario hacer dicha búsqueda
 			// y siempre se retorna ResultadosIndices::OK.
-			pipe.escribir(ResultadosIndices::OK);
+			resultado = ResultadosIndices::OK;
+			pipe.escribir(resultado);
 			
 			Bloque* bloque;
 			unsigned short cantidadBloques = conjuntoBloques.size();
@@ -101,12 +102,15 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			for (it = conjuntoBloques.begin(); it != conjuntoBloques.end(); ++it) {
 				bloque = indice->leerBloque(*it);
 			
+				cout << "nro bloque (del set): " << *it << endl;
+				cout << "cant de reg del bloque: " << bloque->getCantidadRegistros() << endl;
+				
 				pipe.escribir(bloque->getCantidadRegistros());
 				
 				for(unsigned short i = 0; i<bloque->getCantidadRegistros(); i++){
 					tamRegistro = bloque->getTamanioRegistros();
 					pipe.escribir(tamRegistro);
-					registroDatos = bloque->getNextRegister();
+					registroDatos = bloque->getNextRegister();					
 					pipe.escribir(registroDatos, tamRegistro);
 				}
 			}
@@ -171,7 +175,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		
 		// Recibe el registro de datos.
 		pipe.leer(tamRegistro, registroDatos);
-
+		
 		resultado = indice->insertar(clave, registroDatos, tamRegistro);
 
 		pipe.escribir(resultado);
@@ -307,7 +311,6 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 
 
 int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe) {
-	
 	int resultado = ResultadosIndices::OK;
 	string buffer(""), auxStr("");
 	unsigned short tamanioBuffer = 0;
@@ -333,27 +336,32 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	
 	if (buffer.size() > 3) {
 		
-		//Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes (NOMBRE_CLAVE=VALOR_CLAVE)
-		posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
-		while ( (posActual != string::npos) ) {
-			auxStr = buffer.substr(posAnterior, posActual - posAnterior); //En auxStr tengo NOMBRE_CLAVE=VALOR_CLAVE
-			posSeparador = auxStr.find(SEPARADOR);
-			listaNombresClaves.push_back(auxStr.substr(0, posSeparador));
-			listaValoresClaves.push_back(auxStr.substr(posSeparador+1));
-			posAnterior = posActual + 1;
+		if (buffer[0] == COD_CONSULTAR_TODO)
+			indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
+		else {
+			//Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes (NOMBRE_CLAVE=VALOR_CLAVE)
 			posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
+			while ( (posActual != string::npos) ) {
+				auxStr = buffer.substr(posAnterior, posActual - posAnterior); //En auxStr tengo NOMBRE_CLAVE=VALOR_CLAVE
+				posSeparador = auxStr.find(SEPARADOR);
+				listaNombresClaves.push_back(auxStr.substr(0, posSeparador));
+				listaValoresClaves.push_back(auxStr.substr(posSeparador+1));
+				posAnterior = posActual + 1;
+				posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
+			}
+			
+			indice = mapaIndices[listaNombresClaves];
+			clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *(defManager.getListaTiposClaves(nombreTipo, listaNombresClaves)));
+
 		}
 		
-		indice = mapaIndices[listaNombresClaves];
-		clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *(defManager.getListaTiposClaves(nombreTipo, listaNombresClaves)));
-		
-	} else if ( (buffer.size() < 3) || (buffer[0] != COD_CONSULTAR_TODO) ) {
+	} else {
 		
 		resultado = ResultadosIndices::ERROR_VALORES_CLAVES;
 		pipe.escribir(resultado);
 		return resultado;
 		
-	} else indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
+	}
 	
 	switch(codOp) {
 		case OperacionesCapas::INDICES_CONSULTAR:
