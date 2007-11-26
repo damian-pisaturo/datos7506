@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 		
 //		for (unsigned i = 0; i < 100; ++i) {
 		
-			pipe = instanciarPipe(); 
+			pipe = instanciarPipe();
 			operacion   = parserOperaciones.getTipoOperacion();
 //			operacion   = OperacionesCapas::METADATA_ALTA;
 			listaClaves = parserOperaciones.getListaClaves();
@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
 								
 								listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 								
-								cout << "======= Resultado de la consulta =======" << endl;
+								cout << "======= Resultado de la consulta =======" << endl << endl;
 								for (unsigned short i = 0; i < cantRegistros; i++){
 									// Se obtiene el tamaño del registro a levantar
 									pipe->leer(&tamRegistro);
@@ -157,8 +157,10 @@ int main(int argc, char* argv[])
 									vista.showRegister(registro, listaTiposAtributos);
 									
 									delete[] registro;
+									
+									cout << endl;
 								}
-								cout << "========================================" <<endl;
+								cout << "========================================" << endl;
 								registro = NULL;
 							}
 						}
@@ -316,7 +318,7 @@ int main(int argc, char* argv[])
 			delete pipe;
 			pipe = NULL;
 			
-			usleep(1000); //Recibe microsegundos
+			usleep(1000000); //Recibe microsegundos
 			
 		}
 		

@@ -34,13 +34,14 @@ ComuDatos::ComuDatos(char** argv)
 		
 		this->fd_pipeP = open(argv[2], O_WRONLY);
 		if (this->fd_pipeP < 0) {
-			cout << "El open() lanza ERROR!" << endl;
+			cout << "El open(fd_pipeP) lanza ERROR!" << endl;
 			return;
-			}
+		}
 		
 		this->fd_pipeH = open(argv[1], O_RDONLY);
 		if (this->fd_pipeH < 0){
 			close(this->fd_pipeP);
+			cout << "El open(fd_pipeH) lanza ERROR!" << endl;
 			perror("argv[]");
 			return;	
 		}	
