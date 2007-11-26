@@ -83,7 +83,7 @@ class Bloque
 	///////////////////////////////////////////////////////////////////////
 		Bloque();
 		Bloque(unsigned int num, unsigned int tam);
-		Bloque(unsigned int tamanioBloque, int tipoOrga); 
+		Bloque(unsigned int numBloque, unsigned int tamanioBloque, int tipoOrga); 
 		virtual ~Bloque();
 	
 	///////////////////////////////////////////////////////////////////////

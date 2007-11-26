@@ -159,7 +159,7 @@ unsigned short DataManager::crearRegistroAltaRandom(string &valoresClaves, const
 		else if(tipo == TipoDatos::TIPO_STRING){
 			
 			char c;
-			int longCadena = rand() % 300;
+			int longCadena = rand() % 10;
 			
 			for (int i = 0; i < longCadena; ++i) {
 				c = 97 + (rand() % 26); //Caracteres aleatorios de la 'a' a la 'z'

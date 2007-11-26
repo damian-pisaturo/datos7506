@@ -817,7 +817,12 @@ int IndiceHashManager::escribirBloque(BloqueIndice* nuevoBloque)
 	pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bucket
 
 	//Se lanza el proceso de la capa fisica. 
+	
+	cout << "antes de lanzar para escribir" << endl;
+	
 	resultado = pipe->lanzar();
+	
+	cout << "despues de lanzar para escribir" << endl;
 	
 	if (resultado == ComuDatos::OK){
 	
@@ -855,8 +860,13 @@ int IndiceHashManager::escribirBloque(unsigned short numBucket, BloqueIndice* bl
 	char* buffer= NULL;
 
 	//Instancia del pipe
+	
+	cout << "antes de lanzar para sobreescribir" << endl;
+	
 	ComuDatos* pipe = this->instanciarPipe();
 
+	cout << "despues de lanzar para sobreescribir" << endl;
+	
 	//Parametros de ejecucion de la Capa Fisica para modificar
 	//un bucket en disco.
 	pipe->agregarParametro(OperacionesCapas::FISICA_MODIFICAR_BUCKET, 0); //Codigo de operacion

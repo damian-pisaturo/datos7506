@@ -15,7 +15,7 @@ typedef list<std::string> ListaStrings;
 class BloqueListaPrimaria : public Bloque {
 		
 	public:
-		BloqueListaPrimaria(unsigned short tamLista) : Bloque(0, tamLista) {}
+		BloqueListaPrimaria(unsigned short tamLista) : Bloque(0, tamLista, TipoDatos::TIPO_VARIABLE) {}
 		
 		virtual ~BloqueListaPrimaria() {}
 /*	

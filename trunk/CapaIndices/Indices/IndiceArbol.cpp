@@ -25,7 +25,7 @@ IndiceArbol::IndiceArbol(const unsigned char tipoIndice, int tipoDato,
 
 	switch (tipoIndice) {
 		case TipoIndices::GRIEGO:
-			this->bloque = new Bloque(0, tamBloque);
+			this->bloque = new Bloque(0, tamBloque, tipoOrg);
 			this->bloqueManager = new BloqueDatosManager(tamBloque, nombreArchivo, tipoOrg);
 			break;
 		case TipoIndices::ROMANO:
@@ -70,14 +70,19 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 			// Inserta el registro.
 			this->bloque->altaRegistro(this->listaNodos, registro);
 			// Sobreescribe el archivo de datos en la posicion 'nroBloque'
-			resultado = this->bloqueManager->escribirBloqueDatos(nroBloque, this->bloque->getDatos());	
+			resultado = this->bloqueManager->escribirBloqueDatos(nroBloque, this->bloque->getDatos());
 		}else{
+			
 			// Inserta el registro.
 			this->bloque->altaRegistro(this->listaNodos, registro);
+			
 			// Agrega un nuevo bloque de datos al archivo
 			nroBloque = this->bloqueManager->escribirBloqueDatos(this->bloque->getDatos());
+			
 			delete[] contenidoBloque;
 		}
+		
+		resultado = nroBloque;
 		
 		clave->setReferencia(nroBloque);
 		if (bTree->insertar(clave))
@@ -86,34 +91,6 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 	
 	if (claveBuscada)
 		delete claveBuscada;
-	
-	return resultado;
-}
-
-
-/*
- * Este metodo inserta una clave en un indice secundario, y su correspondiente
- * lista de claves primarias.
- */
-//TODO Este método vuela!!
-int IndiceArbol::insertar(Clave *clave, char* &registro) {
-	Clave* claveBuscada = bTree->buscar(clave);
-	
-	if (claveBuscada) {
-		delete claveBuscada;
-		return ResultadosIndices::CLAVE_DUPLICADA;
-	}
-	
-	int resultado = 0;
-	
-	if (registro)
-		this->bloqueManager->escribirBloqueDatos(registro);
-	
-	if (resultado >= 0) {
-		clave->setReferencia(resultado);
-		if (bTree->insertar(clave))
-			resultado = ResultadosIndices::OK;
-	}
 	
 	return resultado;
 }
@@ -261,7 +238,9 @@ int IndiceArbol::buscar(Clave *claveSecundaria, ListaClaves* &listaClavesPrimari
 
 
 int IndiceArbol::buscar(Clave *clave) const {
+
 	Clave* claveBuscada = bTree->buscar(clave);
+	
 	if (claveBuscada) {
 		delete claveBuscada;
 		return ResultadosIndices::CLAVE_ENCONTRADA;

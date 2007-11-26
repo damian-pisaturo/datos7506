@@ -31,8 +31,6 @@ class IndiceArbol: public Indice {
 		 **/
 		virtual int insertar(Clave *clave, char* &registro, unsigned short tamanioRegistro);
 		
-		virtual int insertar(Clave *clave, char* &registro);
-		
 		virtual int insertar(Clave *claveSecundaria, Clave* clavePrimaria);
 		
 		/*
