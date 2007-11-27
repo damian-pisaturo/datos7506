@@ -35,6 +35,8 @@ class BloqueDatosManager : public BloqueManager
 {
 	private:
 		unsigned char tipoOrg;
+		unsigned int bloqueActual;
+		unsigned short espacioBloqueLibre;
 	
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -89,6 +91,12 @@ class BloqueDatosManager : public BloqueManager
 		 * devuelve ResultadosFisica::BLOQUES_OCUPADOS.
 		 */
 		int buscarEspacioLibre(void* bloque, unsigned int espLibre);
+		
+		/*Devuelve en 'bloque' el siguiente bloque de datos presente en el archivo. 
+		 * Si pudo obtener un bloque retorna ResultadosFisica::OK, de lo contrario 
+		 * ResultadosFisica::FIN_BLOQUES.
+		 */
+		int siguienteBloque(void* bloque);
 
 	///////////////////////////////////////////////////////////////////////
 	// Getters/Setters

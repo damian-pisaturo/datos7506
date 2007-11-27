@@ -78,6 +78,12 @@ class BloqueManager : public Manager
 		 * devuelve ResultadosFisica::BLOQUES_OCUPADOS o ResultadosFisica::ARCHIVO_VACIO.
 		 */
 		virtual int buscarEspacioLibre(void* bloque, unsigned int espLibre) = 0;
+		
+		/*Devuelve en 'bloque' el siguiente bloque presente en el archivo. Si pudo
+		 * obtener un bloque retorna ResultadosFisica::OK, de lo contrario
+		 *  ResultadosFisica::FIN_ARCHIVO.
+		 */
+		virtual int siguienteBloque(void* bloque) = 0;
 
 	
 }; /*Fin clase BloqueManager*/

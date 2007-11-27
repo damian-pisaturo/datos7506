@@ -97,22 +97,22 @@
 			return resultado;
 		}
 		
-		short ArchivoDatosBloques::buscarBloque(void* bloque, unsigned short espacioLibre)
+		short ArchivoDatosBloques::buscarBloque(void* bloque, unsigned short espacioLibre, unsigned short numBloque)
 		{
 			short resultado = ResultadosFisica::OK;
 			short posicion  = 0;
 			ArchivoELVariable* archivoEL = static_cast<ArchivoELVariable*>(this->getArchivoEL());
 			
-			posicion = archivoEL->buscarEspacioLibre(espacioLibre);
+			posicion = archivoEL->buscarEspacioLibre(espacioLibre, numBloque);
 			
 			if (posicion != ResultadosFisica::BLOQUES_OCUPADOS){
 				resultado = this->posicionarse(posicion);
 				
 				if ( (resultado == ResultadosFisica::OK) && 
-						(this->size() > Tamanios::TAMANIO_IDENTIFICADOR) ) {
+						(this->size() > Tamanios::TAMANIO_IDENTIFICADOR) ){
 					this->posicionarse(posicion);
 					resultado = this->leer(bloque);
-				} else resultado = ResultadosFisica::ARCHIVO_VACIO;
+				}else resultado = ResultadosFisica::ARCHIVO_VACIO;
 			}
 			
 			if (resultado != ResultadosFisica::OK)
@@ -168,6 +168,17 @@
 			unsigned short tamBloque = this->getTamanioBloque();
 			
 			return archivoEL->modificarRegistro(&tamBloque, numBloque);			
+		}
+		
+		char ArchivoDatosBloques::siguienteBloque(void* bloque, int& numBloque, unsigned short espLibre)
+		{
+			char resultado      = ResultadosFisica::OK;
+			short bloqueBuscado = this->buscarBloque(bloque, espLibre, numBloque);
+			
+			if (bloqueBuscado != ResultadosFisica::BLOQUES_OCUPADOS) numBloque = bloqueBuscado;
+			else resultado = ResultadosFisica::FIN_BLOQUES;
+			
+			return resultado;
 		}
 		
 

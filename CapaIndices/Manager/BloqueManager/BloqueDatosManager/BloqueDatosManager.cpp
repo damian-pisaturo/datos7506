@@ -34,7 +34,9 @@
 		BloqueDatosManager::BloqueDatosManager(unsigned int tamanioBloque, string nombreArchivo, unsigned char tipoOrg):
 			BloqueManager(tamanioBloque, nombreArchivo + ".data")
 		{
-			this->tipoOrg = tipoOrg;
+			this->tipoOrg            = tipoOrg;
+			this->bloqueActual       = 0;
+			this->espacioBloqueLibre = this->getTamanioBloque() - Tamanios::TAMANIO_LONGITUD - Tamanios::TAMANIO_ESPACIO_LIBRE;
 		}
 		
 		BloqueDatosManager::~BloqueDatosManager()
@@ -253,4 +255,47 @@
 				delete pipe;
 			
 			return numBloque;
+		}
+		
+		int BloqueDatosManager::siguienteBloque(void* bloque)
+		{
+			char resultado = 0;
+			
+			//Instancia del pipe
+			ComuDatos* pipe = instanciarPipe();
+
+			//Parametros para inicializar el pipe.
+			pipe->agregarParametro(OperacionesCapas::FISICA_SIGUIENTE_BLOQUE, 0); //Codigo de operacion.
+			pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre del archivo.
+			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bloque en disco.
+			pipe->agregarParametro(this->bloqueActual, 3); //Numero del ultimo bloque de datos validos levantado.
+			pipe->agregarParametro(this->espacioBloqueLibre, 4); //Espacio en bytes que ocupa un bloque de datos libre en disco.
+			
+			//Se lanza el proceso de la capa fisica. 
+			resultado = pipe->lanzar();
+			
+			if (resultado == ComuDatos::OK){
+				
+				//Se chequea la validez del archivo
+				pipe->leer(&resultado);
+				
+				if (resultado == ResultadosFisica::OK){
+					
+					//Se chequea si existen más bloques
+					//de datos en el archivo.
+					pipe->leer(&resultado);
+					
+					if (resultado == ResultadosFisica::OK){
+						// Se obtiene el bloque de datos
+						pipe->leer(this->getTamanioBloque(), (char*)bloque);
+						
+						// Se obtiene el numero de bloque que
+						// se acaba de levantar de disco.
+						pipe->leer(&this->bloqueActual);
+					}
+				
+				}
+			}
+			
+			return resultado;				
 		}

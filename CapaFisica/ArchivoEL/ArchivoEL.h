@@ -111,8 +111,12 @@ class ArchivoELVariable : public ArchivoEL
 		 * un numero de bytes libres mayor a espacioRequerido y devuelve 
 		 * su posicion dentro del archivo. Si ningun bloque cumple con el 
 		 * requisito, devuelve ResFisica::BLOQUES_OCUPADOS.
+		 * 
+		 * Puede especificarse un numero de bloque por el cual comenzar la 
+		 * busqueda. Por defecto, comienza desde el inicio del archivo de
+		 * espacio libre.
 		 */
-		short buscarEspacioLibre(unsigned short espacioRequerido);
+		short buscarEspacioLibre(unsigned short espacioRequerido, unsigned short numBloque = 0);
 };
 
 #endif /*ARCHIVOEL_H_*/

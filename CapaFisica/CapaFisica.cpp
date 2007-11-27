@@ -807,7 +807,48 @@
 				//Se informa a la capa superior que el archivo es invalido.
 				pipe.escribir(resultado);	
 			}
-		
+			
+		}break;
+			
+		case OperacionesCapas::FISICA_SIGUIENTE_BLOQUE:
+		{
+			// Se obtiene el numero del ultimo bloque de
+			// datos enviado.
+			pipe.parametro(3, numBloque);
+			
+			// Se obtiene el tamaño en bytes de un bloque 
+			// de datos conteniendo cero registros.
+			pipe.parametro(4, espLibre);
+			
+			archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
+			
+			if (archivo->esValido()){																								
+				//Se informa a la capa superior que el archivo es valido.
+				pipe.escribir(resultado);			
+				buffer = new char[tamBloque*sizeof(char)];
+				
+				resultado = ((ArchivoDatosBloques*)archivo)->siguienteBloque(buffer, numBloque, espLibre);
+				
+				// Se informa el resultado de la operacion:
+				// ResultadosFisica::OK, si se consiguio obtener un bloque;
+				// ResultadosFisica::FIN_BLOQUES, si no existen más bloques
+				// en el archivo de datos.
+				pipe.escribir(resultado);
+				
+				if (resultado == ResultadosFisica::OK){
+					// Se envian el bloque y su numero a
+					// traves del pipe.
+					pipe.escribir(buffer, tamBloque*sizeof(char));
+					pipe.escribir(numBloque);
+				}
+				
+			}else{
+				resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+				
+				//Se informa a la capa superior que el archivo es invalido.
+				pipe.escribir(resultado);	
+			}
+			
 		}break;
 			
 		default:			
