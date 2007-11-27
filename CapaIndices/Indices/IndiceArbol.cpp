@@ -166,6 +166,46 @@ int IndiceArbol::eliminar(Clave *clave) {
 	return resultado;
 }
 
+
+/*
+ * Este método elimina una clave primaria de la lista de claves primarias
+ * correspondiente a una clave secundaria.
+ * Si la lista queda vacía, también se elimina la clave secundaria.
+ */
+int IndiceArbol::eliminar(Clave* claveSecundaria, Clave *clavePrimaria) {
+	
+	Clave* claveBuscada = bTree->buscar(claveSecundaria);
+	int resultado = ResultadosIndices::OK;
+	
+	ListaNodos* listaNodos = this->getListaNodosClavePrimaria();
+	
+	if (claveBuscada) {
+
+		char* bloqueLista = new char[this->tamBloque];
+		
+		if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), bloqueLista) == ResultadosFisica::OK) {
+			this->bloque->setDatos(bloqueLista);
+			this->bloque->bajaRegistro(listaNodos, *clavePrimaria);
+			if (this->bloque->getCantidadRegistros() == 0) {
+				this->bloqueManager->eliminarBloqueDatos(claveBuscada->getReferencia());
+				this->bTree->eliminar(claveSecundaria);
+			} else
+				this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
+		} else {
+			delete[] bloqueLista;
+			resultado = ResultadosIndices::ERROR_INSERCION;
+		}
+		
+		delete claveBuscada;
+		
+	} else resultado = ResultadosIndices::CLAVE_NO_ENCONTRADA;
+	
+	delete listaNodos;
+	
+	return resultado;
+	
+}
+
 /*
  * Este metodo busca una clave dentro del indice primario, y devuelve el
  * registro de datos correspondiente a dicha clave.

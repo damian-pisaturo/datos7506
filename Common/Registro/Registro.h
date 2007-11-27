@@ -23,7 +23,7 @@ class Registro
 		
 		unsigned char tipoOrg;                                             // Indica si el registro es de longitud variable o no.
 		ListaTipos* listaTipos;	                                           // Contiene una lista que indica como se compone un registro.
-		DefinitionsManager::ListaValoresClaves* listaAtributos;            // Lista contenedora de los atributos del registros
+		DefinitionsManager::ListaValoresClaves listaAtributos;             // Lista contenedora de los atributos del registros
 		DefinitionsManager::ListaNombresAtributos*  listaNombresAtributos; // Lista contenedora de los nombres de los atributos en el registro.
 	
 	public:

@@ -186,7 +186,6 @@ int main(int argc, char* argv[])
 						
 						// Se obtiene el resultado de la operacion
 						pipe->leer(&pipeResult);
-					
 					}
 				}break;
 				

@@ -66,6 +66,14 @@ class IndiceHash :public Indice
 		virtual int eliminar(Clave *clave);
 		
 		/*
+		 * Este método elimina una clave primaria de la lista de claves primarias
+		 * correspondiente a la clave secundaria.
+		 * Si la lista queda vacía, también se elimina la clave secundaria.
+		 */
+		//TODO Implementar!!
+		virtual int eliminar(Clave* claveSecundaria, Clave *clavePrimaria) { return 0; }
+		
+		/*
 		 * Este metodo busca un elemento dentro del indice.
 		 * y devuelve el bloque que contiene el registro de clave "clave"
 		 * dentro de "registro".
