@@ -154,10 +154,15 @@
 		int BloqueListaManager::eliminarBloqueDatos(unsigned int numLista)
 		{
 			return 0;
-		}
-		
+		}		
 
 		int BloqueListaManager::buscarEspacioLibre(void* bloque, unsigned int espLibre)
 		{
 			return 0;
 		}
+		
+		int BloqueListaManager::siguienteBloque(void* bloque)
+		{
+			return 0;
+		}
+

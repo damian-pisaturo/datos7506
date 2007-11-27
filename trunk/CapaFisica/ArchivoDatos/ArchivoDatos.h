@@ -91,9 +91,12 @@ class ArchivoDatosBloques : public ArchivoDatos
 		 * 
 		 * Si encontro algun bloque y no se produjo ningun error, retorna
 		 * la posicion relativa del bloque hallado.
-		 * Si ningun bloque cumple con el requisito, devuelve RefFisica::BLOQUES_OCUPADOS.
+		 * Si ningun bloque cumple con el requisito, devuelve ResultadosFisica::BLOQUES_OCUPADOS.
+		 * 
+		 * Puede especificarse un numero de bloque por el cual comenzar la 
+		 * busqueda. Por defecto, comienza desde el inicio del archivo de datos.
 		 */
-		short buscarBloque(void* bloque, unsigned short espacioLibre);
+		short buscarBloque(void* bloque, unsigned short espacioLibre, unsigned short numBloque = 0);
 		
 		/*Sobre-escribe en la posicion relativa numBloque el bloque pasado
 		 * por parametro.
@@ -113,6 +116,15 @@ class ArchivoDatosBloques : public ArchivoDatos
 		 * numBloque se considere vacio.
 		 */
 		char eliminarBloque(unsigned short numBloque);
+		
+		/*Devuelve el siguiente bloque con datos validos en el archivo de
+		 * datos, contando a partir del numero de bloque numBloque.
+		 * Si pudo obtener un bloque siguiente, lo devuelve en 'bloque' y su
+		 * numero en 'numBloque. Retorna ResultadosFisica::OK.
+		 * Si no pudo, porque no existen más bloques, 
+		 * retorna ResultadosFisica::FIN_BLOQUES.
+		 */
+		char siguienteBloque(void* bloque, int& numBloque, unsigned short espLibre);
 	
 }; /*Fin clase ArchivoDatosBloques*/
 

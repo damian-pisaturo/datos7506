@@ -159,21 +159,21 @@
 	///////////////////////////////////////////////////////////////////////
 	//	Metodos publicos
 	///////////////////////////////////////////////////////////////////////
-		short ArchivoELVariable::buscarEspacioLibre(unsigned short espacioRequerido)
+		short ArchivoELVariable::buscarEspacioLibre(unsigned short espacioRequerido, unsigned short numBloque)
 		{
 			unsigned short espacioLibre = 0;
-			short numBloque = -1;
+			short bloqueActual = -1;
 			
-			this->posicionarse(0);
+			this->posicionarse(numBloque);
 			
-			while((espacioLibre < espacioRequerido) && 
+			while((espacioLibre <= espacioRequerido) && 
 					(!this->fin())){
-				++numBloque;
+				++bloqueActual;
 				this->leer(&espacioLibre);
 			}
 			
 			if (espacioLibre < espacioRequerido)
-				numBloque = ResultadosFisica::BLOQUES_OCUPADOS;
+				bloqueActual = ResultadosFisica::BLOQUES_OCUPADOS;
 			
-			return numBloque;		
+			return bloqueActual;		
 		}

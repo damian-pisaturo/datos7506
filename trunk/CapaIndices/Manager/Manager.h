@@ -24,6 +24,7 @@
 #include "../../Common/NombresCapas.h"
 #include "../../Common/ResultadosFisica.h"
 #include "../../Common/OperacionesCapas.h"
+#include "../../Common/Tamanios.h"
 #include <string>
 
 

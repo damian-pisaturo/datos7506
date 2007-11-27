@@ -77,6 +77,10 @@ class BloqueListaManager : public BloqueManager
 		/* Este metodo abstracto heredado no recibe implementacion en esta clase.
 		*/
 		virtual int buscarEspacioLibre(void* bloque, unsigned int espLibre);
+		
+		/* Este metodo abstracto heredado no recibe implementacion en esta clase.
+		 */
+		virtual int siguienteBloque(void* bloque);
 
 	
 		
