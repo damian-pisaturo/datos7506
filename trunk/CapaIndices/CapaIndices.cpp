@@ -132,7 +132,7 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			DefinitionsManager::ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
 			indice = mapaIndices[*listaNombresClaves];
 			
-			//Envío la cantidad de registros
+			//Envío la cantidad de registros (Un registro por cada clave primaria)
 			cantRegistros = listaClaves->size();
 			pipe.escribir(cantRegistros);
 			
@@ -213,59 +213,105 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 }
 
 
+int eliminarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
+ 	  	  				   Indice *indicePrimario, Clave *clave,
+ 	  	  				   DefinitionsManager &defManager) {
+	
+	int resultado = 0;
+	char* registroDatos = NULL;
+	unsigned short tamRegistro;
+	
+	//Antes de eliminar la clave primaria obtengo su registro de datos
+	//para luego armar las claves secundarias.
+	resultado = indicePrimario->buscar(clave, registroDatos, tamRegistro);
+	
+	if (resultado == ResultadosIndices::OK) {
+		
+		//Elimino la clave primaria
+		resultado = indicePrimario->eliminar(clave);
+		
+		if (resultado == ResultadosIndices::OK) {
+			
+			//Actualizo los indices secundarios
+			Indice* indiceSecundario = NULL;
+			Clave* claveSecundaria = NULL;
+			
+			//Se instancia un objeto Registro, el cual es el encargado de
+			//administrar el registro de los datos y de proporcionar las claves
+			//secundarias creadas con los valores correspondientes.
+			Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
+							  registroDatos, defManager.getListaTipos(nombreTipo),
+							  defManager.getListaNombresAtributos(nombreTipo));
+			
+			for (MapaIndices::iterator iter = mapaIndices.begin();
+				iter != mapaIndices.end(); ++iter) {
+				
+				//Obtengo la clave secundaria
+				claveSecundaria = registro.getClave(iter->first);
+				//Obtengo el índice secundario
+				indiceSecundario = iter->second;
+				
+				indiceSecundario->eliminar(claveSecundaria, clave);
+				
+				delete claveSecundaria;
+				
+			}
+			
+		}
+		
+		delete[] registroDatos;
+		
+	}
+	
+	return resultado;
+	
+}
+
+
 void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 	   	  	  Indice *indice, Clave *clave,
 	   	  	  DefinitionsManager &defManager, ComuDatos &pipe) {
 	
-	int resultado = 0;
+	int resultado = ResultadosIndices::OK;
 	
 	if (indice->getTipo() == TipoIndices::GRIEGO) {
 		
-		char* registroDatos = NULL;
-		unsigned short tamRegistro;
-		resultado = indice->buscar(clave, registroDatos, tamRegistro);
+		//Saco el índice primario para no volver a eliminar.
+		mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
+		//Elimino la clave primaria y actualizo los índices secundarios.
+		resultado = eliminarClavePrimaria(nombreTipo, mapaIndices, indice, clave, defManager);
+		//Elimino el índice primario que saqué del mapa
+		delete indice;
+		
+	} else { //Indice Secundario
+		
+		ListaClaves* listaClavesPrimarias = NULL;
+		int resultado = indice->buscar(clave, listaClavesPrimarias);
 		
 		if (resultado == ResultadosIndices::OK) {
 			
-			//Elimino la clave primaria
-			resultado = indice->eliminar(clave);
+			ListaClaves::iterator iterClaves = listaClavesPrimarias->begin();
 			
-			pipe.escribir(resultado);
+			//Obtengo el índice primario
+			MapaIndices::iterator it = mapaIndices.find(*defManager.getListaNombresClavesPrimarias(nombreTipo));
+			Indice* indicePrimario = it->second;
+			//Saco el índice primario del mapa para que no sea encontrado cuando se busquen los
+			//índices secundarios en 'eliminarClavePrimaria'
+			mapaIndices.erase(it);
 			
-			if (resultado == ResultadosIndices::OK) {
-				
-				//Actualizo los indices secundarios
-				//Saco el índice primario para no volver a insertar.
-				mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
-				delete indice;
-				
-				Clave* claveSecundaria = NULL;
-				
-				for (MapaIndices::iterator iter = mapaIndices.begin();
-					iter != mapaIndices.end(); ++iter) {
-					
-					Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
-									  registroDatos, defManager.getListaTipos(nombreTipo),
-									  defManager.getListaNombresAtributos(nombreTipo));
-					
-					claveSecundaria = registro.getClave(iter->first);
-					indice = iter->second;
-					
-					indice->insertar(claveSecundaria, clave);
-					
-					delete claveSecundaria;
-					
-				}
-				
-			}
-		} else pipe.escribir(resultado);
-		
-		delete[] registroDatos;
-		
-	} else {
+			//Elimino todas las claves primarias vinculadas a esta clave secundaria
+			for (unsigned i = 0; i < listaClavesPrimarias->size(); ++i, ++iterClaves)
+				resultado = eliminarClavePrimaria(nombreTipo, mapaIndices, indicePrimario, *iterClaves, defManager);
+			
+			delete indicePrimario;
+			
+		}
 		
 		
 	}
+	
+	//Envío el resultado a la capa de metadata
+	pipe.escribir(resultado);
 	
 }
 
@@ -417,8 +463,6 @@ int main(int argc, char* argv[]) {
 	pipe.parametro(1, nombreTipo);
 	
 	procesarOperacion(codOp, nombreTipo, pipe);
-	
-//	usleep(1000000); //Recibe microsegundos
 
 	// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
 	/*

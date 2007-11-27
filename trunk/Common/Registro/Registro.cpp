@@ -84,7 +84,7 @@
 							
 					}break;
 					
-					this->listaAtributos->push_back(conversor.str());
+					this->listaAtributos.push_back(conversor.str());
 					conversor.clear();
 				}
 			}
@@ -112,7 +112,7 @@
 		
 		string Registro::getAtributo(unsigned char posicion)
 		{
-			DefinitionsManager::ListaValoresClaves::const_iterator iter = this->listaAtributos->begin();
+			DefinitionsManager::ListaValoresClaves::const_iterator iter = this->listaAtributos.begin();
 			
 			for (unsigned char i = 0; i < posicion; i++) ++iter;
 			
@@ -158,13 +158,14 @@
 			for (iterNomClaves = listaNombresClaves.begin(); iterNomClaves != listaNombresClaves.end();
 				++iterNomClaves){
 				
-				for (iterNomAtributos = this->listaNombresAtributos->begin(), iterTipos = this->listaTipos->begin(), iterValAtributos = this->listaAtributos->begin();
-					iterNomAtributos != this->listaNombresAtributos->end(), iterTipos != this->listaTipos->end(), iterValAtributos != this->listaAtributos->end(); 
+				for (iterNomAtributos = this->listaNombresAtributos->begin(), iterTipos = this->listaTipos->begin(), iterValAtributos = this->listaAtributos.begin();
+					iterNomAtributos != this->listaNombresAtributos->end(), iterTipos != this->listaTipos->end(), iterValAtributos != this->listaAtributos.end(); 
 					++iterNomAtributos, ++iterTipos, ++iterValAtributos){
 					
 					if (*iterNomAtributos == *iterNomClaves){
 						listaTiposClaves.push_back(*iterTipos);
-						listaValoresClaves.push_back(*iterValAtributos);						
+						listaValoresClaves.push_back(*iterValAtributos);
+						break;
 					}
 					
 				}				
