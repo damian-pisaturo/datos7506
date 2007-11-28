@@ -24,17 +24,16 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 		switch (tipoIndice) {
 			
 			case TipoIndices::ARBOL_BP:
-			case TipoIndices::ARBOL_BS:
+			case TipoIndices::ARBOL_BS:				
 				indice = new IndiceArbol(estructura.tipoIndice, estructura.tipoClave,
 										defManager.getListaTiposAtributos(nombreTipo),
 										estructura.tipoEstructura, estructura.tamanioBloque,
 										Tamanios::TAMANIO_BLOQUE_DATO, estructura.nombreArchivo,
-										tipoOrg);
+										tipoOrg);				
 				break;
 				
 			case TipoIndices::HASH:
-			
-				indice = new IndiceHash(listaTiposAtributos, estructura.tamanioBloque, estructura.nombreArchivo);
+				indice = new IndiceHash(listaTiposAtributos, estructura.tamanioBloque, estructura.nombreArchivo);				
 				break;
 		}
 		
@@ -170,11 +169,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		// Recibe el registro de datos.
 		pipe.leer(tamRegistro, registroDatos);
 		
-		cout << "antes de insertar en el indice primario: " << resultado << endl;
-		
 		resultado = indice->insertar(clave, registroDatos, tamRegistro);
-		
-		cout << "despues de insertar en el indice primario: " << resultado << endl;
 
 		if (resultado == ResultadosIndices::OK) {
 			
@@ -198,13 +193,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 				claveSecundaria = registro.getClave(iter->first);
 				indice = iter->second;
 				
-				cout << "tipo del indice secundario: " << (short)indice->getTipo() << endl;
-				
-				cout << "antes de insertar en el indice secundario: " << resultado << endl;
-				
 				resultado = indice->insertar(claveSecundaria, clave);
-				
-				cout << "despues de insertar en el indice secundario: " << resultado << endl;
 				
 				delete claveSecundaria;
 				
@@ -214,8 +203,6 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		delete[] registroDatos;
 		
 	}
-	
-	cout << "voy a enviar el resultado: " << resultado << endl;
 	
 	pipe.escribir(resultado);
 }

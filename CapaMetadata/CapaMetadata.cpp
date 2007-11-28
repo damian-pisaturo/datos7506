@@ -300,8 +300,6 @@ int main(int argc, char* argv[])
 							delete listaValAtributos;
 							
 						}
-						
-						cout << endl << endl;
 					}
 					
 				}break;
@@ -312,12 +310,12 @@ int main(int argc, char* argv[])
 			
 			resultado << pipeResult;
 			
-			cout << resultado << endl;
+			cout << endl << resultado << endl;
 			
 			delete pipe;
 			pipe = NULL;
 			
-			usleep(1000000); //Recibe microsegundos
+			//usleep(1000000); //Recibe microsegundos
 			
 		}
 		
