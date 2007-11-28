@@ -35,7 +35,7 @@ class BloqueDatosManager : public BloqueManager
 {
 	private:
 		unsigned char tipoOrg;
-		unsigned int bloqueActual;
+		unsigned int bloqueSiguiente;
 		unsigned short espacioBloqueLibre;
 	
 	public:

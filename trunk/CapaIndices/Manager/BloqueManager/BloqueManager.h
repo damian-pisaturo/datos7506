@@ -81,7 +81,7 @@ class BloqueManager : public Manager
 		
 		/*Devuelve en 'bloque' el siguiente bloque presente en el archivo. Si pudo
 		 * obtener un bloque retorna ResultadosFisica::OK, de lo contrario
-		 *  ResultadosFisica::FIN_ARCHIVO.
+		 *  ResultadosFisica::FIN_BLOQUES.
 		 */
 		virtual int siguienteBloque(void* bloque) = 0;
 

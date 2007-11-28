@@ -110,6 +110,12 @@ class Indice
 		
 		virtual Bloque* leerBloque(unsigned int nroBloque) = 0;
 		
+		/*
+		 * Método que devuelve el siguiente bloque de disco que contiene
+		 * registros de datos.
+		 */
+		virtual int siguienteBloque(Bloque* &bloque) = 0;
+		
 		unsigned char getTipo() const { return this->tipoIndice; }
 		
 		unsigned short getTamanioBloque() const { return this->tamBloque; }

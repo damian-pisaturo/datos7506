@@ -38,6 +38,7 @@ class ResultadosFisica
 		static const char ARCHIVO_INVALIDO   	   = -9;
 		static const char ARCHIVO_VACIO 		   = -10;
 		static const char FIN_BLOQUES 			   = -11;
+		static const char BLOQUES_VACIOS		   = -12;
 		
 		
 }; /*Fin clase ResultadosFisica*/

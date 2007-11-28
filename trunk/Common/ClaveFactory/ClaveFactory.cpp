@@ -59,14 +59,15 @@ Clave* ClaveFactory::getClave(const DefinitionsManager::ListaValoresClaves& list
 			case TipoDatos::TIPO_FECHA:
 			{
 				ClaveFecha::TFECHA valor;
-				unsigned short anio;
-				unsigned char dia, mes;
+				unsigned short anio, dia, mes;
 				conversor << (*iterLV).substr(0, 4);
 				conversor >> anio;
 				conversor.clear();
+				conversor.str("");
 				conversor << (*iterLV).substr(4, 2);
 				conversor >> mes;
 				conversor.clear();
+				conversor.str("");
 				conversor << (*iterLV).substr(6, 2);
 				conversor >> dia;
 				valor.crear(dia, mes, anio);
@@ -81,6 +82,8 @@ Clave* ClaveFactory::getClave(const DefinitionsManager::ListaValoresClaves& list
 		
 		listaClaves.push_back(clave);
 		conversor.clear();
+		conversor.str("");
+		
 		
 	}
 	
@@ -149,14 +152,15 @@ Clave* ClaveFactory::getClave(const DefinitionsManager::ListaClaves& listaValore
 			case TipoDatos::TIPO_FECHA:
 			{
 				ClaveFecha::TFECHA valor;
-				unsigned short anio;
-				unsigned char dia, mes;
+				unsigned short anio, dia, mes;
 				conversor << (*iterLC).valorClave.substr(0, 4);
 				conversor >> anio;
 				conversor.clear();
+				conversor.str("");
 				conversor << (*iterLC).valorClave.substr(4, 2);
 				conversor >> mes;
 				conversor.clear();
+				conversor.str("");
 				conversor << (*iterLC).valorClave.substr(6, 2);
 				conversor >> dia;
 				valor.crear(dia, mes, anio);
@@ -171,6 +175,7 @@ Clave* ClaveFactory::getClave(const DefinitionsManager::ListaClaves& listaValore
 		
 		listaClaves.push_back(clave);
 		conversor.clear();
+		conversor.str("");
 		
 	}
 	

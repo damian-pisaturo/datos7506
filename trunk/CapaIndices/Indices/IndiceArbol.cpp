@@ -130,7 +130,9 @@ int IndiceArbol::insertar(Clave *claveSecundaria, Clave* clavePrimaria) {
 		
 		if (resultado >= 0) {
 			claveSecundaria->setReferencia(resultado);
-			if (!bTree->insertar(claveSecundaria))
+			if (bTree->insertar(claveSecundaria))
+				resultado = ResultadosIndices::OK;
+			else
 				resultado = ResultadosIndices::ERROR_INSERCION;
 		} else resultado = ResultadosIndices::ERROR_INSERCION;
 	
@@ -157,7 +159,7 @@ int IndiceArbol::eliminar(Clave *clave) {
 		if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), contenidoBloque) == ResultadosFisica::OK){
 			this->bloque->setDatos(contenidoBloque);
 			this->bloque->bajaRegistro(this->listaNodos, *claveBuscada);
-			resultado = this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
+			this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
 		} else
 			delete[] contenidoBloque;
 	}
@@ -376,5 +378,23 @@ Bloque* IndiceArbol::leerBloque(unsigned int nroBloque) {
 	this->bloqueManager->leerBloqueDatos(nroBloque, bloqueDatos);
 	this->bloque->setDatos(bloqueDatos);
 	return this->bloque;
+}
+
+/*
+ * Método que devuelve el siguiente bloque de disco que contiene
+ * registros de datos.
+ */
+int IndiceArbol::siguienteBloque(Bloque* &bloque) {
+	char* bloqueDatos = new char[this->tamBloque];
+	int resultado = this->bloqueManager->siguienteBloque(bloqueDatos);
+	if (resultado != ResultadosFisica::FIN_BLOQUES) {
+		bloque = new Bloque(0, this->tamBloque, this->bloque->getTipoOrganizacion());
+		bloque->setDatos(bloqueDatos);
+		if (resultado == ResultadosFisica::OK) resultado = ResultadosIndices::OK;
+	} else {
+		delete[] bloqueDatos;
+		resultado = ResultadosIndices::FIN_BLOQUES;
+	}
+	return resultado; //La memoria de 'bloqueDatos' se libera al destruirse 'bloque'
 }
 

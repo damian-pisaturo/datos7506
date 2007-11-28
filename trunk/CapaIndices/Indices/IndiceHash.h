@@ -107,6 +107,13 @@ class IndiceHash :public Indice
 		
 		Bloque* leerBloque(unsigned int nroBloque);
 		
+		/*
+		 * Método que devuelve el siguiente bloque de disco que contiene
+		 * registros de datos.
+		 */
+		// TODO Implementar!!
+		virtual int siguienteBloque(Bloque* &bloque) { return 0; }
+		
 };
 
 #endif /*INDICEHASH_H_*/

@@ -35,7 +35,7 @@
 			BloqueManager(tamanioBloque, nombreArchivo + ".data")
 		{
 			this->tipoOrg            = tipoOrg;
-			this->bloqueActual       = 0;
+			this->bloqueSiguiente    = 0;
 			this->espacioBloqueLibre = this->getTamanioBloque() - Tamanios::TAMANIO_LONGITUD - Tamanios::TAMANIO_ESPACIO_LIBRE;
 		}
 		
@@ -268,7 +268,7 @@
 			pipe->agregarParametro(OperacionesCapas::FISICA_SIGUIENTE_BLOQUE, 0); //Codigo de operacion.
 			pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre del archivo.
 			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bloque en disco.
-			pipe->agregarParametro(this->bloqueActual, 3); //Numero del ultimo bloque de datos validos levantado.
+			pipe->agregarParametro(this->bloqueSiguiente, 3); //Numero del ultimo bloque de datos validos levantado.
 			pipe->agregarParametro(this->espacioBloqueLibre, 4); //Espacio en bytes que ocupa un bloque de datos libre en disco.
 			
 			//Se lanza el proceso de la capa fisica. 
@@ -291,11 +291,16 @@
 						
 						// Se obtiene el numero de bloque que
 						// se acaba de levantar de disco.
-						pipe->leer(&this->bloqueActual);
+						pipe->leer(&this->bloqueSiguiente);
+						
+						++(this->bloqueSiguiente);
 					}
 				
 				}
 			}
+			
+			if (pipe)
+				delete pipe;
 			
 			return resultado;				
 		}

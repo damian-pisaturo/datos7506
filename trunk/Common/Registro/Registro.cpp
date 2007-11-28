@@ -12,7 +12,8 @@
     // Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 
-		Registro::Registro(unsigned char tipoOrg, char* data, ListaTipos* listaTipos, DefinitionsManager::ListaNombresAtributos* listaNombresAtributos)
+		Registro::Registro(unsigned char tipoOrg, char* data, ListaTipos* listaTipos,
+						   DefinitionsManager::ListaNombresAtributos* listaNombresAtributos)
 		{
 			unsigned int offset = 0;
 			stringstream conversor;
@@ -53,8 +54,8 @@
 					
 					case TipoDatos::TIPO_FLOAT:
 					{
-						conversor << *(char*)(data + offset);				
-						offset += sizeof(char);
+						conversor << *(float*)(data + offset);				
+						offset += sizeof(float);
 						
 					}break;
 					
@@ -63,10 +64,10 @@
 						conversor << *(unsigned short*)(data + offset);
 						offset += sizeof(unsigned short);
 		
-						conversor << *(unsigned char*)(data + offset);
+						conversor << (short)(*(unsigned char*)(data + offset));
 						offset += sizeof(unsigned char);
 						
-						conversor << *(unsigned char*)(data + offset);
+						conversor << (short)(*(unsigned char*)(data + offset));
 						offset += sizeof(unsigned char);
 				
 						break;
@@ -84,14 +85,17 @@
 							
 					}break;
 					
-					this->listaAtributos.push_back(conversor.str());
-					conversor.clear();
 				}
+				
+				this->listaAtributos.push_back(conversor.str());
+				conversor.clear();
+				conversor.str("");
 			}
 			
 			this->tipoOrg               = tipoOrg;
 			this->listaNombresAtributos = listaNombresAtributos;
 			this->listaTipos            = listaTipos;
+			
 		}
 		
 	
@@ -106,7 +110,7 @@
 		
 		unsigned char Registro::getCantidadAtributos()
 		{
-			return (this->listaTipos->size());
+			return this->listaTipos->size();
 		}
 		
 		
@@ -142,33 +146,40 @@
 		
 		Clave* Registro::getClave(const DefinitionsManager::ListaNombresClaves &listaNombresClaves)
 		{
+			// Atributos necesarios para armar la clave
 			Clave* claveAux = NULL;
 			DefinitionsManager::ListaValoresClaves listaValoresClaves;
 			ListaTipos listaTiposClaves;
 			
-			DefinitionsManager::ListaNombresAtributos::const_iterator iterNomAtributos;  
-			DefinitionsManager::ListaNombresClaves::const_iterator iterNomClaves;
-			ListaTipos::const_iterator iterTipos;
+			// Iteradores de las listas que tiene esta clase como atributos
+			DefinitionsManager::ListaNombresAtributos::const_iterator iterNomAtributos;
 			DefinitionsManager::ListaValoresClaves::const_iterator iterValAtributos;
+			ListaTipos::const_iterator iterTipos;
+			
+			// Iterador de la lista pasada por parámetro
+			DefinitionsManager::ListaNombresClaves::const_iterator iterNomClaves;
 			
 			// Se recorre la lista de nombres pasada por parametro y las listas de nombres de los 
 			// atributos del registro, sus valores y sus tipos. Si se encuentra una coincidencia entre
 			// el nombre pasado y el nombre del atributo, se copia el valor de dicho atributo y su tipo
 			// a dos listas definidas para tal fin.
 			for (iterNomClaves = listaNombresClaves.begin(); iterNomClaves != listaNombresClaves.end();
-				++iterNomClaves){
+				++iterNomClaves) {
 				
-				for (iterNomAtributos = this->listaNombresAtributos->begin(), iterTipos = this->listaTipos->begin(), iterValAtributos = this->listaAtributos.begin();
-					iterNomAtributos != this->listaNombresAtributos->end(), iterTipos != this->listaTipos->end(), iterValAtributos != this->listaAtributos.end(); 
-					++iterNomAtributos, ++iterTipos, ++iterValAtributos){
+				for (iterNomAtributos = this->listaNombresAtributos->begin(),
+					 iterValAtributos = this->listaAtributos.begin(),
+					 iterTipos = this->listaTipos->begin();
+					 iterNomAtributos != this->listaNombresAtributos->end(); 
+					 ++iterNomAtributos, ++iterTipos, ++iterValAtributos) {
 					
-					if (*iterNomAtributos == *iterNomClaves){
+					if (*iterNomAtributos == *iterNomClaves) {
 						listaTiposClaves.push_back(*iterTipos);
 						listaValoresClaves.push_back(*iterValAtributos);
 						break;
 					}
 					
-				}				
+				}
+				
 			}
 			
 			//Si las listas de valores y tipos no estan vacias (es decir, hubo -al menos- una coincidencia en los nombres 

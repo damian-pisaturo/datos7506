@@ -63,7 +63,6 @@ int main(int argc, char* argv[])
 		unsigned char operacion      = 0;    // Tipo de operacion a ejecutar
 		unsigned short tamRegistro   = 0; 	 // Tamano de un registro.
 		unsigned short cantRegistros = 0;    // Cant. de registros que responden a la consulta dada.
-		unsigned short cantBloques	 = 0;    // Cant. de bloques que hay que iterar para responder la consulta.
 		char* registro               = NULL; // Buffer contenedor de un registro. 
 		string valoresClaves("");
 		string nombreTipo("");
@@ -125,14 +124,11 @@ int main(int argc, char* argv[])
 						// Obtencion del resultado de la operacion
 						pipe->leer(&pipeResult);
 						
-						if (pipeResult == ResultadosIndices::OK){
+						if (pipeResult == ResultadosIndices::OK) {
 							
-							// Se obtiene la cantidad de bloques que hay que iterar para obtener
-							// los registros que responden la consulta.
-							pipe->leer(&cantBloques);
+							int sigBloque = 0;
 							
-							for(int i = 0; i < cantBloques; ++i)
-							{
+							do {
 								// Se obtiene la cantidad de registros que responden 
 								// a la consulta realizada.
 								pipe->leer(&cantRegistros); 
@@ -161,8 +157,12 @@ int main(int argc, char* argv[])
 									cout << endl;
 								}
 								cout << "========================================" << endl;
+								
 								registro = NULL;
-							}
+								
+								// Leo el resultado que indica si se van a recibir más bloques
+								pipe->leer(&sigBloque);
+							} while (sigBloque != ResultadosIndices::FIN_BLOQUES);
 						}
 					}
 				}break;

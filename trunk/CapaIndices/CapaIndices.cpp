@@ -50,6 +50,7 @@ void destruirIndices(MapaIndices &mapaIndices) {
 	for (MapaIndices::iterator iter = mapaIndices.begin();
 		iter != mapaIndices.end(); ++iter)
 		delete iter->second;
+	
 }
 
 
@@ -60,7 +61,6 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 	unsigned short cantRegistros = 1, tamRegistro = 0;
 	int resultado = 0;
 	char *registroDatos = NULL;
-	unsigned short cantidadBloques = 1;
 	
 	if (indice->getTipo() == TipoIndices::GRIEGO) {
 		
@@ -69,14 +69,14 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			resultado = indice->buscar(clave, registroDatos, tamRegistro);
 			pipe.escribir(resultado);
 			
-			// Se manda 1, para que metadata sepa que tiene que iterar solo una vez.
-			pipe.escribir(cantidadBloques);
-			
 			if (resultado == ResultadosIndices::OK) {
-				//Envío la cantidad de registros
+				// Envío la cantidad de registros
 				pipe.escribir(cantRegistros);
 				pipe.escribir(tamRegistro);
 				pipe.escribir(registroDatos, tamRegistro);
+				// Le indico a la capa superior que no va a recibir mas bloques
+				resultado = ResultadosIndices::FIN_BLOQUES;
+				pipe.escribir(resultado);
 			}
 			
 		}
@@ -84,38 +84,29 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 		{
 			// Se devuelven todos los registros almacenados en el indice.
 			
-			SetEnteros conjuntoBloques = indice->getConjuntoBloques();
-			SetEnteros::iterator it;
+			Bloque* bloque = NULL;
 			
-			// Metadata esta esperando el resultado de la busqueda de clave. 
-			// Como en este caso no se manda una clave en particular, no es necesario hacer dicha búsqueda
-			// y siempre se retorna ResultadosIndices::OK.
-			resultado = ResultadosIndices::OK;
+			resultado = indice->siguienteBloque(bloque);
 			pipe.escribir(resultado);
 			
-			Bloque* bloque;
-			unsigned short cantidadBloques = conjuntoBloques.size();
-			
-			// Envio la cantidad de bloques a la capa de arriba para saber la cant de iteraciones 
-			pipe.escribir(cantidadBloques);
-			
-			for (it = conjuntoBloques.begin(); it != conjuntoBloques.end(); ++it) {
-				bloque = indice->leerBloque(*it);
-			
-				cout << "nro bloque (del set): " << *it << endl;
-				cout << "cant de reg del bloque: " << bloque->getCantidadRegistros() << endl;
-				cout << "cant de bloques dentro del conj: " << conjuntoBloques.size() << endl;
+			while (resultado != ResultadosIndices::FIN_BLOQUES) {
 				
 				pipe.escribir(bloque->getCantidadRegistros());
 				
-				for(unsigned short i = 0; i<bloque->getCantidadRegistros(); i++){
+				for(unsigned short i = 0; i < bloque->getCantidadRegistros(); i++) {
 					tamRegistro = bloque->getTamanioRegistros();
 					pipe.escribir(tamRegistro);
-					registroDatos = bloque->getNextRegister();					
+					registroDatos = bloque->getNextRegister();
 					pipe.escribir(registroDatos, tamRegistro);
+					delete[] registroDatos;
 				}
+				
+				delete bloque;
+				
+				resultado = indice->siguienteBloque(bloque);
+				
+				pipe.escribir(resultado);
 			}
-			delete bloque;
 		}
 	}
 	else{ //Indice Secundario
@@ -125,8 +116,6 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 		pipe.escribir(resultado);
 		
 		if (resultado == ResultadosIndices::OK) {
-			
-			pipe.escribir(cantidadBloques);
 			
 			//Obtengo el índice primario
 			DefinitionsManager::ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
@@ -148,6 +137,10 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 					pipe.escribir(registroDatos, tamRegistro);
 				else break;
 			}
+			
+			// Le indico a la capa superior que no va a recibir mas bloques
+			resultado = ResultadosIndices::FIN_BLOQUES;
+			pipe.escribir(resultado);
 			
 			delete listaClaves;
 		}
@@ -177,29 +170,41 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		// Recibe el registro de datos.
 		pipe.leer(tamRegistro, registroDatos);
 		
+		cout << "antes de insertar en el indice primario: " << resultado << endl;
+		
 		resultado = indice->insertar(clave, registroDatos, tamRegistro);
-
-		pipe.escribir(resultado);
+		
+		cout << "despues de insertar en el indice primario: " << resultado << endl;
 
 		if (resultado == ResultadosIndices::OK) {
+			
 			//Actualizo los indices secundarios
 			//Saco el índice primario para no volver a insertar.
-			mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
-			delete indice;
+			MapaIndices::iterator it = mapaIndices.find(*defManager.getListaNombresClavesPrimarias(nombreTipo));
+			delete it->second;
+			mapaIndices.erase(it);
+			
+			//delete indice;
 			
 			Clave* claveSecundaria = NULL;
+			
+			Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
+							  registroDatos, defManager.getListaTipos(nombreTipo),
+							  defManager.getListaNombresAtributos(nombreTipo));
 			
 			for (MapaIndices::iterator iter = mapaIndices.begin();
 				iter != mapaIndices.end(); ++iter) {
 				
-				Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
-								  registroDatos, defManager.getListaTipos(nombreTipo),
-								  defManager.getListaNombresAtributos(nombreTipo));
-				
 				claveSecundaria = registro.getClave(iter->first);
 				indice = iter->second;
 				
-				indice->insertar(claveSecundaria, clave);
+				cout << "tipo del indice secundario: " << (short)indice->getTipo() << endl;
+				
+				cout << "antes de insertar en el indice secundario: " << resultado << endl;
+				
+				resultado = indice->insertar(claveSecundaria, clave);
+				
+				cout << "despues de insertar en el indice secundario: " << resultado << endl;
 				
 				delete claveSecundaria;
 				
@@ -210,6 +215,9 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		
 	}
 	
+	cout << "voy a enviar el resultado: " << resultado << endl;
+	
+	pipe.escribir(resultado);
 }
 
 
@@ -335,13 +343,53 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 			
 			// Se recibe el tamaño del registro modificado.
 			pipe.leer(&tamRegistro);
-			//Se recibe el bloque con los atributos modificados
+			
+			//Creo un buffer con el tamaño del nuevo registro
+			delete[] registroDatos;
+			registroDatos = new char[tamRegistro];
+			
+			// Se recibe el bloque con los atributos modificados
 			pipe.leer(tamRegistro, registroDatos);
 	
-			//TODO Pedirle la clave nueva a la Clase Registro de Nico.
-			Clave* claveNueva;
+			// Se instancia un objeto Registro, el cual es el encargado de
+			// administrar el registro de los datos y de proporcionar las claves
+			// creadas con los valores correspondientes.
+			Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
+							  registroDatos, defManager.getListaTipos(nombreTipo),
+							  defManager.getListaNombresAtributos(nombreTipo));
+			
+			Clave* claveNueva = registro.getClave(*defManager.getListaNombresClavesPrimarias(nombreTipo));
+			
 			resultado = indice->modificar(clave, claveNueva, registroDatos, tamRegistro);
-			pipe.escribir(resultado);
+			
+			if (resultado == ResultadosIndices::OK) {
+				//Actualizo los indices secundarios
+/*				Indice* indiceSecundario = NULL;
+				Clave* claveSecundaria = NULL;
+				
+				//Se instancia un objeto Registro, el cual es el encargado de
+				//administrar el registro de los datos y de proporcionar las claves
+				//secundarias creadas con los valores correspondientes.
+				Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
+								  registroDatos, defManager.getListaTipos(nombreTipo),
+								  defManager.getListaNombresAtributos(nombreTipo));
+				
+				for (MapaIndices::iterator iter = mapaIndices.begin();
+					iter != mapaIndices.end(); ++iter) {
+					
+					//Obtengo la clave secundaria
+					claveSecundaria = registro.getClave(iter->first);
+					//Obtengo el índice secundario
+					indiceSecundario = iter->second;
+					
+					indiceSecundario->eliminar(claveSecundaria, clave);
+					
+					delete claveSecundaria;
+					
+				}*/
+			}
+		
+			delete[] registroDatos;
 		}
 	} else {
 		
@@ -350,9 +398,7 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 		
 	}
 	
-	if (resultado == ResultadosIndices::OK) {
-		//TODO Actualizar indices secundarios
-	}
+	pipe.escribir(resultado);
 	
 }
 
@@ -446,7 +492,8 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			pipe.escribir(resultado);
 	}
 	
-	destruirIndices(mapaIndices);
+	//TODO Ver por qué pincha!!
+	//destruirIndices(mapaIndices);
 	
 	return resultado;
 	

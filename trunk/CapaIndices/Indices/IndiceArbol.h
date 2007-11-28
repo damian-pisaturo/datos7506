@@ -80,6 +80,12 @@ class IndiceArbol: public Indice {
 				
 		virtual Bloque* leerBloque(unsigned int nroBloque);
 		
+		/*
+		 * Método que devuelve el siguiente bloque de disco que contiene
+		 * registros de datos.
+		 */
+		virtual int siguienteBloque(Bloque* &bloque);
+		
 		
 	private:
 		ListaTipos* getListaTipos() const;
