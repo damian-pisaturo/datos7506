@@ -398,10 +398,11 @@ int IndiceArbolManager::eliminarBloque(unsigned short posicion)
 			//capa fisica.
 			pipe->leer(&resultado);
 	
-		if (pipe)
-			delete pipe;
 	}
 
+	if (pipe)
+		delete pipe;
+	
 	return resultado;
 }
 
@@ -618,12 +619,12 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque, BloqueIndice* 
 		
 		if (resultado == ResultadosFisica::OK){
 		
-		
 			//Se obtiene el resultado de la lectura 
 			pipe->leer(&resultado);
 		
 			if (resultado == ResultadosFisica::OK) {
 				//Se obtiene en buffer el contenido del primer nodo solicitado.
+				
 				pipe->leer(this->getTamanioBloque(), data);
 		
 				//Se obtiene en buffer el contenido del segundo nodo solicitado.
@@ -711,6 +712,9 @@ int IndiceArbolManager::eliminarBloqueDoble(unsigned short posicion)
 			//capa fisica.
 			pipe->leer(&resultado);
 	}
+	
+	if (pipe)
+		delete pipe;
 
 	return resultado;
 }
