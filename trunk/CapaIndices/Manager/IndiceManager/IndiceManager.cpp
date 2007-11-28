@@ -629,7 +629,7 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque, BloqueIndice* 
 		
 				//Se obtiene en buffer el contenido del segundo nodo solicitado.
 				pipe->leer(this->getTamanioBloque(), data + this->getTamanioBloque());
-		
+				
 				//Castear el header				
 				memcpy(&headerNodo.nivel, data, sizeof(unsigned char));
 				data += sizeof(unsigned char);
@@ -651,7 +651,7 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque, BloqueIndice* 
 				//Recorrer el buffer desde donde quedo hasta que supere
 				//el espacio libre, interpretando clave por clave.
 				const char* punteroFinal = punteroAux + (2*this->getTamanioBloque() - headerNodo.espacioLibre);
-		
+				
 				if (nodoLeido->getNivel() == 0) {
 					while (data < punteroFinal) {
 						//Leer la clave	
@@ -676,7 +676,7 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque, BloqueIndice* 
 			}
 		}
 	}
-
+	
 	if (pipe)
 		delete pipe;
 	
@@ -1640,16 +1640,10 @@ Clave* IndiceCompuestoManager::leerClaveHoja(char* &buffer)
 	ListaClaves listaClaves;
 	int tipo;
 	unsigned int refRegistro = 0, tamanio = 0;
-	void* valor= NULL;
-	
-	//Variables de interpretacion de claves
-	//de longitud variable.
-	char sizeCadena = 0;
-	char* cadena = NULL;
 	
 	//Copia de los valores de las claves en el nodo				
-	for (ListaTipos::const_iterator iterTipos = this->tipos->begin(); iterTipos
-			!= this->tipos->end(); ++iterTipos) {
+	for (ListaTipos::const_iterator iterTipos = this->tipos->begin();
+		iterTipos != this->tipos->end(); ++iterTipos) {
 
 		tipo = (*iterTipos);
 
@@ -1658,89 +1652,86 @@ Clave* IndiceCompuestoManager::leerClaveHoja(char* &buffer)
 			case TipoDatos::TIPO_ENTERO:
 			{
 				//Copia del valor de la clave
-				valor = new int;
+				int valor;
 				tamanio = sizeof(int);
 		
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveEntera(*((int*)valor)));
+				memcpy(&valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveEntera(valor));
 				
 			}break;
 			
 			case TipoDatos::TIPO_BOOL:
 			{
-				valor = new bool;
+				bool valor;
 				tamanio = sizeof(bool);
 		
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
+				memcpy(&valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveBoolean(valor));
 				
 			}break;
 			
 			case TipoDatos::TIPO_CHAR:
 			{
-				valor = new char;
+				char valor;
 				tamanio = sizeof(char);
 		
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveChar(*((char*)valor)));
+				memcpy(&valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveChar(valor));
 			
 			}break;
 			
 			case TipoDatos::TIPO_SHORT:
 			{
-				valor = new short;
+				short valor;
 				tamanio = sizeof(short);
 		
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveShort(*((short*)valor)));
+				memcpy(&valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveShort(valor));
 			}break;
 			
 			case TipoDatos::TIPO_FLOAT:
 			{
-				valor = new float;
+				float valor;
 				tamanio = sizeof(float);
 		
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveReal(*((float*)valor)));		
+				memcpy(&valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveReal(valor));		
 			}break;
 			
 			case TipoDatos::TIPO_FECHA:
 			{
-				valor = new ClaveFecha::TFECHA;
-				tamanio = sizeof(ClaveFecha::TFECHA);
+				ClaveFecha::TFECHA valor;
+				tamanio = Tamanios::TAMANIO_FECHA;
 		
 				//Se interpreta el valor TFECHA de la clave.
-				memcpy(&(((ClaveFecha::TFECHA*)valor)->anio), buffer, sizeof(unsigned short));
-				buffer += sizeof(unsigned short);
+				memcpy(&(valor.anio), buffer, sizeof(unsigned short));
 		
-				memcpy(&(((ClaveFecha::TFECHA*)valor)->mes), buffer, sizeof(unsigned char));
-				buffer += sizeof(unsigned char);
+				memcpy(&(valor.mes), buffer + sizeof(unsigned short), sizeof(unsigned char));
 		
-				memcpy(&(((ClaveFecha::TFECHA*)valor)->dia), buffer, sizeof(unsigned char));
-				buffer += sizeof(unsigned char);
+				memcpy(&(valor.dia), buffer + sizeof(unsigned short) + sizeof(unsigned char), sizeof(unsigned char));
 		
-				listaClaves.push_back(new ClaveFecha(*((ClaveFecha::TFECHA*)valor)));			
+				listaClaves.push_back(new ClaveFecha(valor));			
 			}break;
 			
 			case TipoDatos::TIPO_STRING:
 			{
-				valor = new string;
+				string valor("");
+				unsigned char sizeCadena = 0;
 							
 				memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
 				
-				cadena = new char[sizeCadena + 1];
+				char* cadena = new char[sizeCadena + 1];
 				memcpy(cadena, buffer + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena);
 				
-				*(cadena + sizeCadena) = 0;			
+				*(cadena + sizeCadena) = 0;
+				
 				valor = cadena;
 				
-				listaClaves.push_back(new ClaveVariable(*((string*)valor)));
+				listaClaves.push_back(new ClaveVariable(valor));
 				
-				if (valor)
-					delete (string*)valor;
+				delete[] cadena;
 				
-				if (cadena)
-					delete[] cadena;
+				tamanio = Tamanios::TAMANIO_LONGITUD_CADENA + sizeCadena;
 										
 			}break;
 		}
@@ -1751,7 +1742,7 @@ Clave* IndiceCompuestoManager::leerClaveHoja(char* &buffer)
 	//Se interpreta la referencia al registro de datos.
 	memcpy(&refRegistro, buffer, Tamanios::TAMANIO_REFERENCIA);
 	buffer += Tamanios::TAMANIO_REFERENCIA;
-
+	
 	//Crear la clave
 	return new ClaveCompuesta(listaClaves, refRegistro);
 }
@@ -1759,18 +1750,12 @@ Clave* IndiceCompuestoManager::leerClaveHoja(char* &buffer)
 Clave* IndiceCompuestoManager::leerClaveNoHoja(char* &buffer)
 {
 	ListaClaves listaClaves;
-	int tipo    = 0;
+	int tipo;
 	unsigned int refRegistro = 0, hijoDer = 0, tamanio = 0;
-	void* valor = NULL;
 	
-	//Variables de interpretacion de claves de longitud
-	//variables
-	char* cadena             = NULL;
-	unsigned char sizeCadena = 0;
-
 	//Copia de los valores de las claves en el nodo				
-	for (ListaTipos::const_iterator iterTipos = this->tipos->begin(); iterTipos
-			!= this->tipos->end(); ++iterTipos) {
+	for (ListaTipos::const_iterator iterTipos = this->tipos->begin();
+		iterTipos != this->tipos->end(); ++iterTipos) {
 
 		tipo = (*iterTipos);
 
@@ -1779,92 +1764,89 @@ Clave* IndiceCompuestoManager::leerClaveNoHoja(char* &buffer)
 			case TipoDatos::TIPO_ENTERO:
 			{
 				//Copia del valor de la clave
-				valor = new int;
+				int valor;
 				tamanio = sizeof(int);
 		
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveEntera(*((int*)valor)));
+				memcpy(&valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveEntera(valor));
 				
 			}break;
 			
 			case TipoDatos::TIPO_BOOL:
 			{
-				valor = new bool;
+				bool valor;
 				tamanio = sizeof(bool);
 		
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveBoolean(*((bool*)valor)));
+				memcpy(&valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveBoolean(valor));
 				
 			}break;
 			
 			case TipoDatos::TIPO_CHAR:
 			{
-				valor = new char;
+				char valor;
 				tamanio = sizeof(char);
 		
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveChar(*((char*)valor)));
+				memcpy(&valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveChar(valor));
 			
 			}break;
 			
 			case TipoDatos::TIPO_SHORT:
 			{
-				valor = new short;
+				short valor;
 				tamanio = sizeof(short);
 		
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveShort(*((short*)valor)));
+				memcpy(&valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveShort(valor));
 			}break;
 			
 			case TipoDatos::TIPO_FLOAT:
 			{
-				valor = new float;
+				float valor;
 				tamanio = sizeof(float);
 		
-				memcpy(valor, buffer, tamanio);
-				listaClaves.push_back(new ClaveReal(*((float*)valor)));		
+				memcpy(&valor, buffer, tamanio);
+				listaClaves.push_back(new ClaveReal(valor));		
 			}break;
 			
 			case TipoDatos::TIPO_FECHA:
 			{
-				valor = new ClaveFecha::TFECHA;
-				tamanio = sizeof(ClaveFecha::TFECHA);
+				ClaveFecha::TFECHA valor;
+				tamanio = Tamanios::TAMANIO_FECHA;
 		
 				//Se interpreta el valor TFECHA de la clave.
-				memcpy(&(((ClaveFecha::TFECHA*)valor)->anio), buffer, sizeof(unsigned short));
-				buffer += sizeof(unsigned short);
+				memcpy(&(valor.anio), buffer, sizeof(unsigned short));
 		
-				memcpy(&(((ClaveFecha::TFECHA*)valor)->mes), buffer, sizeof(unsigned char));
-				buffer += sizeof(unsigned char);
+				memcpy(&(valor.mes), buffer + sizeof(unsigned short), sizeof(unsigned char));
 		
-				memcpy(&(((ClaveFecha::TFECHA*)valor)->dia), buffer, sizeof(unsigned char));
-				buffer += sizeof(unsigned char);
+				memcpy(&(valor.dia), buffer + sizeof(unsigned short) + sizeof(unsigned char), sizeof(unsigned char));
 		
-				listaClaves.push_back(new ClaveFecha(*((ClaveFecha::TFECHA*)valor)));			
+				listaClaves.push_back(new ClaveFecha(valor));			
 			}break;
 			
 			case TipoDatos::TIPO_STRING:
 			{
-				valor = new string;
+				string valor("");
+				unsigned char sizeCadena = 0;
 							
 				memcpy(&sizeCadena, buffer, Tamanios::TAMANIO_LONGITUD_CADENA);
 				
-				cadena = new char[sizeCadena + 1];
+				char* cadena = new char[sizeCadena + 1];
 				memcpy(cadena, buffer + Tamanios::TAMANIO_LONGITUD_CADENA, sizeCadena);
 				
-				*(cadena + sizeCadena) = 0;			
+				*(cadena + sizeCadena) = 0;
+				
 				valor = cadena;
 				
-				listaClaves.push_back(new ClaveVariable(*((string*)valor)));
+				listaClaves.push_back(new ClaveVariable(valor));
 				
-				if (valor)
-					delete (string*)valor;	
+				delete[] cadena;
 				
-				if (cadena)
-					delete[] cadena;
+				tamanio = Tamanios::TAMANIO_LONGITUD_CADENA + sizeCadena;
 										
 			}break;
-		}		
+		}
 
 		buffer += tamanio;
 	}
@@ -1880,5 +1862,5 @@ Clave* IndiceCompuestoManager::leerClaveNoHoja(char* &buffer)
 	buffer += Tamanios::TAMANIO_REFERENCIA;
 
 	//Crear la clave
-	return new ClaveCompuesta(listaClaves, refRegistro);
+	return new ClaveCompuesta(listaClaves, refRegistro, hijoDer);
 }

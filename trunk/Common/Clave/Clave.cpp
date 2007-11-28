@@ -833,7 +833,7 @@
 			iter != listaClaves->end(); ++iter)
 			(*iter)->imprimir(salida);
 		
-		salida << " Referencia: " << this->getReferencia() << endl;
+		salida << "Referencia: " << this->getReferencia() << endl;
 	}
 	
 	bool ClaveCompuesta::operator < (const Clave& clave) const {

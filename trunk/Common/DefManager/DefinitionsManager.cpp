@@ -171,7 +171,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	listaTiposIndices = new ListaTiposIndices();
 	listaTiposIndices->push_back(nodoListaIndices);
 	
-/*
+
 	//INDICE ROMANO (ARBOLB*)
 	estructTipoIndice.tipoIndice = TipoIndices::ROMANO;
 	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BS;
@@ -194,7 +194,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	nodoListaIndices.listaTipos = listaTipos;
 	
 	listaTiposIndices->push_back(nodoListaIndices);
-*/
+
 /*	
 	//INDICE ROMANO (ARBOLB+)
 	estructTipoIndice.tipoIndice = TipoIndices::ROMANO;

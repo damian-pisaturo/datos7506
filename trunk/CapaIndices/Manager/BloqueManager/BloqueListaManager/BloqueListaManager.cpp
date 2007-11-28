@@ -32,7 +32,7 @@
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		BloqueListaManager::BloqueListaManager(unsigned int tamanioBloqueLista, string nombreArchivo):
-			BloqueManager(tamanioBloqueLista, nombreArchivo + ".lst")
+			BloqueManager(tamanioBloqueLista, nombreArchivo + ".list")
 		{ }
 		
 		BloqueListaManager::~BloqueListaManager()

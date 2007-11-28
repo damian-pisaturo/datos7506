@@ -187,5 +187,5 @@
 			if ( (listaValoresClaves.size() > 0) && (listaTiposClaves.size() > 0) )
 				claveAux = ClaveFactory::getInstance().getClave(listaValoresClaves, listaTiposClaves);
 			
-			return claveAux;			
+			return claveAux;
 		}

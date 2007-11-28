@@ -1,6 +1,7 @@
 #include "IndiceArbol.h"
 
 IndiceArbol::IndiceArbol(const unsigned char tipoIndice, int tipoDato,
+						 ListaTipos* listaTiposClave,
 						 ListaNodos* listaTipos, const unsigned char tipoEstructura,
 						 unsigned short tamNodo, unsigned short tamBloque,
 						 const string& nombreArchivo, unsigned char tipoOrg) {
@@ -9,7 +10,7 @@ IndiceArbol::IndiceArbol(const unsigned char tipoIndice, int tipoDato,
 	this->tamBloque = tamBloque;
 	this->listaNodos = listaTipos;
 	this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(tipoIndice, tipoDato,
-																			   this->getListaTipos(), 
+																			   new ListaTipos(*listaTiposClave), 
 																			   tipoEstructura, tamNodo, 0,
 																			   nombreArchivo);
 	switch (tipoEstructura) {
@@ -85,7 +86,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 		resultado = nroBloque;
 		
 		clave->setReferencia(nroBloque);
-		if (bTree->insertar(clave))
+		if (bTree->insertar(clave->copiar()))
 			resultado = ResultadosIndices::OK;
 	}
 	
@@ -130,7 +131,7 @@ int IndiceArbol::insertar(Clave *claveSecundaria, Clave* clavePrimaria) {
 		
 		if (resultado >= 0) {
 			claveSecundaria->setReferencia(resultado);
-			if (bTree->insertar(claveSecundaria))
+			if (bTree->insertar(claveSecundaria->copiar()))
 				resultado = ResultadosIndices::OK;
 			else
 				resultado = ResultadosIndices::ERROR_INSERCION;

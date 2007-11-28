@@ -7,6 +7,9 @@ IndiceManager* IndiceManagerFactory::getIndiceManager(unsigned char tipoIndice,
 													  unsigned char tipoEstructura, unsigned short tamNodo,
 													  unsigned int tamBucket, const string& nombreArchivo) const {
 	
+	if ((tipoDato != TipoDatos::TIPO_COMPUESTO) && (listaTipos))
+		delete listaTipos;
+	
 	if ( (tipoIndice == TipoIndices::GRIEGO) || (tipoIndice == TipoIndices::ROMANO) ){
 		
 		switch (tipoDato) {
@@ -30,7 +33,7 @@ IndiceManager* IndiceManagerFactory::getIndiceManager(unsigned char tipoIndice,
 			default: return NULL;
 		
 		}
-	}else if (tipoIndice == TipoIndices::HASH)		
+	}else if (tipoIndice == TipoIndices::HASH)
 		return new IndiceHashManager(tamBucket, nombreArchivo);
 	else 
 		return NULL;
