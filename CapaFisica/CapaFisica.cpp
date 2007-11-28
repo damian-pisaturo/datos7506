@@ -325,12 +325,12 @@
 								
 				pipe.leer(&tamanio);
 				
-				if ( (int)(tamanio*sizeof(unsigned int)) < tamBloque){
+			//	if ( (int)(tamanio*sizeof(unsigned int)) <= tamBloque){
 					buckets = new unsigned int[tamanio];
 					pipe.leer(sizeof(unsigned int)*tamanio, (char*)buckets);
 					
 					((ArchivoIndiceHash*)archivo)->escribirTabla(tamanio, buckets);
-				}else resultado = ResultadosFisica::ERROR_ESCRITURA;
+			//	}else resultado = ResultadosFisica::ERROR_ESCRITURA;
 				
 				//Se envia el resultado de la operacion.
 				pipe.escribir(resultado);					

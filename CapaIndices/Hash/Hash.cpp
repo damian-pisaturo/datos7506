@@ -55,6 +55,8 @@
 		 **/
 		int Hash::insertarRegistro(char* registro, Clave &clave)
 		{
+			this->tabla->escribirTabla();
+
 			// Se aplica la función de hash para saber en que bucket se debe insertar.	
 			unsigned int hash = this->aplicarHash(clave);
 			
@@ -126,7 +128,7 @@
 				this->archivo->escribirBloque(bucket->getNroBloque(), bucket);
 				this->archivo->escribirBloque(nuevoBucket->getNroBloque(), nuevoBucket);
 				this->tabla->escribirTabla();
-				
+
 				if (bucket) delete bucket;				
 				if (nuevoBucket) delete nuevoBucket;
 				
