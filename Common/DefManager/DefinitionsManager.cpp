@@ -194,7 +194,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	nodoListaIndices.listaTipos = listaTipos;
 	
 	listaTiposIndices->push_back(nodoListaIndices);
-*/	
+*/
 /*	
 	//INDICE ROMANO (ARBOLB+)
 	estructTipoIndice.tipoIndice = TipoIndices::ROMANO;
@@ -319,7 +319,7 @@ ListaTipos* DefinitionsManager::getListaTipos(const string &nombreTipo) {
 	
 	ListaTiposAtributos::const_iterator iter;
 	
-	for (iter = listaTiposAtributos->begin(); iter != listaTiposAtributos->end(); ++iter)
+	for (iter = ++(listaTiposAtributos->begin()); iter != listaTiposAtributos->end(); ++iter)
 		listaTipos->push_back(iter->tipo);
 	
 	return listaTipos;

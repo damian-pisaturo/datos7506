@@ -595,7 +595,7 @@
 	{
 		fecha* clave = (static_cast<fecha*>(this->getValor()));
 
-		salida<<"Clave: "<<clave->dia << "/" << clave->mes << "/" << clave->anio;
+		salida<<"Clave: "<< (short)clave->dia << "/" << (short)clave->mes << "/" << clave->anio;
 		salida<<" Referencia: "<<this->getReferencia()<<endl;
 	}
 

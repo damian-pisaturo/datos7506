@@ -822,9 +822,11 @@
 			
 			archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
 			
-			if (archivo->esValido()){																								
+			if (archivo->esValido()){
+				
 				//Se informa a la capa superior que el archivo es valido.
-				pipe.escribir(resultado);			
+				pipe.escribir(resultado);
+				
 				buffer = new char[tamBloque*sizeof(char)];
 				
 				resultado = ((ArchivoDatosBloques*)archivo)->siguienteBloque(buffer, numBloque, espLibre);

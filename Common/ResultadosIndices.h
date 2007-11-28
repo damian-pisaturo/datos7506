@@ -17,6 +17,7 @@ class ResultadosIndices {
 		static const char ERROR_CONSULTA			= -110;
 		static const char BLOQUES_OCUPADOS			= -111;
 		static const char ERROR_VALORES_CLAVES		= -112;
+		static const char FIN_BLOQUES				= -113;
 };
 
 #endif /*RESINDICES_H_*/

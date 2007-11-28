@@ -117,6 +117,12 @@ class ArchivoELVariable : public ArchivoEL
 		 * espacio libre.
 		 */
 		short buscarEspacioLibre(unsigned short espacioRequerido, unsigned short numBloque = 0);
+		
+		//TODO Nico agrego este método porque en realidad no hay que buscar un bloque que tenga
+		//un espacio libre >= al espacio total del bloque, sino que hay que buscar uno cuyo 
+		//espacio sea menor al espacio libre total.
+		//Fijate si es necesario agregar este método en el resto de los archivos de espacio libre.
+		int buscarBloqueOcupado(unsigned short espacioTotal, unsigned short numBloque = 0);
 };
 
 #endif /*ARCHIVOEL_H_*/

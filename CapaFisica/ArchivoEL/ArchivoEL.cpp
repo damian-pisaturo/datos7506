@@ -177,3 +177,25 @@
 			
 			return bloqueActual;		
 		}
+		
+		int ArchivoELVariable::buscarBloqueOcupado(unsigned short espacioTotal, unsigned short numBloque)
+		{
+			unsigned short espacioLibre = espacioTotal;
+			int bloqueSiguiente = numBloque;
+			
+			if (this->posicionarse(bloqueSiguiente) != ResultadosFisica::ERROR_POSICION) {
+			
+				while((espacioLibre >= espacioTotal) && 
+						(!this->fin())){
+					this->leer(&espacioLibre);
+					++bloqueSiguiente; // Siempre contiene al nro del siguiente bloque
+				}
+				
+				if (espacioLibre >= espacioTotal)
+					bloqueSiguiente = ResultadosFisica::BLOQUES_VACIOS;
+				else --bloqueSiguiente;
+				
+			} else bloqueSiguiente = ResultadosFisica::BLOQUES_VACIOS;
+			
+			return bloqueSiguiente;
+		}
