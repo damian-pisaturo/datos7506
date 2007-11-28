@@ -76,6 +76,11 @@ public:
 	 **/
 	unsigned int buscarBucketIgualDispersion(unsigned int posicion,unsigned short tamDispersion);
 
+	/*
+	 * Este método escribe el contenido de la tabla y su tamaño en disco.
+	 **/
+	int escribirTabla();
+	
 	/* Devuelve el número de bucket dentro del archivo de datos que se encuentra 
 	 * referenciado por la posición "posicionTabla" dentro de la tabla de dispersión.
 	 **/

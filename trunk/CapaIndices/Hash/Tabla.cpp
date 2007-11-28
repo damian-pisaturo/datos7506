@@ -51,8 +51,6 @@ Tabla::Tabla(IndiceHashManager* arch, unsigned int tamBucket)
 
 Tabla::~Tabla()
 {	
-	this->archivo->escribirTabla(this->tamanio,this->nroBucket);
-	
 	if(this->nroBucket)
 		delete[] this->nroBucket;
 }
@@ -143,6 +141,14 @@ unsigned int Tabla::buscarBucketIgualDispersion(unsigned int posicion,unsigned s
 	unsigned int nroBucket = getNroBucket(posicionNueva);
 	
 	return nroBucket;
+}
+
+/*
+ * Este método escribe el contenido de la tabla y su tamaño en disco.
+ **/
+int Tabla::escribirTabla()
+{
+	return this->archivo->escribirTabla(this->getTamanio(),this->nroBucket);
 }
 
 /* 

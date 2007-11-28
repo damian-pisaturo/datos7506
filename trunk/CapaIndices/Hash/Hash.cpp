@@ -93,6 +93,7 @@
 				bucket->actualizarEspLibre();
 				
 				this->archivo->escribirBloque(numBucket, bucket);
+				this->tabla->escribirTabla();
 				
 				if (bucket) delete bucket;
 			
@@ -105,10 +106,6 @@
 				// Se duplica el tamaño de dispersión del bucket que se divide.
 				
 				bucket->setTamDispersion(bucket->getTamDispersion()*2);
-				
-				//TODO Por el amor de Cristo, que diantres es ESTO ? SAQUENLON !!
-				if (bucket->getTamDispersion() == 0)
-					exit(0);
 				
 				// Se crea un nuevo bucket vacío. Se devuelve en numBucketNuevo el número del mismo. 
 				unsigned int numBucketNuevo = 0;
@@ -128,6 +125,7 @@
 				// Guarda en disco la redistribución de los elementos.
 				this->archivo->escribirBloque(bucket->getNroBloque(), bucket);
 				this->archivo->escribirBloque(nuevoBucket->getNroBloque(), nuevoBucket);
+				this->tabla->escribirTabla();
 				
 				if (bucket) delete bucket;				
 				if (nuevoBucket) delete nuevoBucket;
@@ -171,6 +169,7 @@
 					
 					// Se llama a marcar al bucket como vacío en el archivo.
 					this->archivo->eliminarBloque(nroBucket);
+					
 					// Se renueva la referencia de la tabla que antes apuntaba al bucket que se eliminó.
 					unsigned int nroBucketIgualDisp = this->tabla->buscarBucketIgualDispersion(posicion, bucket->getTamDispersion());
 					
@@ -184,6 +183,7 @@
 				} 
 			}		
 			
+			this->tabla->escribirTabla();
 
 			if (bucket)
 				delete bucket;
