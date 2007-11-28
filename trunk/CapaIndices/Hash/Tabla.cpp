@@ -28,15 +28,13 @@ Tabla::Tabla()
 
 Tabla::Tabla(IndiceHashManager* arch, unsigned int tamBucket)
 {
-	unsigned int tamTabla       = 0;
+	unsigned int tamTabla = 0;
 	unsigned int * numerosTabla = NULL;
-	
 	
 	if (arch){
 		this->archivo = arch;
 	
 		this->archivo->leerTabla(&tamTabla, numerosTabla);
-	
 				
 		// Si la tabla no existe, en tamanio devuelve 0.
 		// En ese caso, se crea una tabla.
@@ -79,7 +77,7 @@ void Tabla::crear(unsigned int tamanioBloque)
 	this->archivo->escribirBloque(bucket);
 	
 	// Escribe la tabla a disco.
-	this->archivo->escribirTabla(this->tamanio, this->nroBucket);
+	this->escribirTabla();
 
 	delete bucket;
 }
@@ -172,7 +170,7 @@ void Tabla::setNroBucket(unsigned int posicion, unsigned int nro)
 /*
  * Devuelve la cantidad de entradas de la tabla.
  **/
-unsigned int Tabla::getTamanio()
+unsigned int Tabla::getTamanio() const
 {
 	return this->tamanio;
 }

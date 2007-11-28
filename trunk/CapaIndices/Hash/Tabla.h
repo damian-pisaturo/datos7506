@@ -95,7 +95,7 @@ public:
 	/*
 	 * Devuelve la cantidad de entradas de la tabla.
 	 **/
-	unsigned int getTamanio();
+	unsigned int getTamanio() const;
 	
 	/*
 	 * Devuelve el contenido de la tabla.
