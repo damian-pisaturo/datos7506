@@ -26,7 +26,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 			case TipoIndices::ARBOL_BP:
 			case TipoIndices::ARBOL_BS:				
 				indice = new IndiceArbol(estructura.tipoIndice, estructura.tipoClave,
-										defManager.getListaTiposAtributos(nombreTipo),
+										nodoListaIndices.listaTipos, listaTiposAtributos,
 										estructura.tipoEstructura, estructura.tamanioBloque,
 										Tamanios::TAMANIO_BLOQUE_DATO, estructura.nombreArchivo,
 										tipoOrg);				
@@ -174,12 +174,11 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		if (resultado == ResultadosIndices::OK) {
 			
 			//Actualizo los indices secundarios
+			
 			//Saco el índice primario para no volver a insertar.
 			MapaIndices::iterator it = mapaIndices.find(*defManager.getListaNombresClavesPrimarias(nombreTipo));
 			delete it->second;
 			mapaIndices.erase(it);
-			
-			//delete indice;
 			
 			Clave* claveSecundaria = NULL;
 			
@@ -193,7 +192,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 				claveSecundaria = registro.getClave(iter->first);
 				indice = iter->second;
 				
-				resultado = indice->insertar(claveSecundaria, clave);
+				resultado = indice->insertar(claveSecundaria, clave);				
 				
 				delete claveSecundaria;
 				
@@ -479,8 +478,9 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			pipe.escribir(resultado);
 	}
 	
-	//TODO Ver por qué pincha!!
-	//destruirIndices(mapaIndices);
+	destruirIndices(mapaIndices);
+	
+	delete clave;
 	
 	return resultado;
 	

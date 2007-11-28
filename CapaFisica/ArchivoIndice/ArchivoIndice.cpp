@@ -119,7 +119,7 @@
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		ArchivoLista::ArchivoLista(string nombreArchivo, unsigned short tamBloqueLista):
-			ArchivoIndice(nombreArchivo + ".list", tamBloqueLista)
+			ArchivoIndice(nombreArchivo, tamBloqueLista)
 		{ }
 		
 		ArchivoLista::~ArchivoLista()

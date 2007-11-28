@@ -315,7 +315,7 @@ int main(int argc, char* argv[])
 			delete pipe;
 			pipe = NULL;
 			
-			//usleep(1000000); //Recibe microsegundos
+			usleep(100); //Recibe microsegundos
 			
 		}
 		
