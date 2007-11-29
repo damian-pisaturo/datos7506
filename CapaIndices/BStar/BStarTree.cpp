@@ -5,7 +5,7 @@ BStarTree::BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
 	: BTree(indiceManager, tamanioNodo) {
 	
 	this->tamanioRaiz = 2*this->tamanioNodo;
-	
+	this->nodoCorriente = NULL;
 	this->getRaiz();
 	
 }

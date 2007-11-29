@@ -128,7 +128,7 @@
 			pipe->agregarParametro(numLista, 3); //Numero de lista a sobre-escribir.
 				
 			//Se lanza el proceso de la capa fisica. 
-			pipe->lanzar();
+			resultado = pipe->lanzar();
 			
 			if (resultado == ComuDatos::OK){
 				
@@ -147,7 +147,7 @@
 
 			if (pipe)
 				delete pipe;
-
+			
 			return resultado;
 		}
 

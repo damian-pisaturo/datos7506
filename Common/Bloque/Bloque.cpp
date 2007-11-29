@@ -322,6 +322,8 @@
 			char* datosAux = new char[this->tamanio];
 			unsigned short espLibre = 0;
 			unsigned short cantRegs = 0;
+			
+			memset(datosAux, 0, this->tamanio);
 		
 			// Levanta el espacio libre en el bloque.
 			memcpy(&espLibre, this->datos, Tamanios::TAMANIO_ESPACIO_LIBRE);
@@ -607,7 +609,7 @@
 		}
 
 		void Bloque::insertarRegistro(char *registro, unsigned short offsetEspLibre, unsigned short longReg) 
-		{
+		{			
 			memcpy(&this->datos[offsetEspLibre], registro, longReg);
 			
 			// Actualiza el offset al espacio libre.
