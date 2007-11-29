@@ -30,7 +30,7 @@ unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaVal
 		// Guardo la longitud del registro en los primeros dos bytes del mismo
 		unsigned short longVariable = longRegistro - Tamanios::TAMANIO_LONGITUD;
 		memcpy(registro,&longVariable,Tamanios::TAMANIO_LONGITUD);
-		offsetToCampo = sizeof(unsigned short);
+		offsetToCampo = Tamanios::TAMANIO_LONGITUD;
 	}
 	// Se itera la lista de atributos del registro.
 	// Y se van guardando los datos del registro
@@ -43,6 +43,11 @@ unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaVal
 			int entero = atoi(campoRegistro.c_str());
 			memcpy(&registro[offsetToCampo],&entero,sizeof(int));
 			offsetToCampo += sizeof(int);
+		}
+		else if(tipo == TipoDatos::TIPO_CHAR){
+			char c = campoRegistro[0];
+			memcpy(&registro[offsetToCampo],&c,sizeof(char));
+			offsetToCampo += sizeof(char);
 		}
 		else if(tipo == TipoDatos::TIPO_FECHA){
 			
@@ -69,8 +74,8 @@ unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaVal
 			
 		}
 		else if(tipo == TipoDatos::TIPO_FLOAT){
-			float *campoFloat = (float*)campoRegistro.c_str();
-			memcpy(&registro[offsetToCampo],campoFloat,sizeof(float));  
+			float campoFloat = atof(campoRegistro.c_str());
+			memcpy(&registro[offsetToCampo],&campoFloat,sizeof(float));  
 			offsetToCampo += sizeof(float);
 		}
 		else if(tipo == TipoDatos::TIPO_SHORT){
@@ -124,6 +129,12 @@ unsigned short DataManager::crearRegistroAltaRandom(string &valoresClaves, const
 			valoresClaves = "DNI=" + conversor.str() + CodigosPipe::COD_FIN_CLAVE;
 			
 		}
+		else if(tipo == TipoDatos::TIPO_CHAR){
+			
+			char c = 97 + (rand() % 26); //Caracteres aleatorios de la 'a' a la 'z'
+			conversor << c;
+			
+		}
 		else if(tipo == TipoDatos::TIPO_FECHA){
 			
 			unsigned short cero = 0;
@@ -159,7 +170,7 @@ unsigned short DataManager::crearRegistroAltaRandom(string &valoresClaves, const
 		else if(tipo == TipoDatos::TIPO_STRING){
 			
 			char c;
-			int longCadena = rand() % 10;
+			int longCadena = rand() % 300;
 			
 			for (int i = 0; i < longCadena; ++i) {
 				c = 97 + (rand() % 26); //Caracteres aleatorios de la 'a' a la 'z'
@@ -201,7 +212,7 @@ unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTi
 			
 		else{
 			// Le sumo los bytes que contendran la longitud del registro
-			tamanioRegistro = sizeof(unsigned short);
+			tamanioRegistro = Tamanios::TAMANIO_LONGITUD;
 			
 			// Itero la listas para ir obteniendo la longitud del registro
 			// La lista de tipos de atributos se incrementa en un nodo mas ya que le primero contiene informacion 
@@ -214,7 +225,7 @@ unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTi
 					tamanioRegistro += sizeof(int);
 				
 				else if(tipo == TipoDatos::TIPO_FECHA)
-					tamanioRegistro += sizeof(unsigned short) + sizeof(unsigned char) + sizeof(unsigned char);
+					tamanioRegistro += Tamanios::TAMANIO_FECHA;
 				
 				else if(tipo == TipoDatos::TIPO_FLOAT)
 				  	tamanioRegistro += sizeof(float);
@@ -258,10 +269,10 @@ unsigned short DataManager::crearRegistroModificacion(const DefinitionsManager::
 
 	nodoLista regAttribute = *itTipos;
 	unsigned short offsetRegDisco = 0;
-	unsigned short longRegNuevo;
-	int tipo;
-	string valorModificado;
-	unsigned char longCampoVariable; 
+	unsigned short longRegNuevo = 0;
+	int tipo = 0;
+	string valorModificado("");
+	unsigned char longCampoVariable = 0; 
 	
 	// Si el tipo de registro es fijo obtengo la longitud de la lista de tipos 
 	if(regAttribute.tipo == TipoDatos::TIPO_FIJO)
@@ -269,9 +280,8 @@ unsigned short DataManager::crearRegistroModificacion(const DefinitionsManager::
 	// Obtengo el tamanio del nuevo registro, reservo espacio para el msimo y lo genero con las nuevas modificaciones
 	else{
 			// Incremento el offset en dos bytes, que son los que ocupan la longitud del registro
-			offsetRegDisco += sizeof(unsigned short);
-			longRegNuevo += Tamanios::TAMANIO_LONGITUD_CADENA;
-			
+			offsetRegDisco += Tamanios::TAMANIO_LONGITUD;
+			longRegNuevo += Tamanios::TAMANIO_LONGITUD;
 			
 			// Itero las listas para obtener el tamanio del nuevo registro y reservar memoria para el mismo
 			for(++itTipos; itTipos != listaTiposAtributos.end(); ++itTipos, ++itValoresAtributos){
@@ -283,8 +293,8 @@ unsigned short DataManager::crearRegistroModificacion(const DefinitionsManager::
 					offsetRegDisco += sizeof(int);
 				}
 				else if(tipo == TipoDatos::TIPO_FECHA){
-					longRegNuevo += sizeof(unsigned short) + 2*sizeof(unsigned char);
-					offsetRegDisco += sizeof(unsigned short) + 2*sizeof(unsigned char);
+					longRegNuevo += Tamanios::TAMANIO_FECHA;
+					offsetRegDisco += Tamanios::TAMANIO_FECHA;
 				}
 				else if(tipo == TipoDatos::TIPO_FLOAT){
 					longRegNuevo += sizeof(float);
@@ -300,8 +310,8 @@ unsigned short DataManager::crearRegistroModificacion(const DefinitionsManager::
 				}
 				else if(tipo == TipoDatos::TIPO_STRING){
 					valorModificado = *itValoresAtributos;
-					// Sumo los dos bytes de la longitud del registro
-					longRegNuevo += sizeof(unsigned short);
+					// Sumo el tamaño del campo que guarda la logitud del string
+					longRegNuevo += Tamanios::TAMANIO_LONGITUD_CADENA;
 					// Obtengo la longitud del campo variable en el registro original para incrementar el offset del mismo
 					memcpy(&longCampoVariable, &registroEnDisco[offsetRegDisco], Tamanios::TAMANIO_LONGITUD_CADENA);
 					// Le sumo al offset los dos bytes que indican la longitud del campo variable + la longitud del campo variable
@@ -323,7 +333,7 @@ unsigned short DataManager::crearRegistroModificacion(const DefinitionsManager::
 	}
 	
 	// una vez que ya se la longitud del nuevo registro reservo espacio para el mismo
-	char *registroNuevo = new char [longRegNuevo];
+	char *registroNuevo = new char[longRegNuevo];
 	
 	this->generarRegistroModificado(registroNuevo,registroEnDisco,longRegNuevo,listaTiposAtributos,listaVA);
 	
@@ -345,24 +355,25 @@ void DataManager::generarRegistroModificado(char *registroNuevo, char *registroV
 	unsigned short offsetRegViejo = 0;
 	unsigned short offsetRegNuevo = 0;
 	nodoLista registerAttribute;
-	string valorModificado;
+	string valorModificado("");
 	nodoLista regAttribute = *itTipos;
 	int tipo = regAttribute.tipo;
 	
 	// Si el registro es variable guardo la longitud del mismo en los primeros dos bytes
 	if(tipo == TipoDatos::TIPO_VARIABLE){
-		memcpy(registroNuevo, &longNuevoReg, sizeof(unsigned short));
-		offsetRegNuevo += sizeof(unsigned short);
-		offsetRegViejo += sizeof(unsigned short);
+		unsigned short longRegVariable = longNuevoReg - Tamanios::TAMANIO_LONGITUD;
+		memcpy(registroNuevo, &longRegVariable, Tamanios::TAMANIO_LONGITUD);
+		offsetRegNuevo += Tamanios::TAMANIO_LONGITUD;
+		offsetRegViejo += Tamanios::TAMANIO_LONGITUD;
 	}	
 	 
-	for(++itTipos ;itTipos != listaTiposAtributos.end(); ++itTipos,++itValoresAtributos){
+	for(++itTipos; itTipos != listaTiposAtributos.end(); ++itTipos, ++itValoresAtributos) {
 		regAttribute = *itTipos;
 		tipo = regAttribute.tipo;
 		valorModificado = *itValoresAtributos;
 		bool estaModificado  = (valorModificado != CAMPO_NO_MODIFICADO);
 		
-		switch (tipo){
+		switch (tipo) {
 		
 		case TipoDatos::TIPO_ENTERO:
 			if (estaModificado){
@@ -420,11 +431,11 @@ void DataManager::generarRegistroModificado(char *registroNuevo, char *registroV
 				offsetRegNuevo += sizeof(unsigned char);
 			}
 			else{
-				memcpy(&registroNuevo[offsetRegNuevo], &registroViejo[offsetRegViejo], sizeof(unsigned short) + 2*sizeof(unsigned char));
-				offsetRegNuevo += sizeof(unsigned short) + 2*sizeof(unsigned char);
+				memcpy(&registroNuevo[offsetRegNuevo], &registroViejo[offsetRegViejo], Tamanios::TAMANIO_FECHA);
+				offsetRegNuevo += Tamanios::TAMANIO_FECHA;
 			}
 			
-			offsetRegViejo += sizeof(unsigned short) + 2*sizeof(unsigned char);
+			offsetRegViejo += Tamanios::TAMANIO_FECHA;
 		
 			break;
 		case TipoDatos::TIPO_STRING:
@@ -469,6 +480,18 @@ void DataManager::generarRegistroModificado(char *registroNuevo, char *registroV
 				
 			offsetRegNuevo += sizeof(short);
 			offsetRegViejo += sizeof(short);
+			
+			break;
+		case TipoDatos::TIPO_FLOAT:
+			if (estaModificado){
+				float valorReal = atof(valorModificado.c_str());
+				// Guardo el valor modificado en el registro nuevo 
+				memcpy(&registroNuevo[offsetRegNuevo],&valorReal,sizeof(float));
+			}else
+				memcpy(&registroNuevo[offsetRegNuevo],&registroViejo[offsetRegViejo],sizeof(float));
+				
+			offsetRegNuevo += sizeof(float);
+			offsetRegViejo += sizeof(float);
 			
 			break;
 		}

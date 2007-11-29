@@ -95,6 +95,12 @@ class Indice
 							  unsigned short tamanioRegistroNuevo) = 0;
 		
 		/*
+		 * Este método modifica claves secundarias y sus correspondientes listas de claves primarias.
+		 */
+		virtual int modificar(Clave* claveSecundariaVieja, Clave* claveSecundariaNueva,
+							  Clave* clavePrimariaVieja, Clave* clavePrimariaNueva) = 0;
+		
+		/*
 		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
 		 * para insertar un nuevo registro de tamaño 'tamRegistro'
 		 * Si el índice es un hash se devuelve ResultadosIndices::REQUIERE_REGISTRO.

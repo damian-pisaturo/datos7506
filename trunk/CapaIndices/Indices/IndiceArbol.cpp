@@ -306,6 +306,33 @@ int IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* &registro
 }
 
 
+/*
+ * Este método modifica claves secundarias y sus correspondientes listas de claves primarias.
+ */
+int IndiceArbol::modificar(Clave* claveSecundariaVieja, Clave* claveSecundariaNueva,
+			  Clave* clavePrimariaVieja, Clave* clavePrimariaNueva) {
+	
+	int resultado = ResultadosIndices::OK;
+
+	if ( (*claveSecundariaVieja == *claveSecundariaNueva) && !(*clavePrimariaVieja == *clavePrimariaNueva) ) {
+		
+		if (this->eliminar(claveSecundariaVieja, clavePrimariaVieja) == ResultadosIndices::OK)
+			resultado = this->insertar(claveSecundariaVieja, clavePrimariaNueva);
+		else resultado = ResultadosIndices::ERROR_MODIFICACION;
+		
+	} else if (!(*claveSecundariaVieja == *claveSecundariaNueva)) {
+		
+		if (this->eliminar(claveSecundariaVieja, clavePrimariaVieja) == ResultadosIndices::OK)
+			resultado = this->insertar(claveSecundariaNueva, clavePrimariaNueva);
+		else resultado = ResultadosIndices::ERROR_MODIFICACION;
+		
+	}
+	
+	return resultado;
+	
+}
+
+
 int IndiceArbol::buscarBloqueDestino(unsigned short tamRegistro, char* bloqueDatos) {
 	return this->bloqueManager->buscarEspacioLibre(bloqueDatos, tamRegistro);
 }
@@ -374,9 +401,10 @@ SetEnteros IndiceArbol::getConjuntoBloques() {
 
 Bloque* IndiceArbol::leerBloque(unsigned int nroBloque) {
 	char* bloqueDatos = new char[this->tamBloque];
+	Bloque* bloque = new Bloque(nroBloque, this->tamBloque, this->bloque->getTipoOrganizacion());
 	this->bloqueManager->leerBloqueDatos(nroBloque, bloqueDatos);
-	this->bloque->setDatos(bloqueDatos);
-	return this->bloque;
+	bloque->setDatos(bloqueDatos);
+	return bloque;
 }
 
 /*
