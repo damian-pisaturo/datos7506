@@ -12,6 +12,7 @@ BStarTree::BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
 
 BStarTree::~BStarTree() {
 	if (this->nodoRaiz) delete nodoRaiz;
+	if (this->nodoCorriente) delete nodoCorriente;
 }
 
 NodoBStar* BStarTree::getRaiz()
@@ -1182,5 +1183,26 @@ Clave* BStarTree::mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1
 	nodoHno2 = NULL;
 	
 	return clavePromocionada;
+}
+
+void BStarTree::primero(){
+	buscarPrimero(this->nodoRaiz);
+}
+
+void BStarTree::buscarPrimero(NodoBStar* nodo) {
+	
+	NodoBStar *nuevoNodo = NULL;
+		
+	if (nodo->getNivel() == 0) { //Nodo hoja
+		if (this->nodoCorriente) delete this->nodoCorriente;
+		this->nodoCorriente = new NodoBStar(0, 0, this->tamanioNodo);
+		*(this->nodoCorriente) = *nodo; 
+	} else {
+		nuevoNodo = new NodoBStar(0, 0, this->tamanioNodo);
+		indiceManager.leerBloque(nodo->getHijoIzq(), nuevoNodo);
+		buscarPrimero(nuevoNodo);
+		delete nuevoNodo;
+	}
+	
 }
 

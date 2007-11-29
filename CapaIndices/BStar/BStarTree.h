@@ -29,10 +29,15 @@ class BStarTree : public BTree{
 		
 		bool vacio() const { return (this->nodoRaiz == NULL); }
 		
+		//Settea el nodoCorriente en el menor elemento dentro del árbol.
+		void primero();
+		
 	private:
 		//Atributos
 		
 		NodoBStar* nodoRaiz;
+		
+		NodoBStar* nodoCorriente;
 		
 		//Para administrar la raíz, se utiliza el modelo en el cual la misma
 		//posee el espacio suficiente para que a la hora de dividirse,
@@ -108,6 +113,9 @@ class BStarTree : public BTree{
 		Clave* mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* &nodoHno2,
 								   Clave* clavePadre1, Clave* clavePadre2);
 		
+		//Método recursivo que settea el nodoCorriente como el de más a la izquierda del recibido por
+		//parámetro.
+		void buscarPrimero(NodoBStar* nodo);
 };
 
 #endif /*BSTARTREE_H_*/
