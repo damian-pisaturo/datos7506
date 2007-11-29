@@ -478,9 +478,15 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			pipe.escribir(resultado);
 	}
 	
+	cout << "antes de destruir los indices" << endl;
+	
 	destruirIndices(mapaIndices);
 	
+	cout << "despues de destruir los indices" << endl;
+	
 	delete clave;
+	
+	cout << "despues de destruir la clave" << endl;
 	
 	return resultado;
 	

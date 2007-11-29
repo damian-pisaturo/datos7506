@@ -60,18 +60,30 @@
 					}break;
 					
 					case TipoDatos::TIPO_FECHA:
-					{
-						conversor << *(unsigned short*)(data + offset);
+					{						
+						unsigned short anio = *(unsigned short*)(data + offset);
 						offset += sizeof(unsigned short);
-		
-						conversor << (short)(*(unsigned char*)(data + offset));
+						
+						unsigned short mes = (short)(*(unsigned char*)(data + offset));
 						offset += sizeof(unsigned char);
 						
-						conversor << (short)(*(unsigned char*)(data + offset));
+						unsigned short dia = (short)(*(unsigned char*)(data + offset));
 						offset += sizeof(unsigned char);
-				
-						break;
-					}
+						
+						conversor << anio;
+						unsigned longAnio = conversor.str().size(), cero = 0;
+						if (longAnio < 4) {
+							conversor.str("");
+							for (unsigned i = 0; i < (4 - longAnio); ++i)
+								conversor << cero;
+							conversor << anio;
+						}
+						if (mes < 10) conversor << cero;
+						conversor << mes;
+						if (dia < 10) conversor << cero;
+						conversor << dia;
+						
+					} break;
 					
 					case TipoDatos::TIPO_STRING:
 					{
@@ -83,7 +95,7 @@
 						
 						offset += sizeCadena;
 							
-					}break;
+					} break;
 					
 				}
 				

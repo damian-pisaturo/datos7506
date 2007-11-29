@@ -72,14 +72,16 @@
 		}
 
 		char ArchivoIndice::escribirBloque(const void* bloque, unsigned short numBloque)
-		{
+		{			
 			char resultado = ResultadosFisica::OK;
 			bool valor = false;
 			ArchivoELFijo* archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
 			
 			resultado = this->posicionarse(numBloque);
+			
 			if (resultado == ResultadosFisica::OK){
-				resultado = this->escribir(bloque);			
+				
+				resultado = this->escribir(bloque);
 			
 				//Se modifica la entrada correspondiente al bloque 
 				//modificado en el archivo de control de espacio libre.
