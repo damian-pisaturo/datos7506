@@ -53,6 +53,19 @@ void destruirIndices(MapaIndices &mapaIndices) {
 }
 
 
+void destruirListaClaves(ListaClaves* &listaClaves) {
+
+	for (ListaClaves::iterator iter = listaClaves->begin();
+		iter != listaClaves->end(); ++iter)
+		delete *iter;
+	
+	delete listaClaves;
+	
+	listaClaves = NULL;
+	
+}
+
+
 void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			   Indice *indice, Clave *clave,
 			   DefinitionsManager &defManager, ComuDatos &pipe) {
@@ -141,7 +154,7 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			resultado = ResultadosIndices::FIN_BLOQUES;
 			pipe.escribir(resultado);
 			
-			delete listaClaves;
+			destruirListaClaves(listaClaves);
 		}
 	}
 	
@@ -299,8 +312,9 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 			
 			delete indicePrimario;
 			
+			destruirListaClaves(listaClavesPrimarias);
+			
 		}
-		
 		
 	}
 	
@@ -309,82 +323,135 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 }
 
+
+int modificarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
+ 	  	  	   			   Indice *indicePrimario, Clave *clavePrimariaVieja,
+ 	  	  	   			   DefinitionsManager &defManager, ComuDatos &pipe) {
+	
+	int resultado = ResultadosIndices::OK;
+	unsigned short tamRegistro = 0;
+	char *registroViejo = NULL;
+	
+	// Busca el registro viejo.
+	resultado = indicePrimario->buscar(clavePrimariaVieja, registroViejo, tamRegistro);
+	pipe.escribir(resultado);
+	
+	if (resultado == ResultadosIndices::OK) {
+		// Se envía el tamaño del registro a modificar.
+		pipe.escribir(tamRegistro);
+		//	Se envía el registro viejo
+		pipe.escribir(registroViejo, tamRegistro);
+		
+		// Se recibe el tamaño del registro modificado.
+		pipe.leer(&tamRegistro);
+		
+		//Creo un buffer con el tamaño del nuevo registro
+		char* registroNuevo = new char[tamRegistro];
+		
+		// Se recibe el registro con los atributos modificados
+		pipe.leer(tamRegistro, registroNuevo);
+
+		// Se instancia un objeto Registro, el cual es el encargado de
+		// administrar el registro de los datos y de proporcionar las claves
+		// creadas con los valores correspondientes.
+		Registro rv(defManager.getTipoOrgRegistro(nombreTipo),
+					registroViejo, defManager.getListaTipos(nombreTipo),
+					defManager.getListaNombresAtributos(nombreTipo));
+		
+		Registro rn(defManager.getTipoOrgRegistro(nombreTipo),
+					registroNuevo, defManager.getListaTipos(nombreTipo),
+					defManager.getListaNombresAtributos(nombreTipo));
+		
+		Clave* clavePrimariaNueva = rn.getClave(*defManager.getListaNombresClavesPrimarias(nombreTipo));
+		
+		resultado = indicePrimario->modificar(clavePrimariaVieja, clavePrimariaNueva, registroNuevo, tamRegistro);
+		
+		if (resultado == ResultadosIndices::OK) {
+			
+			//Actualizo los indices secundarios
+			Indice* indiceSecundario = NULL;
+			Clave* claveSecundariaVieja = NULL;
+			Clave* claveSecundariaNueva = NULL;
+			
+			for (MapaIndices::iterator iter = mapaIndices.begin();
+				iter != mapaIndices.end(); ++iter) {
+				
+				//Obtengo la clave secundaria vieja
+				claveSecundariaVieja = rv.getClave(iter->first);
+				//Obtengo la clave secundaria nueva
+				claveSecundariaNueva = rn.getClave(iter->first);
+				//Obtengo el índice secundario
+				indiceSecundario = iter->second;
+				
+				indiceSecundario->modificar(claveSecundariaVieja, claveSecundariaNueva, clavePrimariaVieja, clavePrimariaNueva);
+				
+				delete claveSecundariaVieja;
+				delete claveSecundariaNueva;
+				
+			}
+		}
+	
+		delete[] registroViejo;
+		delete[] registroNuevo;
+	}
+	
+	//Envío el resultado a la capa de metadata
+	pipe.escribir(resultado);
+	
+	return resultado;
+	
+}
+
 void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
  	  	  	   Indice *indice, Clave *clave,
  	  	  	   DefinitionsManager &defManager, ComuDatos &pipe) {
 	
 	int resultado = ResultadosIndices::OK;
-	unsigned short tamRegistro = 0;
-	char *registroDatos = NULL;
-	
+	unsigned short cantRegistros = 1;
+		
 	if (indice->getTipo() == TipoIndices::GRIEGO) {
-		// Busca el registro viejo.
-		resultado = indice->buscar(clave, registroDatos, tamRegistro);
-		pipe.escribir(resultado);
+		
+		//Se envía la cantidad de registros que se deben modificar
+		pipe.escribir(cantRegistros);
+		
+		//Saco el índice primario para no volver a modificar.
+		mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
+		//Modifico la clave primaria y actualizo los índices secundarios.
+		resultado = modificarClavePrimaria(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
+		//Elimino el índice primario que saqué del mapa
+		delete indice;
+		
+	} else { //Indice Secundario
+		
+		ListaClaves* listaClavesPrimarias = NULL;
+		int resultado = indice->buscar(clave, listaClavesPrimarias);
+		
 		if (resultado == ResultadosIndices::OK) {
-			// Se envía el tamaño del registro a modificar.
-			pipe.escribir(tamRegistro);
-			//	Se envía el bloque antiguo
-			pipe.escribir(registroDatos, tamRegistro);
 			
-			// Se recibe el tamaño del registro modificado.
-			pipe.leer(&tamRegistro);
+			//Se envía la cantidad de registros que se deben modificar
+			cantRegistros = listaClavesPrimarias->size();
+			pipe.escribir(cantRegistros);
 			
-			//Creo un buffer con el tamaño del nuevo registro
-			delete[] registroDatos;
-			registroDatos = new char[tamRegistro];
+			ListaClaves::iterator iterClaves = listaClavesPrimarias->begin();
 			
-			// Se recibe el bloque con los atributos modificados
-			pipe.leer(tamRegistro, registroDatos);
-	
-			// Se instancia un objeto Registro, el cual es el encargado de
-			// administrar el registro de los datos y de proporcionar las claves
-			// creadas con los valores correspondientes.
-			Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
-							  registroDatos, defManager.getListaTipos(nombreTipo),
-							  defManager.getListaNombresAtributos(nombreTipo));
+			//Obtengo el índice primario
+			MapaIndices::iterator it = mapaIndices.find(*defManager.getListaNombresClavesPrimarias(nombreTipo));
+			Indice* indicePrimario = it->second;
+			//Saco el índice primario del mapa para que no sea encontrado cuando se busquen los
+			//índices secundarios en 'modificarClavePrimaria'
+			mapaIndices.erase(it);
 			
-			Clave* claveNueva = registro.getClave(*defManager.getListaNombresClavesPrimarias(nombreTipo));
+			//Modifico todas las claves primarias vinculadas a esta clave secundaria
+			for (unsigned i = 0; i < listaClavesPrimarias->size(); ++i, ++iterClaves)
+				resultado = modificarClavePrimaria(nombreTipo, mapaIndices, indicePrimario, *iterClaves, defManager, pipe);
 			
-			resultado = indice->modificar(clave, claveNueva, registroDatos, tamRegistro);
+			delete indicePrimario;
 			
-			if (resultado == ResultadosIndices::OK) {
-				//Actualizo los indices secundarios
-/*				Indice* indiceSecundario = NULL;
-				Clave* claveSecundaria = NULL;
-				
-				//Se instancia un objeto Registro, el cual es el encargado de
-				//administrar el registro de los datos y de proporcionar las claves
-				//secundarias creadas con los valores correspondientes.
-				Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
-								  registroDatos, defManager.getListaTipos(nombreTipo),
-								  defManager.getListaNombresAtributos(nombreTipo));
-				
-				for (MapaIndices::iterator iter = mapaIndices.begin();
-					iter != mapaIndices.end(); ++iter) {
-					
-					//Obtengo la clave secundaria
-					claveSecundaria = registro.getClave(iter->first);
-					//Obtengo el índice secundario
-					indiceSecundario = iter->second;
-					
-					indiceSecundario->eliminar(claveSecundaria, clave);
-					
-					delete claveSecundaria;
-					
-				}*/
-			}
-		
-			delete[] registroDatos;
+			destruirListaClaves(listaClavesPrimarias);
+			
 		}
-	} else {
-		
-		//TODO Obtener la lista de claves primarias y modificar todos los registros
-		//correspondientes a cada clave de la lista.
 		
 	}
-	
-	pipe.escribir(resultado);
 	
 }
 
@@ -478,15 +545,9 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			pipe.escribir(resultado);
 	}
 	
-	cout << "antes de destruir los indices" << endl;
-	
 	destruirIndices(mapaIndices);
 	
-	cout << "despues de destruir los indices" << endl;
-	
 	delete clave;
-	
-	cout << "despues de destruir la clave" << endl;
 	
 	return resultado;
 	
@@ -503,7 +564,8 @@ int main(int argc, char* argv[]) {
 	pipe.parametro(1, nombreTipo);
 	
 	procesarOperacion(codOp, nombreTipo, pipe);
-
+	
+	
 	// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
 	/*
 		DefinitionsManager::ListaTiposAtributos* lista = DefinitionsManager::getInstance().getListaTiposAtributos("PERSONA");

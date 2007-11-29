@@ -206,43 +206,50 @@ int main(int argc, char* argv[])
 						pipe->escribir((unsigned short)valoresClaves.length());
 						pipe->escribir(valoresClaves);
 						
-						// Obtencion del resultado de la operacion
-						pipe->leer(&pipeResult);
+						// Se obtiene la cantidad de registros a ser modificados.
+						pipe->leer(&cantRegistros);
 						
-						if (pipeResult == ResultadosIndices::OK){
+						if (cantRegistros > 0) {
 							
-							// Se obtiene la cantidad de registros a
-							// ser modificados.
-							pipe->leer(&cantRegistros);
+							listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+							listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, *mapaValoresAtributos);
+							pipeResult = ResultadosIndices::OK;
 							
 							for (unsigned short i = 0; (i < cantRegistros) && (pipeResult == ResultadosIndices::OK);
 								i++){
-								// Se obtiene el tamano del registro original a 
-								// a modificar.
-								pipe->leer(&tamRegistro);
-								registro = new char[tamRegistro];
 								
-								pipe->leer(tamRegistro, registro);
-								
-								listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-								listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, *mapaValoresAtributos);
-								
-								// Crea un nuevo registro con las modificaciones pertinentes. Devuelve su nueva longitud.
-								tamRegistro = dataManager.crearRegistroModificacion(*listaTiposAtributos, *listaValAtributos, registro);
-								
-								// Se envia el tamano del registro modificado por el pipe.
-								pipe->escribir(tamRegistro);
-								
-								// Se envia el nuevo registro con la modificacion.
-								pipe->escribir(dataManager.getRegistro(), tamRegistro);
-								
-								// Se obtiene el resultado de la modificacion.
+								// Se obtiene el resultado de la búsqueda de la clave
 								pipe->leer(&pipeResult);
 								
-								delete[] registro;
-								delete listaValAtributos;
+								if (pipeResult == ResultadosIndices::OK) {
+										
+									// Se obtiene el tamano del registro original a modificar.
+									pipe->leer(&tamRegistro);
+									registro = new char[tamRegistro];
+									
+									pipe->leer(tamRegistro, registro);
+									
+									// Crea un nuevo registro con las modificaciones pertinentes. Devuelve su nueva longitud.
+									tamRegistro = dataManager.crearRegistroModificacion(*listaTiposAtributos, *listaValAtributos, registro);
+									
+									// Se envia el tamano del registro modificado por el pipe.
+									pipe->escribir(tamRegistro);
+									
+									// Se envia el nuevo registro con la modificacion.
+									pipe->escribir(dataManager.getRegistro(), tamRegistro);
+									
+									// Se obtiene el resultado de la modificacion.
+									pipe->leer(&pipeResult);
+									
+									delete[] registro;
+								}
 							}
-						}
+							
+							delete listaValAtributos;
+							
+							registro = NULL;
+							
+						} else pipeResult = cantRegistros; //Se produjo un error en CapaIndices
 					}
 					
 				}break;

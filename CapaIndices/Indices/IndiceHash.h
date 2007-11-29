@@ -97,6 +97,14 @@ class IndiceHash :public Indice
 		virtual int modificar(Clave *claveVieja, Clave *claveNueva,
 				                       char* &registroNuevo, unsigned short tamanioRegistroNuevo);
 		
+		
+		/*
+		 * Este método modifica claves secundarias y sus correspondientes listas de claves primarias.
+		 */
+		//TODO Implementar!!!
+		virtual int modificar(Clave* claveSecundariaVieja, Clave* claveSecundariaNueva,
+							  Clave* clavePrimariaVieja, Clave* clavePrimariaNueva) { return 0; }
+		
 		/*
 		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
 		 * para insertar un nuevo registro de tamaño 'tamRegistro'
