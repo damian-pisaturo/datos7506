@@ -94,6 +94,10 @@ class Hash
 		 * */
 		int getTipoOrganizacion();
 		
+		char* serializarClave(void** clave);
+		
+		ListaNodos* getListaParametros();
+
 	private:
 	///////////////////////////////////////////////////////////////////////
 	// Metodos privados
@@ -122,7 +126,6 @@ class Hash
 		
 		bool esRegistroVariable();		
 		
-		char* serializarClave(void** clave);
 		
 		
 		
