@@ -16,6 +16,7 @@ fuentes = Manager/Manager.cpp
 fuentes += Manager/BloqueManager/BloqueDatosManager/BloqueDatosManager.cpp 
 fuentes += Manager/BloqueManager/BloqueListaManager/BloqueListaManager.cpp
 fuentes += Manager/IndiceManager/IndiceManager.cpp
+fuentes += Indices/Indice.cpp
 fuentes += Indices/IndiceArbol.cpp
 fuentes += Indices/IndiceHash.cpp
 fuentes += Common/Nodo.cpp

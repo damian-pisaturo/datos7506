@@ -86,6 +86,10 @@ class IndiceHash :public Indice
 		 **/
 		virtual int buscar(Clave *clave, char* &registro, unsigned short &tamanioBucket) const;
 		
+		/*
+		 * Busca una clave en un indice secundario, y si la encuntra retorna su lista invertida,
+		 * que contiene las claves primarias en listaClaves.
+		 **/
 		virtual int buscar(Clave *clave, ListaClaves* &listaClaves) const ;
 		
 		/*
@@ -100,15 +104,7 @@ class IndiceHash :public Indice
 		 * a "claveVieja" por "registroNuevo".
 		 **/
 		virtual int modificar(Clave *claveVieja, Clave *claveNueva,
-				                       char* &registroNuevo, unsigned short tamanioRegistroNuevo);
-		
-		
-		/*
-		 * Este método modifica claves secundarias y sus correspondientes listas de claves primarias.
-		 */
-		//TODO Implementar!!!
-		virtual int modificar(Clave* claveSecundariaVieja, Clave* claveSecundariaNueva,
-							  Clave* clavePrimariaVieja, Clave* clavePrimariaNueva) { return 0; }
+	                   		  char* &registroNuevo, unsigned short tamanioRegistroNuevo);
 		
 		/*
 		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
@@ -130,13 +126,7 @@ class IndiceHash :public Indice
 		
 		void setOffsetToList(unsigned int offset, char *registro, unsigned short tamanioRegistro);
 		
-	private:
-		
-		ListaTipos* getListaTipos() const;
-		
-		ListaTipos* getListaTiposClavePrimaria() const;
-		
-		ListaNodos* getListaNodosClavePrimaria() const;
+		ListaNodos* getListaNodos() const;
 };
 
 #endif /*INDICEHASH_H_*/

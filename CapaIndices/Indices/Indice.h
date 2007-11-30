@@ -98,7 +98,7 @@ class Indice
 		 * Este método modifica claves secundarias y sus correspondientes listas de claves primarias.
 		 */
 		virtual int modificar(Clave* claveSecundariaVieja, Clave* claveSecundariaNueva,
-							  Clave* clavePrimariaVieja, Clave* clavePrimariaNueva) = 0;
+							  Clave* clavePrimariaVieja, Clave* clavePrimariaNueva);
 		
 		/*
 		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
@@ -126,6 +126,13 @@ class Indice
 		
 		unsigned short getTamanioBloque() const { return this->tamBloque; }
 		
+		virtual ListaTipos* getListaTipos() const;
+
+		virtual ListaTipos* getListaTiposClavePrimaria() const;
+		
+		virtual ListaNodos* getListaNodosClavePrimaria() const;
+		
+		virtual ListaNodos* getListaNodos() const = 0;
 };
 
 #endif /*INDICE_H_*/
