@@ -1,13 +1,15 @@
 #include "IndiceHash.h"
 
 
-	IndiceHash::IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo) 
+	IndiceHash::IndiceHash(unsigned char tipoIndice, ListaNodos *listaParam,
+						   unsigned int tamBucket, const string& nombreArchivo) 
 	{
 		this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
-		this->tipoIndice    = TipoIndices::GRIEGO;
+		this->tipoIndice = tipoIndice;
 		this->tamBloque = tamBucket;
-		this->hash = new Hash((IndiceHashManager*)indiceManager, listaParam, tamBucket);	
-		this->bloqueManager = new BloqueListaManager(Tamanios::TAMANIO_BLOQUE_DATO, nombreArchivo );
+		this->hash = new Hash((IndiceHashManager*)indiceManager, listaParam, tamBucket);
+		// El tamaño de un bloque de la lista es igual que el tamaño de un bucket
+		this->bloqueManager = new BloqueListaManager(tamBucket, nombreArchivo);
 		
 	}
 	
@@ -15,6 +17,9 @@
 	{
 		if (this->hash) 
 			delete this->hash;
+		
+		if (this->bloqueManager)
+			delete this->bloqueManager;
 	}
 
 	/*
@@ -49,7 +54,7 @@
 		
 		int resultado = ResultadosIndices::OK;
 	
-		Bloque *bloque = new BloqueListaPrimaria(Tamanios::TAMANIO_BLOQUE_DATO);
+		Bloque *bloque = new BloqueListaPrimaria(this->tamBloque);
 		
 		ListaNodos* listaNodos = this->getListaNodosClavePrimaria();
 		
@@ -118,8 +123,8 @@
 		referenciaALista = this->getOffsetToList(registro,tamanioRegistro);
 		
 		// Se crea un bloque para la lista de claves.
-		Bloque *bloque = new BloqueListaPrimaria(Tamanios::TAMANIO_BLOQUE_DATO);
-		char* bloqueDatos = new char[Tamanios::TAMANIO_BLOQUE_DATO];
+		Bloque *bloque = new BloqueListaPrimaria(this->tamBloque);
+		char* bloqueDatos = new char[this->tamBloque];
 		
 		// Se lee la lista de disco y se carga en bloqueDatos.
 		int resultado = this->bloqueManager->leerBloqueDatos(referenciaALista, bloqueDatos);
@@ -210,7 +215,7 @@
 		char* clavePrimariaSerializada = this->hash->serializarClave(clavePrimaria->getValorParaHash());
 		
 		// Crea un bloque de lista.
-		Bloque *bloque =  new BloqueListaPrimaria(Tamanios::TAMANIO_BLOQUE_DATO);
+		Bloque *bloque =  new BloqueListaPrimaria(this->tamBloque);
 		
 		if (encontrado)
 		{
@@ -218,7 +223,7 @@
 			unsigned int referenciaALista = getOffsetToList(registro, tamanioRegistro);
 		
 			// Lee de disco el bloque con dicha lista.
-			char* bloqueLista = new char[Tamanios::TAMANIO_BLOQUE_DATO];
+			char* bloqueLista = new char[this->tamBloque];
 			if (this->bloqueManager->leerBloqueDatos(referenciaALista, bloqueLista) == ResultadosFisica::OK) {
 				
 				// Le setea los datos que levantó de disco al bloque, y agerga la clave primaria a 
