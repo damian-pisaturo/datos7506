@@ -100,6 +100,75 @@
 		else return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	}
 	
+	int IndiceHash::buscar(Clave *clave, ListaClaves* &listaClaves) const 
+	{
+		char *registro = NULL;
+		unsigned short tamanioRegistro = 0;
+	
+		// Comprueba si la clave secundaria está presente en el indice.	
+		if (this->hash->recuperarRegistro(*clave, registro, tamanioRegistro))
+			return ResultadosIndices::CLAVE_NO_ENCONTRADA;
+	
+		// Obtiene el offset a la lista.
+		unsigned int referenciaALista;
+		
+		referenciaALista = this->getOffsetToList(registro,tamanioRegistro);
+		
+		// Se crea un bloque para la lista de claves.
+		Bloque *bloque = new BloqueListaPrimaria(Tamanios::TAMANIO_BLOQUE_DATO);
+		char* bloqueDatos = new char[Tamanios::TAMANIO_BLOQUE_DATO];
+		
+		// Se lee la lista de disco y se carga en bloqueDatos.
+		int resultado = this->bloqueManager->leerBloqueDatos(referenciaALista, bloqueDatos);
+			
+		if (resultado == ResultadosFisica::OK) {
+			
+			// Se pone en listaClaves una lista de todas las claves primarias que hay en la lista invertida.
+			ListaTipos* listaTiposClavePrimaria = this->getListaTiposClavePrimaria();
+			listaClaves = ((BloqueListaPrimaria*)bloque)->getListaClaves(bloqueDatos, listaTiposClavePrimaria);
+			delete listaTiposClavePrimaria;
+			
+			resultado = ResultadosIndices::OK;
+			
+		} else resultado = ResultadosIndices::ERROR_CONSULTA;
+			
+		delete[] bloqueDatos;
+		delete bloque;
+		delete[] registro;
+		
+		return resultado;
+	}
+	
+	/*
+	 
+	 IndiceArbol::buscar(Clave *claveSecundaria, ListaClaves* &listaClavesPrimarias) const {
+	
+	Clave* claveRecuperada = bTree->buscar(claveSecundaria);
+	if (!claveRecuperada) return ResultadosIndices::CLAVE_NO_ENCONTRADA;
+	
+	char *bloqueDatos = new char[this->tamBloque];
+	
+	int resultado = this->bloqueManager->leerBloqueDatos(claveRecuperada->getReferencia(), bloqueDatos);
+	
+	if (resultado == ResultadosFisica::OK) {
+		
+		ListaTipos* listaTiposClavePrimaria = this->getListaTiposClavePrimaria();
+		listaClavesPrimarias = ((BloqueListaPrimaria*)this->bloque)->getListaClaves(bloqueDatos, listaTiposClavePrimaria);
+		delete listaTiposClavePrimaria;
+		
+		resultado = ResultadosIndices::OK;
+		
+	} else resultado = ResultadosIndices::ERROR_CONSULTA;
+		
+	delete claveRecuperada;
+	delete bloqueDatos;
+	
+	return resultado;
+	
+}
+	 
+	 */
+	
 	int IndiceHash::buscar(Clave *clave) const
 	{
 		char* registro = NULL;
@@ -233,7 +302,7 @@
 	/*
 	 * Devuelve el offset a una lista dentro de un registro de indice secundario.
 	 * */
-	unsigned int IndiceHash::getOffsetToList(char *registro, unsigned short tamanioRegistro)
+	unsigned int IndiceHash::getOffsetToList(char *registro, unsigned short tamanioRegistro)const
 	{
 		unsigned int offset;
 		memcpy(&offset, registro + tamanioRegistro - sizeof(offset), sizeof(offset));

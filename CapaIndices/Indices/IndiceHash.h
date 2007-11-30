@@ -86,8 +86,7 @@ class IndiceHash :public Indice
 		 **/
 		virtual int buscar(Clave *clave, char* &registro, unsigned short &tamanioBucket) const;
 		
-		//TODO Implementar!!!
-		virtual int buscar(Clave *clave, ListaClaves* &listaClaves) const { return 0; }
+		virtual int buscar(Clave *clave, ListaClaves* &listaClaves) const ;
 		
 		/*
 		 * Método utilizado para saber si una clave ya se encuentra insertada en el índice
@@ -128,7 +127,7 @@ class IndiceHash :public Indice
 		// TODO Implementar!!
 		virtual int siguienteBloque(Bloque* &bloque) { return 0; }
 		
-		unsigned int getOffsetToList(char *registro, unsigned short tamanioRegistro);
+		unsigned int getOffsetToList(char *registro, unsigned short tamanioRegistro) const;
 		
 		void setOffsetToList(unsigned int offset, char *registro, unsigned short tamanioRegistro);
 		
