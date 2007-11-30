@@ -179,7 +179,7 @@
 			
 			posicion = archivoEL->buscarBloqueOcupado(espLibre, numBloque);
 			
-			if (posicion != ResultadosFisica::BLOQUES_VACIOS) {
+			if (posicion >= 0) { //Se encontró un bloque ocupado
 				
 				resultado = this->posicionarse(posicion);
 				
@@ -190,7 +190,7 @@
 					numBloque = posicion;
 				} else resultado = ResultadosFisica::FIN_BLOQUES;
 				
-			} else resultado = ResultadosFisica::FIN_BLOQUES;
+			} else resultado = posicion;
 			
 			return resultado;
 		}

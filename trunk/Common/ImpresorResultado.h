@@ -50,7 +50,8 @@ ostream& operator << (ostream &out, const Resultado &e) {
         case ResultadosIndices::CLAVE_NO_ENCONTRADA:
         	out << "La clave solicitada no existe."; break;
         case ResultadosIndices::FIN_BLOQUES:
-        	out << "No se ha encontrado ningún bloque de datos para esta consulta."; break;
+        case ResultadosFisica::FIN_BLOQUES:
+        	out << "Se terminaron de consultar los bloques de datos."; break;
         case ResultadosIndices::OPERACION_INVALIDA:
         	out << "Operación de CapaIndices inválida."; break;
         case ResultadosMetadata::OK:

@@ -732,7 +732,9 @@ int IndiceArbolManager::eliminarBloqueDoble(unsigned short posicion)
 ///////////////////////////////////////////////////////////////////////
 IndiceHashManager::IndiceHashManager(unsigned int tamBucket, string nombreArchivo) :
 	IndiceManager(tamBucket, nombreArchivo, TipoIndices::HASH) 
-	{ }
+	{ 
+		this->bloqueSiguiente = 0;
+	}
 
 IndiceHashManager::~IndiceHashManager() 
 	{ }
@@ -1018,6 +1020,54 @@ char IndiceHashManager::escribirTabla(unsigned int tamanio, unsigned int* bucket
 		delete pipe;
 	
 	return resultado;
+}
+
+
+int IndiceHashManager::siguienteBloque(void* bloque)
+{
+	char resultado = 0;
+	
+	//Instancia del pipe
+	ComuDatos* pipe = instanciarPipe();
+
+	//Parametros para inicializar el pipe.
+	pipe->agregarParametro(OperacionesCapas::FISICA_SIGUIENTE_BUCKET, 0); //Codigo de operacion.
+	pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre del archivo.
+	pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bloque en disco.
+	pipe->agregarParametro(this->bloqueSiguiente, 3); //Numero del ultimo bloque de datos validos levantado.
+	
+	//Se lanza el proceso de la capa fisica. 
+	resultado = pipe->lanzar();
+	
+	if (resultado == ComuDatos::OK){
+		
+		//Se chequea la validez del archivo
+		pipe->leer(&resultado);
+		
+		if (resultado == ResultadosFisica::OK){
+			
+			//Se chequea si existen más bloques
+			//de datos en el archivo.
+			pipe->leer(&resultado);
+			
+			if (resultado == ResultadosFisica::OK){
+				// Se obtiene el bloque de datos
+				pipe->leer(this->getTamanioBloque(), (char*)bloque);
+				
+				// Se obtiene el numero de bloque que
+				// se acaba de levantar de disco.
+				pipe->leer(&this->bloqueSiguiente);
+				
+				++(this->bloqueSiguiente);
+			}
+		
+		}
+	}
+	
+	if (pipe)
+		delete pipe;
+	
+	return resultado;				
 }
 
 

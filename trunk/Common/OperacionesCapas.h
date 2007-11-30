@@ -32,6 +32,7 @@ class OperacionesCapas
 		const static unsigned char FISICA_ELIMINAR_DATO        = 21;
 		const static unsigned char FISICA_BUSCAR_ESPACIO_LIBRE = 22;		
 		const static unsigned char FISICA_SIGUIENTE_BLOQUE     = 23;
+		const static unsigned char FISICA_SIGUIENTE_BUCKET     = 24;
 		
 		const static unsigned char INDICES_CONSULTAR			= 25;
 		const static unsigned char INDICES_CONSULTAR_EXISTENCIA	= 26;

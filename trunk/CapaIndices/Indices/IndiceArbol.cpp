@@ -213,6 +213,7 @@ int IndiceArbol::eliminar(Clave* claveSecundaria, Clave *clavePrimaria) {
  * registro de datos correspondiente a dicha clave.
  **/
 int IndiceArbol::buscar(Clave *clave, char* &registro, unsigned short &tamanioRegistro) const {
+	tamanioRegistro = 0;
 	Clave* claveRecuperada = bTree->buscar(clave);
 	if (!claveRecuperada) return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	char* bloqueDatos = new char[this->getTamanioBloque()];
@@ -413,16 +414,17 @@ Bloque* IndiceArbol::leerBloque(unsigned int nroBloque) {
  * registros de datos.
  */
 int IndiceArbol::siguienteBloque(Bloque* &bloque) {
+	
 	char* bloqueDatos = new char[this->tamBloque];
 	int resultado = this->bloqueManager->siguienteBloque(bloqueDatos);
-	if (resultado != ResultadosFisica::FIN_BLOQUES) {
+	
+	if (resultado == ResultadosFisica::OK) {
 		bloque = new Bloque(0, this->tamBloque, this->bloque->getTipoOrganizacion());
 		bloque->setDatos(bloqueDatos);
-		if (resultado == ResultadosFisica::OK) resultado = ResultadosIndices::OK;
-	} else {
+		resultado = ResultadosIndices::OK;
+	} else
 		delete[] bloqueDatos;
-		resultado = ResultadosIndices::FIN_BLOQUES;
-	}
+	
 	return resultado; //La memoria de 'bloqueDatos' se libera al destruirse 'bloque'
 }
 

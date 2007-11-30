@@ -126,8 +126,6 @@ int main(int argc, char* argv[])
 						
 						if (pipeResult == ResultadosIndices::OK) {
 							
-							int sigBloque = 0;
-							
 							do {
 								// Se obtiene la cantidad de registros que responden 
 								// a la consulta realizada.
@@ -161,8 +159,9 @@ int main(int argc, char* argv[])
 								registro = NULL;
 								
 								// Leo el resultado que indica si se van a recibir más bloques
-								pipe->leer(&sigBloque);
-							} while (sigBloque != ResultadosIndices::FIN_BLOQUES);
+								pipe->leer(&pipeResult);
+								
+							} while (pipeResult == ResultadosIndices::OK);
 						}
 					}
 				}break;

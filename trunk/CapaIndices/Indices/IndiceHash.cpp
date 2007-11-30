@@ -33,6 +33,7 @@
 		return this->hash->eliminarRegistro(*clave);
 	}
 
+
 	/*
 	 * Este método elimina una clave primaria de la lista de claves primarias
 	 * correspondiente a una clave secundaria.
@@ -87,7 +88,7 @@
 		return resultado;
 		
 	}
-	 	
+
 	/*
 	 * Este metodo busca un registro dentro del indice.
 	 * Devuelve el bloque que contiene el registro de clave "clave"
@@ -95,10 +96,12 @@
 	 **/
 	int IndiceHash::buscar(Clave *clave, char* &bloque, unsigned short &tamanioBloque) const
 	{
+		tamanioBloque = 0;
 		if (this->hash->recuperarRegistro(*clave,bloque,tamanioBloque))
 			return ResultadosIndices::OK;
 		else return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	}
+	
 	
 	int IndiceHash::buscar(Clave *clave, ListaClaves* &listaClaves) const 
 	{
@@ -139,35 +142,6 @@
 		return resultado;
 	}
 	
-	/*
-	 
-	 IndiceArbol::buscar(Clave *claveSecundaria, ListaClaves* &listaClavesPrimarias) const {
-	
-	Clave* claveRecuperada = bTree->buscar(claveSecundaria);
-	if (!claveRecuperada) return ResultadosIndices::CLAVE_NO_ENCONTRADA;
-	
-	char *bloqueDatos = new char[this->tamBloque];
-	
-	int resultado = this->bloqueManager->leerBloqueDatos(claveRecuperada->getReferencia(), bloqueDatos);
-	
-	if (resultado == ResultadosFisica::OK) {
-		
-		ListaTipos* listaTiposClavePrimaria = this->getListaTiposClavePrimaria();
-		listaClavesPrimarias = ((BloqueListaPrimaria*)this->bloque)->getListaClaves(bloqueDatos, listaTiposClavePrimaria);
-		delete listaTiposClavePrimaria;
-		
-		resultado = ResultadosIndices::OK;
-		
-	} else resultado = ResultadosIndices::ERROR_CONSULTA;
-		
-	delete claveRecuperada;
-	delete bloqueDatos;
-	
-	return resultado;
-	
-}
-	 
-	 */
 	
 	int IndiceHash::buscar(Clave *clave) const
 	{
@@ -216,7 +190,8 @@
 	{
 		return this->hash->leerBucket(nroBloque);
 	}
-
+	
+	
 	/*
 	 * Inserta una clave secundaria y pone la clave primaria en la lista invertida correspondiente
 	 * a la clave secundaria. Dentro del índice, guarda junto con la clave secundaria, el offset al 
@@ -297,7 +272,7 @@
 		delete bloque;
 		
 		return resultado;
-	}	
+	}
 	
 	/*
 	 * Devuelve el offset a una lista dentro de un registro de indice secundario.
@@ -313,6 +288,37 @@
 	{
 		memcpy(registro + tamanioRegistro - sizeof(offset), &offset, sizeof(offset));
 	}
+	
+	
+	
+	/*
+	 * Método que devuelve el siguiente bloque de disco que contiene
+	 * registros de datos.
+	 */
+	int IndiceHash::siguienteBloque(Bloque* &bloque) {
+		unsigned short cantRegistros = 0;
+		char* bloqueDatos = new char[this->tamBloque];
+		int resultado = ResultadosFisica::OK;
+		
+		// Se omiten los buckets vacíos referenciados por la tabla de hash
+		while ((cantRegistros == 0) && (resultado == ResultadosFisica::OK)) {
+			
+			resultado = ((IndiceHashManager*)this->indiceManager)->siguienteBloque(bloqueDatos);
+			
+			if (resultado == ResultadosFisica::OK)
+				memcpy(&cantRegistros, bloqueDatos + Tamanios::TAMANIO_ESPACIO_LIBRE, Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+		}
+		
+		if (resultado == ResultadosFisica::OK) {
+			bloque = new Bucket(0, 0, this->tamBloque, this->hash->getTipoOrganizacion());
+			bloque->setDatos(bloqueDatos);
+			resultado = ResultadosIndices::OK;
+		} else
+			delete[] bloqueDatos;
+		
+		return resultado; //La memoria de 'bloqueDatos' se libera al destruirse 'bloque'
+	}
+
 	
 /////////////////////////////////////////////////////////////////////////////////////
 // Métodos privados
@@ -366,5 +372,3 @@
 		
 		return listaTipos;
 	}
-
-
