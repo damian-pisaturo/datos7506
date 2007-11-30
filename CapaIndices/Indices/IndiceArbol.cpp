@@ -297,11 +297,7 @@ int IndiceArbol::buscar(Clave *clave) const {
  * por claveNueva y reemplaza el viejo registro correspondiente
  * a "claveVieja" por "registroNuevo".
  * Este método se usa para claves primarias.
- **//*
-		 * Este método modifica claves secundarias y sus correspondientes listas de claves primarias.
-		 */
-		virtual int modificar(Clave* claveSecundariaVieja, Clave* claveSecundariaNueva,
-							  Clave* clavePrimariaVieja, Clave* clavePrimariaNueva);
+ **/
 		
 int IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* &registroNuevo, unsigned short tamanioRegistroNuevo) {
 	int resultado = this->eliminar(claveVieja);
