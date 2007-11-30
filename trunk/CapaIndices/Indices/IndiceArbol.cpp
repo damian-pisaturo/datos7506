@@ -115,7 +115,7 @@ int IndiceArbol::insertar(Clave *claveSecundaria, Clave* clavePrimaria) {
 		
 		if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), bloqueLista) == ResultadosFisica::OK) {
 			this->bloque->setDatos(bloqueLista);
-			this->bloque->altaRegistro(listaNodos, claveSerializada);
+			this->bloque->altaRegistro(listaNodos, claveSerializada);			
 			this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
 		} else {
 			delete[] bloqueLista;
@@ -126,10 +126,11 @@ int IndiceArbol::insertar(Clave *claveSecundaria, Clave* clavePrimaria) {
 		
 	} else {
 	
+		this->bloque->clear();
 		this->bloque->altaRegistro(listaNodos, claveSerializada);
 		resultado = this->bloqueManager->escribirBloqueDatos(this->bloque->getDatos());
 		
-		if (resultado >= 0) {
+		if (resultado >= 0) {			
 			claveSecundaria->setReferencia(resultado);
 			if (bTree->insertar(claveSecundaria->copiar()))
 				resultado = ResultadosIndices::OK;
@@ -188,7 +189,7 @@ int IndiceArbol::eliminar(Clave* claveSecundaria, Clave *clavePrimaria) {
 		
 		if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), bloqueLista) == ResultadosFisica::OK) {
 			this->bloque->setDatos(bloqueLista);
-			this->bloque->bajaRegistro(listaNodos, *clavePrimaria);
+			this->bloque->bajaRegistro(listaNodos, *clavePrimaria);			
 			this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
 			if (this->bloque->getCantidadRegistros() == 0)
 				this->bTree->eliminar(claveSecundaria);

@@ -200,6 +200,12 @@ class Bloque
 		 * Si es de longitud variable, obtiene la longitud del registro corriente
 		 * */
 		unsigned short getTamanioRegistros() const;
+		
+		/*
+		 * Este método limpia el bloque poniendo la cantidad de registros en cero y actualizando el
+		 * offset al espacio libre.
+		 */
+		void clear();
 
 };
 

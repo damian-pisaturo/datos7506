@@ -1009,3 +1009,25 @@
 			
 			return cantRegs;
 		}
+		
+		/*
+		 * Este método limpia el bloque poniendo la cantidad de registros en cero y actualizando el
+		 * offset al espacio libre.
+		 */
+		void Bloque::clear() {
+			
+			this->numero       = 0;
+			memset(this->datos, 0, this->getTamanioBloque());
+			
+			this->offsetADatos = Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+			this->offsetToProxReg = this->offsetADatos;
+			
+			// Inicializa el offset a espacio libre dentro del bloque.
+			unsigned short espLibre = this->offsetADatos;
+			memcpy(this->datos, &espLibre, Tamanios::TAMANIO_ESPACIO_LIBRE);
+			
+			// Inicializa la cantidad de registros dentro del bloque.
+			unsigned short cantRegs = 0;
+			memcpy(this->datos + Tamanios::TAMANIO_ESPACIO_LIBRE, &cantRegs, Tamanios::TAMANIO_CANTIDAD_REGISTROS);
+			
+		}
