@@ -272,7 +272,7 @@ int IndiceArbol::buscar(Clave *claveSecundaria, ListaClaves* &listaClavesPrimari
 	} else resultado = ResultadosIndices::ERROR_CONSULTA;
 		
 	delete claveRecuperada;
-	delete bloqueDatos;
+	delete[] bloqueDatos;
 	
 	return resultado;
 	
