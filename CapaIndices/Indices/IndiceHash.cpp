@@ -94,46 +94,82 @@
 	}
 
 	/*
-	 * Inserta la clave primaria de la clave secundaria en la lista de la misma.
+	 * Inserta una clave secundaria y pone la clave primaria en la lista invertida correspondiente
+	 * a la clave secundaria. Dentro del índice, guarda junto con la clave secundaria, el offset al 
+	 * bloque donde se encuantra la lista invertida.
 	 * */
 	int IndiceHash::insertar(Clave *claveSecundaria, Clave* clavePrimaria)
 	{
 		char* registro = NULL;
 		unsigned short tamanioRegistro = 0;
+		
+		// Comprueba si la clave secundaria ya está presente en el indice.
+		// De ser así, recupera en registro dicha clave, y el offset a la 
+		// lista invertida.
 		bool encontrado = this->hash->recuperarRegistro(*claveSecundaria, registro, tamanioRegistro);
+		
 		int resultado = ResultadosIndices::OK;
-		char* claveSerializada = this->hash->serializarClave(claveSecundaria->getValorParaHash());
+		
+		char* clavePrimariaSerializada = this->hash->serializarClave(clavePrimaria->getValorParaHash());
+		
+		// Crea un bloque de lista.
 		Bloque *bloque =  new BloqueListaPrimaria(Tamanios::TAMANIO_BLOQUE_DATO);
+		
 		if (encontrado)
 		{
-			char* bloqueLista = new char[Tamanios::TAMANIO_BLOQUE_DATO];
+			// Obtiene el offset a la lista.
 			unsigned int referenciaALista = getOffsetToList(registro, tamanioRegistro);
-			
+		
+			// Lee de disco el bloque con dicha lista.
+			char* bloqueLista = new char[Tamanios::TAMANIO_BLOQUE_DATO];
 			if (this->bloqueManager->leerBloqueDatos(referenciaALista, bloqueLista) == ResultadosFisica::OK) {
+				
+				// Le setea los datos que levantó de disco al bloque, y agerga la clave primaria a 
+				// la lista.
 				bloque->setDatos(bloqueLista);
-				bloque->altaRegistro(this->hash->getListaParametros(), claveSerializada);			
+				bloque->altaRegistro(this->hash->getListaParametros(), clavePrimariaSerializada);			
 				this->bloqueManager->escribirBloqueDatos(referenciaALista, bloque->getDatos());
-			} else {
+			
+			} else {	
+			
+				// Si no puede leer la lista de disco, devuelve un error de inserción.
 				delete[] bloqueLista;
+				bloqueLista = NULL;
 				resultado = ResultadosIndices::ERROR_INSERCION;
 			}
+		
 		} else {
+			
+			// Si la clave secundaria no esta presente en el índice, inicializo el bloque,
+			// le inserto la clave primaria, y lo guardo en disco.
+			// Si puede guardarlo a disco, en resultado obtengo el offset a donde se guarda la lista.
 			bloque->clear();
-			bloque->altaRegistro(this->hash->getListaParametros(), claveSerializada);
+			bloque->altaRegistro(this->hash->getListaParametros(), clavePrimariaSerializada);
 			resultado = this->bloqueManager->escribirBloqueDatos(bloque->getDatos());
 			
-			if (resultado >= 0) {			
-				registro = new char[strlen(claveSerializada) + sizeof(resultado)];
+			if (resultado >= 0) {	
+				// Crea un registro donde se guarda la clave secundaria serializada, concatenada con
+				// el offset a la lista invertida.
+				char* claveSecundariaSerializada = this->hash->serializarClave(claveSecundaria->getValorParaHash());
+				registro = new char[strlen(claveSecundariaSerializada) + sizeof(resultado)];
 				setOffsetToList(resultado, registro, tamanioRegistro);
-				memcpy(registro, claveSerializada, strlen(claveSerializada));
+				memcpy(registro, claveSecundariaSerializada, strlen(claveSecundariaSerializada));
 				
-				if (this->hash->insertarRegistro( registro, *claveSecundaria))
+				// Inserta el registro en el indice secundario.
+				if (this->hash->insertarRegistro(registro, *claveSecundaria))
 					resultado = ResultadosIndices::OK;
 				else
 					resultado = ResultadosIndices::ERROR_INSERCION;
+				
+				delete[] claveSecundariaSerializada;
 			} else resultado = ResultadosIndices::ERROR_INSERCION;
 		
 		}
+		
+		delete[] clavePrimariaSerializada;
+		delete[] registro;
+		delete bloque;
+		
 		return resultado;
 	}
 	
@@ -151,52 +187,5 @@
 	{
 		memcpy(registro + tamanioRegistro - sizeof(offset), &offset, sizeof(offset));
 	}
-	/*
-	 * int IndiceArbol::insertar(Clave *claveSecundaria, Clave* clavePrimaria) {
-	Clave* claveBuscada = bTree->buscar(claveSecundaria);
-	int resultado = ResultadosIndices::OK;
 	
-	ListaNodos* listaNodos = this->getListaNodosClavePrimaria();
-	ListaTipos* listaTipos = this->getListaTiposClavePrimaria();
-	char* claveSerializada = Bloque::serializarClave(clavePrimaria, listaTipos);
-	
-	if (claveBuscada) {
-		
-		char* bloqueLista = new char[this->tamBloque];
-		
-		if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), bloqueLista) == ResultadosFisica::OK) {
-			this->bloque->setDatos(bloqueLista);
-			this->bloque->altaRegistro(listaNodos, claveSerializada);			
-			this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
-		} else {
-			delete[] bloqueLista;
-			resultado = ResultadosIndices::ERROR_INSERCION;
-		}
-		
-		delete claveBuscada;
-		
-	} else {
-	
-		this->bloque->clear();
-		this->bloque->altaRegistro(listaNodos, claveSerializada);
-		resultado = this->bloqueManager->escribirBloqueDatos(this->bloque->getDatos());
-		
-		if (resultado >= 0) {			
-			claveSecundaria->setReferencia(resultado);
-			if (bTree->insertar(claveSecundaria->copiar()))
-				resultado = ResultadosIndices::OK;
-			else
-				resultado = ResultadosIndices::ERROR_INSERCION;
-		} else resultado = ResultadosIndices::ERROR_INSERCION;
-	
-	}
-	
-	delete listaNodos;
-	delete listaTipos;
-	delete[] claveSerializada;
-	
-	return resultado;
-}
-	 * 
-	 * */
 
