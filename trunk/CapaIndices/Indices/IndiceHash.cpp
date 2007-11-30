@@ -160,16 +160,13 @@
 	int IndiceHash::modificar(Clave *claveVieja, Clave *claveNueva, char* &bloque, unsigned short tamanioRegistroNuevo) 
 	{
 		return this->hash->modificarRegistro(*claveVieja, *claveNueva, bloque);
-	}
-
-
+	}		
+	
 	//El Hash no necesita esta funcionalidad por lo que retorna 0 para indicar que es un índice de este tipo
 	int IndiceHash::buscarBloqueDestino(unsigned short tamRegistro, char* bloqueDatos) 
 	{	
 		return 0;
 	}
-	
-	
 	
 	SetEnteros IndiceHash::getConjuntoBloques()
 	{
@@ -324,51 +321,10 @@
 // Métodos privados
 /////////////////////////////////////////////////////////////////////////////////////
 	
-	ListaTipos* IndiceHash::getListaTipos() const
+
+
+	ListaNodos* IndiceHash::getListaNodos() const
 	{
-		ListaTipos* listaTipos = new ListaTipos();
-			
-		for (ListaNodos::iterator it = ++(this->hash->getListaParametros()->begin()); it != this->hash->getListaParametros()->end(); ++it)
-			listaTipos->push_back(it->tipo);
-		
-		return listaTipos;
+		return this->hash->getListaParametros();
 	}
-			
-	ListaTipos* IndiceHash::getListaTiposClavePrimaria() const
-	{
-		ListaTipos* listaTipos = new ListaTipos();
-		ListaNodos::iterator it = this->hash->getListaParametros()->begin();
-		unsigned short cantClaves = it->cantClaves, i = 0;
-		
-		for (++it; (i < cantClaves) && (it != this->hash->getListaParametros()->end()); ++it) {
-			if (it->pk == "true") {
-				listaTipos->push_back(it->tipo);
-				++i;
-			}
-		}
-		
-		return listaTipos;
-	}
-	
-	ListaNodos* IndiceHash::getListaNodosClavePrimaria() const
-	{
-		ListaNodos* listaTipos = new ListaNodos();
-		ListaNodos::iterator it = this->hash->getListaParametros()->begin();
-		unsigned short i = 0;
-		
-		nodoLista nodo;
-		nodo.cantClaves = it->cantClaves;
-		nodo.pk = "";
-		nodo.tipo = TipoDatos::TIPO_VARIABLE;
-		
-		listaTipos->push_back(nodo);
-		
-		for (++it; (i < nodo.cantClaves) && (it != this->hash->getListaParametros()->end()); ++it) {
-			if (it->pk == "true") {
-				listaTipos->push_back(*it);
-				++i;
-			}
-		}
-		
-		return listaTipos;
-	}
+

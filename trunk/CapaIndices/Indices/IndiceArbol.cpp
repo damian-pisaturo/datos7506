@@ -297,7 +297,12 @@ int IndiceArbol::buscar(Clave *clave) const {
  * por claveNueva y reemplaza el viejo registro correspondiente
  * a "claveVieja" por "registroNuevo".
  * Este método se usa para claves primarias.
- **/
+ **//*
+		 * Este método modifica claves secundarias y sus correspondientes listas de claves primarias.
+		 */
+		virtual int modificar(Clave* claveSecundariaVieja, Clave* claveSecundariaNueva,
+							  Clave* clavePrimariaVieja, Clave* clavePrimariaNueva);
+		
 int IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* &registroNuevo, unsigned short tamanioRegistroNuevo) {
 	int resultado = this->eliminar(claveVieja);
 	
@@ -307,93 +312,9 @@ int IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* &registro
 	return resultado;
 }
 
-
-/*
- * Este método modifica claves secundarias y sus correspondientes listas de claves primarias.
- */
-int IndiceArbol::modificar(Clave* claveSecundariaVieja, Clave* claveSecundariaNueva,
-			  Clave* clavePrimariaVieja, Clave* clavePrimariaNueva) {
-	
-	int resultado = ResultadosIndices::OK;
-
-	if ( (*claveSecundariaVieja == *claveSecundariaNueva) && !(*clavePrimariaVieja == *clavePrimariaNueva) ) {
-		
-		if (this->eliminar(claveSecundariaVieja, clavePrimariaVieja) == ResultadosIndices::OK)
-			resultado = this->insertar(claveSecundariaVieja, clavePrimariaNueva);
-		else resultado = ResultadosIndices::ERROR_MODIFICACION;
-		
-	} else if (!(*claveSecundariaVieja == *claveSecundariaNueva)) {
-		
-		if (this->eliminar(claveSecundariaVieja, clavePrimariaVieja) == ResultadosIndices::OK)
-			resultado = this->insertar(claveSecundariaNueva, clavePrimariaNueva);
-		else resultado = ResultadosIndices::ERROR_MODIFICACION;
-		
-	}
-	
-	return resultado;
-	
-}
-
-
 int IndiceArbol::buscarBloqueDestino(unsigned short tamRegistro, char* bloqueDatos) {
 	return this->bloqueManager->buscarEspacioLibre(bloqueDatos, tamRegistro);
 }
-
-
-ListaTipos* IndiceArbol::getListaTipos() const {
-	
-	ListaTipos* listaTipos = new ListaTipos();
-	
-	for (ListaNodos::iterator it = ++(this->listaNodos->begin()); it != this->listaNodos->end(); ++it)
-		listaTipos->push_back(it->tipo);
-	
-	return listaTipos;
-	
-}
-
-
-ListaTipos* IndiceArbol::getListaTiposClavePrimaria() const {
-	
-	ListaTipos* listaTipos = new ListaTipos();
-	ListaNodos::iterator it = this->listaNodos->begin();
-	unsigned short cantClaves = it->cantClaves, i = 0;
-	
-	for (++it; (i < cantClaves) && (it != this->listaNodos->end()); ++it) {
-		if (it->pk == "true") {
-			listaTipos->push_back(it->tipo);
-			++i;
-		}
-	}
-	
-	return listaTipos;
-	
-}
-
-
-ListaNodos* IndiceArbol::getListaNodosClavePrimaria() const {
-	
-	ListaNodos* listaTipos = new ListaNodos();
-	ListaNodos::iterator it = this->listaNodos->begin();
-	unsigned short i = 0;
-	
-	nodoLista nodo;
-	nodo.cantClaves = it->cantClaves;
-	nodo.pk = "";
-	nodo.tipo = TipoDatos::TIPO_VARIABLE;
-	
-	listaTipos->push_back(nodo);
-	
-	for (++it; (i < nodo.cantClaves) && (it != this->listaNodos->end()); ++it) {
-		if (it->pk == "true") {
-			listaTipos->push_back(*it);
-			++i;
-		}
-	}
-	
-	return listaTipos;
-	
-}
-
 
 SetEnteros IndiceArbol::getConjuntoBloques() {
 	SetEnteros conjuntoBloques;
@@ -436,3 +357,6 @@ Clave* IndiceArbol::siguiente(){
 	return this->bTree->siguiente();
 }
 
+ListaNodos* IndiceArbol::getListaNodos() const {
+	return this->listaNodos;
+}

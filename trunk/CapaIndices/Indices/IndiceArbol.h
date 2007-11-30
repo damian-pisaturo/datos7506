@@ -72,12 +72,6 @@ class IndiceArbol: public Indice {
 							  unsigned short tamanioRegistroNuevo);
 		
 		/*
-		 * Este método modifica claves secundarias y sus correspondientes listas de claves primarias.
-		 */
-		virtual int modificar(Clave* claveSecundariaVieja, Clave* claveSecundariaNueva,
-							  Clave* clavePrimariaVieja, Clave* clavePrimariaNueva);
-		
-		/*
 		 * Método que llama a la capa física para pedirle un bloque que contenga espacio suficiente
 		 * para insertar un nuevo registro de tamaño 'tamRegistro'
 		 */
@@ -97,11 +91,7 @@ class IndiceArbol: public Indice {
 		
 		virtual Clave* siguiente();
 		
-		
-	private:
-		ListaTipos* getListaTipos() const;
-		ListaTipos* getListaTiposClavePrimaria() const;
-		ListaNodos* getListaNodosClavePrimaria() const;
+		ListaNodos* getListaNodos() const ;
 						                       
 		
 };
