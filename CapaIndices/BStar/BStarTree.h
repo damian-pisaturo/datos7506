@@ -29,15 +29,23 @@ class BStarTree : public BTree{
 		
 		bool vacio() const { return (this->nodoRaiz == NULL); }
 		
-		//Settea el nodoCorriente en el menor elemento dentro del árbol.
+		//Settea la clave corriente en la primera del árbol
 		void primero();
+		
+		//Devuelve la siguiente clave dentro del árbol. DEBE ser llamado después de primero(), sin
+		//modificaciones dentro del árbol luego de ser llamado este método, para garantizar su buen
+		//funcionamiento. Si no hay más elementos siguientes devuelve NULL.
+		Clave* siguiente();
 		
 	private:
 		//Atributos
 		
 		NodoBStar* nodoRaiz;
 		
-		NodoBStar* nodoCorriente;
+/*		NodoBStar* nodoCorriente;
+		
+		SetClaves::iterator iterSetClavesCorriente;*/
+		Clave* claveCorriente;
 		
 		//Para administrar la raíz, se utiliza el modelo en el cual la misma
 		//posee el espacio suficiente para que a la hora de dividirse,
@@ -113,9 +121,11 @@ class BStarTree : public BTree{
 		Clave* mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1, NodoBStar* &nodoHno2,
 								   Clave* clavePadre1, Clave* clavePadre2);
 		
-		//Método recursivo que settea el nodoCorriente como el de más a la izquierda del recibido por
-		//parámetro.
-		void buscarPrimero(NodoBStar* nodo);
+		//Método recursivo que devuelve la menor clave dentro del árbol.
+		Clave* buscarPrimero(NodoBStar* nodo) const;
+		
+		//Método recursivo que devuelve la clave que le sigue a la recibida por parámetro.
+		Clave* buscarSiguiente(NodoBStar* nodo, Clave* clave) const;
 };
 
 #endif /*BSTARTREE_H_*/

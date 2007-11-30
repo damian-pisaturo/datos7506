@@ -28,6 +28,8 @@ class SetClaves : public set<Clave*, Comparador> {
 		
 		Clave* findClaveAnterior(Clave* clave) const;
 		
+		Clave* findClaveSiguiente(Clave* clave) const;
+		
 		//Este metodo divide al conjunto actual en dos.
 		//Si la cantidad de claves es impar, este conjunto se queda con la
 		//menor cantidad de claves.

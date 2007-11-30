@@ -5,14 +5,14 @@ BStarTree::BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
 	: BTree(indiceManager, tamanioNodo) {
 	
 	this->tamanioRaiz = 2*this->tamanioNodo;
-	this->nodoCorriente = NULL;
+	this->claveCorriente = NULL;
 	this->getRaiz();
 	
 }
 
 BStarTree::~BStarTree() {
 	if (this->nodoRaiz) delete nodoRaiz;
-	if (this->nodoCorriente) delete nodoCorriente;
+	if (this->claveCorriente) delete this->claveCorriente;
 }
 
 NodoBStar* BStarTree::getRaiz()
@@ -281,8 +281,8 @@ bool BStarTree::eliminar(Clave* clave) {
 	
 	if (nodoTarget) delete nodoTarget;
 	
-	//PARA PROBAR NOMAS
-	return false;// true;
+
+	return true;
 }
 
 
@@ -1186,23 +1186,102 @@ Clave* BStarTree::mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1
 }
 
 void BStarTree::primero(){
-	buscarPrimero(this->nodoRaiz);
+	if (this->claveCorriente) delete this->claveCorriente;
+	this->claveCorriente = buscarPrimero(this->nodoRaiz);
 }
 
-void BStarTree::buscarPrimero(NodoBStar* nodo) {
+
+Clave* BStarTree::siguiente(){
+	Clave* auxClave = NULL;
+	if (this->claveCorriente){
+		auxClave = this->claveCorriente->copiar();
+		delete this->claveCorriente;
+		this->claveCorriente = buscarSiguiente(this->nodoRaiz, auxClave);
+	}
+	return auxClave;
+}
+
+Clave* BStarTree::buscarPrimero(NodoBStar* nodo) const {
 	
 	NodoBStar *nuevoNodo = NULL;
+	Clave* auxClave = NULL;
 		
-	if (nodo->getNivel() == 0) { //Nodo hoja
-		if (this->nodoCorriente) delete this->nodoCorriente;
-		this->nodoCorriente = new NodoBStar(0, 0, this->tamanioNodo);
-		*(this->nodoCorriente) = *nodo; 
-	} else {
+	if (nodo->getNivel() == 0) {//Nodo hoja
+		auxClave = nodo->obtenerPrimeraClave();
+		if (auxClave) return auxClave->copiar();
+		else return NULL;
+	}
+	else {
 		nuevoNodo = new NodoBStar(0, 0, this->tamanioNodo);
 		indiceManager.leerBloque(nodo->getHijoIzq(), nuevoNodo);
-		buscarPrimero(nuevoNodo);
+		auxClave = buscarPrimero(nuevoNodo);
 		delete nuevoNodo;
 	}
 	
+	return auxClave;
+	
 }
+
+Clave* BStarTree::buscarSiguiente(NodoBStar* nodo, Clave* clave) const {
+
+	NodoBStar* nuevoNodo = NULL;
+		
+	Clave* claveResultante = nodo->buscar(clave);
+	Clave* auxClave = NULL;
+	
+	if (claveResultante && (*claveResultante == *clave)){
+	
+		if (nodo->getNivel() == 0){
+			auxClave = nodo->getClaves()->findClaveSiguiente(claveResultante);
+			if (!auxClave) return NULL;
+			return auxClave->copiar();
+		}
+		else{
+			nuevoNodo = new NodoBStar(0, 0, this->tamanioNodo);
+			
+			if (claveResultante == NULL) indiceManager.leerBloque(nodo->getHijoIzq(), nuevoNodo);
+			else indiceManager.leerBloque(claveResultante->getHijoDer(), nuevoNodo);
+			
+			auxClave = buscarPrimero(nuevoNodo);
+			delete nuevoNodo;
+			return auxClave;
+		}
+
+	}
+	
+	if (claveResultante == NULL) {
+
+		if (nodo->getNivel() == 0) { //Nodo hoja
+			return NULL;
+		} else {
+			nuevoNodo = new NodoBStar(0, 0, this->tamanioNodo);
+			indiceManager.leerBloque(nodo->getHijoIzq(), nuevoNodo);
+			auxClave = buscarSiguiente(nuevoNodo, clave);
+			delete nuevoNodo;
+		}
+		
+	} else {
+			
+		if (claveResultante->getHijoDer() == 0) {//Nodo hoja
+			return NULL;
+		} else {
+			nuevoNodo = new NodoBStar(0, 0, this->tamanioNodo);
+			indiceManager.leerBloque(claveResultante->getHijoDer(), nuevoNodo);
+			auxClave = buscarSiguiente(nuevoNodo, clave);
+			delete nuevoNodo;
+		}
+		
+	}
+	
+	if (!auxClave){
+		auxClave = nodo->getClaves()->findClaveSiguiente(clave);
+		if (auxClave) return auxClave->copiar();
+	}
+	
+	return auxClave;
+	
+}
+
+
+
 

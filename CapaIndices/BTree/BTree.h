@@ -36,6 +36,9 @@ class BTree {
 		
 		virtual bool vacio() const = 0;
 		
+		virtual void primero() = 0;
+		
+		virtual Clave* siguiente() = 0;
 };
 
 #endif /*BTREE_H_*/

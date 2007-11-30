@@ -81,6 +81,12 @@ Clave* Nodo::buscar(Clave* claveBuscada) const
 	return this->getClaves()->findClave(claveBuscada);
 }
 
+Clave* Nodo::buscarSiguiente(Clave* claveBuscada) const
+{
+	return this->getClaves()->findClaveSiguiente(claveBuscada);
+}
+
+
 
 bool Nodo::reemplazarClave(Clave* claveVieja, Clave* claveNueva, char* codigo)
 {		

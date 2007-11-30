@@ -114,6 +114,8 @@ class Nodo : public BloqueIndice
 		 * de claves contenidas en el nodo (o la misma si se encuentra presente).
 		 */ 
 		Clave* buscar(Clave* claveBuscada) const;
+		
+		Clave* buscarSiguiente(Clave* claveBuscada) const;
 			
 		bool vacio() const {
 			return this->getClaves()->empty();
