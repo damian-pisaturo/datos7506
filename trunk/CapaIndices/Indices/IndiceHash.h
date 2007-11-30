@@ -22,6 +22,7 @@
 
 #include "../Hash/Hash.h"
 #include "Indice.h"
+#include "../Manager/BloqueManager/BloqueListaManager/BloqueListaManager.h"
 #include <set>
 
 using namespace std;
@@ -38,7 +39,8 @@ class IndiceHash :public Indice
 	//////////////////////////////////////////////////////////////////////
 	// Atributos
 	//////////////////////////////////////////////////////////////////////
-		Hash* hash;		
+		Hash* hash;	
+		BloqueManager *bloqueManager;
 		
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -56,8 +58,7 @@ class IndiceHash :public Indice
 		 **/
 		virtual int insertar(Clave *clave, char* &registro, unsigned short tamanioRegistro);
 		
-		//TODO Implementar!!
-		virtual int insertar(Clave *claveSecundaria, Clave* clavePrimaria) { return 0; }
+		virtual int insertar(Clave *claveSecundaria, Clave* clavePrimaria);
 		
 		/*
 		 * Este metodo elimina un elemento del indice.
@@ -122,6 +123,9 @@ class IndiceHash :public Indice
 		// TODO Implementar!!
 		virtual int siguienteBloque(Bloque* &bloque) { return 0; }
 		
+		unsigned int getOffsetToList(char *registro, unsigned short tamanioRegistro);
+		
+		void setOffsetToList(unsigned int offset, char *registro, unsigned short tamanioRegistro);
 };
 
 #endif /*INDICEHASH_H_*/

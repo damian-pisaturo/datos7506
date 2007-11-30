@@ -278,6 +278,11 @@
 			
 			return false;
 		}
+		
+		ListaNodos* Hash::getListaParametros()
+		{
+			return this->listaParam;
+		}
 
 	///////////////////////////////////////////////////////////////////////
 	// Metodos privados
