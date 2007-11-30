@@ -101,7 +101,7 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			resultado = indice->siguienteBloque(bloque);
 			pipe.escribir(resultado);
 			
-			while (resultado != ResultadosIndices::FIN_BLOQUES) {
+			while (resultado == ResultadosIndices::OK) {
 				
 				pipe.escribir(bloque->getCantidadRegistros());
 				
@@ -118,6 +118,7 @@ void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 				resultado = indice->siguienteBloque(bloque);
 				
 				pipe.escribir(resultado);
+				
 			}
 		}
 	}
@@ -547,7 +548,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	
 	destruirIndices(mapaIndices);
 	
-	delete clave;
+	if (clave) delete clave;
 	
 	return resultado;
 	
@@ -812,7 +813,7 @@ int main(int argc, char* argv[]) {
 		//Split en hoja y raiz
 		indice.insertar(new ClaveVariable("Sagitario"), null);
 		
-		//Elimino todo
+		//Elimino todos
 		
 		//Baja con redistribución
 		indice.eliminar(new ClaveVariable("Cantamontes"));

@@ -57,7 +57,9 @@ class Bucket : public Bloque , public BloqueIndice
 		/*
 		 * Constructor utilizado para crear un bucket en memoria y no acceder a disco
 		 **/
-		Bucket(unsigned int nroBucket,unsigned short tamDispersion,unsigned int tamanioBloque);
+		Bucket(unsigned int nroBucket, unsigned short tamDispersion, unsigned int tamanioBloque);
+		
+		Bucket(unsigned int nroBucket, unsigned short tamDispersion, unsigned int tamanioBloque, int tipoOrg);
 		
 		/*
 		 * Constructor utilizado para crear un bucket en memoria con el tipo de  organizacion del mismo

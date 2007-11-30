@@ -135,6 +135,29 @@
 
 			return numBloque;		
 		}
+		
+		int ArchivoELFijo::buscarBloqueOcupado(unsigned short numBloque)
+		{
+			bool libre = true;
+			int bloqueSiguiente = numBloque;
+			int resultado = this->posicionarse(bloqueSiguiente);
+
+			if (resultado == ResultadosFisica::OK) {
+				
+				while (libre && (!this->fin())) {
+					resultado = this->leer(&libre);
+					++bloqueSiguiente; // Siempre contiene al nro del siguiente bloque
+				}
+				
+				if (libre)
+					resultado = ResultadosFisica::FIN_BLOQUES;
+				else resultado = --bloqueSiguiente;
+				
+			} else if (resultado == ResultadosFisica::ERROR_POSICION)
+				resultado = ResultadosFisica::FIN_BLOQUES;
+
+			return resultado;
+		}
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -182,20 +205,22 @@
 		{
 			unsigned short espacioLibre = espacioTotal;
 			int bloqueSiguiente = numBloque;
+			int resultado = this->posicionarse(bloqueSiguiente);
 			
-			if (this->posicionarse(bloqueSiguiente) != ResultadosFisica::ERROR_POSICION) {
+			if (resultado == ResultadosFisica::OK) {
 			
 				while((espacioLibre >= espacioTotal) && 
 						(!this->fin())){
-					this->leer(&espacioLibre);
+					resultado = this->leer(&espacioLibre);
 					++bloqueSiguiente; // Siempre contiene al nro del siguiente bloque
 				}
 				
 				if (espacioLibre >= espacioTotal)
-					bloqueSiguiente = ResultadosFisica::BLOQUES_VACIOS;
-				else --bloqueSiguiente;
+					resultado = ResultadosFisica::FIN_BLOQUES;
+				else resultado = --bloqueSiguiente;
 				
-			} else bloqueSiguiente = ResultadosFisica::BLOQUES_VACIOS;
+			} else if (resultado == ResultadosFisica::ERROR_POSICION)
+				resultado = ResultadosFisica::FIN_BLOQUES;
 			
-			return bloqueSiguiente;
+			return resultado;
 		}

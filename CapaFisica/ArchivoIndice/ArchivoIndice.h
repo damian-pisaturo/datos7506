@@ -186,7 +186,16 @@ class ArchivoIndiceHash : public ArchivoIndice
 			/* Actualiza el contenido del archivo de tabla de dispersion
 			 * con los elementos pasados por parametros.
 			 */
-			void escribirTabla(unsigned int cantElem, unsigned int* elementos);			
+			void escribirTabla(unsigned int cantElem, unsigned int* elementos);
+			
+			/* Devuelve el siguiente bloque con datos validos en el archivo de
+			 * datos, contando a partir del numero de bloque numBloque.
+			 * Si pudo obtener un bloque siguiente, lo devuelve en 'bloque' y su
+			 * numero en 'numBloque'. Retorna ResultadosFisica::OK.
+			 * Si no pudo, porque no existen más bloques, 
+			 * retorna ResultadosFisica::FIN_BLOQUES.
+			 */
+			char siguienteBloque(void* bloque, int& numBloque);
 			
 };
 

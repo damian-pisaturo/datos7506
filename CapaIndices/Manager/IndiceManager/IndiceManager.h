@@ -187,6 +187,9 @@ class IndiceArbolManager : public IndiceManager
 ///////////////////////////////////////////////////////////////////////////
 class IndiceHashManager : public IndiceManager
 {	
+	private:
+		unsigned int bloqueSiguiente;
+	
 	public:
 		
 		typedef struct HeaderBucket{
@@ -238,6 +241,12 @@ class IndiceHashManager : public IndiceManager
 		 * espacio necesario.
 		 */
 		char leerTabla(unsigned int* tamanio, unsigned int* &buckets);
+		
+		/* Devuelve en 'bloque' el siguiente bloque de datos presente en el archivo. 
+		 * Si pudo obtener un bloque retorna ResultadosFisica::OK, de lo contrario 
+		 * ResultadosFisica::FIN_BLOQUES.
+		 */
+		int siguienteBloque(void* bloque);
 
 };
 

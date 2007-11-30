@@ -124,8 +124,7 @@ class IndiceHash :public Indice
 		 * Método que devuelve el siguiente bloque de disco que contiene
 		 * registros de datos.
 		 */
-		// TODO Implementar!!
-		virtual int siguienteBloque(Bloque* &bloque) { return 0; }
+		virtual int siguienteBloque(Bloque* &bloque);
 		
 		unsigned int getOffsetToList(char *registro, unsigned short tamanioRegistro) const;
 		
