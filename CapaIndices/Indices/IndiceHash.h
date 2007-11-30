@@ -58,6 +58,12 @@ class IndiceHash :public Indice
 		 **/
 		virtual int insertar(Clave *clave, char* &registro, unsigned short tamanioRegistro);
 		
+		/*
+		 * Este método hace una inserción en un indice secundario; si la clave secundaria
+		 * ya está insertada, agrega la clave primaria a su lista invertida; sino,
+		 * agrega la clave secundaria al indice, y crea su lista invertida correspondiente
+		 * con clave primaria como su unico elemento.
+		 **/
 		virtual int insertar(Clave *claveSecundaria, Clave* clavePrimaria);
 		
 		/*
@@ -71,8 +77,7 @@ class IndiceHash :public Indice
 		 * correspondiente a la clave secundaria.
 		 * Si la lista queda vacía, también se elimina la clave secundaria.
 		 */
-		//TODO Implementar!!
-		virtual int eliminar(Clave* claveSecundaria, Clave *clavePrimaria) { return 0; }
+		virtual int eliminar(Clave* claveSecundaria, Clave *clavePrimaria);
 		
 		/*
 		 * Este metodo busca un elemento dentro del indice.
@@ -126,6 +131,14 @@ class IndiceHash :public Indice
 		unsigned int getOffsetToList(char *registro, unsigned short tamanioRegistro);
 		
 		void setOffsetToList(unsigned int offset, char *registro, unsigned short tamanioRegistro);
+		
+	private:
+		
+		ListaTipos* getListaTipos() const;
+		
+		ListaTipos* getListaTiposClavePrimaria() const;
+		
+		ListaNodos* getListaNodosClavePrimaria() const;
 };
 
 #endif /*INDICEHASH_H_*/
