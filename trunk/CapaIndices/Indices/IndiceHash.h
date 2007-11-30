@@ -40,13 +40,14 @@ class IndiceHash :public Indice
 	// Atributos
 	//////////////////////////////////////////////////////////////////////
 		Hash* hash;	
-		BloqueManager *bloqueManager;
+		BloqueManager* bloqueManager;
 		
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		IndiceHash(ListaNodos *listaParam, unsigned int tamBucket, const string& nombreArchivo);		
+		IndiceHash(unsigned char tipoIndice, ListaNodos *listaParam,
+				   unsigned int tamBucket, const string& nombreArchivo);		
 		virtual ~IndiceHash();
 	
 	///////////////////////////////////////////////////////////////////////
