@@ -426,3 +426,11 @@ int IndiceArbol::siguienteBloque(Bloque* &bloque) {
 	return resultado; //La memoria de 'bloqueDatos' se libera al destruirse 'bloque'
 }
 
+void IndiceArbol::primero(){
+	this->bTree->primero();
+}
+
+Clave* IndiceArbol::siguiente(){
+	return this->bTree->siguiente();
+}
+

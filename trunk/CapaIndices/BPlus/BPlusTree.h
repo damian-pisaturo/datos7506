@@ -73,6 +73,8 @@ class BPlusTree : public BTree
 		//Deja en nodoActual el primer nodo del set secuencial
 		void primero();
 		
+		Clave* siguiente();
+		
 		bool vacio() const { return (this->nodoRaiz == NULL); }
 		
 	private:

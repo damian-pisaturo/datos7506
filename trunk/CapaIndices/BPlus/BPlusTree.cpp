@@ -70,6 +70,11 @@ void BPlusTree::primero()
 	}
 }
 
+Clave* BPlusTree::siguiente(){
+	//TODO: IMPLEMENTAR
+	return NULL;
+}
+
 
 bool BPlusTree::insertar(Clave* clave)
 {	

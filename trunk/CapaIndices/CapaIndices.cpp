@@ -768,12 +768,12 @@ int main(int argc, char* argv[]) {
 		clave = new ClaveEntera(400);
 		indice.insertar(clave, null);
 		*/
-
-	/*	
+/*
 		DefinitionsManager::ListaTiposAtributos* lista = DefinitionsManager::getInstance().getListaTiposAtributos("PERSONA");
 		IndiceArbol indice(TipoIndices::GRIEGO, TipoDatos::TIPO_STRING, lista,
 						   TipoIndices::ARBOL_BS, 96, 96, "locura",
 						   TipoDatos::TIPO_VARIABLE);
+		
 		
 		char* null = NULL;
 		*/
@@ -855,6 +855,36 @@ int main(int argc, char* argv[]) {
 			delete clave;
 		}
 		*/
+	/*	
+	unsigned short tamNodo = 48;
+	IndiceManager* indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::GRIEGO,
+																						TipoDatos::TIPO_ENTERO,
+																					   	NULL,TipoIndices::ARBOL_BS,
+																					   	tamNodo, 0,
+																					   	"persona");
+	
+	BStarTree indice(*indiceManager, tamNodo);
+	
+	int entero;
+	for (int i = 0; i < 1000; i++){
+		entero = 1000-i;//rand() % 1000;
+		cout << "insertando " << entero << "..." << endl;
+		indice.insertar(new ClaveEntera(entero));
+	}
+	
+	cout << "Buscando el primero..." << endl;
+	indice.primero();
+	
+	Clave* clave = NULL;
+	
+	for (int i = 0; i < 5222; i++){
+		clave = indice.siguiente();
+		if (clave){
+		cout << "La clave siguiente es " << *((int*)clave->getValor()) << endl;
+		delete clave;
+		}
+	}
+	*/
 		
 	cout << "Fin Capa Indices" << endl;
 }

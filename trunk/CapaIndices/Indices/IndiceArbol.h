@@ -93,6 +93,10 @@ class IndiceArbol: public Indice {
 		 */
 		virtual int siguienteBloque(Bloque* &bloque);
 		
+		virtual void primero();
+		
+		virtual Clave* siguiente();
+		
 		
 	private:
 		ListaTipos* getListaTipos() const;

@@ -35,6 +35,19 @@ Clave* SetClaves::findClaveAnterior(Clave* clave) const{
 	
 }
 
+Clave* SetClaves::findClaveSiguiente(Clave* clave) const {
+	
+	if (this->empty()) return NULL;
+
+	//Busco la clave mayor o igual a la que me pasan por parametro
+	SetClaves::const_iterator iter = this->upper_bound(clave);
+
+	if (iter == this->end()) return NULL;
+	
+	return *iter;
+	
+}
+
 SetClaves* SetClaves::splitBPlus(unsigned short minClaves, unsigned short maxClaves, bool bstar, bool hoja) {
 	
 	//minClaves contiene la cantidad minima de claves (en bytes) que debe
