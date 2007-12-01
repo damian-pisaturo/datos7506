@@ -64,12 +64,6 @@ class Bloque
 		 **/
 		void insertarRegistro(char *registro, unsigned short nuevoOffsetEspLibre, unsigned short longitudRegistro);
 		
-		/*
-		 * Retorna un registro a partir del offset del mismo dentro del bloque
-		 * y la longitud del registro
-		 * */
-		char* getRegistro(int longReg, int offsetToReg) const;	
-		
 		/**
 		 * Retorna un campo específico del registro
 		 * */
@@ -206,6 +200,12 @@ class Bloque
 		 * offset al espacio libre.
 		 */
 		void clear();
+		
+		/*
+		 * Retorna un registro a partir del offset del mismo dentro del bloque
+		 * y la longitud del registro
+		 * */
+		char* getRegistro(int longReg, int offsetToReg) const;	
 
 };
 
