@@ -153,7 +153,36 @@
 
 		int BloqueListaManager::eliminarBloqueDatos(unsigned int numLista)
 		{
-			return 0;
+			char resultado = 0;
+
+			//Instancia del pipe
+			ComuDatos* pipe = this->instanciarPipe();
+
+			//Parametros para inicializar el pipe.
+			pipe->agregarParametro(OperacionesCapas::FISICA_ELIMINAR_LISTA, 0); //Codigo de operacion.
+			pipe->agregarParametro(this->getNombreArchivo(), 1); //Nombre del archivo.
+			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bloque en disco.
+			pipe->agregarParametro(numLista, 3); //Posicion del bloque a eliminar.
+
+			//Se lanza el proceso de la capa fisica. 
+			resultado = pipe->lanzar();
+			
+			if (resultado == ComuDatos::OK){
+			
+				//Se chequea la validez del archivo
+				pipe->leer(&resultado);
+				
+				if (resultado == ResultadosFisica::OK)	
+					//Solicitar resultado de la comunicacion con la 
+					//capa fisica.
+					pipe->leer(&resultado);
+			
+			}
+
+			if (pipe)
+				delete pipe;
+			
+			return resultado;
 		}		
 
 		int BloqueListaManager::buscarEspacioLibre(void* bloque, unsigned int espLibre)
