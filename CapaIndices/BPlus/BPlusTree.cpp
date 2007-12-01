@@ -67,11 +67,26 @@ void BPlusTree::primero()
 		if (this->nodoActual != this->nodoRaiz) delete this->nodoActual;
 		this->nodoActual = new NodoBPlus(0, 0, this->tamanioNodo);
 		indiceManager.leerBloque(refHijoIzq, this->nodoActual);
+		this->iterClavesActual = this->nodoActual->getClaves()->begin();
 	}
+
 }
 
 Clave* BPlusTree::siguiente(){
-	//TODO: IMPLEMENTAR
+	
+	unsigned int refHnoDer;
+	
+	//Se usa un while para evitar problemas al encontrar un nodo vacío.
+	while ( ((refHnoDer = this->nodoActual->getHnoDer()) != 0) && (this->iterClavesActual == this->nodoActual->getClaves()->end()) ) {
+		delete this->nodoActual;
+		this->nodoActual = new NodoBPlus(0, 0, this->tamanioNodo);
+		indiceManager.leerBloque(refHnoDer, this->nodoActual);
+		this->iterClavesActual = this->nodoActual->getClaves()->begin();
+		
+	}
+	
+	if (this->iterClavesActual != this->nodoActual->getClaves()->end()) return (*(this->iterClavesActual++))->copiar();
+	
 	return NULL;
 }
 

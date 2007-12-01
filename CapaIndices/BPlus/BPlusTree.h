@@ -41,6 +41,7 @@ class BPlusTree : public BTree
 	//Atributos privados
 	//////////////////////////////////////////////////////////////////////
 		NodoBPlus* nodoActual;
+		SetClaves::iterator iterClavesActual;
 
 		NodoBPlus* nodoRaiz;
 		
