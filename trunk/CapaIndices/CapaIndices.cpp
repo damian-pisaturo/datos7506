@@ -66,6 +66,53 @@ void destruirListaClaves(ListaClaves* &listaClaves) {
 	
 }
 
+void consultarNoIndexada(Clave *clave, const string &nombreTipo, DefinitionsManager &defManager, ComuDatos &pipe, MapaIndices &mapaIndices){
+	
+	// Obtengo el indice primario para saber la extension del archivo de datos
+	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
+	
+	Bloque* bloque = NULL;
+	char *registro = NULL;
+	unsigned short offsetToReg = 0;
+	unsigned short longReg;
+	bool seguirBuscando;
+	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	
+	int resultado = indice->siguienteBloque(bloque);
+	pipe.escribir(resultado);
+
+	while (resultado == ResultadosIndices::OK) {
+		seguirBuscando = true;
+		
+		// Sigue buscando mientras encuentra registros, ya que si encuentra uno es probable que mas adelante
+		// haya otro. Si ya no encuentra un registro dentro del bloque se cesa la busqueda dentro del mismo.
+		while(seguirBuscando){
+
+			if(bloque->buscarRegistro(listaTiposAtributos, *clave, &offsetToReg)){
+				// Actualizo el offset a datos
+				bloque->setOffsetADatos(offsetToReg);
+				// Obtengo la longitud del registro corriente
+				longReg = bloque->getTamanioRegistros();				
+				// Envío su longitud
+				pipe.escribir(longReg);
+				// Obtengo el registro
+				registro = bloque->getRegistro(longReg, offsetToReg);
+				// Envío el registro
+				pipe.escribir(registro, longReg);
+			}
+			// Si no encontro mas registros ceso la busqueda dentro del bloque
+			else 
+				seguirBuscando = false; 
+				
+		}   if(registro)
+				delete[] registro;
+	}
+		
+		delete bloque;
+		
+		resultado = indice->siguienteBloque(bloque);
+		pipe.escribir(resultado);
+}
 
 void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
 			   Indice *indice, Clave *clave,
