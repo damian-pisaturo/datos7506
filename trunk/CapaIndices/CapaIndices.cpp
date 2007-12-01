@@ -67,6 +67,80 @@ void destruirListaClaves(ListaClaves* &listaClaves) {
 	
 }
 
+bool compararClaves(Clave *claveMenor, Clave *claveMayor, Clave *clave)
+{
+	if (claveMenor == NULL)
+		return (*clave < *claveMayor);
+	
+	if (claveMayor == NULL)
+		return (*claveMenor < *clave);
+	
+	return ((*claveMenor < *clave) && (*clave < *claveMayor));
+}
+
+void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndices,
+								Clave *claveMenor,Clave * claveMayor, DefinitionsManager &defManager, ComuDatos &pipe) {
+	
+	// Obtiene el indice primario para poder obtener luego los bloques de datos.
+	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
+	
+	// TODO: Armar lista! Necesito como pk a las claves por las cuales estoy buscando!
+	ListaNodos *listaTiposAtributos ;
+	
+	Bloque* bloque = NULL;
+	char* registro = NULL;
+	unsigned short tamanioRegistro = 0;
+	unsigned short cantidadRegistros = 0;
+	
+	// Obtiene un bloque de datos.
+	int resultado = indice->siguienteBloque(bloque);
+	Clave* claveDelRegistro;
+	
+	do {
+		// Se manda si hay un bloque siguiente.
+		pipe.escribir(resultado);
+		
+		// Se obtiene un registro.
+		if (registro) delete[] registro;
+		registro = bloque->getNextRegister();
+	
+		while (registro) {
+			
+			// Obtiene la clave del registro y la compara dentro del rango.
+			claveDelRegistro = bloque->getClavePrimaria(listaTiposAtributos, registro);
+			
+			if (compararClaves(claveMenor,claveMayor,claveDelRegistro)) {
+				
+				// Si el registro se encuentra en el rango pedido, lo envío por el pipe.
+				cantidadRegistros = 1;
+				pipe.escribir(cantidadRegistros);
+				
+				// Obtiene el tamaño del registro a enviar.
+				bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, registro);
+				pipe.escribir(tamanioRegistro);
+				pipe.escribir(registro, tamanioRegistro);
+				
+				// Vuelve a mandar el resultado, para que se esperen mas registros.
+				pipe.escribir(resultado);
+			}
+			delete claveDelRegistro;
+			registro = bloque->getNextRegister();	
+		}	
+		cantidadRegistros = 0;
+		pipe.escribir(cantidadRegistros);
+
+		delete bloque;
+		bloque = NULL;
+		resultado = indice->siguienteBloque(bloque);
+	
+	} while (resultado == ResultadosIndices::OK);
+	
+	// Se envia que no hay más registros que mandar.
+	pipe.escribir(resultado);
+	
+	//TODO: Ver si hay q hacer delete listaTiposAtributos;
+}
+
 void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 						Clave *clave, DefinitionsManager &defManager, ComuDatos &pipe) {
 	
@@ -78,6 +152,9 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 	unsigned short offsetToReg = 0;
 	unsigned short longReg;
 	bool seguirBuscando;
+	unsigned short cantidadRegistros = 0;
+	
+	// TODO: necesita lista con el atributo q se pasa como clave marcado como pk!
 	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	
 	int resultado = indice->siguienteBloque(bloque);
@@ -91,29 +168,38 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 		while(seguirBuscando){
 
 			if(bloque->buscarRegistro(listaTiposAtributos, *clave, &offsetToReg)){
+				
+				cantidadRegistros = 1;
+				pipe.escribir(cantidadRegistros);
 				// Actualizo el offset a datos
 				bloque->setOffsetADatos(offsetToReg);
+				bloque->setOffsetToReg(offsetToReg);
+				
 				// Obtengo la longitud del registro corriente
 				longReg = bloque->getTamanioRegistros();				
 				// Envío su longitud
 				pipe.escribir(longReg);
+				
 				// Obtengo el registro
 				registro = bloque->getRegistro(longReg, offsetToReg);
 				// Envío el registro
 				pipe.escribir(registro, longReg);
+				pipe.escribir(resultado);
 			}
 			// Si no encontro mas registros ceso la busqueda dentro del bloque
-			else 
-				seguirBuscando = false; 
+			else {
+				seguirBuscando = false;
+				cantidadRegistros = 0;
+				pipe.escribir(cantidadRegistros);
+			}	
 				
 		}   if(registro)
 				delete[] registro;
-	}
 		
 		delete bloque;
-		
 		resultado = indice->siguienteBloque(bloque);
 		pipe.escribir(resultado);
+	}
 }
 
 void consultaIndexada(const string &nombreTipo, MapaIndices &mapaIndices,

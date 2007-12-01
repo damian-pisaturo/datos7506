@@ -9,10 +9,13 @@
 		this->tipoIndice = tipoIndice;
 		this->tamBloque = tamBucket;
 		this->listaTiposClave = listaTiposClave; // La memoria de esta lista no se libera xq viene del DefManager
+		
 		// La siguiente lista contiene la información necesaria para administrar los registros armados
 		// a partir de una clave secundaria y un offset al archivo de las listas de claves primarias
 		this->listaNodosClave = this->getListaNodosClave();
+		
 		this->hash = new Hash((IndiceHashManager*)indiceManager, this->listaNodosClave, tamBucket);
+		
 		// El tamaño de un bloque de la lista es igual que el tamaño de un bucket
 		this->bloqueManager = new BloqueListaManager(tamBucket, nombreArchivo);
 		
