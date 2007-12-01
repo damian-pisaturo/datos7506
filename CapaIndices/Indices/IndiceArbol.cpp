@@ -190,9 +190,11 @@ int IndiceArbol::eliminar(Clave* claveSecundaria, Clave *clavePrimaria) {
 		if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), bloqueLista) == ResultadosFisica::OK) {
 			this->bloque->setDatos(bloqueLista);
 			this->bloque->bajaRegistro(listaNodos, *clavePrimaria);			
-			this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
-			if (this->bloque->getCantidadRegistros() == 0)
+			if (this->bloque->getCantidadRegistros() == 0) {
 				this->bTree->eliminar(claveSecundaria);
+				this->bloqueManager->eliminarBloqueDatos(claveBuscada->getReferencia());
+			} else 
+				this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
 		} else {
 			delete[] bloqueLista;
 			resultado = ResultadosIndices::ERROR_INSERCION;

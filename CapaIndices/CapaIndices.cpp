@@ -33,8 +33,9 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 				break;
 				
 			case TipoIndices::HASH:
-				indice = new IndiceHash(estructura.tipoIndice, listaTiposAtributos,
-										estructura.tamanioBloque, estructura.nombreArchivo);				
+				indice = new IndiceHash(estructura.tipoIndice,
+										nodoListaIndices.listaTipos, listaTiposAtributos,
+										estructura.tamanioBloque, estructura.nombreArchivo);
 				break;
 		}
 		
@@ -66,7 +67,8 @@ void destruirListaClaves(ListaClaves* &listaClaves) {
 	
 }
 
-void consultarNoIndexada(Clave *clave, const string &nombreTipo, DefinitionsManager &defManager, ComuDatos &pipe, MapaIndices &mapaIndices){
+void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
+						Clave *clave, DefinitionsManager &defManager, ComuDatos &pipe) {
 	
 	// Obtengo el indice primario para saber la extension del archivo de datos
 	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
@@ -114,9 +116,9 @@ void consultarNoIndexada(Clave *clave, const string &nombreTipo, DefinitionsMana
 		pipe.escribir(resultado);
 }
 
-void consultar(const string &nombreTipo, MapaIndices &mapaIndices,
-			   Indice *indice, Clave *clave,
-			   DefinitionsManager &defManager, ComuDatos &pipe) {
+void consultaIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
+			   		  Indice *indice, Clave *clave,
+			   		  DefinitionsManager &defManager, ComuDatos &pipe) {
 	
 	unsigned short cantRegistros = 1, tamRegistro = 0;
 	int resultado = 0;
@@ -562,8 +564,14 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 		case OperacionesCapas::INDICES_CONSULTAR:
 			// Si la consulta se hace a un índice primario, se envía el registro
 			// pedido, sino se envían todos los registros correspondiente a las
-			// claves primarias de la lista del indice secundario.			
-			consultar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
+			// claves primarias de la lista del indice secundario.
+			// Si no se encuentra ningún índice por el campo solicitado,
+			// se realiza una búsqueda secuencial en el archivo de datos,
+			// y se envían todos los registros que coincidan con el campo solicitado.
+			if (indice)
+				consultaIndexada(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
+			else
+				consultaNoIndexada(nombreTipo, mapaIndices, clave, defManager, pipe);
 			break;
 		case OperacionesCapas::INDICES_INSERTAR:
 			// Siempre se inserta un registro a partir de su clave primaria,

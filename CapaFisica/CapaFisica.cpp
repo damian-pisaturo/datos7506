@@ -777,6 +777,31 @@
 			}
 			
 		}break;
+		
+		case OperacionesCapas::FISICA_ELIMINAR_LISTA:			
+		{
+			pipe.parametro(3, numBloque);
+			
+			archivo = new ArchivoLista(nombreArchivo, tamBloque);
+			
+			if (archivo->esValido()){
+										
+				//Se informa a la capa superior que el archivo es valido.
+				pipe.escribir(resultado);
+				
+				//Eliminación del bloque cuya posición es 'numBloque'.				
+				resultado = ((ArchivoLista*)archivo)->eliminarLista(numBloque);
+				
+				//Envio del resultado de la operacion a traves del pipe.
+				pipe.escribir(resultado);
+			}else{
+				resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+				
+				//Se informa a la capa superior que el archivo es invalido.
+				pipe.escribir(resultado);	
+			}
+			
+		}break;
 	
 		case OperacionesCapas::FISICA_BUSCAR_ESPACIO_LIBRE:
 		{				

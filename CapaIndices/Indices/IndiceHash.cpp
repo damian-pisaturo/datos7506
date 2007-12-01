@@ -1,13 +1,18 @@
 #include "IndiceHash.h"
 
 
-	IndiceHash::IndiceHash(unsigned char tipoIndice, ListaNodos *listaParam,
+	IndiceHash::IndiceHash(unsigned char tipoIndice,
+						   ListaTipos *listaTiposClave, ListaNodos *listaParam,
 						   unsigned int tamBucket, const string& nombreArchivo) 
 	{
 		this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
 		this->tipoIndice = tipoIndice;
 		this->tamBloque = tamBucket;
-		this->hash = new Hash((IndiceHashManager*)indiceManager, listaParam, tamBucket);
+		this->listaTiposClave = listaTiposClave; // La memoria de esta lista no se libera xq viene del DefManager
+		// La siguiente lista contiene la información necesaria para administrar los registros armados
+		// a partir de una clave secundaria y un offset al archivo de las listas de claves primarias
+		this->listaNodosClave = this->getListaNodosClave();
+		this->hash = new Hash((IndiceHashManager*)indiceManager, this->listaNodosClave, tamBucket);
 		// El tamaño de un bloque de la lista es igual que el tamaño de un bucket
 		this->bloqueManager = new BloqueListaManager(tamBucket, nombreArchivo);
 		
@@ -20,6 +25,9 @@
 		
 		if (this->bloqueManager)
 			delete this->bloqueManager;
+		
+		if (this->listaNodosClave)
+			delete this->listaNodosClave;
 	}
 
 	/*
@@ -62,7 +70,7 @@
 			// Si la clave secundaria está en el indice, obtiene su lista de claves primarias.
 			
 			// Obtiene el offset a la lista.
-			unsigned int referenciaALista = getOffsetToList(registro, tamanioRegistro);
+			unsigned int referenciaALista = this->getOffsetToList(registro, tamanioRegistro);
 			
 			char* bloqueLista = new char[this->tamBloque];
 			
@@ -71,13 +79,15 @@
 				bloque->setDatos(bloqueLista);
 				
 				// Elimina la clave primaria de la lista, y escribe la lista a disco.
-				bloque->bajaRegistro(listaNodos, *clavePrimaria);			
-				this->bloqueManager->escribirBloqueDatos(referenciaALista, bloque->getDatos());
+				bloque->bajaRegistro(listaNodos, *clavePrimaria);
 				
 				// Si ya no quedan claves primarias en la lista, elimina la clave secundaria del indice.
-				if (bloque->getCantidadRegistros() == 0)
+				if (bloque->getCantidadRegistros() == 0) {
 					this->hash->eliminarRegistro(*claveSecundaria);
-			
+					this->bloqueManager->eliminarBloqueDatos(referenciaALista);
+				} else 
+					this->bloqueManager->escribirBloqueDatos(referenciaALista, bloque->getDatos());
+
 			} else 
 				resultado = ResultadosIndices::ERROR_INSERCION;
 			
@@ -114,7 +124,7 @@
 		unsigned short tamanioRegistro = 0;
 	
 		// Comprueba si la clave secundaria está presente en el indice.	
-		if (this->hash->recuperarRegistro(*clave, registro, tamanioRegistro))
+		if (!this->hash->recuperarRegistro(*clave, registro, tamanioRegistro))
 			return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	
 		// Obtiene el offset a la lista.
@@ -153,9 +163,10 @@
 		char* registro = NULL;
 
 		unsigned short tam = 0;
-		if (this->hash->recuperarRegistro(*clave, registro,tam))
+		if (this->hash->recuperarRegistro(*clave, registro, tam)) {
+			delete[] registro;
 			return ResultadosIndices::CLAVE_ENCONTRADA;
-		else
+		} else
 			return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	}
 
@@ -204,6 +215,8 @@
 		char* registro = NULL;
 		unsigned short tamanioRegistro = 0;
 		ListaNodos* listaNodos = this->getListaNodosClavePrimaria();
+		ListaTipos* listaTipos = this->getListaTiposClavePrimaria();
+		char* clavePrimariaSerializada = Bloque::serializarClave(clavePrimaria, listaTipos);
 		
 		// Comprueba si la clave secundaria ya está presente en el indice.
 		// De ser así, recupera en registro dicha clave, y el offset a la 
@@ -211,8 +224,6 @@
 		bool encontrado = this->hash->recuperarRegistro(*claveSecundaria, registro, tamanioRegistro);
 		
 		int resultado = ResultadosIndices::OK;
-		
-		char* clavePrimariaSerializada = this->hash->serializarClave(clavePrimaria->getValorParaHash());
 		
 		// Crea un bloque de lista.
 		Bloque *bloque =  new BloqueListaPrimaria(this->tamBloque);
@@ -245,17 +256,17 @@
 			// Si la clave secundaria no esta presente en el índice, inicializo el bloque,
 			// le inserto la clave primaria, y lo guardo en disco.
 			// Si puede guardarlo a disco, en resultado obtengo el offset a donde se guarda la lista.
-			bloque->clear();
 			bloque->altaRegistro(listaNodos, clavePrimariaSerializada);
 			resultado = this->bloqueManager->escribirBloqueDatos(bloque->getDatos());
 			
 			if (resultado >= 0) {	
 				// Crea un registro donde se guarda la clave secundaria serializada, concatenada con
 				// el offset a la lista invertida.
-				char* claveSecundariaSerializada = this->hash->serializarClave(claveSecundaria->getValorParaHash());
-				registro = new char[strlen(claveSecundariaSerializada) + sizeof(resultado)];
-				setOffsetToList(resultado, registro, tamanioRegistro);
-				memcpy(registro, claveSecundariaSerializada, strlen(claveSecundariaSerializada));
+				char* claveSecundariaSerializada = Bloque::serializarClave(claveSecundaria, this->listaTiposClave);
+				tamanioRegistro = Tamanios::TAMANIO_LONGITUD + claveSecundaria->getTamanioValorConPrefijo();
+				registro = new char[tamanioRegistro + Tamanios::TAMANIO_REFERENCIA];
+				memcpy(registro, claveSecundariaSerializada, tamanioRegistro);
+				this->setOffsetToList(resultado, registro, tamanioRegistro);
 				
 				// Inserta el registro en el indice secundario.
 				if (this->hash->insertarRegistro(registro, *claveSecundaria))
@@ -269,6 +280,7 @@
 		}
 		
 		delete listaNodos;
+		delete listaTipos;
 		delete[] clavePrimariaSerializada;
 		delete[] registro;
 		delete bloque;
@@ -279,7 +291,7 @@
 	/*
 	 * Devuelve el offset a una lista dentro de un registro de indice secundario.
 	 * */
-	unsigned int IndiceHash::getOffsetToList(char *registro, unsigned short tamanioRegistro)const
+	unsigned int IndiceHash::getOffsetToList(char *registro, unsigned short tamanioRegistro) const
 	{
 		unsigned int offset;
 		memcpy(&offset, registro + tamanioRegistro - sizeof(offset), sizeof(offset));
@@ -288,7 +300,15 @@
 	
 	void IndiceHash::setOffsetToList(unsigned int offset, char *registro, unsigned short tamanioRegistro)
 	{
-		memcpy(registro + tamanioRegistro - sizeof(offset), &offset, sizeof(offset));
+		// En tamanioRegistro se recibe el offset a partir del cual se debe insertar la referencia
+		// a la lista primaria
+		
+		// Actualizo el tamaño del registro
+		unsigned short longReg = tamanioRegistro + Tamanios::TAMANIO_REFERENCIA;
+		memcpy(registro, &longReg, Tamanios::TAMANIO_LONGITUD);
+		
+		// Inserto la referencia a la lista
+		memcpy(registro + tamanioRegistro, &offset, sizeof(offset));
 	}
 	
 	
@@ -321,15 +341,48 @@
 		return resultado; //La memoria de 'bloqueDatos' se libera al destruirse 'bloque'
 	}
 
-	
-/////////////////////////////////////////////////////////////////////////////////////
-// Métodos privados
-/////////////////////////////////////////////////////////////////////////////////////
-	
-
 
 	ListaNodos* IndiceHash::getListaNodos() const
 	{
 		return this->hash->getListaParametros();
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////////
+// Métodos privados
+///////////////////////////////////////////////////////////////////////////////////////////
+	
+	ListaNodos* IndiceHash::getListaNodosClave() const {
+		
+		if (!this->listaTiposClave) return NULL;
+		
+		ListaNodos* lista = new ListaNodos();
+		
+		nodoLista nodo;
+		
+		// Se construye el nodo que indica la cantidad de campos que componen la clave
+		// y el tipo de organización del registro
+		nodo.cantClaves = this->listaTiposClave->size();
+		nodo.pk = "";
+		nodo.tipo = TipoDatos::TIPO_VARIABLE;
+		
+		lista->push_back(nodo);
+		
+		// Se insertan los nodos que contienen la información de los tipos de datos de los
+		// campos que componen la clave
+		nodo.pk = "true";
+		for (ListaTipos::iterator it = this->listaTiposClave->begin();
+			 it != this->listaTiposClave->end(); ++it) {
+			
+			nodo.tipo = *it;
+			lista->push_back(nodo);
+		}
+		
+		// Se construye el último nodo de la lista, que indica al tipo de dato
+		// del campo que guarda el offset al archivo de listas de claves primarias
+		nodo.tipo = TipoDatos::TIPO_ENTERO;
+		nodo.pk = "false";
+		lista->push_back(nodo);
+		
+		return lista;
+	}
+	

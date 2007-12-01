@@ -876,6 +876,7 @@
 			
 			ListaClaves listaClaves;
 			unsigned int tamanioClave = clave->getTamanioValorConPrefijo(), offset = 2;
+			// Los claves serializadas siempre son registros de longitud variable
 			char* buffer = new char[Tamanios::TAMANIO_LONGITUD + tamanioClave];
 			
 			//Guardo la longitud de la clave completa, para seguir la convención
