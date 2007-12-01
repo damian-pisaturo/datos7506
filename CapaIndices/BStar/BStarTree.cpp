@@ -1186,10 +1186,73 @@ Clave* BStarTree::mergeSplitUnderflow(NodoBStar* nodoTarget, NodoBStar* nodoHno1
 }
 
 void BStarTree::primero(){
+	
+	if (this->vacio()) return;
+	
 	if (this->claveCorriente) delete this->claveCorriente;
 	this->claveCorriente = buscarPrimero(this->nodoRaiz);
 }
 
+void BStarTree::mayorOIgual(Clave* clave){
+	
+	if ( (!clave) || (this->vacio()) ) return;
+	
+	if (this->claveCorriente) delete this->claveCorriente;
+	this->claveCorriente = this->buscar(clave);
+	
+	if (!this->claveCorriente){
+		NodoBStar* nodo = this->buscarLugar(clave);
+		if (!nodo) return;
+		
+		Clave* auxClave = NULL;
+		auxClave = nodo->getClaves()->findClaveSiguiente(clave);
+		
+		if (auxClave) this->claveCorriente = auxClave->copiar();
+		else{
+			auxClave = *(--nodo->getClaves()->end());
+			this->claveCorriente = auxClave->copiar();
+			delete auxClave;
+			auxClave = siguiente();
+			if (auxClave) delete auxClave;
+		}
+		
+		delete nodo;
+	} 
+	
+}
+
+void BStarTree::mayor(Clave* clave){
+	
+	if ( (!clave) || (this->vacio()) ) return;
+	
+	if (this->claveCorriente) delete this->claveCorriente;
+	this->claveCorriente = this->buscar(clave);
+	
+	Clave* auxClave = NULL;
+	
+	if (this->claveCorriente){
+		auxClave = siguiente();
+		if (auxClave) delete auxClave;
+	}
+	else{
+		NodoBStar* nodo = this->buscarLugar(clave);
+		if (!nodo) return;
+
+		auxClave = nodo->getClaves()->findClaveSiguiente(clave);
+		
+		if (auxClave) this->claveCorriente = auxClave->copiar();
+		else{
+			auxClave = *(--nodo->getClaves()->end());
+			this->claveCorriente = auxClave->copiar();
+			delete auxClave;
+			auxClave = siguiente();
+			if (auxClave) delete auxClave;
+		}
+		
+		delete nodo;
+	} 
+	
+}
 
 Clave* BStarTree::siguiente(){
 	Clave* auxClave = NULL;

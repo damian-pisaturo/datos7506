@@ -88,6 +88,8 @@ class IndiceArbol: public Indice {
 		virtual int siguienteBloque(Bloque* &bloque);
 		
 		virtual void primero();
+		virtual void mayorOIgual(Clave* clave);
+		virtual void mayor(Clave* clave);
 		
 		virtual Clave* siguiente();
 		

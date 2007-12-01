@@ -37,6 +37,8 @@ class BTree {
 		virtual bool vacio() const = 0;
 		
 		virtual void primero() = 0;
+		virtual void mayorOIgual(Clave* clave) = 0;
+		virtual void mayor(Clave* clave) = 0;
 		
 		virtual Clave* siguiente() = 0;
 };

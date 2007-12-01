@@ -32,6 +32,12 @@ class BStarTree : public BTree{
 		//Settea la clave corriente en la primera del árbol
 		void primero();
 		
+		//Settea la clave corriente en la primera que se mayor o igual a la recibida por parámetro
+		void mayorOIgual(Clave* clave);
+		
+		//Settea la clave corriente en la primera que se mayor a la recibida por parámetro
+		void mayor(Clave* clave);
+		
 		//Devuelve la siguiente clave dentro del árbol. DEBE ser llamado después de primero(), sin
 		//modificaciones dentro del árbol luego de ser llamado este método, para garantizar su buen
 		//funcionamiento. Si no hay más elementos siguientes devuelve NULL.
