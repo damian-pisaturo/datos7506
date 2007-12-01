@@ -351,6 +351,14 @@ void IndiceArbol::primero(){
 	this->bTree->primero();
 }
 
+void IndiceArbol::mayorOIgual(Clave* clave){
+	this->bTree->mayorOIgual(clave);
+}
+
+void IndiceArbol::mayor(Clave* clave){
+	this->bTree->mayor(clave);
+}
+
 Clave* IndiceArbol::siguiente(){
 	return this->bTree->siguiente();
 }

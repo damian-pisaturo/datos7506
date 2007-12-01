@@ -71,9 +71,20 @@ class BPlusTree : public BTree
 		//y devuelve true.
 		int modificar(Clave* claveVieja, Clave* claveNueva);
 		
-		//Deja en nodoActual el primer nodo del set secuencial
+		//Deja en nodoActual el primer nodo del set secuencial y al iterClavesActual en el primer elemento dentro de ese nodo.
 		void primero();
 		
+		//Deja en nodoActual el nodo del set secuencial donde se encuentre la primer clave mayor o igual a la recibida por parámetro
+		//y al iterClavesActual en dicho elemento.
+		void mayorOIgual(Clave* clave);
+		
+		//Deja en nodoActual el nodo del set secuencial donde se encuentre la primer clave mayor a la recibida por parámetro
+		//y al iterClavesActual en dicho elemento.
+		void mayor(Clave* clave);
+		
+		//Devuelve la siguiente clave dentro del árbol. DEBE ser llamado después de primero(), sin
+		//modificaciones dentro del árbol luego de ser llamado este método, para garantizar su buen
+		//funcionamiento. Si no hay más elementos siguientes devuelve NULL.
 		Clave* siguiente();
 		
 		bool vacio() const { return (this->nodoRaiz == NULL); }

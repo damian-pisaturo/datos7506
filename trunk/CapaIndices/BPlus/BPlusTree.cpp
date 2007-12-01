@@ -57,6 +57,8 @@ void BPlusTree::primero()
 {
 	if (this->vacio()) return;
 	
+	if ( (this->nodoActual) && (this->nodoActual != this->nodoRaiz) ) delete this->nodoActual;
+	
 	//El nodo actual termina siendo el primer nodo hoja del arbol B+
 	//(para recorridos)
 	this->nodoActual = this->nodoRaiz;
@@ -67,12 +69,69 @@ void BPlusTree::primero()
 		if (this->nodoActual != this->nodoRaiz) delete this->nodoActual;
 		this->nodoActual = new NodoBPlus(0, 0, this->tamanioNodo);
 		indiceManager.leerBloque(refHijoIzq, this->nodoActual);
-		this->iterClavesActual = this->nodoActual->getClaves()->begin();
 	}
 
+	this->iterClavesActual = this->nodoActual->getClaves()->begin();
+}
+
+void BPlusTree::mayorOIgual(Clave* clave){
+	
+	if ( (!clave) || (this->vacio()) ) return;
+	
+	if ( (this->nodoActual) && (this->nodoActual != this->nodoRaiz) ) delete this->nodoActual;
+	
+	this->nodoActual = this->buscarLugar(clave);
+	this->iterClavesActual = this->nodoActual->getClaves()->find(clave);
+	
+	if (this->iterClavesActual == this->nodoActual->getClaves()->end()){
+
+		Clave* auxClave = this->nodoActual->getClaves()->findClaveSiguiente(clave);
+
+		if (auxClave)
+			this->iterClavesActual = this->nodoActual->getClaves()->find(auxClave);
+		else{
+			--this->iterClavesActual;
+			auxClave = siguiente();
+			if (auxClave) delete auxClave;
+		}
+		
+	} 
+	
+}
+
+void BPlusTree::mayor(Clave* clave){
+	
+	if ( (!clave) || (this->vacio()) ) return;
+	
+	if ( (this->nodoActual) && (this->nodoActual != this->nodoRaiz) ) delete this->nodoActual;
+	
+	this->nodoActual = this->buscarLugar(clave);
+	this->iterClavesActual = this->nodoActual->getClaves()->find(clave);
+	
+	Clave* auxClave = NULL;
+	
+	if (this->iterClavesActual != this->nodoActual->getClaves()->end()){
+		auxClave = siguiente();
+		if (auxClave) delete auxClave;
+	}
+	else{
+		auxClave = this->nodoActual->getClaves()->findClaveSiguiente(clave);
+
+		if (auxClave)
+			this->iterClavesActual = this->nodoActual->getClaves()->find(auxClave);
+		else{
+			--this->iterClavesActual;
+			auxClave = siguiente();
+			if (auxClave) delete auxClave;
+		}
+		
+	} 
+	
 }
 
 Clave* BPlusTree::siguiente(){
+	
+	if (!this->nodoActual) return NULL;
 	
 	unsigned int refHnoDer;
 	
@@ -82,7 +141,6 @@ Clave* BPlusTree::siguiente(){
 		this->nodoActual = new NodoBPlus(0, 0, this->tamanioNodo);
 		indiceManager.leerBloque(refHnoDer, this->nodoActual);
 		this->iterClavesActual = this->nodoActual->getClaves()->begin();
-		
 	}
 	
 	if (this->iterClavesActual != this->nodoActual->getClaves()->end()) return (*(this->iterClavesActual++))->copiar();
