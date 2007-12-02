@@ -22,7 +22,6 @@
 
 #include "../Hash/Hash.h"
 #include "Indice.h"
-#include "../Manager/BloqueManager/BloqueListaManager/BloqueListaManager.h"
 #include <set>
 
 using namespace std;
@@ -39,18 +38,19 @@ class IndiceHash :public Indice
 	//////////////////////////////////////////////////////////////////////
 	// Atributos
 	//////////////////////////////////////////////////////////////////////
-		Hash* hash;	
-		BloqueManager* bloqueManager;
+		Hash* hash;
 		ListaTipos* listaTiposClave;
 		ListaNodos* listaNodosClave;
+		unsigned int tamBucket;
 		
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		IndiceHash(unsigned char tipoIndice,
-				   ListaTipos *listaTiposClave, ListaNodos *listaParam,
-				   unsigned int tamBucket, const string& nombreArchivo);		
+		IndiceHash(unsigned char tipoIndice, ListaTipos *listaTiposClave,
+				   ListaNodos *listaParam, unsigned int tamBloqueLista,
+				   unsigned int tamBucket, const string& nombreArchivo);
+		
 		virtual ~IndiceHash();
 	
 	///////////////////////////////////////////////////////////////////////
@@ -129,8 +129,6 @@ class IndiceHash :public Indice
 		unsigned int getOffsetToList(char *registro, unsigned short tamanioRegistro) const;
 		
 		void setOffsetToList(unsigned int offset, char *registro, unsigned short tamanioRegistro);
-		
-		ListaNodos* getListaNodos() const;
 		
 	private:
 		ListaNodos* getListaNodosClave() const;

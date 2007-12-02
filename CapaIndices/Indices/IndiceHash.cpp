@@ -1,23 +1,27 @@
 #include "IndiceHash.h"
 
 
-	IndiceHash::IndiceHash(unsigned char tipoIndice,
-						   ListaTipos *listaTiposClave, ListaNodos *listaParam,
+	IndiceHash::IndiceHash(unsigned char tipoIndice, ListaTipos *listaTiposClave,
+						   ListaNodos *listaParam, unsigned int tamBloqueLista,
 						   unsigned int tamBucket, const string& nombreArchivo) 
 	{
 		this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
 		this->tipoIndice = tipoIndice;
-		this->tamBloque = tamBucket;
+		this->tamBloque = tamBloqueLista;
+		this->tamBucket = tamBucket;
+		this->listaNodos = listaParam;
 		this->listaTiposClave = listaTiposClave; // La memoria de esta lista no se libera xq viene del DefManager
-		
 		// La siguiente lista contiene la información necesaria para administrar los registros armados
 		// a partir de una clave secundaria y un offset al archivo de las listas de claves primarias
 		this->listaNodosClave = this->getListaNodosClave();
-		
 		this->hash = new Hash((IndiceHashManager*)indiceManager, this->listaNodosClave, tamBucket);
 		
-		// El tamaño de un bloque de la lista es igual que el tamaño de un bucket
-		this->bloqueManager = new BloqueListaManager(tamBucket, nombreArchivo);
+		// Si el IndiceHash se está usando como un índice secundario,
+		// se crea un BloqueListaManager.
+		if (tipoIndice == TipoIndices::ROMANO)
+			// El tamaño de un bloque de la lista es igual que el tamaño de un bucket
+			this->bloqueManager = new BloqueListaManager(tamBloqueLista, nombreArchivo);
+		else this->bloqueManager = NULL;
 		
 	}
 	
@@ -26,11 +30,11 @@
 		if (this->hash) 
 			delete this->hash;
 		
-		if (this->bloqueManager)
-			delete this->bloqueManager;
-		
 		if (this->listaNodosClave)
 			delete this->listaNodosClave;
+		
+		// BloqueManager e IndiceManager se liberan en el destructor de Indice.
+		// listaTiposClave no se libera porque apunta a una lista del DefinitionsManager.
 	}
 
 	/*
@@ -59,6 +63,8 @@
 	{
 		char* registro = NULL;
 		unsigned short tamanioRegistro = 0;
+		
+		if (this->tipoIndice == TipoIndices::GRIEGO) return ResultadosIndices::ERROR_ELIMINACION;
 	
 		// Comprueba si la clave secundaria ya está presente en el indice.	
 		bool encontrada = this->hash->recuperarRegistro(*claveSecundaria, registro, tamanioRegistro);
@@ -91,16 +97,17 @@
 				} else 
 					this->bloqueManager->escribirBloqueDatos(referenciaALista, bloque->getDatos());
 
-			} else 
+			} else {
 				resultado = ResultadosIndices::ERROR_INSERCION;
+				delete[] bloqueLista;
+			}
 			
-			delete[] bloqueLista;
+			delete[] registro;
 		}
 		else 
 			resultado = ResultadosIndices::CLAVE_NO_ENCONTRADA;	
 		
 		delete listaNodos;
-		delete[] registro;
 		delete bloque;
 			
 		return resultado;
@@ -125,6 +132,8 @@
 	{
 		char *registro = NULL;
 		unsigned short tamanioRegistro = 0;
+		
+		if (this->tipoIndice == TipoIndices::GRIEGO) return ResultadosIndices::ERROR_CONSULTA;
 	
 		// Comprueba si la clave secundaria está presente en el indice.	
 		if (!this->hash->recuperarRegistro(*clave, registro, tamanioRegistro))
@@ -178,7 +187,10 @@
 	 **/
 	int IndiceHash::modificar(Clave *claveVieja, Clave *claveNueva, char* &bloque, unsigned short tamanioRegistroNuevo) 
 	{
-		return this->hash->modificarRegistro(*claveVieja, *claveNueva, bloque);
+		if (this->buscar(claveNueva) == ResultadosIndices::CLAVE_ENCONTRADA)
+			return ResultadosIndices::CLAVE_DUPLICADA;
+		else
+			return this->hash->modificarRegistro(*claveVieja, *claveNueva, bloque);
 	}		
 	
 	//El Hash no necesita esta funcionalidad por lo que retorna 0 para indicar que es un índice de este tipo
@@ -217,6 +229,9 @@
 	{
 		char* registro = NULL;
 		unsigned short tamanioRegistro = 0;
+		
+		if (this->tipoIndice == TipoIndices::GRIEGO) return ResultadosIndices::ERROR_INSERCION;
+		
 		ListaNodos* listaNodos = this->getListaNodosClavePrimaria();
 		ListaTipos* listaTipos = this->getListaTiposClavePrimaria();
 		char* clavePrimariaSerializada = Bloque::serializarClave(clavePrimaria, listaTipos);
@@ -304,10 +319,11 @@
 	void IndiceHash::setOffsetToList(unsigned int offset, char *registro, unsigned short tamanioRegistro)
 	{
 		// En tamanioRegistro se recibe el offset a partir del cual se debe insertar la referencia
-		// a la lista primaria
+		// a la lista primaria, es decir, tamanioRegistro guarda la longitud de la clave secundaria
+		// incluyendo los dos bytes que se usan para guardar la longitud de la misma.
 		
 		// Actualizo el tamaño del registro
-		unsigned short longReg = tamanioRegistro + Tamanios::TAMANIO_REFERENCIA;
+		unsigned short longReg = tamanioRegistro - Tamanios::TAMANIO_LONGITUD + Tamanios::TAMANIO_REFERENCIA;
 		memcpy(registro, &longReg, Tamanios::TAMANIO_LONGITUD);
 		
 		// Inserto la referencia a la lista
@@ -322,7 +338,7 @@
 	 */
 	int IndiceHash::siguienteBloque(Bloque* &bloque) {
 		unsigned short cantRegistros = 0;
-		char* bloqueDatos = new char[this->tamBloque];
+		char* bloqueDatos = new char[this->tamBucket];
 		int resultado = ResultadosFisica::OK;
 		
 		// Se omiten los buckets vacíos referenciados por la tabla de hash
@@ -335,7 +351,7 @@
 		}
 		
 		if (resultado == ResultadosFisica::OK) {
-			bloque = new Bucket(0, 0, this->tamBloque, this->hash->getTipoOrganizacion());
+			bloque = new Bucket(0, 0, this->tamBucket, this->hash->getTipoOrganizacion());
 			bloque->setDatos(bloqueDatos);
 			resultado = ResultadosIndices::OK;
 		} else
@@ -344,11 +360,6 @@
 		return resultado; //La memoria de 'bloqueDatos' se libera al destruirse 'bloque'
 	}
 
-
-	ListaNodos* IndiceHash::getListaNodos() const
-	{
-		return this->hash->getListaParametros();
-	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Métodos privados

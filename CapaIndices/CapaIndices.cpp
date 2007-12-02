@@ -33,8 +33,8 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 				break;
 				
 			case TipoIndices::HASH:
-				indice = new IndiceHash(estructura.tipoIndice,
-										nodoListaIndices.listaTipos, listaTiposAtributos,
+				indice = new IndiceHash(estructura.tipoIndice, nodoListaIndices.listaTipos,
+										listaTiposAtributos, Tamanios::TAMANIO_BLOQUE_DATO,
 										estructura.tamanioBloque, estructura.nombreArchivo);
 				break;
 		}
@@ -345,7 +345,6 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 				resultado = indice->insertar(claveSecundaria, clave);				
 				
 				delete claveSecundaria;
-				
 			}
 		}
 		
