@@ -10,6 +10,8 @@
 #include "../Common/SetClaves.h"
 #include "../Common/IndiceManagerFactory.h"
 #include "../Common/BloqueListaPrimaria/BloqueListaPrimaria.h"
+#include "../Manager/BloqueManager/BloqueDatosManager/BloqueDatosManager.h"
+#include "../Manager/BloqueManager/BloqueListaManager/BloqueListaManager.h"
 #include <vector>
 #include <map>
 #include <set>
@@ -34,10 +36,18 @@ class Indice
 		
 		unsigned short tamBloque;
 		
+		ListaNodos* listaNodos;
+		
+		BloqueManager* bloqueManager;
+		
 	public:
 		Indice() {}
 		
-		virtual ~Indice() { if (indiceManager) delete indiceManager; }
+		virtual ~Indice() { 
+			if (indiceManager) delete indiceManager;
+			if (bloqueManager) delete bloqueManager;
+			// La memoria de listaNodos no se libera porque apunta a una lista del DefManager
+		}
 		
 		/*
 		 * Este metodo inserta un elemento en un indice y guarda el bloque de datos.
@@ -126,13 +136,14 @@ class Indice
 		
 		unsigned short getTamanioBloque() const { return this->tamBloque; }
 		
-		virtual ListaTipos* getListaTipos() const;
+		ListaNodos* getListaNodos() const { return this->listaNodos; }
+		
+		ListaTipos* getListaTipos() const;
 
-		virtual ListaTipos* getListaTiposClavePrimaria() const;
+		ListaTipos* getListaTiposClavePrimaria() const;
 		
-		virtual ListaNodos* getListaNodosClavePrimaria() const;
+		ListaNodos* getListaNodosClavePrimaria() const;
 		
-		virtual ListaNodos* getListaNodos() const = 0;
 };
 
 #endif /*INDICE_H_*/

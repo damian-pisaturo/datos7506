@@ -4,8 +4,6 @@
 #include "../BTree/BTree.h"
 #include "../BStar/BStarTree.h"
 #include "../BPlus/BPlusTree.h"
-#include "../Manager/BloqueManager/BloqueDatosManager/BloqueDatosManager.h"
-#include "../Manager/BloqueManager/BloqueListaManager/BloqueListaManager.h"
 #include "Indice.h"
 
 class IndiceArbol: public Indice {
@@ -14,8 +12,6 @@ class IndiceArbol: public Indice {
 		
 		BTree* bTree;
 		Bloque* bloque;
-		BloqueManager* bloqueManager;
-		ListaNodos* listaNodos;
 		
 	public:
 		
@@ -92,8 +88,6 @@ class IndiceArbol: public Indice {
 		virtual void mayor(Clave* clave);
 		
 		virtual Clave* siguiente();
-		
-		ListaNodos* getListaNodos() const ;
 						                       
 		
 };

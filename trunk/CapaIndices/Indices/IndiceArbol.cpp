@@ -43,7 +43,7 @@ IndiceArbol::IndiceArbol(const unsigned char tipoIndice, int tipoDato,
 IndiceArbol::~IndiceArbol() {
 	if (this->bTree) delete this->bTree;
 	if (this->bloque) delete this->bloque;
-	if (this->bloqueManager) delete this->bloqueManager;
+	// BloqueManager e IndiceManager se liberan en el destructor de indice.
 }
 
 /*
@@ -302,10 +302,16 @@ int IndiceArbol::buscar(Clave *clave) const {
  **/
 		
 int IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* &registroNuevo, unsigned short tamanioRegistroNuevo) {
-	int resultado = this->eliminar(claveVieja);
 	
-	if (resultado == ResultadosIndices::OK)
-		resultado = this->insertar(claveNueva, registroNuevo, tamanioRegistroNuevo);
+	int resultado = this->buscar(claveNueva);
+	
+	if (resultado == ResultadosIndices::CLAVE_NO_ENCONTRADA) {
+		
+		resultado = this->eliminar(claveVieja);
+		if (resultado == ResultadosIndices::OK)
+			resultado = this->insertar(claveNueva, registroNuevo, tamanioRegistroNuevo);
+		
+	} else resultado = ResultadosIndices::CLAVE_DUPLICADA;
 	
 	return resultado;
 }
@@ -363,6 +369,3 @@ Clave* IndiceArbol::siguiente(){
 	return this->bTree->siguiente();
 }
 
-ListaNodos* IndiceArbol::getListaNodos() const {
-	return this->listaNodos;
-}
