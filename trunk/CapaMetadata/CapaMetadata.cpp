@@ -131,32 +131,35 @@ int main(int argc, char* argv[])
 								// a la consulta realizada.
 								pipe->leer(&cantRegistros); 
 								
-								listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-								
-								cout << "======= Resultado de la consulta =======" << endl << endl;
-								for (unsigned short i = 0; i < cantRegistros; i++){
-									// Se obtiene el tamaño del registro a levantar
-									pipe->leer(&tamRegistro);
-								
-									if (tamRegistro == 0) {
-										pipeResult = ResultadosIndices::ERROR_CONSULTA;
-										break;
+								if (cantRegistros > 0) {
+									
+									listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+									
+									cout << "======= Resultado de la consulta =======" << endl << endl;
+									for (unsigned short i = 0; i < cantRegistros; i++){
+										// Se obtiene el tamaño del registro a levantar
+										pipe->leer(&tamRegistro);
+									
+										if (tamRegistro == 0) {
+											pipeResult = ResultadosIndices::ERROR_CONSULTA;
+											break;
+										}
+										
+										registro = new char[tamRegistro];
+										
+										// Se obtiene el registro de datos consultado.
+										pipe->leer(tamRegistro, registro);
+										
+										vista.showRegister(registro, listaTiposAtributos);
+										
+										delete[] registro;
+										
+										cout << endl;
 									}
+									cout << "========================================" << endl;
 									
-									registro = new char[tamRegistro];
-									
-									// Se obtiene el registro de datos consultado.
-									pipe->leer(tamRegistro, registro);
-									
-									vista.showRegister(registro, listaTiposAtributos);
-									
-									delete[] registro;
-									
-									cout << endl;
+									registro = NULL;
 								}
-								cout << "========================================" << endl;
-								
-								registro = NULL;
 								
 								// Leo el resultado que indica si se van a recibir más bloques
 								pipe->leer(&pipeResult);
@@ -328,7 +331,7 @@ int main(int argc, char* argv[])
 		if (registro)
 			delete[] registro;
 		
-		if (pipe) 
+		if (pipe)
 			delete pipe;
 	}
 	

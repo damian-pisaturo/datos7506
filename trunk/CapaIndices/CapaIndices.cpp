@@ -72,7 +72,7 @@ void destruirListaClaves(ListaClaves* &listaClaves) {
 }
 
 bool compararClaves(Clave *claveMenor, Clave *claveMayor, Clave *clave)
-{
+{	
 	if (claveMenor == NULL)
 		return (*clave < *claveMayor);
 	
@@ -88,8 +88,9 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 	// Obtiene el indice primario para poder obtener luego los bloques de datos.
 	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
 	
-	// TODO: Armar lista! Necesito como pk a las claves por las cuales estoy buscando!
-	ListaNodos *listaTiposAtributos ;
+	// Se obtiene la lista de los tipos de datos de los atributos del tipo 'nombreTipo', con
+	// los campos pk en "true" para los atributos cuyos nombres figuran en la listaNombresClaves.
+	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo, listaNombresClaves);
 	
 	Bloque* bloque = NULL;
 	char* registro = NULL;
@@ -119,7 +120,7 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 				pipe.escribir(cantidadRegistros);
 				
 				// Obtiene el tamaño del registro a enviar.
-				bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, registro);
+				tamanioRegistro = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, registro);
 				pipe.escribir(tamanioRegistro);
 				pipe.escribir(registro, tamanioRegistro);
 				
@@ -142,7 +143,7 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 	
 	}
 	
-	//TODO: Ver si hay q hacer delete listaTiposAtributos;
+	delete listaTiposAtributos;
 }
 
 void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
@@ -158,8 +159,9 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 	bool seguirBuscando;
 	unsigned short cantidadRegistros = 0;
 	
-	// TODO: necesita lista con el atributo q se pasa como clave marcado como pk!
-	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	// Se obtiene la lista de los tipos de datos de los atributos del tipo 'nombreTipo', con
+	// los campos pk en "true" para los atributos cuyos nombres figuran en la listaNombresClaves.
+	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo, listaNombresClaves);
 	
 	int resultado = indice->siguienteBloque(bloque);
 	pipe.escribir(resultado);
@@ -176,20 +178,24 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 				cantidadRegistros = 1;
 				pipe.escribir(cantidadRegistros);
 				
-				// Actualizo el offset a datos
-				bloque->setOffsetADatos(offsetToReg);
-				bloque->setOffsetToReg(offsetToReg);
 				
 				// Obtengo la longitud del registro corriente
-				longReg = bloque->getTamanioRegistros();				
+				longReg = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, bloque->getDatos() + offsetToReg);				
+
 				// Envío su longitud
 				pipe.escribir(longReg);
 				
+				// Actualizo el offset a datos
+				bloque->setOffsetADatos(offsetToReg + longReg);
+				
 				// Obtengo el registro
 				registro = bloque->getRegistro(longReg, offsetToReg);
+				
 				// Envío el registro
 				pipe.escribir(registro, longReg);
+				
 				delete[] registro;
+				
 				pipe.escribir(resultado);
 			}
 			// Si no encontro mas registros ceso la busqueda dentro del bloque
@@ -202,9 +208,13 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 		}
 		
 		delete bloque;
+		
 		resultado = indice->siguienteBloque(bloque);
 		pipe.escribir(resultado);
 	}
+	
+	delete listaTiposAtributos;
+	
 }
 
 void consultaIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
@@ -635,12 +645,16 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 				posAnterior = posActual + 1;
 				posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
 			}
+			
 			// Busco el índice correspondiente a los nombres de los campos que componen la clave.
 			// Si no se encuentra el índice, significa que esos campos no están indexados, por lo
 			// que habrá que hacer una búsqueda secuencial para resolver la operación.
 			MapaIndices::iterator it = mapaIndices.find(listaNombresClaves);
 			if (it != mapaIndices.end()) indice = it->second;
-			clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *(defManager.getListaTiposClaves(nombreTipo, listaNombresClaves)));
+			
+			ListaTipos* listaTipos = defManager.getListaTiposClaves(nombreTipo, listaNombresClaves);
+			clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *listaTipos);
+			delete listaTipos;
 
 		}
 		
@@ -660,7 +674,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			// Si no se encuentra ningún índice por el campo solicitado,
 			// se realiza una búsqueda secuencial en el archivo de datos,
 			// y se envían todos los registros que coincidan con el campo solicitado.
-			if (indice)
+			if (indice) 
 				consultaIndexada(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 			else
 				consultaNoIndexada(nombreTipo, mapaIndices, clave, defManager, pipe);
