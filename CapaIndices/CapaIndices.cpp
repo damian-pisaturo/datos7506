@@ -79,7 +79,7 @@ bool compararClaves(Clave *claveMenor, Clave *claveMayor, Clave *clave)
 }
 
 void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndices,
-								Clave *claveMenor,Clave * claveMayor, DefinitionsManager &defManager, ComuDatos &pipe) {
+								Clave *claveMenor, Clave * claveMayor, DefinitionsManager &defManager, ComuDatos &pipe) {
 	
 	// Obtiene el indice primario para poder obtener luego los bloques de datos.
 	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
@@ -91,17 +91,16 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 	char* registro = NULL;
 	unsigned short tamanioRegistro = 0;
 	unsigned short cantidadRegistros = 0;
+	Clave* claveDelRegistro;
 	
 	// Obtiene un bloque de datos.
 	int resultado = indice->siguienteBloque(bloque);
-	Clave* claveDelRegistro;
+	// Se indica a la capa superior si hay un bloque siguiente.
+	pipe.escribir(resultado);
 	
-	do {
-		// Se manda si hay un bloque siguiente.
-		pipe.escribir(resultado);
+	 while (resultado == ResultadosIndices::OK) {
 		
 		// Se obtiene un registro.
-		if (registro) delete[] registro;
 		registro = bloque->getNextRegister();
 	
 		while (registro) {
@@ -124,6 +123,7 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 				pipe.escribir(resultado);
 			}
 			delete claveDelRegistro;
+			delete[] registro;
 			registro = bloque->getNextRegister();	
 		}	
 		cantidadRegistros = 0;
@@ -132,8 +132,11 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 		delete bloque;
 		bloque = NULL;
 		resultado = indice->siguienteBloque(bloque);
+		
+		// Se indica a la capa superior si hay un bloque siguiente.
+		pipe.escribir(resultado);
 	
-	} while (resultado == ResultadosIndices::OK);
+	}
 	
 	// Se envia que no hay más registros que mandar.
 	pipe.escribir(resultado);
