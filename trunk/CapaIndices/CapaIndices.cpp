@@ -1,5 +1,9 @@
 #include "CapaIndices.h"
 
+// Declaración global de la lista de los nombres de los campos
+// que componen la clave por la cual se realiza la operación.
+DefinitionsManager::ListaNombresClaves listaNombresClaves;
+
 /*
  * Crea todos los indices correspondientes a un tipo, y carga su mapa de indices.
  **/
@@ -138,22 +142,19 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 	
 	}
 	
-	// Se envia que no hay más registros que mandar.
-	pipe.escribir(resultado);
-	
 	//TODO: Ver si hay q hacer delete listaTiposAtributos;
 }
 
 void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 						Clave *clave, DefinitionsManager &defManager, ComuDatos &pipe) {
 	
-	// Obtengo el indice primario para saber la extension del archivo de datos
+	// Obtiene el indice primario para poder obtener luego los bloques de datos.
 	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
 	
 	Bloque* bloque = NULL;
 	char *registro = NULL;
 	unsigned short offsetToReg = 0;
-	unsigned short longReg;
+	unsigned short longReg = 0;
 	bool seguirBuscando;
 	unsigned short cantidadRegistros = 0;
 	
@@ -174,6 +175,7 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 				
 				cantidadRegistros = 1;
 				pipe.escribir(cantidadRegistros);
+				
 				// Actualizo el offset a datos
 				bloque->setOffsetADatos(offsetToReg);
 				bloque->setOffsetToReg(offsetToReg);
@@ -187,6 +189,7 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 				registro = bloque->getRegistro(longReg, offsetToReg);
 				// Envío el registro
 				pipe.escribir(registro, longReg);
+				delete[] registro;
 				pipe.escribir(resultado);
 			}
 			// Si no encontro mas registros ceso la busqueda dentro del bloque
@@ -196,8 +199,7 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 				pipe.escribir(cantidadRegistros);
 			}	
 				
-		}   if(registro)
-				delete[] registro;
+		}
 		
 		delete bloque;
 		resultado = indice->siguienteBloque(bloque);
@@ -600,7 +602,6 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	string buffer(""), auxStr("");
 	unsigned short tamanioBuffer = 0;
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
-	DefinitionsManager::ListaNombresClaves listaNombresClaves;
 	DefinitionsManager::ListaValoresClaves listaValoresClaves;
 	string::size_type posAnterior = 0, posActual = 0, posSeparador = 0;
 	
@@ -634,8 +635,11 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 				posAnterior = posActual + 1;
 				posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
 			}
-			
-			indice = mapaIndices[listaNombresClaves];
+			// Busco el índice correspondiente a los nombres de los campos que componen la clave.
+			// Si no se encuentra el índice, significa que esos campos no están indexados, por lo
+			// que habrá que hacer una búsqueda secuencial para resolver la operación.
+			MapaIndices::iterator it = mapaIndices.find(listaNombresClaves);
+			if (it != mapaIndices.end()) indice = it->second;
 			clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *(defManager.getListaTiposClaves(nombreTipo, listaNombresClaves)));
 
 		}

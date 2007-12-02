@@ -284,6 +284,51 @@ DefinitionsManager::ListaTiposAtributos* DefinitionsManager::getListaTiposAtribu
 }
 
 
+DefinitionsManager::ListaTiposAtributos* DefinitionsManager::getListaTiposAtributos(const string &nombreTipo, const ListaNombresClaves &listaNombresClaves) {
+	
+	// Estructuras necesarias para armar la lista a retornar.
+	ListaTiposAtributos* listaTiposAtributos = this->getListaTiposAtributos(nombreTipo);
+	ListaNombresAtributos* listaNombresAtributos = this->getListaNombresAtributos(nombreTipo);
+	
+	// Estructura a retornar
+	ListaTiposAtributos* listaARetornar = new ListaTiposAtributos();
+	nodoLista nodo;
+	
+	ListaTiposAtributos::const_iterator itTA;
+	ListaNombresAtributos::const_iterator itNA;
+	ListaNombresClaves::const_iterator itNC;
+	
+	// Copio el primer nodo de la lista
+	nodo = *(listaTiposAtributos->begin());
+	nodo.cantClaves = listaNombresClaves.size();
+	
+	listaARetornar->push_back(nodo);
+	
+	// TODO Terminar de ver este método!!
+	
+	for (itNC = listaNombresClaves.begin(); itNC != listaNombresClaves.end(); ++itNC) {
+		
+		for (itTA = ++(listaTiposAtributos->begin()), itNA = listaNombresAtributos->begin();
+			 (itTA != listaTiposAtributos->end()) && (itNA != listaNombresAtributos->end());
+			 ++itTA, ++itNA) {
+			
+			if (*itNC == *itNA) {
+				nodo.pk = "true";
+				nodo.tipo = itTA->tipo;
+				break;
+			}
+			
+			listaARetornar->push_back(nodo);
+			
+		}
+			
+	}
+	
+	return listaARetornar;
+	
+}
+
+
 DefinitionsManager::ListaValoresAtributos* DefinitionsManager::getListaValoresAtributos(const string &nombreTipo,
 																	const MapaValoresAtributos &mapaValoresAtributos) {
 	

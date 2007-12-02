@@ -78,6 +78,11 @@ class DefinitionsManager {
 		//NO hay que liberar la memoria de la lista.
 		ListaTiposAtributos* getListaTiposAtributos(const string &nombreTipo);
 		
+		//Devuelve la lista de los tipos de cada atributo de la clase 'nombreTipo',
+		//con los campos pk = "true" para aquellos cuyos nombres figuren en 'listaNombresClaves'.
+		//HAY que liberar la memoria de la lista.
+		ListaTiposAtributos* getListaTiposAtributos(const string &nombreTipo, const ListaNombresClaves &listaNombresClaves);
+		
 		//Devuelve la lista de los tipos de cada atributo de la clase 'nombreTipo'.
 		//HAY que liberar la memoria de la lista.
 		ListaTipos* getListaTipos(const string &nombreTipo);
