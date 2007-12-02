@@ -25,6 +25,19 @@ class DefinitionsManager {
 		
 		typedef std::list<NodoListaClaves> ListaClaves;
 		
+		typedef struct _nodoListaCampos {
+			std::string nombreCampo;
+			std::string valorCampo;
+			char operacion;
+		} NodoListaCampos;
+		
+		typedef std::list<NodoListaCampos> ListaCampos;
+		
+		typedef struct _estructuraCampos {
+			char operacion;
+			ListaCampos* listaCampos;
+		} EstructuraCampos;
+		
 		typedef std::list<std::string> ListaNombresClaves;
 		
 		typedef std::list<std::string> ListaValoresClaves;
