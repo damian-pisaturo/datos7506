@@ -149,7 +149,7 @@ void DefinitionsManager::cargarTiposIndices() {
 	
 	//INDICE GRIEGO (HASH)
 	estructTipoIndice.tipoIndice = TipoIndices::GRIEGO;
-	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BS;
+	estructTipoIndice.tipoEstructura = TipoIndices::HASH;
 	estructTipoIndice.tamanioBloque = 128;
 	estructTipoIndice.tipoClave = TipoDatos::TIPO_ENTERO;
 	estructTipoIndice.nombreArchivo = "persona";
@@ -174,7 +174,7 @@ void DefinitionsManager::cargarTiposIndices() {
 
 	//INDICE ROMANO (ARBOLB*)
 	estructTipoIndice.tipoIndice = TipoIndices::ROMANO;
-	estructTipoIndice.tipoEstructura = TipoIndices::HASH;
+	estructTipoIndice.tipoEstructura = TipoIndices::ARBOL_BP;
 	estructTipoIndice.tamanioBloque = 128;
 	estructTipoIndice.tipoClave = TipoDatos::TIPO_COMPUESTO;
 	estructTipoIndice.nombreArchivo = "persona";
@@ -284,6 +284,18 @@ DefinitionsManager::ListaTiposAtributos* DefinitionsManager::getListaTiposAtribu
 }
 
 
+bool DefinitionsManager::buscarNombre(const string &nombre, const ListaNombresClaves &listaNombresClaves) const {
+	
+	bool encontrado = false;
+	
+	for (ListaNombresClaves::const_iterator it = listaNombresClaves.begin();
+		 (it != listaNombresClaves.end()) && !encontrado; ++it)
+		encontrado = (nombre == *it); 
+	
+	return encontrado;
+}
+
+
 DefinitionsManager::ListaTiposAtributos* DefinitionsManager::getListaTiposAtributos(const string &nombreTipo, const ListaNombresClaves &listaNombresClaves) {
 	
 	// Estructuras necesarias para armar la lista a retornar.
@@ -296,7 +308,6 @@ DefinitionsManager::ListaTiposAtributos* DefinitionsManager::getListaTiposAtribu
 	
 	ListaTiposAtributos::const_iterator itTA;
 	ListaNombresAtributos::const_iterator itNA;
-	ListaNombresClaves::const_iterator itNC;
 	
 	// Copio el primer nodo de la lista
 	nodo = *(listaTiposAtributos->begin());
@@ -304,24 +315,18 @@ DefinitionsManager::ListaTiposAtributos* DefinitionsManager::getListaTiposAtribu
 	
 	listaARetornar->push_back(nodo);
 	
-	// TODO Terminar de ver este método!!
-	
-	for (itNC = listaNombresClaves.begin(); itNC != listaNombresClaves.end(); ++itNC) {
+	for (itTA = ++(listaTiposAtributos->begin()), itNA = listaNombresAtributos->begin();
+		 (itTA != listaTiposAtributos->end()) && (itNA != listaNombresAtributos->end());
+		 ++itTA, ++itNA) {
 		
-		for (itTA = ++(listaTiposAtributos->begin()), itNA = listaNombresAtributos->begin();
-			 (itTA != listaTiposAtributos->end()) && (itNA != listaNombresAtributos->end());
-			 ++itTA, ++itNA) {
-			
-			if (*itNC == *itNA) {
-				nodo.pk = "true";
-				nodo.tipo = itTA->tipo;
-				break;
-			}
-			
-			listaARetornar->push_back(nodo);
-			
-		}
-			
+		nodo.tipo = itTA->tipo;
+		
+		if (this->buscarNombre(*itNA, listaNombresClaves))
+			nodo.pk = "true";
+		else
+			nodo.pk = "false";
+		
+		listaARetornar->push_back(nodo);
 	}
 	
 	return listaARetornar;
@@ -380,14 +385,35 @@ DefinitionsManager::ListaTiposIndices* DefinitionsManager::getListaTiposIndices(
 
 ListaTipos* DefinitionsManager::getListaTiposClaves(const string &nombreTipo, const ListaNombresClaves &listaNombresClaves) {
 	
-	ListaTiposIndices *listaTiposIndices = this->mapaTiposIndices[nombreTipo];
+	ListaTipos* listaTipos = new ListaTipos();
 	
-	for (ListaTiposIndices::iterator iter = listaTiposIndices->begin(); iter != listaTiposIndices->end(); ++iter) {
+	// Listas necesarias para armar la listaTipos a retornar
+	ListaTiposAtributos* listaTiposAtributos = this->getListaTiposAtributos(nombreTipo);
+	ListaNombresAtributos* listaNombresAtributos = this->getListaNombresAtributos(nombreTipo);
+	
+	// Iterador de la lista recibida por parametro
+	ListaNombresClaves::const_iterator iterNomClaves;
+	
+	// Iteradores de las listas del DefinitionsManager
+	ListaNombresAtributos::const_iterator iterNomAtributos;
+	ListaTiposAtributos::const_iterator iterTiposAtributos;
+	
+	for (iterNomClaves = listaNombresClaves.begin(); iterNomClaves != listaNombresClaves.end();
+		++iterNomClaves) {
 		
-		if (*(iter->listaNombresClaves) == listaNombresClaves)
-			return iter->listaTipos;
+		for (iterNomAtributos = listaNombresAtributos->begin(),
+			 iterTiposAtributos = ++(listaTiposAtributos->begin());
+			 iterNomAtributos != listaNombresAtributos->end(); 
+			 ++iterNomAtributos, ++iterTiposAtributos) {
+			
+			if (*iterNomAtributos == *iterNomClaves) {
+				listaTipos->push_back(iterTiposAtributos->tipo);
+				break;
+			}
+			
+		}
 		
 	}
 	
-	return NULL;
+	return listaTipos;
 }

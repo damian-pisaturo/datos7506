@@ -153,6 +153,8 @@ class DefinitionsManager {
 		
 		void cargarTiposIndices();
 		
+		bool buscarNombre(const string &nombre, const ListaNombresClaves &listaNombresClaves) const;
+		
 };
 
 
