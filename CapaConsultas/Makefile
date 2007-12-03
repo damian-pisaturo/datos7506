@@ -12,7 +12,11 @@ extension = cpp
 # descomentar la línea (quitarle el '#' del principio).
 # NOTA: No poner cabeceras (.h). 
 
-fuentes = CapaConsultas.cpp
+fuentes = ../CapaMetadata/Parser/ParserOperaciones.cpp
+fuentes += ../CapaMetadata/Vista/Vista.cpp
+fuentes += ../Common/DefManager/DefinitionsManager.cpp
+fuentes += ../ComuDatos/ComuDatos.cpp
+fuentes += CapaConsultas.cpp
 
 # CONFIGURACION "AVANZADA"
 ###########################

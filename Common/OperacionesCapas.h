@@ -44,7 +44,13 @@ class OperacionesCapas
 		const static unsigned char METADATA_MODIFICACION	    = 31;
 		const static unsigned char METADATA_ALTA	            = 32;
 		const static unsigned char METADATA_BAJA	            = 33; // Cristo
-		const static unsigned char METADATA_CONSULTA     	    = 34; 
+		const static unsigned char METADATA_CONSULTA     	    = 34;
+		
+		const static unsigned char CONSULTAS_MODIFICACION	    = 41;
+		const static unsigned char CONSULTAS_ALTA	            = 42;
+		const static unsigned char CONSULTAS_BAJA	            = 43;
+		const static unsigned char CONSULTAS_CONSULTA     	    = 44;
+		
 };
 
 #endif /*OPERACIONESCAPAS_H_*/
