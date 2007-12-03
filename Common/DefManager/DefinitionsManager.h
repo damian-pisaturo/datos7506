@@ -65,7 +65,7 @@ class DefinitionsManager {
 			ListaEstructuraNombres listaCamposSeleccionados;
 			EstructuraOperaciones estructuraJoins;
 			EstructuraOperaciones estructuraWhere;
-			EstructuraNombres orderBy;
+			ListaEstructuraNombres listaOrderBy;
 		} EstructuraConsulta;
 		
 		typedef std::list<std::string> ListaNombresClaves;
