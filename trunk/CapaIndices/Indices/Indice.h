@@ -31,13 +31,10 @@ class Indice
 {
 	protected:
 		IndiceManager* indiceManager;
-		
 		unsigned char tipoIndice;
-		
-		unsigned short tamBloque;
-		
+		unsigned short tamBloqueDatos;
+		unsigned short tamBloqueLista;
 		ListaNodos* listaNodos;
-		
 		BloqueManager* bloqueManager;
 		
 	public:
@@ -134,7 +131,9 @@ class Indice
 		
 		unsigned char getTipo() const { return this->tipoIndice; }
 		
-		unsigned short getTamanioBloque() const { return this->tamBloque; }
+		unsigned short getTamanioBloqueDatos() const { return this->tamBloqueDatos; }
+		
+		unsigned short getTamanioBloqueLista() const { return this->tamBloqueLista; }
 		
 		ListaNodos* getListaNodos() const { return this->listaNodos; }
 		

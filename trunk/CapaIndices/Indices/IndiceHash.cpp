@@ -7,8 +7,8 @@
 	{
 		this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
 		this->tipoIndice = tipoIndice;
-		this->tamBloque = tamBloqueLista;
-		this->tamBucket = tamBucket;
+		this->tamBloqueDatos = tamBucket;
+		this->tamBloqueLista = tamBloqueLista;
 		this->listaNodos = listaParam;
 		this->listaTiposClave = listaTiposClave; // La memoria de esta lista no se libera xq viene del DefManager
 		// La siguiente lista contiene la información necesaria para administrar los registros armados
@@ -71,7 +71,7 @@
 		
 		int resultado = ResultadosIndices::OK;
 	
-		Bloque *bloque = new BloqueListaPrimaria(this->tamBloque);
+		Bloque *bloque = new BloqueListaPrimaria(this->getTamanioBloqueLista());
 		
 		ListaNodos* listaNodos = this->getListaNodosClavePrimaria();
 		
@@ -81,7 +81,7 @@
 			// Obtiene el offset a la lista.
 			unsigned int referenciaALista = this->getOffsetToList(registro, tamanioRegistro);
 			
-			char* bloqueLista = new char[this->tamBloque];
+			char* bloqueLista = new char[this->getTamanioBloqueLista()];
 			
 			// Pone el contenido de la lista en bloqueLista.
 			if (this->bloqueManager->leerBloqueDatos(referenciaALista, bloqueLista) == ResultadosFisica::OK) {
@@ -145,24 +145,24 @@
 		referenciaALista = this->getOffsetToList(registro,tamanioRegistro);
 		
 		// Se crea un bloque para la lista de claves.
-		Bloque *bloque = new BloqueListaPrimaria(this->tamBloque);
-		char* bloqueDatos = new char[this->tamBloque];
+		Bloque *bloque = new BloqueListaPrimaria(this->getTamanioBloqueLista());
+		char* bloqueLista = new char[this->getTamanioBloqueLista()];
 		
 		// Se lee la lista de disco y se carga en bloqueDatos.
-		int resultado = this->bloqueManager->leerBloqueDatos(referenciaALista, bloqueDatos);
+		int resultado = this->bloqueManager->leerBloqueDatos(referenciaALista, bloqueLista);
 			
 		if (resultado == ResultadosFisica::OK) {
 			
 			// Se pone en listaClaves una lista de todas las claves primarias que hay en la lista invertida.
 			ListaTipos* listaTiposClavePrimaria = this->getListaTiposClavePrimaria();
-			listaClaves = ((BloqueListaPrimaria*)bloque)->getListaClaves(bloqueDatos, listaTiposClavePrimaria);
+			listaClaves = ((BloqueListaPrimaria*)bloque)->getListaClaves(bloqueLista, listaTiposClavePrimaria);
 			delete listaTiposClavePrimaria;
 			
 			resultado = ResultadosIndices::OK;
 			
 		} else resultado = ResultadosIndices::ERROR_CONSULTA;
 			
-		delete[] bloqueDatos;
+		delete[] bloqueLista;
 		delete bloque;
 		delete[] registro;
 		
@@ -173,8 +173,8 @@
 	int IndiceHash::buscar(Clave *clave) const
 	{
 		char* registro = NULL;
-
 		unsigned short tam = 0;
+		
 		if (this->hash->recuperarRegistro(*clave, registro, tam)) {
 			delete[] registro;
 			return ResultadosIndices::CLAVE_ENCONTRADA;
@@ -244,7 +244,7 @@
 		int resultado = ResultadosIndices::OK;
 		
 		// Crea un bloque de lista.
-		Bloque *bloque =  new BloqueListaPrimaria(this->tamBloque);
+		Bloque *bloque =  new BloqueListaPrimaria(this->getTamanioBloqueLista());
 		
 		if (encontrado)
 		{
@@ -252,7 +252,7 @@
 			unsigned int referenciaALista = getOffsetToList(registro, tamanioRegistro);
 		
 			// Lee de disco el bloque con dicha lista.
-			char* bloqueLista = new char[this->tamBloque];
+			char* bloqueLista = new char[this->getTamanioBloqueLista()];
 			if (this->bloqueManager->leerBloqueDatos(referenciaALista, bloqueLista) == ResultadosFisica::OK) {
 				
 				// Le setea los datos que levantó de disco al bloque, y agerga la clave primaria a 
@@ -338,7 +338,7 @@
 	 */
 	int IndiceHash::siguienteBloque(Bloque* &bloque) {
 		unsigned short cantRegistros = 0;
-		char* bloqueDatos = new char[this->tamBucket];
+		char* bloqueDatos = new char[this->getTamanioBloqueDatos()];
 		int resultado = ResultadosFisica::OK;
 		
 		// Se omiten los buckets vacíos referenciados por la tabla de hash
@@ -351,7 +351,7 @@
 		}
 		
 		if (resultado == ResultadosFisica::OK) {
-			bloque = new Bucket(0, 0, this->tamBucket, this->hash->getTipoOrganizacion());
+			bloque = new Bucket(0, 0, this->getTamanioBloqueDatos(), this->hash->getTipoOrganizacion());
 			bloque->setDatos(bloqueDatos);
 			resultado = ResultadosIndices::OK;
 		} else

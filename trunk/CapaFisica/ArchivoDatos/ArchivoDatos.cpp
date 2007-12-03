@@ -237,3 +237,28 @@
 		 * numBloque se considere vacio.
 		 */
 		char ArchivoDatosRegistros::eliminarRegistro(unsigned short numBloque){ return 0;}
+		
+		char ArchivoDatosRegistros::siguienteBloque(void* bloque, int& numBloque, unsigned short espLibre)
+		{			
+			char resultado	= ResultadosFisica::OK;
+			int posicion  = 0;
+			
+			ArchivoELFijo* archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
+			
+			posicion = archivoEL->buscarBloqueOcupado(numBloque);
+			
+			if (posicion >= 0) { //Se encontró un bloque ocupado
+				
+				resultado = this->posicionarse(posicion);
+				
+				if ( (resultado == ResultadosFisica::OK) && 
+					 (this->size() > Tamanios::TAMANIO_IDENTIFICADOR) ) {
+					this->posicionarse(posicion);
+					resultado = this->leer(bloque);
+					numBloque = posicion;
+				} else resultado = ResultadosFisica::FIN_BLOQUES;
+				
+			} else resultado = posicion;
+			
+			return resultado;
+		}

@@ -41,7 +41,6 @@ class IndiceHash :public Indice
 		Hash* hash;
 		ListaTipos* listaTiposClave;
 		ListaNodos* listaNodosClave;
-		unsigned int tamBucket;
 		
 	public:
 	///////////////////////////////////////////////////////////////////////
