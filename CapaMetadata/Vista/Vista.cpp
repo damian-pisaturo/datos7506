@@ -100,7 +100,9 @@ void Vista::showRegister(char *registro, ListaNodos *listaTiposAtributos){
  * Muestra de un registro los campos indicados en la listaNombresCampos, la misma contiene 
  * los nombres de los campos a mostrar
  * */
-void Vista::showRegister(char *registro, ListaNodos *listaTiposAtributos, DefinitionsManager::ListaNombresAtributos *listaNombresAtributos ,list<string>& listaNombresCampos){
+void Vista::showRegister(char *registro, ListaNodos *listaTiposAtributos, DefinitionsManager::ListaNombresAtributos *listaNombresAtributos,
+						 list<string>& listaNombresCampos){
+	
 	ListaNodos::const_iterator itTiposAtributos = listaTiposAtributos->begin();
 	DefinitionsManager::ListaNombresAtributos::const_iterator itNombresAtributos;
 	list<string>::const_iterator itNombresCampos;

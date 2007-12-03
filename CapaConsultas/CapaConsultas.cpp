@@ -224,15 +224,53 @@ int main(int argc, char* argv[]) {
 						}
 						
 						// Envia el orderBy
-						pipe->escribir((unsigned int)estructuraConsulta.orderBy.nombreTipo.size());
-						pipe->escribir(estructuraConsulta.orderBy.nombreTipo);
-						pipe->escribir((unsigned int)estructuraConsulta.orderBy.nombreCampo.size());
-						pipe->escribir(estructuraConsulta.orderBy.nombreCampo);
-				
+						cantidadElementos = estructuraConsulta.listaOrderBy.size();
+						pipe->escribir(cantidadElementos);
+						
+						DefinitionsManager::ListaEstructuraNombres::iterator itLEN;
+						
+						for (itLEN = estructuraConsulta.listaOrderBy.begin();
+							 itLEN != estructuraConsulta.listaOrderBy.end(); ++itLEN) {
+								
+							pipe->escribir((unsigned int)itLEN->nombreTipo.size());
+							pipe->escribir(itLEN->nombreTipo);
+							pipe->escribir((unsigned int)itLEN->nombreCampo.size());
+							pipe->escribir(itLEN->nombreCampo);				
+						}
+							
 						// Obtencion del resultado de la operacion
 						pipe->leer(&pipeResult);
 						
+						if (pipeResult == ResultadosMetadata::OK) {
+							
+							// Obtiene la cantidad de tipos involucrados en la consulta.
+							cantidadElementos = estructuraConsulta.listaNombresTipos.size(); 
+							
+							// Crea una lista de nombres de los campos a mostrar por cada tipo.
+							DefinitionsManager::ListaStrings* listasNombresCamposAMostrarPorTipo;
+							listasNombresCamposAMostrarPorTipo = new DefinitionsManager::ListaStrings[cantidadElementos];
+
+							// Se crea un mapa por tipo y su lista de nombres de campos a mostrar.
+							std::map<std::string, DefinitionsManager::ListaStrings*> mapaNombresCamposAImprimir;
+							unsigned int i = 0;
+							for (itLNT = estructuraConsulta.listaNombresTipos.begin(); 
+								 itLNT != estructuraConsulta.listaNombresTipos.end(); ++itLNT, i++) 
+								mapaNombresCamposAImprimir[*itLNT] = &listasNombresCamposAMostrarPorTipo[i];
+							
+							
+							// Se itera la lista de campos seleccionados, y se van agregando dichos campos a las 
+							// listas del mapa.
+							DefinitionsManager::ListaStrings *lista;
+							for (itLEN = estructuraConsulta.listaCamposSeleccionados.begin();
+								 itLEN != estructuraConsulta.listaCamposSeleccionados.end(); ++itLEN) {
+	
+								lista = mapaNombresCamposAImprimir[itLEN->nombreTipo];
+								lista->push_back(itLEN->nombreCampo);
+							}
 						// TODO: ver como se mostrarian los resultados.
+						}
+							
+						
 //						if (pipeResult == ResultadosIndices::OK) {
 //							
 //							do {
