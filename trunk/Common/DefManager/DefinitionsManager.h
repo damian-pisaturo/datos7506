@@ -35,8 +35,38 @@ class DefinitionsManager {
 		
 		typedef struct _estructuraCampos {
 			char operacion;
-			ListaCampos* listaCampos;
+			ListaCampos listaCampos;
 		} EstructuraCampos;
+		
+		typedef struct _estructuraNombres {
+			string nombreTipo;
+			string nombreCampo;
+		} EstructuraNombres;
+		
+		typedef struct _nodoListaOperaciones {
+			EstructuraNombres estructuraNombresIzq;
+			EstructuraNombres estructuraNombresDer;
+			char operacion;
+		} NodoListaOperaciones;
+		
+		typedef std::list<NodoListaOperaciones> ListaOperaciones;
+		
+		typedef struct _estructuraOperaciones {
+			char operacion;
+			ListaOperaciones listaOperaciones;
+		} EstructuraOperaciones;
+				
+		typedef std::list<string> ListaStrings;
+		
+		typedef std::list<EstructuraNombres> ListaEstructuraNombres;
+		
+		typedef struct _estructuraConsulta {
+			ListaStrings listaNombresTipos;
+			ListaEstructuraNombres listaCamposSeleccionados;
+			EstructuraOperaciones estructuraJoins;
+			EstructuraOperaciones estructuraWhere;
+			EstructuraNombres orderBy;
+		} EstructuraConsulta;
 		
 		typedef std::list<std::string> ListaNombresClaves;
 		
