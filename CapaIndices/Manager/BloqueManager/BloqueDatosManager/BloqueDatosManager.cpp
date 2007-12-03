@@ -270,6 +270,7 @@
 			pipe->agregarParametro(this->getTamanioBloque(), 2); //Tamaño del bloque en disco.
 			pipe->agregarParametro(this->bloqueSiguiente, 3); //Numero del ultimo bloque de datos validos levantado.
 			pipe->agregarParametro(this->espacioBloqueLibre, 4); //Espacio en bytes que ocupa un bloque de datos libre en disco.
+			pipe->agregarParametro(this->getTipoOrganizacion(), 5); //Tipo de organizacion del archivo de datos.
 			
 			//Se lanza el proceso de la capa fisica. 
 			resultado = pipe->lanzar();

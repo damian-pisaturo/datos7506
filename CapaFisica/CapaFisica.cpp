@@ -500,7 +500,7 @@
 					pipe.escribir(resultado);	
 				}
 				
-			}else if (TipoOrganizacion::REG_FIJOS){
+			}else if (tipoOrg == TipoOrganizacion::REG_FIJOS){
 				archivo = new ArchivoDatosRegistros(nombreArchivo, tamBloque);
 				
 				if (archivo->esValido()){					
@@ -555,7 +555,7 @@
 					pipe.escribir(resultado);
 				}
 				
-			}else if (TipoOrganizacion::REG_FIJOS){
+			}else if (tipoOrg == TipoOrganizacion::REG_FIJOS){
 				archivo = new ArchivoDatosRegistros(nombreArchivo, tamBloque);					
 				
 				if (archivo->esValido()){
@@ -616,7 +616,7 @@
 					pipe.escribir(resultado);	
 				}
 				
-			}else if (TipoOrganizacion::REG_FIJOS){
+			}else if (tipoOrg == TipoOrganizacion::REG_FIJOS){
 				archivo = new ArchivoDatosRegistros(nombreArchivo, tamBloque);
 				
 				if (archivo->esValido()){
@@ -666,7 +666,7 @@
 					pipe.escribir(resultado);	
 				}
 				
-			}else if (TipoOrganizacion::REG_FIJOS){
+			}else if (tipoOrg == TipoOrganizacion::REG_FIJOS){
 				archivo = new ArchivoDatosRegistros(nombreArchivo, tamBloque);
 				
 				if (archivo->esValido()){
@@ -845,35 +845,67 @@
 			// de datos conteniendo cero registros.
 			pipe.parametro(4, espLibre);
 			
-			archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
+			unsigned char tipoOrg = 0;
+			// Obtención del tipo de organización del archivo
+			pipe.parametro(5, tipoOrg);
 			
-			if (archivo->esValido()){
+			buffer = new char[tamBloque*sizeof(char)];
+			
+			if (tipoOrg == TipoOrganizacion::REG_VARIABLES) {
 				
-				//Se informa a la capa superior que el archivo es valido.
-				pipe.escribir(resultado);
+				archivo = new ArchivoDatosBloques(nombreArchivo, tamBloque);
 				
-				buffer = new char[tamBloque*sizeof(char)];
-				
-				resultado = ((ArchivoDatosBloques*)archivo)->siguienteBloque(buffer, numBloque, espLibre);
-				
-				// Se informa el resultado de la operacion:
-				// ResultadosFisica::OK, si se consiguio obtener un bloque;
-				// ResultadosFisica::FIN_BLOQUES, si no existen más bloques
-				// en el archivo de datos.
-				pipe.escribir(resultado);
-				
-				if (resultado == ResultadosFisica::OK){
-					// Se envian el bloque y su numero a
-					// traves del pipe.
-					pipe.escribir(buffer, tamBloque*sizeof(char));
-					pipe.escribir(numBloque);
+				if (archivo->esValido()){
+					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					resultado = ((ArchivoDatosBloques*)archivo)->siguienteBloque(buffer, numBloque, espLibre);
+					
+					// Se informa el resultado de la operacion:
+					// ResultadosFisica::OK, si se consiguio obtener un bloque;
+					// ResultadosFisica::FIN_BLOQUES, si no existen más bloques
+					// en el archivo de datos.
+					pipe.escribir(resultado);
+					
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
 				}
 				
-			}else{
-				resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+			} else if (tipoOrg == TipoOrganizacion::REG_FIJOS) {
 				
-				//Se informa a la capa superior que el archivo es invalido.
-				pipe.escribir(resultado);	
+				archivo = new ArchivoDatosRegistros(nombreArchivo, tamBloque);
+								
+				if (archivo->esValido()){
+					
+					//Se informa a la capa superior que el archivo es valido.
+					pipe.escribir(resultado);
+					
+					resultado = ((ArchivoDatosRegistros*)archivo)->siguienteBloque(buffer, numBloque, espLibre);
+					
+					// Se informa el resultado de la operacion:
+					// ResultadosFisica::OK, si se consiguio obtener un bloque;
+					// ResultadosFisica::FIN_BLOQUES, si no existen más bloques
+					// en el archivo de datos.
+					pipe.escribir(resultado);
+					
+				}else{
+					resultado = ResultadosFisica::ARCHIVO_INVALIDO;
+					
+					//Se informa a la capa superior que el archivo es invalido.
+					pipe.escribir(resultado);	
+				}
+				
+			}
+			
+			if (resultado == ResultadosFisica::OK){
+				// Se envian el bloque y su numero a
+				// traves del pipe.
+				pipe.escribir(buffer, tamBloque*sizeof(char));
+				pipe.escribir(numBloque);
 			}
 			
 		}break;

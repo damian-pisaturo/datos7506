@@ -12,13 +12,14 @@ class IndiceArbol: public Indice {
 		
 		BTree* bTree;
 		Bloque* bloque;
+		unsigned char tipoOrg;
 		
 	public:
 		
 		IndiceArbol(unsigned char tipoIndice, int tipoDato,
-					ListaTipos* listaTiposClave,
-					ListaNodos* listaTipos, unsigned char tipoEstructura,
-					unsigned short tamNodo, unsigned short tamBloque,
+					ListaTipos* listaTiposClave, ListaNodos* listaTipos,
+					unsigned char tipoEstructura, unsigned short tamBloqueDatos,
+					unsigned short tamNodo, unsigned short tamBloqueLista,
 					const string& nombreArchivo, unsigned char tipoOrg);
 		
 		virtual ~IndiceArbol();
@@ -88,6 +89,8 @@ class IndiceArbol: public Indice {
 		virtual void mayor(Clave* clave);
 		
 		virtual Clave* siguiente();
+		
+		unsigned char getTipoOrganizacion() const { return this->tipoOrg; }
 						                       
 		
 };

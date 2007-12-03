@@ -18,6 +18,11 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 	DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	char tipoOrg = defManager.getTipoOrgRegistro(nombreTipo);
 	
+	// TODO Pedirle el tamaño del bloque de datos y el tamaño del bloque de lista al DM
+	unsigned short tamBloqueDatos = 0;
+	unsigned short tamBloqueLista = Tamanios::TAMANIO_BLOQUE_DATO;
+	
+	
 	for (DefinitionsManager::ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
 		iter != listaTiposIndices->end(); ++iter) {
 		
@@ -28,17 +33,23 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 		switch (tipoIndice) {
 			
 			case TipoIndices::ARBOL_BP:
-			case TipoIndices::ARBOL_BS:				
+			case TipoIndices::ARBOL_BS:
+				
+				if (tipoOrg == TipoOrganizacion::REG_VARIABLES)
+					tamBloqueDatos = Tamanios::TAMANIO_BLOQUE_DATO;
+				else if (tipoOrg == TipoOrganizacion::REG_FIJOS)
+					tamBloqueDatos = atoi((listaTiposAtributos->begin()->pk).c_str());
+				
 				indice = new IndiceArbol(estructura.tipoIndice, estructura.tipoClave,
 										nodoListaIndices.listaTipos, listaTiposAtributos,
-										estructura.tipoEstructura, estructura.tamanioBloque,
-										Tamanios::TAMANIO_BLOQUE_DATO, estructura.nombreArchivo,
-										tipoOrg);				
+										estructura.tipoEstructura, tamBloqueDatos,
+										estructura.tamanioBloque, tamBloqueLista,
+										estructura.nombreArchivo, tipoOrg);				
 				break;
 				
 			case TipoIndices::HASH:
 				indice = new IndiceHash(estructura.tipoIndice, nodoListaIndices.listaTipos,
-										listaTiposAtributos, Tamanios::TAMANIO_BLOQUE_DATO,
+										listaTiposAtributos, tamBloqueLista,
 										estructura.tamanioBloque, estructura.nombreArchivo);
 				break;
 		}
