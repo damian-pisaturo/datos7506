@@ -21,14 +21,17 @@ public:
 	 * Muestra por consola el contenido de un registro
 	 * */
 	void showRegister(char *registro, ListaNodos *listaTiposAtributos);
-	
+
+	void showRegister(char *registro, ListaNodos *listaTiposAtributos,DefinitionsManager:: ListaNombresAtributos *listaNombresAtributos ,list<string>& listaNombresCampos);
 	
 	/*
 	 * Muestra por consola los campos de un tipo correspondiente
 	 * */
 	void showTipoContent(list<string>& listaNombresCampos);
 	
-
+private:
+	
+	void showCampo(unsigned short offsetToCampo, char *registro, int tipoCampo);
 
 };
 
