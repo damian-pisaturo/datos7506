@@ -258,6 +258,17 @@ int alta(string nombreTipo, DefinitionsManager::MapaValoresAtributos &mapaValore
 	return pipeResult;
 }
 
+bool compararRegistros(char* registro1, char* registro2, unsigned short longitudRegistros)
+{
+	bool iguales = true;
+	
+	for (unsigned int i=0; i<longitudRegistros; ++i ) {
+		if (registro1[i] != registro2[i])
+			iguales = false;
+	}
+	return iguales;
+}
+
 
 bool compararClaves(Clave *clave, unsigned char operacion, Clave* claveAComparar)
 {
