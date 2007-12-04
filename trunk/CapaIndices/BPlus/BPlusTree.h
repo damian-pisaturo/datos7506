@@ -99,7 +99,7 @@ class BPlusTree : public BTree
 		
 		void insertarInterno(NodoBPlus* &nodoDestino, char* codigo, Clave* claveInsertada);		
     
-	    void eliminarInterno(NodoBPlus* nodoTarget, char* codigo, Clave* claveEliminada);  
+	    void eliminarInterno(NodoBPlus* &nodoTarget, char* codigo, Clave* claveEliminada);  
 	    
 	    NodoBPlus* buscarPadre(NodoBPlus* padre, NodoBPlus* hijo, Clave* claveNodoHijo) const;
 	    
@@ -113,12 +113,19 @@ class BPlusTree : public BTree
 	    //de modificar nada en el nodo padre, hay que hacerlo desde afuera.
 	    void merge(NodoBPlus* nodoIzq, NodoBPlus* &nodoDer, Clave* separador);
 	    
+	    bool puedeMerge(NodoBPlus* nodoIzq, NodoBPlus* nodoDer, Clave* separador);
+	    
 	    void pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
 	    							  NodoBPlus* nodoHnoDer, Clave* clavePadre);
+	    
+	    void pasarMaximoPosibleHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
+	    									  NodoBPlus* nodoHnoDer, Clave* clavePadre);
 	    
 	    void pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
 	    							NodoBPlus* nodoHnoIzq, Clave* clavePadre);
 	    
+	    void pasarMaximoPosibleHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
+	    									NodoBPlus* nodoHnoIzq, Clave* clavePadre);
 	  	
 }; //Fin clase BPlusTree.
 

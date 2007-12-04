@@ -276,17 +276,17 @@ bool BPlusTree::eliminar(Clave* clave) {
 		delete nodoTarget;
 		return false;
 	}
-	
-	if ((this->nodoRaiz) && (*nodoTarget == *(this->nodoRaiz)))
+
+	if ((this->nodoRaiz) && (nodoTarget) && (*nodoTarget == *(this->nodoRaiz)))
 		*(this->nodoRaiz) = *nodoTarget;
-	
+
 	delete nodoTarget;
 	
 	return true;
 }
 
 
-void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo, Clave* claveEliminada) {
+void BPlusTree::eliminarInterno(NodoBPlus* &nodoTarget, char* codigo, Clave* claveEliminada) {
 	
 	if (*codigo == Codigo::MODIFICADO) {
 		//Se actualiza en disco el nodo modificado.
@@ -371,34 +371,65 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo, Clave* clav
 					if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre, clavePadreIzq))
 						this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
 				}
+				
+				if (!pudoRedistribuir) this->pasarMaximoPosibleHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer, clavePadreDer);
 			} else { // tiene hermano izquierdo
 				if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre, clavePadreIzq))
 					this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
+				
+				if (!pudoRedistribuir) this->pasarMaximoPosibleHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
 			}
 			
 			if (!pudoRedistribuir) { //Se realiza la concatenación de 'nodoTarget' con un nodo hermano. Si es un nodo
 									//interno, también se concatena con un separador del padre.
-				
+
+				bool pudoMerge = false;
 				if ( (*nodoPadre == *(this->nodoRaiz)) && (nodoPadre->getCantidadClaves() == 1) ) {
-					if (nodoHnoDer) this->merge(nodoTarget, nodoHnoDer, nodoPadre->obtenerPrimeraClave());
-					else this->merge(nodoTarget, nodoHnoIzq, nodoPadre->obtenerPrimeraClave());
-					*nodoPadre = *nodoTarget;
-					nodoPadre->setPosicionEnArchivo(0);
-					if (nodoTarget->getNivel() == 0) nodoPadre->setHijoIzq(0);
-					//Se escribe la nueva raiz
-					indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
-					//Se elimina de disco el bloque que ocupaba nodoTarget
-					indiceManager.eliminarBloque(nodoTarget->getPosicionEnArchivo());
+					if (nodoHnoDer){
+						if (pudoMerge = this->puedeMerge(nodoTarget, nodoHnoDer, nodoPadre->obtenerPrimeraClave())){
+							this->merge(nodoTarget, nodoHnoDer, nodoPadre->obtenerPrimeraClave());
+							*nodoPadre = *nodoTarget;
+							nodoPadre->setPosicionEnArchivo(0);
+							if (nodoTarget->getNivel() == 0) nodoPadre->setHijoIzq(0);
+							//Se escribe la nueva raiz
+							indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+							//Se elimina de disco el bloque que ocupaba nodoTarget
+							indiceManager.eliminarBloque(nodoTarget->getPosicionEnArchivo());
+						}
+							
+					}
+					else{
+						if (pudoMerge = this->puedeMerge(nodoHnoIzq, nodoTarget, nodoPadre->obtenerPrimeraClave())){
+							this->merge(nodoHnoIzq, nodoTarget, nodoPadre->obtenerPrimeraClave());
+							*nodoPadre = *nodoHnoIzq;
+							nodoPadre->setPosicionEnArchivo(0);
+							if (nodoHnoIzq->getNivel() == 0) nodoPadre->setHijoIzq(0);
+							//Se escribe la nueva raiz
+							indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+							//Se elimina de disco el bloque que ocupaba nodoTarget
+							indiceManager.eliminarBloque(nodoHnoIzq->getPosicionEnArchivo());
+						}
+					}
 					
+					if (!pudoMerge){
+						*codigo = Codigo::MODIFICADO;
+						this->eliminarInterno(nodoTarget, codigo, claveEliminada);
+					}
 				} else {
 					
 					if (nodoHnoDer) {
-						this->merge(nodoTarget, nodoHnoDer, clavePadreDer);
-						nodoPadre->eliminarClave(clavePadreDer, codigo);
+						if (pudoMerge = this->puedeMerge(nodoTarget, nodoHnoDer, clavePadreDer)){
+							this->merge(nodoTarget, nodoHnoDer, clavePadreDer);
+							nodoPadre->eliminarClave(clavePadreDer, codigo);
+						}
 					} else {
-						this->merge(nodoHnoIzq, nodoTarget, clavePadreIzq);
-						nodoPadre->eliminarClave(clavePadreIzq, codigo);
+						if (pudoMerge = this->puedeMerge(nodoHnoIzq, nodoTarget, clavePadreIzq)){
+							this->merge(nodoHnoIzq, nodoTarget, clavePadreIzq);
+							nodoPadre->eliminarClave(clavePadreIzq, codigo);
+						}
 					}
+					
+					if (!pudoMerge)	*codigo = Codigo::MODIFICADO;
 					
 					//Se resuelve posible underflow al eliminar la clave separadora. Si no hay underflow,
 					//este método se encargará de escribir nodoPadre en disco.
@@ -414,6 +445,7 @@ void BPlusTree::eliminarInterno(NodoBPlus* nodoTarget, char* codigo, Clave* clav
 				*(this->nodoRaiz) = *nodoPadre;
 			
 			delete nodoPadre;
+			nodoPadre = NULL;
 		}
 		
 	}
@@ -602,9 +634,37 @@ void BPlusTree::merge(NodoBPlus* nodoIzquierdo, NodoBPlus* &nodoDerecho, Clave* 
 	indiceManager.eliminarBloque(nodoDerecho->getPosicionEnArchivo());
 	indiceManager.escribirBloque(nodoIzquierdo->getPosicionEnArchivo(), nodoIzquierdo);
 	
-	delete nodoDerecho;
-	nodoDerecho = NULL;
+//	delete nodoDerecho;
+//	nodoDerecho = NULL;
 	
+}
+
+bool BPlusTree::puedeMerge(NodoBPlus* nodoIzq, NodoBPlus* nodoDer, Clave* separador){
+
+	SetClaves set;
+	SetClaves::iterator iter;
+	
+	for (iter = nodoIzq->getClaves()->begin(); iter != nodoIzq->getClaves()->end(); ++iter)
+		set.insert(*iter);
+	
+	for (iter = nodoDer->getClaves()->begin(); iter != nodoDer->getClaves()->end(); ++iter)
+		set.insert(*iter);
+	
+	if (nodoIzq->getNivel() != 0) {
+		set.insert(separador);
+	}
+	
+	unsigned short i;
+	iter = set.begin();
+	
+	for (i = 0; iter != set.end(); ++iter){
+		i += (*iter)->getTamanioEnDisco(false);
+	}
+		
+	bool puede = (i <= nodoIzq->getTamanioEspacioClaves());
+	
+	set.clear();
+	return (puede);
 }
 
 
@@ -653,6 +713,58 @@ void BPlusTree::pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodo
 	indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 	indiceManager.escribirBloque(nodoHnoDer->getPosicionEnArchivo(), nodoHnoDer);
 
+}
+
+
+void BPlusTree::pasarMaximoPosibleHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre, NodoBPlus* nodoHnoDer, Clave* clavePadre){
+/*	cout << "QUIERO HACERLO IZQ" << endl;
+	char codigo;
+	unsigned short bytesAEntregar;
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(false);
+	SetClaves* setIntercambio = NULL;
+	Clave* clavePromocionada = NULL;
+	
+	if (nodoHnoDer->getTamanioEnDiscoSetClaves() > nodoHnoDer->getTamanioMinimo()){
+		bytesAEntregar = nodoHnoDer->getTamanioEnDiscoSetClaves() - nodoHnoDer->getTamanioMinimo();
+	
+		nodoPadre->extraerClave(clavePadre);
+		
+		if (nodoDestino->getNivel() == 0) {
+		
+			setIntercambio = nodoHnoDer->cederBytes(bytesAEntregar);
+			
+			clavePromocionada = nodoHnoDer->obtenerPrimeraClave()->copiar();
+			
+		} else {
+		
+			clavePadre->setHijoDer(nodoHnoDer->getHijoIzq());
+			
+			if ( tamanioClavePadre < bytesAEntregar)
+				setIntercambio = nodoHnoDer->cederBytes(bytesAEntregar - tamanioClavePadre);
+	
+			clavePromocionada = nodoHnoDer->extraerPrimeraClave();
+		
+			nodoHnoDer->setHijoIzq(clavePromocionada->getHijoDer());
+			
+			nodoDestino->insertarClave(clavePadre, &codigo);
+			
+		}
+			
+		clavePromocionada->setHijoDer(nodoHnoDer->getPosicionEnArchivo());
+		
+		nodoPadre->insertarClave(clavePromocionada, &codigo);
+		
+		if (setIntercambio) {
+			nodoDestino->recibir(setIntercambio);
+			delete setIntercambio;
+		}
+		
+		//Se actualizan los nodos en disco
+		indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+		indiceManager.escribirBloque(nodoHnoDer->getPosicionEnArchivo(), nodoHnoDer);
+
+	}*/
 }
 
 
@@ -705,3 +817,56 @@ void BPlusTree::pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPa
 	
 }
 
+
+void BPlusTree::pasarMaximoPosibleHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre, NodoBPlus* nodoHnoIzq, Clave* clavePadre) {
+/*cout << "QUIERO HACERLO DER" << endl;
+	char codigo;
+	unsigned short bytesAEntregar;
+	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(false);
+	SetClaves* setIntercambio = NULL;
+	Clave* clavePromocionada = NULL;
+	
+	if (nodoHnoIzq->getTamanioEnDiscoSetClaves() > nodoHnoIzq->getTamanioMinimo()){
+		bytesAEntregar = nodoHnoIzq->getTamanioEnDiscoSetClaves() - nodoHnoIzq->getTamanioMinimo();
+	
+		nodoPadre->extraerClave(clavePadre);
+		
+		if (nodoDestino->getNivel() == 0) {
+		
+			setIntercambio = nodoHnoIzq->cederBytes(bytesAEntregar, false);
+			
+			clavePromocionada = (*(setIntercambio->begin()))->copiar();
+			
+		} else {
+		
+			clavePadre->setHijoDer(nodoDestino->getHijoIzq());
+			
+			if ( tamanioClavePadre < bytesAEntregar )
+				setIntercambio = nodoHnoIzq->cederBytes(bytesAEntregar - tamanioClavePadre, false);
+	
+			clavePromocionada = *(setIntercambio->begin());
+			
+			setIntercambio->erase(setIntercambio->begin());
+		
+			nodoDestino->setHijoIzq(clavePromocionada->getHijoDer());
+			
+			nodoDestino->insertarClave(clavePadre, &codigo);
+			
+		}
+			
+		clavePromocionada->setHijoDer(nodoDestino->getPosicionEnArchivo());
+		
+		nodoPadre->insertarClave(clavePromocionada, &codigo);
+		
+		if (setIntercambio) {
+			nodoDestino->recibir(setIntercambio);
+			delete setIntercambio;
+		}
+	
+		//Se actualizan los nodos en disco
+		indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
+		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
+		indiceManager.escribirBloque(nodoHnoIzq->getPosicionEnArchivo(), nodoHnoIzq);
+		
+	}*/
+}
