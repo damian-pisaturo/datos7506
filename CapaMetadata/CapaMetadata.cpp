@@ -258,6 +258,288 @@ int alta(string nombreTipo, DefinitionsManager::MapaValoresAtributos &mapaValore
 	return pipeResult;
 }
 
+
+bool compararClaves(Clave *clave, unsigned char operacion, Clave* claveAComparar)
+{
+	bool comparacion = false;
+	switch (operacion) {
+		case ExpresionesLogicas::IGUAL:
+			comparacion = (*clave == *claveAComparar);
+			break;
+		case ExpresionesLogicas::MAYOR:
+			comparacion = (*claveAComparar < *clave);
+			break;
+		case ExpresionesLogicas::MAYOR_O_IGUAL:
+			comparacion = ((*claveAComparar < *clave) || (*clave == *claveAComparar));
+			break;
+		case ExpresionesLogicas::MENOR:
+			comparacion = (*clave < *claveAComparar);
+			break;
+		case ExpresionesLogicas::MENOR_O_IGUAL:
+			comparacion = ((*clave < *claveAComparar) || (*clave == *claveAComparar));
+			break;
+	}
+	return comparacion;
+}
+
+string obtenerCampo(unsigned int numeroCampo, char* registro, DefinitionsManager::ListaTiposAtributos &listaTiposAtributos) {
+
+	unsigned short offset = 0;
+	string campo;
+	
+	DefinitionsManager::ListaTiposAtributos::iterator itLTA = listaTiposAtributos.begin();
+	
+	if (numeroCampo < listaTiposAtributos.size()) {
+		
+		if (itLTA->tipo == TipoDatos::TIPO_VARIABLE) 
+			offset = Tamanios::TAMANIO_LONGITUD;
+	
+		++itLTA;
+		
+		for (unsigned int i=1; i<numeroCampo; i++) {
+			
+			switch (itLTA->tipo) {
+				case TipoDatos::TIPO_BOOL:
+					offset += sizeof(bool);
+					break;
+				case TipoDatos::TIPO_CHAR:
+					offset += sizeof(char);
+					break;
+				case TipoDatos::TIPO_ENTERO:
+					offset += sizeof(int);
+					break;
+				case TipoDatos::TIPO_FECHA:
+					offset += Tamanios::TAMANIO_FECHA;
+					break;
+				case TipoDatos::TIPO_FLOAT:
+					offset += sizeof(float);
+					break;
+				case TipoDatos::TIPO_SHORT:
+					offset += sizeof(short);
+					break;
+				case TipoDatos::TIPO_STRING:
+					unsigned char tamanioCadena;
+					memcpy(&tamanioCadena, registro + offset, Tamanios::TAMANIO_LONGITUD_CADENA);
+					offset += (tamanioCadena + Tamanios::TAMANIO_LONGITUD_CADENA);
+					break;
+			}
+			++itLTA;
+		}
+		
+		// itLTA tiene ahora el tipo del campo pedido. Se pone dicho campo en un string.
+		switch (itLTA->tipo) {
+			case TipoDatos::TIPO_BOOL:
+				campo.assign(registro + offset, sizeof(bool));
+				break;
+			case TipoDatos::TIPO_CHAR:
+				campo.assign(registro + offset, sizeof(char));
+				break;
+			case TipoDatos::TIPO_ENTERO:
+				campo.assign(registro + offset, sizeof(int));
+				break;
+			case TipoDatos::TIPO_FECHA:
+				//TODO: revisar esto q no se si funciona asi con las fechas!
+				campo.assign(registro + offset, Tamanios::TAMANIO_FECHA);
+				break;
+			case TipoDatos::TIPO_FLOAT:
+				campo.assign(registro + offset, sizeof(float));
+				break;
+			case TipoDatos::TIPO_SHORT:
+				campo.assign(registro + offset, sizeof(short));
+				break;
+			case TipoDatos::TIPO_STRING:
+				unsigned char tamanioCadena;
+				memcpy(&tamanioCadena, registro + offset, Tamanios::TAMANIO_LONGITUD_CADENA);
+				offset += Tamanios::TAMANIO_LONGITUD_CADENA;
+				campo.assign(registro + offset, sizeof(tamanioCadena));
+				break;
+		}
+		
+		return campo;
+	
+	}else
+		return "";
+}
+
+bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos &listaNombresAtributos, 
+				  	   DefinitionsManager::ListaTiposAtributos listaTiposAtributos, 
+				  	   DefinitionsManager::NodoListaOperaciones &nodoListaOperaciones)
+{
+	DefinitionsManager::ListaNombresAtributos::iterator itNombres = listaNombresAtributos.begin();
+	unsigned int numeroCampo = 1;
+ 
+	while ((nodoListaOperaciones.estructuraNombresIzq.nombreCampo != *itNombres) && (itNombres != listaNombresAtributos.end())) {
+		++numeroCampo;
+		++itNombres;
+	}
+	
+	string campo = obtenerCampo(numeroCampo, registro, listaTiposAtributos);
+	
+	DefinitionsManager::ListaTiposAtributos::iterator itTipos = listaTiposAtributos.begin();
+
+	// itera la lista de tipos para obtener el tipo del campo "campo".
+	for (unsigned int i = 0; i < numeroCampo; ++i)
+		++itTipos;
+	
+	stringstream conversorCampo, conversorCampoAComparar;
+	Clave* clave;
+	Clave* claveAComparar;
+	
+	conversorCampo << campo;
+	// En "nodoListaOperaciones.estructuraNombresDer.nombreCampo" se encuentra el valor constante 
+	// con el cual hay que hacer la comparación.
+	conversorCampoAComparar << nodoListaOperaciones.estructuraNombresDer.nombreCampo;
+	
+	switch (itTipos->tipo) {
+		case TipoDatos::TIPO_BOOL: {	
+			bool valorCampo;
+			conversorCampo >> valorCampo;
+			clave = new ClaveBoolean(valorCampo);
+			
+			bool valorAComparar;
+			conversorCampoAComparar >> valorAComparar;
+			claveAComparar = new ClaveBoolean(valorAComparar);
+			break;
+		}
+		case TipoDatos::TIPO_CHAR: {	
+			char valorCampo;
+			conversorCampo >> valorCampo;
+			clave = new ClaveChar(valorCampo);
+			
+			char valorAComparar;
+			conversorCampoAComparar >> valorAComparar;
+			claveAComparar = new ClaveChar(valorAComparar);
+			break;
+		}
+		case TipoDatos::TIPO_SHORT: {
+			short valorCampo;
+			conversorCampo >> valorCampo;
+			clave = new ClaveShort(valorCampo);
+			
+			short valorAComparar;
+			conversorCampoAComparar >> valorAComparar;
+			claveAComparar = new ClaveShort(valorAComparar);
+			break;
+		}
+		case TipoDatos::TIPO_ENTERO: {
+			int valorCampo;
+			conversorCampo >> valorCampo;
+			clave = new ClaveEntera(valorCampo);
+			
+			int valorAComparar;
+			conversorCampoAComparar >> valorAComparar;
+			claveAComparar = new ClaveEntera(valorAComparar);
+			break;
+		}
+		case TipoDatos::TIPO_FLOAT: {
+			float valorCampo;
+			conversorCampo >> valorCampo;
+			clave = new ClaveReal(valorCampo);
+			
+			float valorAComparar;
+			conversorCampoAComparar >> valorAComparar;
+			claveAComparar = new ClaveReal(valorAComparar);
+			break;
+		}
+		case TipoDatos::TIPO_FECHA: {
+			ClaveFecha::TFECHA valorCampo;
+			unsigned short anio, dia, mes;
+			
+			conversorCampo.clear();
+			conversorCampo.str("");
+			conversorCampo << campo.substr(0, 4);
+			conversorCampo >> anio;
+			conversorCampo.clear();
+			conversorCampo.str("");
+			conversorCampo << campo.substr(4, 2);
+			conversorCampo >> mes;
+			conversorCampo.clear();
+			conversorCampo.str("");
+			conversorCampo << campo.substr(6, 2);
+			conversorCampo >> dia;
+			valorCampo.crear(dia, mes, anio);
+			clave = new ClaveFecha(valorCampo);
+			
+			conversorCampoAComparar.clear();
+			conversorCampoAComparar.str("");
+			conversorCampoAComparar << nodoListaOperaciones.estructuraNombresDer.nombreCampo.substr(0, 4);
+			conversorCampoAComparar >> anio;
+			conversorCampoAComparar.clear();
+			conversorCampoAComparar.str("");
+			conversorCampoAComparar << nodoListaOperaciones.estructuraNombresDer.nombreCampo.substr(4, 2);
+			conversorCampoAComparar >> mes;
+			conversorCampoAComparar.clear();
+			conversorCampoAComparar.str("");
+			conversorCampoAComparar << nodoListaOperaciones.estructuraNombresDer.nombreCampo.substr(6, 2);
+			conversorCampoAComparar >> dia;
+			valorCampo.crear(dia, mes, anio);
+			claveAComparar = new ClaveFecha(valorCampo);
+			break;
+		}
+		case TipoDatos::TIPO_STRING: {
+			clave = new ClaveVariable(campo);
+			
+			claveAComparar = new ClaveVariable(nodoListaOperaciones.estructuraNombresDer.nombreCampo);
+			break;
+		}
+			
+	}
+	
+	bool cumple = compararClaves(clave, nodoListaOperaciones.operacion, claveAComparar);
+	
+	delete clave;
+	delete claveAComparar;
+	
+	return cumple;
+}
+
+/*
+ * Este metodo se fija si el registro cumple con las restricciones que tiene la lista de operaciones.
+ * Si es asi, devuelve true; de lo contrario false.
+ * Solo comprobara que cumpla con las restricciones numéricas, no con las que comparan contra otro tipo.
+ * Ademas, sacara de la lista de operaciones, aquellas que haya comprobado, dejando solo las que comparan 
+ * con otro tipo.
+ * Se supone que en la listaOperaciones vienen primero todas las restricciones con valores constantes, 
+ * y luego las que comparan contra campos de una tabla.
+ * */
+bool cumpleRestricciones(char* registro, DefinitionsManager::ListaOperaciones &listaOperaciones, 
+						 char operacion, DefinitionsManager::ListaNombresAtributos &listaNombresAtributos, 
+						 DefinitionsManager::ListaTiposAtributos &listaTiposAtributos)
+{
+	bool cumple = true;
+	bool continuar = true;
+	
+	DefinitionsManager::ListaOperaciones::iterator itLO = listaOperaciones.begin();
+	DefinitionsManager::NodoListaOperaciones nodo;
+	
+	// Itera las restricciones a verificar
+	while (continuar &&  itLO != listaOperaciones.end()) {
+		
+		// Si las comparaciones dejan de ser numericas, corta el ciclo.
+		if (itLO->estructuraNombresDer.nombreTipo != "")
+			continuar = false;
+		else {
+			nodo = *itLO;
+			// Se comprueba si se cumple con la restricción que hay en el iterador de la lista de operaciones.
+			cumple = cumpleRestriccion(registro, listaNombresAtributos, listaTiposAtributos, nodo);
+	
+			// Si la operación es AND y hay una que no cumple, ya no cumple con las restricciones.
+			if ((!cumple) && (operacion == ExpresionesLogicas::AND))
+				continuar = false;
+			
+			// Si la operación es OR con que se cumpla con una sola restricción, ya se cumple.
+			else if ((cumple) && (operacion == ExpresionesLogicas::OR))
+				continuar = false;
+			
+			++itLO;
+			// Saca el primer elemento de la lista, que es el que acaba de revisar.
+			listaOperaciones.pop_front();
+		}
+	
+	}
+	return cumple;
+}
+
 int main(int argc, char* argv[]) 
 {
 	Resultado resultado;
