@@ -76,9 +76,6 @@ int main(int argc, char* argv[])
 		// Lista de los valores de las claves y sus nombres dentro de un registro.
 		DefinitionsManager::ListaClaves* listaClaves = NULL; 
 		
-		// Mapa contenedor de los valores de los atributos, indexados por sus nombres.
-		DefinitionsManager::MapaValoresAtributos* mapaValoresAtributos = NULL; 
-		
 		// Se instancia el DefinitionsManager (conocedor absoluto del universo).
 		DefinitionsManager& defManager = DefinitionsManager::getInstance();
 		
@@ -238,12 +235,33 @@ int main(int argc, char* argv[])
 				
 				case OperacionesCapas::METADATA_BAJA:
 				{
+					unsigned int cantidadElementos;
+					unsigned int longitudCadena;
+					
 					// Obtiene el nombre del tipo sobre el cual se hace la baja.
 					pipe->parametro(1,nombreTipo);
 					
 					DefinitionsManager::EstructuraCampos estructuraCampos;
 					
 					pipe->leer(&estructuraCampos.operacion);
+		
+					pipe->leer(&cantidadElementos);
+					
+					DefinitionsManager::NodoListaCampos nodoListaCampos;
+					
+					// Se itera para recibir cada nodo de la lista de campos.
+					for (unsigned int i = 0; i < cantidadElementos; ++i) {
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nodoListaCampos.nombreCampo);
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nodoListaCampos.valorCampo);
+						pipe->leer(&nodoListaCampos.operacion);
+						
+						estructuraCampos.listaCampos.push_back(nodoListaCampos);
+					}
+					
+					
+					// TODO: hay q mandarle a capaConsultas el resultado de la operacion!
 					
 					
 // ---------ESTA PARTE LLAMA A LA CAPA DE INDICES --------------
@@ -268,7 +286,50 @@ int main(int argc, char* argv[])
 				}break;
 				
 				case OperacionesCapas::METADATA_MODIFICACION:
-				{				
+				{		
+					unsigned int cantidadElementos;
+					unsigned int longitudCadena;
+					string nombreAtributo, valorAtributo;
+					pipe->parametro(1, nombreTipo);
+					
+					// Se recibe el mapaValoresAtributos.
+					DefinitionsManager::MapaValoresAtributos mapaValoresAtributos;
+					
+					pipe->leer(&cantidadElementos);
+					
+					for (unsigned int i = 0; i < cantidadElementos; ++i) {
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nombreAtributo);
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, valorAtributo);
+						
+						mapaValoresAtributos[nombreAtributo] = valorAtributo;
+					}
+					
+					// Se recibe la información sobre los registros a modificar,
+					// dentro de una estructuraCampos.
+					DefinitionsManager::EstructuraCampos estructuraCampos;
+					
+					pipe->leer(&estructuraCampos.operacion);
+					
+					// Se obtiene la cantidad de elementos en la lista de campos.
+					pipe->leer(&cantidadElementos);
+					
+					DefinitionsManager::NodoListaCampos nodoListaCampos;
+					
+					for (unsigned int i = 0; i < cantidadElementos; ++i) {
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nodoListaCampos.nombreCampo);
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nodoListaCampos.valorCampo);
+						pipe->leer(&nodoListaCampos.operacion);
+						
+						estructuraCampos.listaCampos.push_back(nodoListaCampos);
+					}
+					
+					// TODO: capaConsultas espera el resultado de la operacion.
+					
+// ------------ESTA PARTE LLAMA A CAPA INDICES!------------------
 					// Codigo de operacion de consulta para la Capa de Indices
 					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_MODIFICAR, 0); 
 					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
@@ -290,7 +351,7 @@ int main(int argc, char* argv[])
 						if (cantRegistros > 0) {
 							
 							listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-							listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, *mapaValoresAtributos);
+							listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
 							pipeResult = ResultadosIndices::OK;
 							
 							for (unsigned short i = 0; (i < cantRegistros) && (pipeResult == ResultadosIndices::OK);
@@ -333,7 +394,30 @@ int main(int argc, char* argv[])
 				}break;
 				
 				case OperacionesCapas::METADATA_ALTA:
-				{					
+				{	
+					unsigned int cantidadElementos;
+					unsigned int longitudCadena;
+					string nombreAtributo, valorAtributo;
+					pipe->parametro(1,nombreTipo);
+
+					// Se recibe el mapaValoresAtributos.
+					DefinitionsManager::MapaValoresAtributos mapaValoresAtributos;
+					
+					pipe->leer(&cantidadElementos);
+					
+					for (unsigned int i = 0; i < cantidadElementos; ++i) {
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nombreAtributo);
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, valorAtributo);
+						
+						mapaValoresAtributos[nombreAtributo] = valorAtributo;
+					}
+
+					//TODO: Capa Consultas espera el resultado de la operacion.
+					
+					
+// --------------ESTA PARTE LLAMA A LA CAPA INDICES------------
 					DefinitionsManager::ListaNombresClaves *listaNombres = defManager.getListaNombresClavesPrimarias(nombreTipo);
 					
 					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_INSERTAR, 0); 
@@ -346,7 +430,7 @@ int main(int argc, char* argv[])
 					if (pipeResult == ComuDatos::OK){
 						// Envio de los valores de las claves de los registros
 						// a modificar por el pipe.
-						serializarListaClaves(valoresClaves, mapaValoresAtributos, listaNombres);
+						serializarListaClaves(valoresClaves, &mapaValoresAtributos, listaNombres);
 						
 						//LINEAS PARA PROBAR ALTAS MASIVAS
 						/*********/
@@ -362,7 +446,7 @@ int main(int argc, char* argv[])
 						
 						if (pipeResult == ResultadosIndices::CLAVE_NO_ENCONTRADA){
 						
-							listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, *mapaValoresAtributos);
+							listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
 							listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 							
 							// Se crea el registro a dar de alta y se obtiene su longitud
