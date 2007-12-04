@@ -190,6 +190,74 @@ int modificacion(string nombreTipo,DefinitionsManager::MapaValoresAtributos &map
 	return pipeResult;
 }
 
+int alta(string nombreTipo, DefinitionsManager::MapaValoresAtributos &mapaValoresAtributos)
+{
+	ComuDatos *pipe = instanciarPipe();
+
+	// Se instancia el DefinitionsManager (conocedor absoluto del universo).
+	DefinitionsManager& defManager = DefinitionsManager::getInstance();
+	
+	DefinitionsManager::ListaNombresClaves *listaNombres = defManager.getListaNombresClavesPrimarias(nombreTipo);
+	
+	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_INSERTAR, 0); 
+	// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
+	pipe->agregarParametro(nombreTipo, 1);
+	
+	// Se lanza el proceso de la Capa Indices.
+	int pipeResult = pipe->lanzar();
+
+	if (pipeResult == ComuDatos::OK){
+		// Envio de los valores de las claves de los registros
+		// a modificar por el pipe.
+		string valoresClaves;		
+		
+		serializarListaClaves(valoresClaves, &mapaValoresAtributos, listaNombres);
+		
+		pipe->escribir((unsigned short)valoresClaves.length());
+		pipe->escribir(valoresClaves);
+		
+		// Se obtiene el resultado de la operacion.
+		pipe->leer(&pipeResult);
+		
+		if (pipeResult == ResultadosIndices::CLAVE_NO_ENCONTRADA){
+	
+			// Lista de valores de todos los atributos dentro de un registro.
+			DefinitionsManager::ListaValoresAtributos* listaValAtributos = NULL;
+			
+			// Lista de los tipos de todos los atributos dentro de un registro.
+			DefinitionsManager::ListaTiposAtributos* listaTiposAtributos = NULL;
+	
+			// Controlador de registros de datos
+			DataManager dataManager;
+			
+			listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
+			listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+			
+			// Se crea el registro a dar de alta y se obtiene su longitud
+			unsigned short tamRegistro = dataManager.crearRegistroAlta(*listaValAtributos, *listaTiposAtributos);
+			
+			pipe->escribir(tamRegistro);
+			
+			if (tamRegistro > 0) {
+				
+//					vista.showRegister(dataManager.getRegistro(), listaTiposAtributos);
+				
+				// Se envia el registro a dar de alta por el pipe.
+				pipe->escribir(dataManager.getRegistro(), tamRegistro);
+				
+				// Se obtiene el resultado de la insercion
+				pipe->leer(&pipeResult);
+				
+			} else pipeResult = ResultadosMetadata::ERROR_FORMATO_FECHA;
+			
+			delete listaValAtributos;
+			
+		}
+	}
+
+	return pipeResult;
+}
+
 int main(int argc, char* argv[]) 
 {
 	Resultado resultado;
@@ -206,8 +274,6 @@ int main(int argc, char* argv[])
 		string valoresClaves("");
 		string nombreTipo("");
 		
-		// Lista de valores de todos los atributos dentro de un registro.
-		DefinitionsManager::ListaValoresAtributos* listaValAtributos = NULL;
 		
 		// Lista de los tipos de todos los atributos dentro de un registro.
 		DefinitionsManager::ListaTiposAtributos* listaTiposAtributos = NULL;
@@ -223,332 +289,272 @@ int main(int argc, char* argv[])
 		
 		//pipe = instanciarPipe();
 		pipe->parametro(0,operacion);
-
-//			listaClaves = parserOperaciones.getListaClaves();
-		
-//		nombreTipo  = parserOperaciones.getNombreTipo();			
-////			nombreTipo  = "PERSONA";
-//			mapaValoresAtributos = parserOperaciones.getMapaValoresAtributos();
-//			valoresClaves.clear();
-			
-			switch(operacion){
-				case OperacionesCapas::METADATA_CONSULTA:
-				{	
-					DefinitionsManager::EstructuraConsulta estructuraConsulta;
+	
+		switch(operacion){
+			case OperacionesCapas::METADATA_CONSULTA:
+			{	
+				DefinitionsManager::EstructuraConsulta estructuraConsulta;
+				
+				// Se recibe el contenido de estructuraConsulta, pero sin incluir la 
+				// lista de campos seleccionados.
+				
+				// Se recibe la listaNombresTipos.
+				unsigned int cantidadElementos;
+				pipe->leer(&cantidadElementos);
+				
+				unsigned int longitudCadena;
+				string cadena;
+				
+				for (unsigned int i = 0; i<cantidadElementos; i++) {
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, cadena);
+					estructuraConsulta.listaNombresTipos.push_back(cadena);
+				}
+				
+				// Se recibe la estructuraJoins
+				pipe->leer(&estructuraConsulta.estructuraJoins.operacion);
+				pipe->leer(&cantidadElementos);
+				
+				DefinitionsManager::NodoListaOperaciones nodoListaOperaciones;
+				// Se itera para obtener cada nodo de la lista de operaciones.
+				for (unsigned int i=0; i<cantidadElementos; i++) {
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreTipo);
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreCampo);
 					
-					// Se recibe el contenido de estructuraConsulta, pero sin incluir la 
-					// lista de campos seleccionados.
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreTipo);
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreCampo);
 					
-					// Se recibe la listaNombresTipos.
-					unsigned int cantidadElementos;
-					pipe->leer(&cantidadElementos);
+					pipe->leer(&nodoListaOperaciones.operacion);
 					
-					unsigned int longitudCadena;
-					string cadena;
+					estructuraConsulta.estructuraJoins.listaOperaciones.push_back(nodoListaOperaciones);
+				}
+				
+				// Se recibe la estructuraWhere
+				pipe->leer(&estructuraConsulta.estructuraWhere.operacion);
+				pipe->leer(&cantidadElementos);
+				
+				for (unsigned int i = 0; i < cantidadElementos; ++i) {
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreTipo);
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreCampo);
 					
-					for (unsigned int i = 0; i<cantidadElementos; i++) {
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, cadena);
-						estructuraConsulta.listaNombresTipos.push_back(cadena);
-					}
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreTipo);
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreCampo);
 					
-					// Se recibe la estructuraJoins
-					pipe->leer(&estructuraConsulta.estructuraJoins.operacion);
-					pipe->leer(&cantidadElementos);
+					pipe->leer(&nodoListaOperaciones.operacion);
 					
-					DefinitionsManager::NodoListaOperaciones nodoListaOperaciones;
-					// Se itera para obtener cada nodo de la lista de operaciones.
-					for (unsigned int i=0; i<cantidadElementos; i++) {
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreTipo);
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreCampo);
-						
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreTipo);
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreCampo);
-						
-						pipe->leer(&nodoListaOperaciones.operacion);
-						
-						estructuraConsulta.estructuraJoins.listaOperaciones.push_back(nodoListaOperaciones);
-					}
+					estructuraConsulta.estructuraWhere.listaOperaciones.push_back(nodoListaOperaciones);
+				}
+				
+				// Se recibe el orderBy
+				pipe->leer(&cantidadElementos);
+				
+				DefinitionsManager::EstructuraNombres estructuraNombres;
+				
+				for (unsigned int i = 0; i < cantidadElementos; ++i) {
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, estructuraNombres.nombreTipo);
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, estructuraNombres.nombreCampo);
 					
-					// Se recibe la estructuraWhere
-					pipe->leer(&estructuraConsulta.estructuraWhere.operacion);
-					pipe->leer(&cantidadElementos);
-					
-					for (unsigned int i = 0; i < cantidadElementos; ++i) {
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreTipo);
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreCampo);
-						
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreTipo);
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreCampo);
-						
-						pipe->leer(&nodoListaOperaciones.operacion);
-						
-						estructuraConsulta.estructuraWhere.listaOperaciones.push_back(nodoListaOperaciones);
-					}
-					
-					// Se recibe el orderBy
-					pipe->leer(&cantidadElementos);
-					
-					DefinitionsManager::EstructuraNombres estructuraNombres;
-					
-					for (unsigned int i = 0; i < cantidadElementos; ++i) {
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, estructuraNombres.nombreTipo);
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, estructuraNombres.nombreCampo);
-						
-						estructuraConsulta.listaOrderBy.push_back(estructuraNombres);
-					}
-					
-					
-					
+					estructuraConsulta.listaOrderBy.push_back(estructuraNombres);
+				}
+				
+				
+				
 //---------------------ACA HAY Q HACER LAS CONSULTAS LLAMANDO A CAPA INDICES.----
-					//TODO: ver el tema de como se comunica con capaConsultas para pasar el resultado..
-					// Codigo de operacion de consulta para la Capa de Indices
-					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_CONSULTAR, 0); 
-					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
-					pipe->agregarParametro(nombreTipo, 1);
-					
-					// Se lanza el proceso de la Capa Indices.
-					pipeResult = pipe->lanzar();
-					
-					if (pipeResult == ComuDatos::OK){						
-						// Envio de los valores de las claves a consultar por el pipe
-						serializarListaClaves(valoresClaves, listaClaves);
-						pipe->escribir((unsigned short)valoresClaves.length());
-						pipe->escribir(valoresClaves);
+				//TODO: ver el tema de como se comunica con capaConsultas para pasar el resultado..
+				// Codigo de operacion de consulta para la Capa de Indices
+				pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_CONSULTAR, 0); 
+				// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
+				pipe->agregarParametro(nombreTipo, 1);
+				
+				// Se lanza el proceso de la Capa Indices.
+				pipeResult = pipe->lanzar();
+				
+				if (pipeResult == ComuDatos::OK){						
+					// Envio de los valores de las claves a consultar por el pipe
+					serializarListaClaves(valoresClaves, listaClaves);
+					pipe->escribir((unsigned short)valoresClaves.length());
+					pipe->escribir(valoresClaves);
 
-						// Obtencion del resultado de la operacion
-						pipe->leer(&pipeResult);
+					// Obtencion del resultado de la operacion
+					pipe->leer(&pipeResult);
+					
+					if (pipeResult == ResultadosIndices::OK) {
 						
-						if (pipeResult == ResultadosIndices::OK) {
+						do {
+							// Se obtiene la cantidad de registros que responden 
+							// a la consulta realizada.
+							pipe->leer(&cantRegistros); 
 							
-							do {
-								// Se obtiene la cantidad de registros que responden 
-								// a la consulta realizada.
-								pipe->leer(&cantRegistros); 
+							if (cantRegistros > 0) {
 								
-								if (cantRegistros > 0) {
-									
-									listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-									
-									cout << "======= Resultado de la consulta =======" << endl << endl;
-									for (unsigned short i = 0; i < cantRegistros; i++){
-										// Se obtiene el tamaño del registro a levantar
-										pipe->leer(&tamRegistro);
-									
-										if (tamRegistro == 0) {
-											pipeResult = ResultadosIndices::ERROR_CONSULTA;
-											break;
-										}
-										
-										registro = new char[tamRegistro];
-										
-										// Se obtiene el registro de datos consultado.
-										pipe->leer(tamRegistro, registro);
-										
-					//					vista.showRegister(registro, listaTiposAtributos);
-										
-										delete[] registro;
-										
-										cout << endl;
+								listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+								
+								cout << "======= Resultado de la consulta =======" << endl << endl;
+								for (unsigned short i = 0; i < cantRegistros; i++){
+									// Se obtiene el tamaño del registro a levantar
+									pipe->leer(&tamRegistro);
+								
+									if (tamRegistro == 0) {
+										pipeResult = ResultadosIndices::ERROR_CONSULTA;
+										break;
 									}
-									cout << "========================================" << endl;
 									
-									registro = NULL;
+									registro = new char[tamRegistro];
+									
+									// Se obtiene el registro de datos consultado.
+									pipe->leer(tamRegistro, registro);
+									
+				//					vista.showRegister(registro, listaTiposAtributos);
+									
+									delete[] registro;
+									
+									cout << endl;
 								}
+								cout << "========================================" << endl;
 								
-								// Leo el resultado que indica si se van a recibir más bloques
-								pipe->leer(&pipeResult);
-								
-							} while (pipeResult == ResultadosIndices::OK);
-						}
+								registro = NULL;
+							}
+							
+							// Leo el resultado que indica si se van a recibir más bloques
+							pipe->leer(&pipeResult);
+							
+						} while (pipeResult == ResultadosIndices::OK);
 					}
-				}break;
+				}
+			}break;
+			
+			case OperacionesCapas::METADATA_BAJA:
+			{
+				unsigned int cantidadElementos;
+				unsigned int longitudCadena;
 				
-				case OperacionesCapas::METADATA_BAJA:
-				{
-					unsigned int cantidadElementos;
-					unsigned int longitudCadena;
+				// Obtiene el nombre del tipo sobre el cual se hace la baja.
+				pipe->parametro(1,nombreTipo);
+				
+				DefinitionsManager::EstructuraCampos estructuraCampos;
+				
+				pipe->leer(&estructuraCampos.operacion);
+	
+				pipe->leer(&cantidadElementos);
+				
+				DefinitionsManager::NodoListaCampos nodoListaCampos;
+				
+				// Se itera para recibir cada nodo de la lista de campos.
+				for (unsigned int i = 0; i < cantidadElementos; ++i) {
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nodoListaCampos.nombreCampo);
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nodoListaCampos.valorCampo);
+					pipe->leer(&nodoListaCampos.operacion);
 					
-					// Obtiene el nombre del tipo sobre el cual se hace la baja.
-					pipe->parametro(1,nombreTipo);
+					estructuraCampos.listaCampos.push_back(nodoListaCampos);
+				}
+				
+				int resultadoBaja = baja(nombreTipo, estructuraCampos);
+				
+				pipe->escribir(resultadoBaja);
+				
+			}break;
+			
+			case OperacionesCapas::METADATA_MODIFICACION:
+			{		
+				unsigned int cantidadElementos;
+				unsigned int longitudCadena;
+				string nombreAtributo, valorAtributo;
+				pipe->parametro(1, nombreTipo);
+				
+				// Se recibe el mapaValoresAtributos.
+				DefinitionsManager::MapaValoresAtributos mapaValoresAtributos;
+				
+				pipe->leer(&cantidadElementos);
+				
+				for (unsigned int i = 0; i < cantidadElementos; ++i) {
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nombreAtributo);
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, valorAtributo);
 					
-					DefinitionsManager::EstructuraCampos estructuraCampos;
+					mapaValoresAtributos[nombreAtributo] = valorAtributo;
+				}
+				
+				// Se recibe la información sobre los registros a modificar,
+				// dentro de una estructuraCampos.
+				DefinitionsManager::EstructuraCampos estructuraCampos;
+				
+				pipe->leer(&estructuraCampos.operacion);
+				
+				// Se obtiene la cantidad de elementos en la lista de campos.
+				pipe->leer(&cantidadElementos);
+				
+				DefinitionsManager::NodoListaCampos nodoListaCampos;
+				
+				for (unsigned int i = 0; i < cantidadElementos; ++i) {
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nodoListaCampos.nombreCampo);
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nodoListaCampos.valorCampo);
+					pipe->leer(&nodoListaCampos.operacion);
 					
-					pipe->leer(&estructuraCampos.operacion);
+					estructuraCampos.listaCampos.push_back(nodoListaCampos);
+				}
+
+				int resultadoModificacion = modificacion(nombreTipo, mapaValoresAtributos, estructuraCampos);
+				
+				pipe->escribir(resultadoModificacion);
+				
+			}break;
+			
+			case OperacionesCapas::METADATA_ALTA:
+			{	
+				unsigned int cantidadElementos;
+				unsigned int longitudCadena;
+				string nombreAtributo, valorAtributo;
+				pipe->parametro(1,nombreTipo);
+
+				// Se recibe el mapaValoresAtributos.
+				DefinitionsManager::MapaValoresAtributos mapaValoresAtributos;
+				
+				pipe->leer(&cantidadElementos);
+				
+				for (unsigned int i = 0; i < cantidadElementos; ++i) {
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, nombreAtributo);
+					pipe->leer(&longitudCadena);
+					pipe->leer(longitudCadena, valorAtributo);
+					
+					mapaValoresAtributos[nombreAtributo] = valorAtributo;
+				}
+
+				int resultadoAlta = alta (nombreTipo, mapaValoresAtributos);
+				
+				pipe->escribir(resultadoAlta);
+									
+			}break;
+			
+			default:
+				pipeResult = ResultadosMetadata::OPERACION_INVALIDA;
+		}
+			
+		resultado << pipeResult;
 		
-					pipe->leer(&cantidadElementos);
-					
-					DefinitionsManager::NodoListaCampos nodoListaCampos;
-					
-					// Se itera para recibir cada nodo de la lista de campos.
-					for (unsigned int i = 0; i < cantidadElementos; ++i) {
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nodoListaCampos.nombreCampo);
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nodoListaCampos.valorCampo);
-						pipe->leer(&nodoListaCampos.operacion);
-						
-						estructuraCampos.listaCampos.push_back(nodoListaCampos);
-					}
-					
-					int resultadoBaja = baja(nombreTipo, estructuraCampos);
-					
-					pipe->escribir(resultadoBaja);
-					
-				}break;
-				
-				case OperacionesCapas::METADATA_MODIFICACION:
-				{		
-					unsigned int cantidadElementos;
-					unsigned int longitudCadena;
-					string nombreAtributo, valorAtributo;
-					pipe->parametro(1, nombreTipo);
-					
-					// Se recibe el mapaValoresAtributos.
-					DefinitionsManager::MapaValoresAtributos mapaValoresAtributos;
-					
-					pipe->leer(&cantidadElementos);
-					
-					for (unsigned int i = 0; i < cantidadElementos; ++i) {
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nombreAtributo);
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, valorAtributo);
-						
-						mapaValoresAtributos[nombreAtributo] = valorAtributo;
-					}
-					
-					// Se recibe la información sobre los registros a modificar,
-					// dentro de una estructuraCampos.
-					DefinitionsManager::EstructuraCampos estructuraCampos;
-					
-					pipe->leer(&estructuraCampos.operacion);
-					
-					// Se obtiene la cantidad de elementos en la lista de campos.
-					pipe->leer(&cantidadElementos);
-					
-					DefinitionsManager::NodoListaCampos nodoListaCampos;
-					
-					for (unsigned int i = 0; i < cantidadElementos; ++i) {
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nodoListaCampos.nombreCampo);
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nodoListaCampos.valorCampo);
-						pipe->leer(&nodoListaCampos.operacion);
-						
-						estructuraCampos.listaCampos.push_back(nodoListaCampos);
-					}
-	
-					int resultadoModificacion = modificacion(nombreTipo, mapaValoresAtributos, estructuraCampos);
-					
-					pipe->escribir(resultadoModificacion);
-					
-				}break;
-				
-				case OperacionesCapas::METADATA_ALTA:
-				{	
-					unsigned int cantidadElementos;
-					unsigned int longitudCadena;
-					string nombreAtributo, valorAtributo;
-					pipe->parametro(1,nombreTipo);
+		cout << endl << resultado << endl;
+		
+		delete pipe;
+		pipe = NULL;
+		
+		usleep(100); //Recibe microsegundos
+		
 
-					// Se recibe el mapaValoresAtributos.
-					DefinitionsManager::MapaValoresAtributos mapaValoresAtributos;
-					
-					pipe->leer(&cantidadElementos);
-					
-					for (unsigned int i = 0; i < cantidadElementos; ++i) {
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, nombreAtributo);
-						pipe->leer(&longitudCadena);
-						pipe->leer(longitudCadena, valorAtributo);
-						
-						mapaValoresAtributos[nombreAtributo] = valorAtributo;
-					}
-
-					//TODO: Capa Consultas espera el resultado de la operacion.
-					
-					
-// --------------ESTA PARTE LLAMA A LA CAPA INDICES------------
-					DefinitionsManager::ListaNombresClaves *listaNombres = defManager.getListaNombresClavesPrimarias(nombreTipo);
-					
-					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_INSERTAR, 0); 
-					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
-					pipe->agregarParametro(nombreTipo, 1);
-					
-					// Se lanza el proceso de la Capa Indices.
-					pipeResult = pipe->lanzar();
-
-					if (pipeResult == ComuDatos::OK){
-						// Envio de los valores de las claves de los registros
-						// a modificar por el pipe.
-						serializarListaClaves(valoresClaves, &mapaValoresAtributos, listaNombres);
-						
-						//LINEAS PARA PROBAR ALTAS MASIVAS
-						/*********/
-//						cout << endl << "ALTA NRO: " << i << endl;
-//						tamRegistro = dataManager.crearRegistroAltaRandom(valoresClaves, *defManager.getListaTiposAtributos(nombreTipo));
-						/*********/
-						
-						pipe->escribir((unsigned short)valoresClaves.length());
-						pipe->escribir(valoresClaves);
-						
-						// Se obtiene el resultado de la operacion.
-						pipe->leer(&pipeResult);
-						
-						if (pipeResult == ResultadosIndices::CLAVE_NO_ENCONTRADA){
-						
-							listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
-							listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-							
-							// Se crea el registro a dar de alta y se obtiene su longitud
-							tamRegistro = dataManager.crearRegistroAlta(*listaValAtributos, *listaTiposAtributos);
-							
-							pipe->escribir(tamRegistro);
-							
-							if (tamRegistro > 0) {
-								
-			//					vista.showRegister(dataManager.getRegistro(), listaTiposAtributos);
-								
-								// Se envia el registro a dar de alta por el pipe.
-								pipe->escribir(dataManager.getRegistro(), tamRegistro);
-								
-								// Se obtiene el resultado de la insercion
-								pipe->leer(&pipeResult);
-								
-							} else pipeResult = ResultadosMetadata::ERROR_FORMATO_FECHA;
-							
-							delete listaValAtributos;
-							
-						}
-					}
-					
-				}break;
-				
-				default:
-					pipeResult = ResultadosMetadata::OPERACION_INVALIDA;
-			}
-			
-			resultado << pipeResult;
-			
-			cout << endl << resultado << endl;
-			
-			delete pipe;
-			pipe = NULL;
-			
-			usleep(100); //Recibe microsegundos
-			
-	
 		
 		if (registro)
 			delete[] registro;
