@@ -61,6 +61,14 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 }
 
 
+Indice* obtenerIndiceParaOrderBy(const DefinitionsManager::ListaNombresClaves &listaNombresClaves) {
+	
+	// TODO Implementar
+	return NULL;
+	
+}
+
+
 void destruirIndices(MapaIndices &mapaIndices) {
 
 	for (MapaIndices::iterator iter = mapaIndices.begin();
@@ -236,7 +244,7 @@ void consultaIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 	int resultado = 0;
 	char *registroDatos = NULL;
 	
-	if (indice->getTipo() == TipoIndices::GRIEGO) {
+	if (indice->getTipoIndice() == TipoIndices::GRIEGO) {
 		
 		if (clave)
 		{
@@ -443,7 +451,7 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 	int resultado = ResultadosIndices::OK;
 	
-	if (indice->getTipo() == TipoIndices::GRIEGO) {
+	if (indice->getTipoIndice() == TipoIndices::GRIEGO) {
 		
 		//Saco el índice primario para no volver a eliminar.
 		mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
@@ -571,7 +579,7 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 	int resultado = ResultadosIndices::OK;
 	unsigned short cantRegistros = 1;
 		
-	if (indice->getTipo() == TipoIndices::GRIEGO) {
+	if (indice->getTipoIndice() == TipoIndices::GRIEGO) {
 		
 		//Se envía la cantidad de registros que se deben modificar
 		pipe.escribir(cantRegistros);

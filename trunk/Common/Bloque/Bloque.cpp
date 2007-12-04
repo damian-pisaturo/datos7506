@@ -1034,3 +1034,12 @@
 			}
 			
 		}
+		
+		
+		unsigned short Bloque::getTamanioEspacioLibre() const {
+			
+			if (!this->datos) return 0;
+			
+			return (this->getTamanioBloque() - *((unsigned short*)this->datos));
+			
+		}

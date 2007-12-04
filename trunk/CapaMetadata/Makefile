@@ -13,6 +13,7 @@ extension = cpp
 # NOTA: No poner cabeceras (.h). 
 
 fuentes = DataManager/DataManager.cpp
+fuentes += FileManager/FileManager.cpp
 fuentes += Parser/ParserOperaciones.cpp
 fuentes += Vista/Vista.cpp
 fuentes += ../Common/Bloque/Bloque.cpp
@@ -20,6 +21,9 @@ fuentes += ../Common/Clave/Clave.cpp
 fuentes += ../Common/ClaveFactory/ClaveFactory.cpp
 fuentes += ../Common/DefManager/DefinitionsManager.cpp
 fuentes += ../ComuDatos/ComuDatos.cpp
+fuentes += ../CapaFisica/ArchivoBase/ArchivoBase.cpp
+fuentes += ../CapaFisica/ArchivoDatos/ArchivoDatos.cpp
+fuentes += ../CapaFisica/ArchivoEL/ArchivoEL.cpp
 fuentes += CapaMetadata.cpp
 
 # CONFIGURACION "AVANZADA"
