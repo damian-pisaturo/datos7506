@@ -6,6 +6,7 @@
 #include "../Common/ResultadosIndices.h"
 #include "../Common/ImpresorResultado.h"
 #include "../Common/NombresCapas.h"
+#include "../Common/ExpresionesLogicas.h"
 #include "../ComuDatos/ComuDatos.h"
 #include "../Common/DefManager/DefinitionsManager.h"
 #include "Parser/ParserOperaciones.h"
