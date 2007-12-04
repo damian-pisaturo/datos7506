@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 	
 	if (argc > 1){
 		
-		ComuDatos* pipe = NULL;//Instancia del pipe de comunicacion		
+		ComuDatos* pipe = new ComuDatos(argv); //Instancia del pipe de comunicacion		
 		
 		unsigned char operacion      = 0;    // Tipo de operacion a ejecutar
 		unsigned short tamRegistro   = 0; 	 // Tamano de un registro.
@@ -85,28 +85,95 @@ int main(int argc, char* argv[])
 		// Controlador de registros de datos
 		DataManager dataManager;
 		
-		// Parseador del archivo de operaciones.
-		ParserOperaciones parserOperaciones(argv[1]);
+		//pipe = instanciarPipe();
+		pipe->parametro(0,operacion);
+
+//			listaClaves = parserOperaciones.getListaClaves();
 		
-		// Clase de impresion y muestra por salida estandar.
-		Vista vista;
-		
-		while (parserOperaciones.proximaOperacion()) {
-		
-//		for (unsigned i = 0; i < 100; ++i) {
-		
-			pipe = instanciarPipe();
-			operacion   = parserOperaciones.getTipoOperacion();
-//			operacion   = OperacionesCapas::METADATA_ALTA;
-			listaClaves = parserOperaciones.getListaClaves();
-			nombreTipo  = parserOperaciones.getNombreTipo();			
-//			nombreTipo  = "PERSONA";
-			mapaValoresAtributos = parserOperaciones.getMapaValoresAtributos();
-			valoresClaves.clear();
+//		nombreTipo  = parserOperaciones.getNombreTipo();			
+////			nombreTipo  = "PERSONA";
+//			mapaValoresAtributos = parserOperaciones.getMapaValoresAtributos();
+//			valoresClaves.clear();
 			
 			switch(operacion){
 				case OperacionesCapas::METADATA_CONSULTA:
-				{					
+				{	
+					DefinitionsManager::EstructuraConsulta estructuraConsulta;
+					
+					// Se recibe el contenido de estructuraConsulta, pero sin incluir la 
+					// lista de campos seleccionados.
+					
+					// Se recibe la listaNombresTipos.
+					unsigned int cantidadElementos;
+					pipe->leer(&cantidadElementos);
+					
+					unsigned int longitudCadena;
+					string cadena;
+					
+					for (unsigned int i = 0; i<cantidadElementos; i++) {
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, cadena);
+						estructuraConsulta.listaNombresTipos.push_back(cadena);
+					}
+					
+					// Se recibe la estructuraJoins
+					pipe->leer(&estructuraConsulta.estructuraJoins.operacion);
+					pipe->leer(&cantidadElementos);
+					
+					DefinitionsManager::NodoListaOperaciones nodoListaOperaciones;
+					// Se itera para obtener cada nodo de la lista de operaciones.
+					for (unsigned int i=0; i<cantidadElementos; i++) {
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreTipo);
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreCampo);
+						
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreTipo);
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreCampo);
+						
+						pipe->leer(&nodoListaOperaciones.operacion);
+						
+						estructuraConsulta.estructuraJoins.listaOperaciones.push_back(nodoListaOperaciones);
+					}
+					
+					// Se recibe la estructuraWhere
+					pipe->leer(&estructuraConsulta.estructuraWhere.operacion);
+					pipe->leer(&cantidadElementos);
+					
+					for (unsigned int i = 0; i < cantidadElementos; ++i) {
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreTipo);
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreCampo);
+						
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreTipo);
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreCampo);
+						
+						pipe->leer(&nodoListaOperaciones.operacion);
+						
+						estructuraConsulta.estructuraWhere.listaOperaciones.push_back(nodoListaOperaciones);
+					}
+					
+					// Se recibe el orderBy
+					pipe->leer(&cantidadElementos);
+					
+					DefinitionsManager::EstructuraNombres estructuraNombres;
+					
+					for (unsigned int i = 0; i < cantidadElementos; ++i) {
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, estructuraNombres.nombreTipo);
+						pipe->leer(&longitudCadena);
+						pipe->leer(longitudCadena, estructuraNombres.nombreCampo);
+						
+						estructuraConsulta.listaOrderBy.push_back(estructuraNombres);
+					}
+					
+//---------------------ACA HAY Q HACER LAS CONSULTAS LLAMANDO A CAPA INDICES.----
+					//TODO: ver el tema de como se comunica con capaConsultas para pasar el resultado..
 					// Codigo de operacion de consulta para la Capa de Indices
 					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_CONSULTAR, 0); 
 					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
@@ -150,7 +217,7 @@ int main(int argc, char* argv[])
 										// Se obtiene el registro de datos consultado.
 										pipe->leer(tamRegistro, registro);
 										
-										vista.showRegister(registro, listaTiposAtributos);
+					//					vista.showRegister(registro, listaTiposAtributos);
 										
 										delete[] registro;
 										
@@ -171,6 +238,15 @@ int main(int argc, char* argv[])
 				
 				case OperacionesCapas::METADATA_BAJA:
 				{
+					// Obtiene el nombre del tipo sobre el cual se hace la baja.
+					pipe->parametro(1,nombreTipo);
+					
+					DefinitionsManager::EstructuraCampos estructuraCampos;
+					
+					pipe->leer(&estructuraCampos.operacion);
+					
+					
+// ---------ESTA PARTE LLAMA A LA CAPA DE INDICES --------------
 					// Codigo de operacion de consulta para la Capa de Indices
 					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_ELIMINAR, 0); 
 					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
@@ -296,7 +372,7 @@ int main(int argc, char* argv[])
 							
 							if (tamRegistro > 0) {
 								
-								vista.showRegister(dataManager.getRegistro(), listaTiposAtributos);
+			//					vista.showRegister(dataManager.getRegistro(), listaTiposAtributos);
 								
 								// Se envia el registro a dar de alta por el pipe.
 								pipe->escribir(dataManager.getRegistro(), tamRegistro);
@@ -326,7 +402,7 @@ int main(int argc, char* argv[])
 			
 			usleep(100); //Recibe microsegundos
 			
-		}
+	
 		
 		if (registro)
 			delete[] registro;
