@@ -50,6 +50,58 @@ ComuDatos* instanciarPipe()
 	return new ComuDatos(path);
 }
 
+void armarListaClaves(DefinitionsManager::EstructuraCampos &estructuraCampos, DefinitionsManager::ListaClaves &listaClaves)
+{
+	DefinitionsManager::ListaCampos::iterator iter;
+	DefinitionsManager::NodoListaClaves nodoListaClaves;
+	
+	for(iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter) {
+		nodoListaClaves.nombreClave = iter->nombreCampo;
+		nodoListaClaves.valorClave = iter->valorCampo;
+		
+		listaClaves.push_back(nodoListaClaves);
+	}
+	
+}
+
+
+int baja(string nombreTipo,  DefinitionsManager::EstructuraCampos estructuraCampos)
+{
+	//TODO: FALTA VER EL TEMA DE LAS RESTRICCIONES!!!
+	ComuDatos * pipe = instanciarPipe();
+		
+	// Codigo de operacion de consulta para la Capa de Indices
+	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_ELIMINAR, 0); 
+	// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
+	pipe->agregarParametro(nombreTipo, 1);
+	
+	// Se lanza el proceso de la Capa Indices.
+	int pipeResult = pipe->lanzar();
+	
+	if (pipeResult == ComuDatos::OK){
+		
+		// Envio de los valores de las claves de los registros
+		// a eliminar por el pipe.
+		
+		string valoresClaves;
+		DefinitionsManager::ListaClaves listaClaves;
+		
+		armarListaClaves(estructuraCampos, listaClaves);
+		
+		serializarListaClaves(valoresClaves,&listaClaves);
+		pipe->escribir((unsigned short)valoresClaves.length());
+		pipe->escribir(valoresClaves);
+		
+		// Se obtiene el resultado de la operacion
+		pipe->leer(&pipeResult);
+		
+	}
+	
+	delete pipe;
+	
+	return pipeResult; 
+}
+
 
 int main(int argc, char* argv[]) 
 {
@@ -169,6 +221,8 @@ int main(int argc, char* argv[])
 						estructuraConsulta.listaOrderBy.push_back(estructuraNombres);
 					}
 					
+					
+					
 //---------------------ACA HAY Q HACER LAS CONSULTAS LLAMANDO A CAPA INDICES.----
 					//TODO: ver el tema de como se comunica con capaConsultas para pasar el resultado..
 					// Codigo de operacion de consulta para la Capa de Indices
@@ -260,29 +314,10 @@ int main(int argc, char* argv[])
 						estructuraCampos.listaCampos.push_back(nodoListaCampos);
 					}
 					
+					int resultadoBaja = baja(nombreTipo, estructuraCampos);
 					
-					// TODO: hay q mandarle a capaConsultas el resultado de la operacion!
+					pipe->escribir(resultadoBaja);
 					
-					
-// ---------ESTA PARTE LLAMA A LA CAPA DE INDICES --------------
-					// Codigo de operacion de consulta para la Capa de Indices
-					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_ELIMINAR, 0); 
-					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
-					pipe->agregarParametro(nombreTipo, 1);
-					
-					// Se lanza el proceso de la Capa Indices.
-					pipeResult = pipe->lanzar();
-					
-					if (pipeResult == ComuDatos::OK){
-						// Envio de los valores de las claves de los registros
-						// a eliminar por el pipe.
-						serializarListaClaves(valoresClaves, listaClaves);
-						pipe->escribir((unsigned short)valoresClaves.length());
-						pipe->escribir(valoresClaves);
-						
-						// Se obtiene el resultado de la operacion
-						pipe->leer(&pipeResult);
-					}
 				}break;
 				
 				case OperacionesCapas::METADATA_MODIFICACION:
