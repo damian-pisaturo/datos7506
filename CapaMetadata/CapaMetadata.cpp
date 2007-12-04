@@ -65,7 +65,7 @@ void armarListaClaves(DefinitionsManager::EstructuraCampos &estructuraCampos, De
 }
 
 
-int baja(string nombreTipo,  DefinitionsManager::EstructuraCampos estructuraCampos)
+int baja(string nombreTipo,  DefinitionsManager::EstructuraCampos &estructuraCampos)
 {
 	//TODO: FALTA VER EL TEMA DE LAS RESTRICCIONES!!!
 	ComuDatos * pipe = instanciarPipe();
@@ -102,6 +102,93 @@ int baja(string nombreTipo,  DefinitionsManager::EstructuraCampos estructuraCamp
 	return pipeResult; 
 }
 
+int modificacion(string nombreTipo,DefinitionsManager::MapaValoresAtributos &mapaValoresAtributos, 
+				 DefinitionsManager::EstructuraCampos &estructuraCampos)
+{
+	ComuDatos *pipe = instanciarPipe();
+	
+	// Codigo de operacion de consulta para la Capa de Indices
+	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_MODIFICAR, 0); 
+	// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
+	pipe->agregarParametro(nombreTipo, 1);
+	
+	// Se lanza el proceso de la Capa Indices.
+	int pipeResult = pipe->lanzar();
+	
+	if (pipeResult == ComuDatos::OK){
+	
+		unsigned short cantRegistros;
+		// Envio de los valores de las claves de los registros
+		// a modificar por el pipe.
+		string valoresClaves;
+		DefinitionsManager::ListaClaves listaClaves;
+		
+		armarListaClaves(estructuraCampos, listaClaves);
+		
+		serializarListaClaves(valoresClaves,&listaClaves);
+		pipe->escribir((unsigned short)valoresClaves.length());
+		pipe->escribir(valoresClaves);
+		
+		// Se obtiene la cantidad de registros a ser modificados.
+		pipe->leer(&cantRegistros);
+		
+		if (cantRegistros > 0) {
+			
+			DefinitionsManager& defManager = DefinitionsManager::getInstance();
+	
+			// Lista de los tipos de todos los atributos dentro de un registro.
+			DefinitionsManager::ListaTiposAtributos* listaTiposAtributos = NULL;
+	
+			// Lista de valores de todos los atributos dentro de un registro.
+			DefinitionsManager::ListaValoresAtributos* listaValAtributos = NULL;
+					
+			unsigned short tamRegistro = 0;
+			char* registro = NULL;
+			
+			// Controlador de registros de datos
+			DataManager dataManager;
+			
+			listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+			listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
+			pipeResult = ResultadosIndices::OK;
+			
+			for (unsigned short i = 0; (i < cantRegistros) && (pipeResult == ResultadosIndices::OK); i++){
+				
+				// Se obtiene el resultado de la búsqueda de la clave
+				pipe->leer(&pipeResult);
+				
+				if (pipeResult == ResultadosIndices::OK) {
+							
+					// Se obtiene el tamano del registro original a modificar.
+					pipe->leer(&tamRegistro);
+					registro = new char[tamRegistro];
+					
+					pipe->leer(tamRegistro, registro);
+					
+					// Crea un nuevo registro con las modificaciones pertinentes. Devuelve su nueva longitud.
+					tamRegistro = dataManager.crearRegistroModificacion(*listaTiposAtributos, *listaValAtributos, registro);
+					
+					// Se envia el tamano del registro modificado por el pipe.
+					pipe->escribir(tamRegistro);
+					
+					// Se envia el nuevo registro con la modificacion.
+					pipe->escribir(dataManager.getRegistro(), tamRegistro);
+					
+					// Se obtiene el resultado de la modificacion.
+					pipe->leer(&pipeResult);
+					
+					delete[] registro;
+				}
+			delete listaValAtributos;
+			}
+			
+			registro = NULL;
+			
+		} else pipeResult = cantRegistros; //Se produjo un error en CapaIndices
+	}
+	
+	return pipeResult;
+}
 
 int main(int argc, char* argv[]) 
 {
@@ -361,70 +448,10 @@ int main(int argc, char* argv[])
 						
 						estructuraCampos.listaCampos.push_back(nodoListaCampos);
 					}
+	
+					int resultadoModificacion = modificacion(nombreTipo, mapaValoresAtributos, estructuraCampos);
 					
-					// TODO: capaConsultas espera el resultado de la operacion.
-					
-// ------------ESTA PARTE LLAMA A CAPA INDICES!------------------
-					// Codigo de operacion de consulta para la Capa de Indices
-					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_MODIFICAR, 0); 
-					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
-					pipe->agregarParametro(nombreTipo, 1);
-					
-					// Se lanza el proceso de la Capa Indices.
-					pipeResult = pipe->lanzar();
-					
-					if (pipeResult == ComuDatos::OK){
-						// Envio de los valores de las claves de los registros
-						// a modificar por el pipe.
-						serializarListaClaves(valoresClaves, listaClaves);
-						pipe->escribir((unsigned short)valoresClaves.length());
-						pipe->escribir(valoresClaves);
-						
-						// Se obtiene la cantidad de registros a ser modificados.
-						pipe->leer(&cantRegistros);
-						
-						if (cantRegistros > 0) {
-							
-							listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-							listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
-							pipeResult = ResultadosIndices::OK;
-							
-							for (unsigned short i = 0; (i < cantRegistros) && (pipeResult == ResultadosIndices::OK);
-								i++){
-								
-								// Se obtiene el resultado de la búsqueda de la clave
-								pipe->leer(&pipeResult);
-								
-								if (pipeResult == ResultadosIndices::OK) {
-										
-									// Se obtiene el tamano del registro original a modificar.
-									pipe->leer(&tamRegistro);
-									registro = new char[tamRegistro];
-									
-									pipe->leer(tamRegistro, registro);
-									
-									// Crea un nuevo registro con las modificaciones pertinentes. Devuelve su nueva longitud.
-									tamRegistro = dataManager.crearRegistroModificacion(*listaTiposAtributos, *listaValAtributos, registro);
-									
-									// Se envia el tamano del registro modificado por el pipe.
-									pipe->escribir(tamRegistro);
-									
-									// Se envia el nuevo registro con la modificacion.
-									pipe->escribir(dataManager.getRegistro(), tamRegistro);
-									
-									// Se obtiene el resultado de la modificacion.
-									pipe->leer(&pipeResult);
-									
-									delete[] registro;
-								}
-							}
-							
-							delete listaValAtributos;
-							
-							registro = NULL;
-							
-						} else pipeResult = cantRegistros; //Se produjo un error en CapaIndices
-					}
+					pipe->escribir(resultadoModificacion);
 					
 				}break;
 				
