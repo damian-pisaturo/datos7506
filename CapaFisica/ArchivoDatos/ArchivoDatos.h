@@ -57,7 +57,9 @@ class ArchivoDatos : public ArchivoBase
 		ArchivoEL* getArchivoEL()
 		{
 			return this->archivoEL;
-		}	
+		}
+		
+		virtual char siguienteBloque(void* bloque, int& numBloque, unsigned short espLibre) = 0;
 	
 }; /*Fin clase ArchivoDatos*/
 

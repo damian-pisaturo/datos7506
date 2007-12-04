@@ -7,6 +7,7 @@
 	{
 		this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
 		this->tipoIndice = tipoIndice;
+		this->tipoEstructura = TipoIndices::HASH;
 		this->tamBloqueDatos = tamBucket;
 		this->tamBloqueLista = tamBloqueLista;
 		this->listaNodos = listaParam;

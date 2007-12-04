@@ -205,7 +205,9 @@ class Bloque
 		 * Retorna un registro a partir del offset del mismo dentro del bloque
 		 * y la longitud del registro
 		 * */
-		char* getRegistro(int longReg, int offsetToReg) const;	
+		char* getRegistro(int longReg, int offsetToReg) const;
+		
+		unsigned short getTamanioEspacioLibre() const;
 
 };
 

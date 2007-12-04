@@ -32,6 +32,7 @@ class Indice
 	protected:
 		IndiceManager* indiceManager;
 		unsigned char tipoIndice;
+		unsigned char tipoEstructura;
 		unsigned short tamBloqueDatos;
 		unsigned short tamBloqueLista;
 		ListaNodos* listaNodos;
@@ -129,7 +130,9 @@ class Indice
 		 */
 		virtual int siguienteBloque(Bloque* &bloque) = 0;
 		
-		unsigned char getTipo() const { return this->tipoIndice; }
+		unsigned char getTipoIndice() const { return this->tipoIndice; }
+		
+		unsigned char getTipoEstructura() const { return this->tipoEstructura; }
 		
 		unsigned short getTamanioBloqueDatos() const { return this->tamBloqueDatos; }
 		

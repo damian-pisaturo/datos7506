@@ -16,6 +16,48 @@
 
 #include "CapaMetadata.h"
 
+typedef map<string, DefinitionsManager::ListaOperaciones*> MapaRestricciones;
+
+// MÉTODOS PARA RESOLVER LAS CONSULTAS CON JOINS
+
+void cargarMapasRestricciones(DefinitionsManager::ListaOperaciones &lista, MapaRestricciones &mapa) {
+	
+	DefinitionsManager::ListaOperaciones* listaOp = NULL;
+	MapaRestricciones::iterator iterMapa;
+	string nombreTipo("");
+	
+	for (DefinitionsManager::ListaOperaciones::iterator it = lista.begin();
+		 it != lista.end(); ++it) {
+		
+		nombreTipo = it->estructuraNombresIzq.nombreTipo;
+		
+		iterMapa = mapa.find(nombreTipo);
+		
+		if (iterMapa != mapa.end()) // Se encontró el nombre del tipo en el mapa	
+			iterMapa->second->push_back(*it);
+		else {	
+			listaOp = new DefinitionsManager::ListaOperaciones();
+			listaOp->push_back(*it);
+			mapa[nombreTipo] = listaOp;
+		}
+		
+	}
+	
+}
+
+
+void destruirMapaRestricciones(MapaRestricciones &mapa) {
+	
+	for (MapaRestricciones::iterator it = mapa.begin();
+		 it != mapa.end(); ++it)
+		delete it->second;
+	
+}
+
+
+// FIN MÉTODOS PARA JOINS
+
+
 void serializarListaClaves(string& s, DefinitionsManager::MapaValoresAtributos* mapaValores, 
 		DefinitionsManager::ListaNombresClaves* listaNombres)
 {

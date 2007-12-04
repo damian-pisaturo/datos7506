@@ -1,12 +1,13 @@
 #include "IndiceArbol.h"
 
-IndiceArbol::IndiceArbol(const unsigned char tipoIndice, int tipoDato,
+IndiceArbol::IndiceArbol(unsigned char tipoIndice, int tipoDato,
 						 ListaTipos* listaTiposClave, ListaNodos* listaTipos,
-						 const unsigned char tipoEstructura, unsigned short tamBloqueDatos,
+						 unsigned char tipoEstructura, unsigned short tamBloqueDatos,
 						 unsigned short tamNodo, unsigned short tamBloqueLista,
 						 const string& nombreArchivo, unsigned char tipoOrg) {
 	
 	this->tipoIndice = tipoIndice;
+	this->tipoEstructura = tipoEstructura;
 	this->tamBloqueDatos = tamBloqueDatos;
 	this->tamBloqueLista = tamBloqueLista;
 	this->tipoOrg = tipoOrg;
