@@ -188,8 +188,6 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 		pipe.escribir(resultado);
 	
 	}
-	
-	delete listaTiposAtributos;
 }
 
 void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndices,
@@ -203,7 +201,6 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 	Bloque* bloque = NULL;
 	char* registro = NULL;
 	unsigned short tamanioRegistro = 0;
-	unsigned short cantidadRegistros = 0;
 
 	// Obtiene un bloque de datos.
 	int resultado = indice->siguienteBloque(bloque);
@@ -216,7 +213,7 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 		registro = bloque->getNextRegister();
 	
 		while (registro) {
-			
+
 			// Indica a metadata que tiene un registro para enviarle.
 			pipe.escribir(resultado);
 				
@@ -226,8 +223,6 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 			pipe.escribir(registro, tamanioRegistro);
 			
 			pipe.leer(&operacion);
-				
-			cout <<"operacione q llego a indices: "<< (int)operacion << endl;
 			
 			if (operacion == OperacionesCapas::INDICES_ELIMINAR) {
 				
@@ -247,8 +242,6 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 		bloque = NULL;
 		resultado = indice->siguienteBloque(bloque);
 	}
-	
-	delete listaTiposAtributos;
 }
 
 
@@ -488,7 +481,6 @@ int eliminarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 	//Antes de eliminar la clave primaria obtengo su registro de datos
 	//para luego armar las claves secundarias.
 	resultado = indicePrimario->buscar(clave, registroDatos, tamRegistro);
-
 	
 	if (resultado == ResultadosIndices::OK) {
 		
@@ -515,9 +507,9 @@ int eliminarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 				claveSecundaria = registro.getClave(iter->first);
 				//Obtengo el índice secundario
 				indiceSecundario = iter->second;
-				
+		
 				indiceSecundario->eliminar(claveSecundaria, clave);
-				
+		
 				delete claveSecundaria;
 				
 			}
@@ -525,7 +517,6 @@ int eliminarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 		}
 		
 		delete[] registroDatos;
-		
 	}
 	
 	return resultado;
@@ -540,13 +531,15 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 	int resultado = ResultadosIndices::OK;
 	
 	if (indice->getTipoIndice() == TipoIndices::GRIEGO) {
-		
+	
 		//Saco el índice primario para no volver a eliminar.
 		mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
 		//Elimino la clave primaria y actualizo los índices secundarios.
 		resultado = eliminarClavePrimaria(nombreTipo, mapaIndices, indice, clave, defManager);
-		//Elimino el índice primario que saqué del mapa
-		delete indice;
+	
+		// Vuelve a insertar el indice que saco del mapa.
+		mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indice;
+		
 		
 	} else { //Indice Secundario
 		
@@ -568,7 +561,7 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 			for (unsigned i = 0; i < listaClavesPrimarias->size(); ++i, ++iterClaves)
 				resultado = eliminarClavePrimaria(nombreTipo, mapaIndices, indicePrimario, *iterClaves, defManager); 
 			
-			delete indicePrimario;
+			mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indicePrimario; 
 			
 			destruirListaClaves(listaClavesPrimarias);
 			
@@ -885,7 +878,6 @@ int main(int argc, char* argv[]) {
 	pipe.parametro(1, nombreTipo);
 	
 	procesarOperacion(codOp, nombreTipo, pipe);
-	
 	
 	// MÉTODOS DE PRUEBA PARA UN ÁRBOL B+
 	/*

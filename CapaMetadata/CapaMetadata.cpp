@@ -117,8 +117,10 @@ bool compararRegistros(char* registro1, char* registro2, unsigned short longitud
 }
 
 
-bool compararClaves(Clave *clave, unsigned char operacion, Clave* claveAComparar)
+bool compararClaves(Clave *clave, char operacion, Clave* claveAComparar)
 {
+	cout << "OPERACION: "<< (int)operacion << endl;
+	
 	bool comparacion = false;
 	switch (operacion) {
 		case ExpresionesLogicas::IGUAL:
@@ -137,6 +139,10 @@ bool compararClaves(Clave *clave, unsigned char operacion, Clave* claveAComparar
 			comparacion = ((*clave < *claveAComparar) || (*clave == *claveAComparar));
 			break;
 	}
+	
+	clave->imprimir(cout);
+	claveAComparar->imprimir(cout);			
+	cout << "COMPARACION: " << comparacion << endl;
 	return comparacion;
 }
 
@@ -737,16 +743,18 @@ void armarListaClaves(EstructuraCampos &estructuraCampos, ListaInfoClave &listaC
 
 int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 {
-	//TODO: FALTA VER EL TEMA DE LAS RESTRICCIONES!!!
 	ComuDatos * pipe = instanciarPipe();
-		
+			
 	// Codigo de operacion de consulta para la Capa de Indices
 	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_ELIMINAR, 0); 
+	
 	// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
 	pipe->agregarParametro(nombreTipo, 1);
 	
 	// Se lanza el proceso de la Capa Indices.
 	int pipeResult = pipe->lanzar();
+	int resultadoEliminacion;
+	char operacion;
 	
 	if (pipeResult == ComuDatos::OK){
 		
@@ -761,14 +769,68 @@ int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 		serializarListaClaves(valoresClaves,&listaClaves);
 		pipe->escribir((unsigned short)valoresClaves.length());
 		pipe->escribir(valoresClaves);
+	
+		ListaOperaciones listaOperaciones;
+		NodoListaOperaciones nodoListaOperaciones;
 		
-		// Se obtiene el resultado de la operacion
+		for (ListaCampos::iterator iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter){
+			nodoListaOperaciones.estructuraNombresIzq.nombreTipo = nombreTipo;
+			nodoListaOperaciones.estructuraNombresIzq.nombreCampo = iter->nombreCampo;
+			nodoListaOperaciones.estructuraNombresDer.nombreTipo = "";
+			nodoListaOperaciones.estructuraNombresDer.nombreCampo = iter->valorCampo;
+			nodoListaOperaciones.operacion = iter->operacion;
+			cout << "operacioncuando arma la lista" << (int)iter->operacion << endl;
+			listaOperaciones.push_back(nodoListaOperaciones);
+		}
+		
+		
+		DefinitionsManager& defManager = DefinitionsManager::getInstance();
+		ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+		ListaNombresAtributos *listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);
+		
+		//unsigned short cantRegistros = 0;
+		unsigned short tamRegistro;
+		char* registro = NULL;
+		
+		// CapaIndices hace una consulta no indexada y retorna todos los registros para 
+		// Comprobar la cláusula WHERE.
 		pipe->leer(&pipeResult);
 		
-	}
-	
+		// Mientras haya resgistros que mandar
+		while (pipeResult == ResultadosIndices::OK) {
+			
+			pipe->leer(&tamRegistro);
+			
+			if (tamRegistro == 0) {
+				pipeResult = ResultadosIndices::ERROR_ELIMINACION;
+				break;
+			}
+			
+			registro = new char[tamRegistro];
+			
+			// Se obtiene el registro de datos consultado.
+			pipe->leer(tamRegistro, registro);
+
+			if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
+				cout << "mando a eliminar" << endl;
+				operacion = OperacionesCapas::INDICES_ELIMINAR;
+				pipe->escribir(operacion);
+				pipe->leer(&resultadoEliminacion);
+			}
+			else {
+				operacion = OperacionesCapas::INDICES_NO_OPERACION;
+				pipe->escribir(operacion);
+			}
+			delete[] registro;
+			registro = NULL;
+			
+			// Leo el resultado que indica si se van a recibir más registros
+			pipe->leer(&pipeResult);
+							
+		}
+	}	
 	delete pipe;
-	
+		
 	return pipeResult; 
 }
 
