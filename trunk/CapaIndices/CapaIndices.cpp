@@ -12,7 +12,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 	Indice* indice;
 	unsigned char tipoIndice;
-	EstructTipoIndice estructura;
+	InfoIndice estructura;
 	NodoListaIndices nodoListaIndices;
 	ListaTiposIndices *listaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
 	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
@@ -27,7 +27,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 		iter != listaTiposIndices->end(); ++iter) {
 		
 		nodoListaIndices = *iter;
-		estructura = nodoListaIndices.estructTipoIndice;
+		estructura = nodoListaIndices.infoTipoIndice;
 		tipoIndice = estructura.tipoEstructura;
 	
 		switch (tipoIndice) {
@@ -38,7 +38,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 				if (tipoOrg == TipoOrganizacion::REG_VARIABLES)
 					tamBloqueDatos = Tamanios::TAMANIO_BLOQUE_DATO;
 				else if (tipoOrg == TipoOrganizacion::REG_FIJOS)
-					tamBloqueDatos = atoi((listaTiposAtributos->begin()->pk).c_str());
+					tamBloqueDatos = listaTiposAtributos->begin()->tamRegistro;
 				
 				indice = new IndiceArbol(estructura.tipoIndice, estructura.tipoClave,
 										nodoListaIndices.listaTipos, listaTiposAtributos,
@@ -112,7 +112,7 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 	// Se obtiene la lista de los tipos de datos de los atributos del tipo 'nombreTipo', con
 	// los campos pk en "true" para los atributos cuyos nombres figuran en la listaNombresClaves.
 //	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo, listaNombresClaves);
-	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	
 	Bloque* bloque = NULL;
 	char* registro = NULL;
@@ -196,7 +196,7 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 	// Obtiene el indice primario para poder obtener luego los bloques de datos.
 	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
 	
-	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	
 	Bloque* bloque = NULL;
 	char* registro = NULL;
@@ -260,7 +260,7 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 	// Se obtiene la lista de los tipos de datos de los atributos del tipo 'nombreTipo', con
 	// los campos pk en "true" para los atributos cuyos nombres figuran en la listaNombresClaves.
-	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo, listaNombresClaves);
+	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo, listaNombresClaves);
 	
 	int resultado = indice->siguienteBloque(bloque);
 	pipe.escribir(resultado);
@@ -763,7 +763,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	string buffer(""), auxStr("");
 	unsigned short tamanioBuffer = 0;
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
-	DefinitionsManager::ListaValoresClaves listaValoresClaves;
+	ListaValoresClaves listaValoresClaves;
 	string::size_type posAnterior = 0, posActual = 0, posSeparador = 0;
 	
 	MapaIndices mapaIndices;

@@ -227,7 +227,7 @@ using namespace std;
 		////////////////////////////////////////
 		// Metodo publico
 		////////////////////////////////////////
-			NodoListaIndices& operator = (NodoListaIndices& infoIndice)
+			NodoListaIndices& operator = (const NodoListaIndices& infoIndice)
 			{
 				this->infoTipoIndice = infoIndice.infoTipoIndice;
 				

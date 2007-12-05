@@ -122,18 +122,20 @@ int main(int argc, char* argv[]) {
 		
 		ComuDatos* pipe = NULL; // Instancia del pipe de comunicacion		
 		
-		unsigned char operacion      = 0;    // Tipo de operacion a ejecutar
+		unsigned char operacion = 0;    // Tipo de operacion a ejecutar
 		string valoresClaves("");
 		string nombreTipo("");
 		
 		// Mapa contenedor de los valores de los atributos, indexados por sus nombres.
-		MapaValoresAtributos* mapaValoresAtributos = NULL;
+		MapaValoresAtributos* mapaValoresAtributos = NULL; 
 		
 		DefinitionsManager& defManager = DefinitionsManager::getInstance();
 		
-		if (nombreArchivoDefiniciones != "")
-			defManager.cargarArchivoMaestro(nombreArchivoDefiniciones);
-
+		if (nombreArchivoDefiniciones != "") {
+			char c = defManager.cargarArchivoMaestro(nombreArchivoDefiniciones);
+			cout << "carga del archivo maestro: " << (int)c << endl;
+		}
+		
 		// Parser del archivo de operaciones.
 		ParserOperaciones parserOperaciones(nombreArchivoOperaciones);
 		
@@ -418,7 +420,7 @@ int main(int argc, char* argv[]) {
 					}break;
 					
 					case OperacionesCapas::CONSULTAS_ALTA:
-					{	
+					{					
 						pipe->agregarParametro((unsigned char)OperacionesCapas::METADATA_ALTA, 0); 
 						// Nombre del tipo de dato a ser dado de alta.
 						pipe->agregarParametro(nombreTipo, 1);

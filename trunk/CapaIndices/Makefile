@@ -30,7 +30,6 @@ fuentes += BStar/NodoBStar.cpp
 fuentes += Hash/Hash.cpp
 fuentes += Hash/Bucket.cpp
 fuentes += Hash/Tabla.cpp
-fuentes += ../Common/RegisterInfo/RegisterInfo.cpp
 fuentes += ../Common/Bloque/Bloque.cpp
 fuentes += ../Common/Clave/Clave.cpp
 fuentes += ../Common/ClaveFactory/ClaveFactory.cpp
