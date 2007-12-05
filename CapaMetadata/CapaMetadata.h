@@ -18,6 +18,9 @@ using namespace std;
 
 ComuDatos* instanciarPipe();
 void serializarListaClaves(string& s, DefinitionsManager::ListaClaves* listaClaves);
+bool cumpleRestricciones(char* registro, DefinitionsManager::ListaOperaciones &listaOperaciones, 
+						 char operacion, DefinitionsManager::ListaNombresAtributos &listaNombresAtributos, 
+						 DefinitionsManager::ListaTiposAtributos &listaTiposAtributos);
 int main(int argc, char* argv[]);
 
 #endif /*CAPAMETADATA_H_*/

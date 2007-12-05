@@ -116,16 +116,18 @@ void armarListaClaves(DefinitionsManager::EstructuraCampos &estructuraCampos, De
 
 int baja(string nombreTipo,  DefinitionsManager::EstructuraCampos &estructuraCampos)
 {
-	//TODO: FALTA VER EL TEMA DE LAS RESTRICCIONES!!!
 	ComuDatos * pipe = instanciarPipe();
 		
 	// Codigo de operacion de consulta para la Capa de Indices
 	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_ELIMINAR, 0); 
+	
 	// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
 	pipe->agregarParametro(nombreTipo, 1);
 	
 	// Se lanza el proceso de la Capa Indices.
 	int pipeResult = pipe->lanzar();
+	int resultadoEliminacion;
+	char operacion;
 	
 	if (pipeResult == ComuDatos::OK){
 		
@@ -140,15 +142,160 @@ int baja(string nombreTipo,  DefinitionsManager::EstructuraCampos &estructuraCam
 		serializarListaClaves(valoresClaves,&listaClaves);
 		pipe->escribir((unsigned short)valoresClaves.length());
 		pipe->escribir(valoresClaves);
+	
+		DefinitionsManager::ListaOperaciones listaOperaciones;
+		DefinitionsManager::NodoListaOperaciones nodoListaOperaciones;
 		
-		// Se obtiene el resultado de la operacion
+		for (DefinitionsManager::ListaCampos::iterator iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter){
+			nodoListaOperaciones.estructuraNombresIzq.nombreTipo = nombreTipo;
+			nodoListaOperaciones.estructuraNombresIzq.nombreCampo = iter->nombreCampo;
+			nodoListaOperaciones.estructuraNombresDer.nombreTipo = "";
+			nodoListaOperaciones.estructuraNombresDer.nombreCampo = iter->valorCampo;
+			nodoListaOperaciones.operacion = iter->operacion;
+			cout << "operacioncuando arma la lista" << (int)iter->operacion << endl;
+			listaOperaciones.push_back(nodoListaOperaciones);
+		}
+		
+		
+		DefinitionsManager& defManager = DefinitionsManager::getInstance();
+		DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+		DefinitionsManager::ListaNombresAtributos *listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);
+		
+		//unsigned short cantRegistros = 0;
+		unsigned short tamRegistro;
+		char* registro = NULL;
+		
+		// CapaIndices hace una consulta no indexada y retorna todos los registros para 
+		// Comprobar la cláusula WHERE.
 		pipe->leer(&pipeResult);
 		
-	}
-	
+		// Mientras haya resgistros que mandar
+		while (pipeResult == ResultadosIndices::OK) {
+			
+			pipe->leer(&tamRegistro);
+			
+			if (tamRegistro == 0) {
+				pipeResult = ResultadosIndices::ERROR_ELIMINACION;
+				break;
+			}
+			
+			registro = new char[tamRegistro];
+			
+			// Se obtiene el registro de datos consultado.
+			pipe->leer(tamRegistro, registro);
+
+			if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
+				cout << "mando a eliminar" << endl;
+				operacion = OperacionesCapas::INDICES_ELIMINAR;
+				pipe->escribir(operacion);
+				pipe->leer(&resultadoEliminacion);
+			}
+			else {
+				operacion = OperacionesCapas::INDICES_NO_OPERACION;
+				pipe->escribir(operacion);
+			}
+			delete[] registro;
+			registro = NULL;
+			
+			// Leo el resultado que indica si se van a recibir más registros
+			pipe->leer(&pipeResult);
+							
+		}
+	}	
 	delete pipe;
-	
+		
 	return pipeResult; 
+	
+//		
+//		pipe->leer(&pipeResult);
+//		
+//		if (pipeResult == ResultadosIndices::OK) {
+//			
+//			unsigned short cantRegistros = 0;
+//			unsigned short tamRegistro;
+//			char* registro = NULL;
+//			DefinitionsManager::ListaTiposAtributos *listaTiposAtributos;
+//
+//			DefinitionsManager::ListaOperaciones listaOperaciones;
+//			DefinitionsManager::NodoListaOperaciones nodoListaOperaciones;
+//			
+//			for (DefinitionsManager::ListaCampos::iterator iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter){
+//				nodoListaOperaciones.estructuraNombresIzq.nombreTipo = nombreTipo;
+//				nodoListaOperaciones.estructuraNombresIzq.nombreCampo = iter->nombreCampo;
+//				nodoListaOperaciones.estructuraNombresDer.nombreTipo = "";
+//				nodoListaOperaciones.estructuraNombresDer.nombreCampo = iter->valorCampo;
+//				nodoListaOperaciones.operacion = iter->operacion;
+//				cout << "operacioncuando arma la lista" << (int)iter->operacion << endl;
+//				listaOperaciones.push_back(nodoListaOperaciones);
+//			}
+//
+//			DefinitionsManager::ListaNombresAtributos *listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);			
+//			
+//			do {
+//				// Se obtiene la cantidad de registros que responden 
+//				// a la consulta realizada.
+//				pipe->leer(&cantRegistros); 
+//				
+//				if (cantRegistros > 0) {
+//					
+//					listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+//					
+//					for (unsigned short i = 0; i < cantRegistros; i++){
+//						// Se obtiene el tamaño del registro a levantar
+//						pipe->leer(&tamRegistro);
+//					
+//						if (tamRegistro == 0) {
+//							pipeResult = ResultadosIndices::ERROR_ELIMINACION;
+//							break;
+//						}
+//						
+//						registro = new char[tamRegistro];
+//						
+//						// Se obtiene el registro de datos consultado.
+//						pipe->leer(tamRegistro, registro);
+//						
+//						DefinitionsManager::ListaOperaciones listaOperaciones;
+//						DefinitionsManager::NodoListaOperaciones nodoListaOperaciones;
+//						
+//						for (DefinitionsManager::ListaCampos::iterator iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter){
+//							nodoListaOperaciones.estructuraNombresIzq.nombreTipo = nombreTipo;
+//							nodoListaOperaciones.estructuraNombresIzq.nombreCampo = iter->nombreCampo;
+//							nodoListaOperaciones.estructuraNombresDer.nombreTipo = "";
+//							nodoListaOperaciones.estructuraNombresDer.nombreCampo = iter->valorCampo;
+//							nodoListaOperaciones.operacion = iter->operacion;
+//							cout << "operacioncuando arma la lista" << (int)iter->operacion << endl;
+//							listaOperaciones.push_back(nodoListaOperaciones);
+//						}
+//
+//						DefinitionsManager::ListaNombresAtributos *listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);
+//					
+//						if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
+//							pipe->escribir(OperacionesCapas::INDICES_ELIMINAR);
+//							pipe->leer(&resultadoEliminacion);
+//						}
+//						else 
+//							pipe->escribir(OperacionesCapas::INDICES_NO_OPERACION);
+//						
+//						delete[] registro;
+//					}
+//					registro = NULL;
+//				}
+//				
+//				// Leo el resultado que indica si se van a recibir más bloques
+//				pipe->leer(&pipeResult);
+//				
+//			} while (pipeResult == ResultadosIndices::OK);
+//			
+//		}
+//			
+//		// Se obtiene el resultado de la operacion
+//		pipe->leer(&pipeResult);
+//		
+//	}
+//	
+//	delete pipe;
+//	
+//	return pipeResult; 
 }
 
 int modificacion(string nombreTipo,DefinitionsManager::MapaValoresAtributos &mapaValoresAtributos, 
@@ -319,7 +466,7 @@ bool compararRegistros(char* registro1, char* registro2, unsigned short longitud
 }
 
 
-bool compararClaves(Clave *clave, unsigned char operacion, Clave* claveAComparar)
+bool compararClaves(Clave *clave, char operacion, Clave* claveAComparar)
 {
 	bool comparacion = false;
 	switch (operacion) {
@@ -466,7 +613,13 @@ int compararCamposRegistros(DefinitionsManager::ListaNombresAtributos &listaNomb
 			break;
 		}
 		case TipoDatos::TIPO_STRING: {
-			clave1 = new ClaveVariable(campo1);
+			unsigned char longCadena;
+			memcpy(&longCadena, campo1, Tamanios::TAMANIO_LONGITUD_CADENA);
+			char * valorCampo = new char[longCadena + 1];
+			memcpy(valorCampo, campo1 + Tamanios::TAMANIO_LONGITUD_CADENA, longCadena);
+			*(valorCampo + longCadena) = 0;
+			
+			clave1 = new ClaveVariable(valorCampo);
 			tipoCampo1 = TipoDatos::TIPO_STRING;
 			break;
 		}
@@ -551,7 +704,14 @@ int compararCamposRegistros(DefinitionsManager::ListaNombresAtributos &listaNomb
 		case TipoDatos::TIPO_STRING: {
 			if (tipoCampo1 != TipoDatos::TIPO_STRING)
 				return ResultadosMetadata::ERROR_DISTINTO_TIPO_DATO;
-			clave2 = new ClaveVariable(campo2);
+			
+			unsigned char longCadena;
+			memcpy(&longCadena, campo2, Tamanios::TAMANIO_LONGITUD_CADENA);
+			char * valorCampo = new char[longCadena + 1];
+			memcpy(valorCampo, campo2 + Tamanios::TAMANIO_LONGITUD_CADENA, longCadena);
+			*(valorCampo + longCadena) = 0;
+			
+			clave2 = new ClaveVariable(valorCampo);
 			break;
 		}
 			
@@ -563,12 +723,12 @@ int compararCamposRegistros(DefinitionsManager::ListaNombresAtributos &listaNomb
 }
 
 bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos &listaNombresAtributos, 
-				  	   DefinitionsManager::ListaTiposAtributos listaTiposAtributos, 
+				  	   DefinitionsManager::ListaTiposAtributos &listaTiposAtributos, 
 				  	   DefinitionsManager::NodoListaOperaciones &nodoListaOperaciones)
 {
 	DefinitionsManager::ListaNombresAtributos::iterator itNombres = listaNombresAtributos.begin();
 	unsigned int numeroCampo = 1;
- 
+	
 	while ((nodoListaOperaciones.estructuraNombresIzq.nombreCampo != *itNombres) && (itNombres != listaNombresAtributos.end())) {
 		++numeroCampo;
 		++itNombres;
@@ -668,7 +828,13 @@ bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos
 			break;
 		}
 		case TipoDatos::TIPO_STRING: {
-			clave = new ClaveVariable(campo);
+			unsigned char longCadena;
+			memcpy(&longCadena, campo, Tamanios::TAMANIO_LONGITUD_CADENA);
+			char * valorCampo = new char[longCadena + 1];
+			memcpy(valorCampo, campo + Tamanios::TAMANIO_LONGITUD_CADENA, longCadena);
+			*(valorCampo + longCadena) = 0;
+			
+			clave = new ClaveVariable(valorCampo);
 			
 			claveAComparar = new ClaveVariable(nodoListaOperaciones.estructuraNombresDer.nombreCampo);
 			break;
@@ -728,6 +894,7 @@ bool cumpleRestricciones(char* registro, DefinitionsManager::ListaOperaciones &l
 		}
 	
 	}
+	cout << "cumple restricciones: " << cumple << endl;
 	return cumple;
 }
 
@@ -935,6 +1102,7 @@ int main(int argc, char* argv[])
 				
 				int resultadoBaja = baja(nombreTipo, estructuraCampos);
 				
+				cout << "resultado baja: "<< resultadoBaja << endl;
 				pipe->escribir(resultadoBaja);
 				
 			}break;
