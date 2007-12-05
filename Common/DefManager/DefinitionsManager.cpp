@@ -50,6 +50,10 @@ DefinitionsManager::~DefinitionsManager()
 	for (MapaTiposIndices::iterator iter = this->mapaTiposIndices.begin();
 		iter != this->mapaTiposIndices.end(); ++iter)
 		delete iter->second;	
+	
+	for (MapaNombresClavesPrimarias::iterator iter = this->mapaNombresClavesPrimarias.begin();
+		iter != this->mapaNombresClavesPrimarias.end(); ++iter)
+		delete iter->second;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -191,8 +195,8 @@ ListaTiposAtributos* DefinitionsManager::getListaTiposAtributos(const string &no
 	ListaTiposAtributos* lta = NULL;
 	MapaTiposAtributos::iterator iterMapaTA = this->mapaTiposAtributos.find(nombreTipo);
 	
-	if (iterMapaTA == this->mapaTiposAtributos.end())	
-		resultado = this->recuperarTipo(nombreTipo);
+	if (iterMapaTA == this->mapaTiposAtributos.end()){ cout << "El tipo " << nombreTipo << " no esta cargado." << endl;	
+		resultado = this->recuperarTipo(nombreTipo);}
 	
 	if (resultado == ArchivoMaestro::OK)
 		lta = this->mapaTiposAtributos[nombreTipo];
@@ -303,14 +307,13 @@ char DefinitionsManager::recuperarTipo(const string& nombreTipo)
 	ListaNombresAtributos* listaNA = NULL;
 	ListaNombresClaves* listaNC    = NULL;
 	
-	char resultado = 0;
-	//char resultado = this->archivoMaestro.recuperarTipo(nombreTipo);
+	char resultado = this->archivoMaestro.recuperarTipo(nombreTipo);
 	
 	if (resultado == ArchivoMaestro::OK){
-		//listaIR = this->archivoMaestro.getListaInfoRegistro();
-		//listaTI = this->archivoMaestro.getListaTiposIndices();
-		//listaNA = this->archivoMaestro.getListaNombresAtributos();
-		//listaNC = this->archivoMaestro.getListaNombresClaves();
+		listaIR = this->archivoMaestro.getListaInfoRegistro();
+		listaTI = this->archivoMaestro.getListaTiposIndices();
+		listaNA = this->archivoMaestro.getListaNombresAtributos();
+		listaNC = this->archivoMaestro.getListaNombresClaves();
 		
 		this->mapaTiposAtributos[nombreTipo] = listaIR;
 		this->mapaTiposIndices[nombreTipo] = listaTI;

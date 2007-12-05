@@ -29,7 +29,7 @@
 	
 	Archivo::Archivo(const string& nomArchivo): fstream()
 	{
-		//int id = this->generarID(nomArchivo);
+		int id = this->generarID(nomArchivo);
 		
 		//Abre el archivo en modo lectura - escritura binario  
 		this->open(nomArchivo.c_str(), ios::in |ios::out |ios::binary);
@@ -48,13 +48,13 @@
 		    this->open(nomArchivo.c_str(), ios::in|ios::out|ios::binary);
 		    
 		    //Escribe el numero magico identificador.
-		   // this->write((const char*)&id, Tamanios::TAMANIO_IDENTIFICADOR);		    
+		    this->write((const char*)&id, Tamanios::TAMANIO_IDENTIFICADOR);		    
 		    this->archivoValido = true;
 		    
 		}else{			
-			//int idPresente = 0;
-			//this->read((char*)&idPresente, Tamanios::TAMANIO_IDENTIFICADOR);				
-			//this->archivoValido = (id == idPresente);
+			int idPresente = 0;
+			this->read((char*)&idPresente, Tamanios::TAMANIO_IDENTIFICADOR);				
+			this->archivoValido = (id == idPresente);
 		}
 	}
 	

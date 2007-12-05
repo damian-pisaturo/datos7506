@@ -119,8 +119,6 @@ bool compararRegistros(char* registro1, char* registro2, unsigned short longitud
 
 bool compararClaves(Clave *clave, char operacion, Clave* claveAComparar)
 {
-	cout << "OPERACION: "<< (int)operacion << endl;
-	
 	bool comparacion = false;
 	switch (operacion) {
 		case ExpresionesLogicas::IGUAL:
@@ -139,10 +137,6 @@ bool compararClaves(Clave *clave, char operacion, Clave* claveAComparar)
 			comparacion = ((*clave < *claveAComparar) || (*clave == *claveAComparar));
 			break;
 	}
-	
-	clave->imprimir(cout);
-	claveAComparar->imprimir(cout);			
-	cout << "COMPARACION: " << comparacion << endl;
 	return comparacion;
 }
 
@@ -585,16 +579,16 @@ int guardarRegistro(const string &nombreTipo, char* registro, unsigned short tam
 	return fileManager.escribirRegistro(registro, tamRegistro);
 }
 
-/*
+
 int join(const MapaRestricciones &mapaOp, MapaExtensiones &mapaExt) {
 	
 	int resultado = 0;
 	string nombreTipo1, nombreTipo2, nombreArchivo;
 	string extensionVieja1, extensionVieja2, extensionNueva1, extensionNueva2;
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
-	DefinitionsManager::ListaOperaciones* listaOp = NULL;
-	char *registro1 = NULL, *registro2 = NULL; *auxReg = NULL;
-	unsigned short tamRegistro1 = 0, tamRegistro2 = 0;
+	ListaOperaciones* listaOp = NULL;
+	char *registro1 = NULL, *registro2 = NULL, *auxReg = NULL;
+	unsigned short tamRegistro1 = 0, tamRegistro2 = 0, tamRegAnterior = 0;
 	bool cumpleRestriccion = false;
 	
 	// TODO Pedir el tamaño del bloque al DM
@@ -613,47 +607,67 @@ int join(const MapaRestricciones &mapaOp, MapaExtensiones &mapaExt) {
 								  					defManager.getListaTiposAtributos(nombreTipo1));
 		
 		nombreArchivo = nombreTipo1 + "." + extensionNueva1;
-		FileManager* archivoNuevo1 = new FileManager(nombreArchivo, Tamanios::TAMANIO_BLOQUE_DATO,
-								  					defManager.getTipoOrgRegistro(nombreTipo1),
-								  					defManager.getListaTiposAtributos(nombreTipo1));
+//		FileManager* archivoNuevo1 = new FileManager(nombreArchivo, Tamanios::TAMANIO_BLOQUE_DATO,
+//								  					defManager.getTipoOrgRegistro(nombreTipo1),
+//								  					defManager.getListaTiposAtributos(nombreTipo1));
 		
-		for (DefinitionsManager::ListaOperaciones::iterator itTipo1 = listaOp->begin();
+		//TODO Agregar las extensiones en el mapa
+		
+		for (ListaOperaciones::iterator itTipo1 = listaOp->begin();
 			 itTipo1 != listaOp->end(); ++itTipo1) {
 			
 			resultado = archivoViejo1->siguienteRegistro(registro1, tamRegistro1);
 			
-			// TODO Verificar que registro1 no sea igual al registro anterior
-			
 			if (resultado == ResultadosMetadata::OK) {
 				
-				nombreTipo2 = it->estructuraNombresDer.nombreTipo;
-				
-				extensionVieja2 = *(mapaExt[nombreTipo2]->rbegin());
-				extensionNueva2 = generarSiguienteExtension(extensionVieja2);
-				
-				nombreArchivo = nombreTipo2 + "." + extensionVieja2;
-				FileManager* archivoViejo2 = new FileManager(nombreArchivo, Tamanios::TAMANIO_BLOQUE_DATO,
-										  					defManager.getTipoOrgRegistro(nombreTipo2),
-										  					defManager.getListaTiposAtributos(nombreTipo2));
-				
-				nombreArchivo = nombreTipo2 + "." + extensionNueva2;
-				FileManager* archivoNuevo2 = new FileManager(nombreArchivo, Tamanios::TAMANIO_BLOQUE_DATO,
-										  					defManager.getTipoOrgRegistro(nombreTipo2),
-										  					defManager.getListaTiposAtributos(nombreTipo2));
-				
-				while (archivoViejo2->siguienteRegistro(registro2, tamRegistro2) == ResultadosMetadata::OK) {
+				// Se chequea que el registro actual no sea el mismo que el anterior,
+				// ya que en los archivos joineados puede haber registros duplicados.
+				if (!auxReg) {
 					
-					cumpleRestriccion = compararCamposRegistros(*defManager.getListaNombresAtributos(nombreTipo1),
-																*defManager.getListaNombresAtributos(nombreTipo2),
-																*defManager.getListaTiposAtributos(nombreTipo1),
-																*defManager.getListaTiposAtributos(nombreTipo2),
-																itTipo1->estructuraNombresIzq.nombreCampo,
-																itTipo1->estructuraNombresDer.nombreCampo,
-																registro1, registro2, itTipo1->operacion);
-				}
+					tamRegAnterior = tamRegistro1;
+					auxReg = new char[tamRegistro1];
+					memcpy(auxReg, registro1, tamRegistro1);
+					
+				} else {
+					
+					if (!((tamRegAnterior == tamRegistro1) && (compararRegistros(auxReg, registro1, tamRegistro1)))) {
 				
-				delete archivoViejo2;
-				delete archivoViejo1;
+						tamRegAnterior = tamRegistro1;
+						delete[] auxReg;
+						auxReg = new char[tamRegistro1];
+						memcpy(auxReg, registro1, tamRegistro1);
+						
+						nombreTipo2 = itTipo1->estructuraNombresDer.nombreTipo;
+						
+						extensionVieja2 = *(mapaExt[nombreTipo2]->rbegin());
+						extensionNueva2 = generarSiguienteExtension(extensionVieja2);
+						
+						nombreArchivo = nombreTipo2 + "." + extensionVieja2;
+						FileManager* archivoViejo2 = new FileManager(nombreArchivo, Tamanios::TAMANIO_BLOQUE_DATO,
+												  					defManager.getTipoOrgRegistro(nombreTipo2),
+												  					defManager.getListaTiposAtributos(nombreTipo2));
+						
+						nombreArchivo = nombreTipo2 + "." + extensionNueva2;
+//						FileManager* archivoNuevo2 = new FileManager(nombreArchivo, Tamanios::TAMANIO_BLOQUE_DATO,
+//												  					defManager.getTipoOrgRegistro(nombreTipo2),
+//												  					defManager.getListaTiposAtributos(nombreTipo2));
+						
+						while (archivoViejo2->siguienteRegistro(registro2, tamRegistro2) == ResultadosMetadata::OK) {
+							
+							cumpleRestriccion = compararCamposRegistros(*defManager.getListaNombresAtributos(nombreTipo1),
+																		*defManager.getListaNombresAtributos(nombreTipo2),
+																		*defManager.getListaTiposAtributos(nombreTipo1),
+																		*defManager.getListaTiposAtributos(nombreTipo2),
+																		itTipo1->estructuraNombresIzq.nombreCampo,
+																		itTipo1->estructuraNombresDer.nombreCampo,
+																		registro1, registro2, itTipo1->operacion);
+						}
+						
+						delete archivoViejo2;
+						delete archivoViejo1;
+					}
+					
+				}
 			
 			}
 			
@@ -664,7 +678,7 @@ int join(const MapaRestricciones &mapaOp, MapaExtensiones &mapaExt) {
 	return resultado;
 	
 }
-*/
+
 
 int resolverJoins(const MapaRestricciones &mapaJoins, const MapaRestricciones &mapaWhere, MapaExtensiones &mapaExt) {
 	
@@ -744,10 +758,9 @@ void armarListaClaves(EstructuraCampos &estructuraCampos, ListaInfoClave &listaC
 int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 {
 	ComuDatos * pipe = instanciarPipe();
-			
+		
 	// Codigo de operacion de consulta para la Capa de Indices
 	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_ELIMINAR, 0); 
-	
 	// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
 	pipe->agregarParametro(nombreTipo, 1);
 	
@@ -830,7 +843,7 @@ int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 		}
 	}	
 	delete pipe;
-		
+	
 	return pipeResult; 
 }
 
@@ -990,7 +1003,7 @@ int alta(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos)
 	}
 
 	delete pipe;
-	
+
 	return pipeResult;
 }
 
@@ -1148,7 +1161,7 @@ int main(int argc, char* argv[])
 				unsigned int longitudCadena;
 				string cadena;
 				
-				for (unsigned int i = 0; i<cantidadElementos; i++) {
+				for (unsigned int i = 0; i < cantidadElementos; i++) {
 					pipe->leer(&longitudCadena);
 					pipe->leer(longitudCadena, cadena);
 					estructuraConsulta.listaNombresTipos.push_back(cadena);
@@ -1318,9 +1331,11 @@ int main(int argc, char* argv[])
 					pipe->leer(longitudCadena, valorAtributo);
 					
 					mapaValoresAtributos[nombreAtributo] = valorAtributo;
+					
+					cout << "a" << endl;
 				}
 
-				pipeResult = alta (nombreTipo, mapaValoresAtributos);
+				pipeResult = alta(nombreTipo, mapaValoresAtributos);
 				
 				pipe->escribir(pipeResult);
 									

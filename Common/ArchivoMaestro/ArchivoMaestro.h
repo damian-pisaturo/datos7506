@@ -20,7 +20,7 @@
 #ifndef ARCHIVOMAESTRO_H_
 #define ARCHIVOMAESTRO_H_
 
-#define NOM_ARCHIVO_MAESTRO "7506_FP2C07.adm"
+#define NOM_ARCHIVO_MAESTRO "../Common/7506_FP2C07.adm"
 #define MASTER_MAGIC_NUMBER "TAAC"
 
 #include <ctime>

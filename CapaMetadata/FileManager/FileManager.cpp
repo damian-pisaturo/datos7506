@@ -90,7 +90,7 @@ int FileManager::escribirRegistro(void* registro, unsigned short tamRegistro) {
 	 
 }
 
-int FileManager::getNextBloque(void* &registro, unsigned short &tamRegistro) {
+int FileManager::getNextBloque(char* &registro, unsigned short &tamRegistro) {
 	
 	unsigned short espLibre = this->getTamanioBloqueDatos() - Tamanios::TAMANIO_ESPACIO_LIBRE - Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 	char* bloqueDatos = new char[this->getTamanioBloqueDatos()];
@@ -118,7 +118,7 @@ int FileManager::getNextBloque(void* &registro, unsigned short &tamRegistro) {
  * Si no pudo, porque no existen más registros, 
  * retorna ResultadosMetadata::FIN_REGISTROS.
  */
-int FileManager::siguienteRegistro(void* &registro, unsigned short &tamRegistro) {
+int FileManager::siguienteRegistro(char* &registro, unsigned short &tamRegistro) {
 	int resultado = ResultadosMetadata::OK;
 	
 	if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES) {
