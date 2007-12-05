@@ -940,16 +940,18 @@ int modificacion(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos,
 int alta(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos)
 {
 	ComuDatos *pipe = instanciarPipe();
-
+	
 	// Se instancia el DefinitionsManager (conocedor absoluto del universo).
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
 	
 	ListaNombresClaves *listaNombres = defManager.getListaNombresClavesPrimarias(nombreTipo);
-	
+
 	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_INSERTAR, 0); 
+
 	// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
 	pipe->agregarParametro(nombreTipo, 1);
 	
+
 	// Se lanza el proceso de la Capa Indices.
 	int pipeResult = pipe->lanzar();
 
@@ -979,16 +981,13 @@ int alta(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos)
 			
 			listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
 			listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-			
+
 			// Se crea el registro a dar de alta y se obtiene su longitud
 			unsigned short tamRegistro = dataManager.crearRegistroAlta(*listaValAtributos, *listaTiposAtributos);
 			
 			pipe->escribir(tamRegistro);
 			
-			if (tamRegistro > 0) {
-				
-//					vista.showRegister(dataManager.getRegistro(), listaTiposAtributos);
-				
+			if (tamRegistro > 0) {				
 				// Se envia el registro a dar de alta por el pipe.
 				pipe->escribir(dataManager.getRegistro(), tamRegistro);
 				
@@ -1330,13 +1329,10 @@ int main(int argc, char* argv[])
 					pipe->leer(&longitudCadena);
 					pipe->leer(longitudCadena, valorAtributo);
 					
-					mapaValoresAtributos[nombreAtributo] = valorAtributo;
-					
-					cout << "a" << endl;
+					mapaValoresAtributos[nombreAtributo] = valorAtributo;					
 				}
-
-				pipeResult = alta(nombreTipo, mapaValoresAtributos);
 				
+				pipeResult = alta(nombreTipo, mapaValoresAtributos);
 				pipe->escribir(pipeResult);
 									
 			}break;
