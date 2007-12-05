@@ -11,10 +11,14 @@
 #include "../Common/DefManager/DefinitionsManager.h"
 #include "Parser/ParserOperaciones.h"
 #include "DataManager/DataManager.h"
+#include "FileManager/FileManager.h"
 #include "Vista/Vista.h"
 #include <string>
 
 using namespace std;
+
+#define EXTENSION_TEMPORAL_INICIAL	"tmp0"
+#define EXTENSION_ESPACIO_LIBRE		"nfo"
 
 ComuDatos* instanciarPipe();
 void serializarListaClaves(string& s, DefinitionsManager::ListaClaves* listaClaves);
