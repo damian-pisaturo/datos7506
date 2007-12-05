@@ -55,6 +55,13 @@ void destruirMapaRestricciones(MapaRestricciones &mapa) {
 }
 
 
+int resolverJoin() {
+	
+	
+	return 0;
+}
+
+
 // FIN MÉTODOS PARA JOINS
 
 
@@ -335,10 +342,9 @@ bool compararClaves(Clave *clave, unsigned char operacion, Clave* claveAComparar
 	return comparacion;
 }
 
-string obtenerCampo(unsigned int numeroCampo, char* registro, DefinitionsManager::ListaTiposAtributos &listaTiposAtributos) {
+char* obtenerCampo(unsigned int numeroCampo, char* registro, DefinitionsManager::ListaTiposAtributos &listaTiposAtributos) {
 
 	unsigned short offset = 0;
-	string campo;
 	
 	DefinitionsManager::ListaTiposAtributos::iterator itLTA = listaTiposAtributos.begin();
 	
@@ -378,40 +384,182 @@ string obtenerCampo(unsigned int numeroCampo, char* registro, DefinitionsManager
 			}
 			++itLTA;
 		}
-		
-		// itLTA tiene ahora el tipo del campo pedido. Se pone dicho campo en un string.
-		switch (itLTA->tipo) {
-			case TipoDatos::TIPO_BOOL:
-				campo.assign(registro + offset, sizeof(bool));
-				break;
-			case TipoDatos::TIPO_CHAR:
-				campo.assign(registro + offset, sizeof(char));
-				break;
-			case TipoDatos::TIPO_ENTERO:
-				campo.assign(registro + offset, sizeof(int));
-				break;
-			case TipoDatos::TIPO_FECHA:
-				//TODO: revisar esto q no se si funciona asi con las fechas!
-				campo.assign(registro + offset, Tamanios::TAMANIO_FECHA);
-				break;
-			case TipoDatos::TIPO_FLOAT:
-				campo.assign(registro + offset, sizeof(float));
-				break;
-			case TipoDatos::TIPO_SHORT:
-				campo.assign(registro + offset, sizeof(short));
-				break;
-			case TipoDatos::TIPO_STRING:
-				unsigned char tamanioCadena;
-				memcpy(&tamanioCadena, registro + offset, Tamanios::TAMANIO_LONGITUD_CADENA);
-				offset += Tamanios::TAMANIO_LONGITUD_CADENA;
-				campo.assign(registro + offset, sizeof(tamanioCadena));
-				break;
-		}
-		
-		return campo;
+		return (registro + offset);
 	
 	}else
-		return "";
+		return NULL;
+}
+
+int compararCamposRegistros(DefinitionsManager::ListaNombresAtributos &listaNombresAtributos1, DefinitionsManager::ListaNombresAtributos
+							 &listaNombresAtributos2, DefinitionsManager::ListaTiposAtributos &listaTiposAtributos1,
+							 DefinitionsManager::ListaTiposAtributos &listaTiposAtributos2, string nombre1, string nombre2,
+							 char* registro1, char* registro2, char operacion)
+{
+	DefinitionsManager::ListaNombresAtributos::iterator itNombres = listaNombresAtributos1.begin();
+ 
+	// Obtiene el campo pedido del primer registro.
+	unsigned int numeroCampo = 1;
+
+	while ((nombre1 != *itNombres) && (itNombres != listaNombresAtributos1.end())) {
+		++numeroCampo;
+		++itNombres;
+	}
+	
+	char* campo1 = obtenerCampo(numeroCampo, registro1, listaTiposAtributos1);
+	
+	DefinitionsManager::ListaTiposAtributos::iterator itTipos = listaTiposAtributos1.begin();
+
+	// itera la lista de tipos para obtener el tipo del campo "campo1".
+	for (unsigned int i = 0; i < numeroCampo; ++i)
+		++itTipos;
+	
+	int tipoCampo1;
+	Clave * clave1;
+	
+	// Se genera una clave que contenga el campo1 para usarla luego en la comparación con el campo2
+	switch (itTipos->tipo) {
+		case TipoDatos::TIPO_BOOL: {	
+			bool valorCampo;
+			memcpy(&valorCampo, campo1, sizeof(bool));
+			clave1 = new ClaveBoolean(valorCampo);
+			tipoCampo1 = TipoDatos::TIPO_BOOL;
+			break;
+		}
+		case TipoDatos::TIPO_CHAR: {	
+			char valorCampo;
+			memcpy(&valorCampo, campo1, sizeof(char));
+			clave1 = new ClaveChar(valorCampo);
+			tipoCampo1 = TipoDatos::TIPO_CHAR;
+			break;
+		}
+		case TipoDatos::TIPO_SHORT: {
+			short valorCampo;
+			memcpy(&valorCampo, campo1, sizeof(short));
+			clave1 = new ClaveShort(valorCampo);
+			tipoCampo1 = TipoDatos::TIPO_SHORT;
+			break;
+		}
+		case TipoDatos::TIPO_ENTERO: {
+			int valorCampo;
+			memcpy(&valorCampo, campo1, sizeof(int));
+			clave1 = new ClaveEntera(valorCampo);
+			tipoCampo1 = TipoDatos::TIPO_ENTERO;
+			break;
+		}
+		case TipoDatos::TIPO_FLOAT: {
+			float valorCampo;
+			memcpy(&valorCampo, campo1, sizeof(float));
+			clave1 = new ClaveReal(valorCampo);
+			tipoCampo1 = TipoDatos::TIPO_FLOAT;
+			break;
+		}
+		case TipoDatos::TIPO_FECHA: {
+			ClaveFecha::TFECHA valorCampo;
+			unsigned short anio, dia, mes;
+			
+			memcpy(&anio, campo1, sizeof(short));
+			memcpy(&mes, campo1 + sizeof(short), sizeof(char));
+			memcpy(&dia, campo1 + sizeof(short) + sizeof(char), sizeof(char));
+			valorCampo.crear(dia, mes, anio);
+			clave1 = new ClaveFecha(valorCampo);
+			tipoCampo1 = TipoDatos::TIPO_FECHA;
+			break;
+		}
+		case TipoDatos::TIPO_STRING: {
+			clave1 = new ClaveVariable(campo1);
+			tipoCampo1 = TipoDatos::TIPO_STRING;
+			break;
+		}
+			
+	}
+	
+	// Obtiene el campo pedido del segundo registro.
+	numeroCampo = 1;
+	
+	while ((nombre2 != *itNombres) && (itNombres != listaNombresAtributos2.end())) {
+		++numeroCampo;
+		++itNombres;
+	}
+	
+	char* campo2 = obtenerCampo(numeroCampo, registro2, listaTiposAtributos2);
+
+
+	itTipos = listaTiposAtributos2.begin();
+
+	// itera la lista de tipos para obtener el tipo del campo "campo2".
+	for (unsigned int i = 0; i < numeroCampo; ++i)
+		++itTipos;
+	
+	Clave* clave2;
+	
+	// Comprueba que el campo2 sea del mismo tipo que el campo1.
+	// Y genera con el una clave para usar en la comparacion.
+	switch (itTipos->tipo) {
+		case TipoDatos::TIPO_BOOL: {
+			if (tipoCampo1 != TipoDatos::TIPO_BOOL)
+				return ResultadosMetadata::ERROR_DISTINTO_TIPO_DATO;
+			bool valorCampo;
+			memcpy(&valorCampo, campo2, sizeof(bool));
+			clave2 = new ClaveBoolean(valorCampo);
+			break;
+		}
+		case TipoDatos::TIPO_CHAR: {	
+			if (tipoCampo1 != TipoDatos::TIPO_CHAR)
+				return ResultadosMetadata::ERROR_DISTINTO_TIPO_DATO;
+			char valorCampo;
+			memcpy(&valorCampo, campo2, sizeof(char));
+			clave2 = new ClaveChar(valorCampo);
+			break;
+		}
+		case TipoDatos::TIPO_SHORT: {
+			if (tipoCampo1 != TipoDatos::TIPO_SHORT)
+				return ResultadosMetadata::ERROR_DISTINTO_TIPO_DATO;
+			short valorCampo;
+			memcpy(&valorCampo, campo2, sizeof(short));
+			clave2 = new ClaveShort(valorCampo);
+			break;
+		}
+		case TipoDatos::TIPO_ENTERO: {
+			if (tipoCampo1 != TipoDatos::TIPO_ENTERO)
+				return ResultadosMetadata::ERROR_DISTINTO_TIPO_DATO;
+			int valorCampo;
+			memcpy(&valorCampo, campo2, sizeof(int));
+			clave2 = new ClaveEntera(valorCampo);
+			break;
+		}
+		case TipoDatos::TIPO_FLOAT: {
+			if (tipoCampo1 != TipoDatos::TIPO_FLOAT)
+				return ResultadosMetadata::ERROR_DISTINTO_TIPO_DATO;
+			float valorCampo;
+			memcpy(&valorCampo, campo2, sizeof(float));
+			clave2 = new ClaveReal(valorCampo);
+			break;
+		}
+		case TipoDatos::TIPO_FECHA: {
+			if (tipoCampo1 != TipoDatos::TIPO_FECHA)
+				return ResultadosMetadata::ERROR_DISTINTO_TIPO_DATO;
+			ClaveFecha::TFECHA valorCampo;
+			unsigned short anio, dia, mes;
+			
+			memcpy(&anio, campo2, sizeof(short));
+			memcpy(&mes, campo2 + sizeof(short), sizeof(char));
+			memcpy(&dia, campo2 + sizeof(short) + sizeof(char), sizeof(char));
+			valorCampo.crear(dia, mes, anio);
+			clave2 = new ClaveFecha(valorCampo);
+			break;
+		}
+		case TipoDatos::TIPO_STRING: {
+			if (tipoCampo1 != TipoDatos::TIPO_STRING)
+				return ResultadosMetadata::ERROR_DISTINTO_TIPO_DATO;
+			clave2 = new ClaveVariable(campo2);
+			break;
+		}
+			
+	}
+	
+	if (compararClaves(clave1 ,operacion, clave2))
+		return ResultadosMetadata::CAMPOS_IGUALES;
+	return ResultadosMetadata::CAMPOS_DISTINTOS;
 }
 
 bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos &listaNombresAtributos, 
@@ -426,7 +574,7 @@ bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos
 		++itNombres;
 	}
 	
-	string campo = obtenerCampo(numeroCampo, registro, listaTiposAtributos);
+	char* campo = obtenerCampo(numeroCampo, registro, listaTiposAtributos);
 	
 	DefinitionsManager::ListaTiposAtributos::iterator itTipos = listaTiposAtributos.begin();
 
@@ -434,11 +582,10 @@ bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos
 	for (unsigned int i = 0; i < numeroCampo; ++i)
 		++itTipos;
 	
-	stringstream conversorCampo, conversorCampoAComparar;
+	stringstream conversorCampoAComparar;
 	Clave* clave;
 	Clave* claveAComparar;
 	
-	conversorCampo << campo;
 	// En "nodoListaOperaciones.estructuraNombresDer.nombreCampo" se encuentra el valor constante 
 	// con el cual hay que hacer la comparación.
 	conversorCampoAComparar << nodoListaOperaciones.estructuraNombresDer.nombreCampo;
@@ -446,7 +593,7 @@ bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos
 	switch (itTipos->tipo) {
 		case TipoDatos::TIPO_BOOL: {	
 			bool valorCampo;
-			conversorCampo >> valorCampo;
+			memcpy(&valorCampo, campo, sizeof(bool));
 			clave = new ClaveBoolean(valorCampo);
 			
 			bool valorAComparar;
@@ -456,7 +603,7 @@ bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos
 		}
 		case TipoDatos::TIPO_CHAR: {	
 			char valorCampo;
-			conversorCampo >> valorCampo;
+			memcpy(&valorCampo, campo, sizeof(char));
 			clave = new ClaveChar(valorCampo);
 			
 			char valorAComparar;
@@ -466,7 +613,7 @@ bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos
 		}
 		case TipoDatos::TIPO_SHORT: {
 			short valorCampo;
-			conversorCampo >> valorCampo;
+			memcpy(&valorCampo, campo, sizeof(short));
 			clave = new ClaveShort(valorCampo);
 			
 			short valorAComparar;
@@ -476,7 +623,7 @@ bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos
 		}
 		case TipoDatos::TIPO_ENTERO: {
 			int valorCampo;
-			conversorCampo >> valorCampo;
+			memcpy(&valorCampo, campo, sizeof(int));
 			clave = new ClaveEntera(valorCampo);
 			
 			int valorAComparar;
@@ -486,7 +633,7 @@ bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos
 		}
 		case TipoDatos::TIPO_FLOAT: {
 			float valorCampo;
-			conversorCampo >> valorCampo;
+			memcpy(&valorCampo, campo, sizeof(float));
 			clave = new ClaveReal(valorCampo);
 			
 			float valorAComparar;
@@ -498,18 +645,9 @@ bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos
 			ClaveFecha::TFECHA valorCampo;
 			unsigned short anio, dia, mes;
 			
-			conversorCampo.clear();
-			conversorCampo.str("");
-			conversorCampo << campo.substr(0, 4);
-			conversorCampo >> anio;
-			conversorCampo.clear();
-			conversorCampo.str("");
-			conversorCampo << campo.substr(4, 2);
-			conversorCampo >> mes;
-			conversorCampo.clear();
-			conversorCampo.str("");
-			conversorCampo << campo.substr(6, 2);
-			conversorCampo >> dia;
+			memcpy(&anio, campo, sizeof(short));
+			memcpy(&mes, campo + sizeof(short), sizeof(char));
+			memcpy(&dia, campo + sizeof(short) + sizeof(char), sizeof(char));
 			valorCampo.crear(dia, mes, anio);
 			clave = new ClaveFecha(valorCampo);
 			
@@ -584,9 +722,9 @@ bool cumpleRestricciones(char* registro, DefinitionsManager::ListaOperaciones &l
 			else if ((cumple) && (operacion == ExpresionesLogicas::OR))
 				continuar = false;
 			
-			++itLO;
 			// Saca el primer elemento de la lista, que es el que acaba de revisar.
 			listaOperaciones.pop_front();
+			itLO = listaOperaciones.begin();
 		}
 	
 	}

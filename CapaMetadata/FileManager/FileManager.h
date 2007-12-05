@@ -15,6 +15,7 @@ class FileManager {
 		int siguienteBloque;
 		Bloque* bloque;
 		ListaNodos* listaNodos;
+		bool pedirBloque;
 	
 	public:
 		/*
@@ -39,7 +40,7 @@ class FileManager {
 		 * Si no pudo, porque no existen más registros, 
 		 * retorna ResultadosMetadata::FIN_REGISTROS.
 		 */
-		int siguienteRegistro(void* registro, unsigned short &tamRegistro);
+		int siguienteRegistro(void* &registro, unsigned short &tamRegistro);
 		
 		unsigned short getTamanioBloqueDatos() const { return this->tamBloque; }
 		
@@ -59,6 +60,9 @@ class FileManager {
 		 */
 		static void renombrarArchivosTemporales(DefinitionsManager::ListaStrings &listaNombres,
 												const string &extVieja, const string &extNueva);
+		
+	private:
+		int getNextBloque(void* &registro, unsigned short &tamRegistro);
 		
 };
 

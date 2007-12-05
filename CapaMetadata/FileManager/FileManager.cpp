@@ -7,6 +7,7 @@ FileManager::FileManager(const string &nombreArchivo, unsigned short tamBloque,
 	this->tipoOrg = tipoOrg;
 	this->siguienteBloque = 0;
 	this->listaNodos = listaTiposAtributos;
+	this->pedirBloque = true;
 	
 	switch (tipoOrg) {
 	
@@ -89,6 +90,27 @@ int FileManager::escribirRegistro(void* registro, unsigned short tamRegistro) {
 	 
 }
 
+int FileManager::getNextBloque(void* &registro, unsigned short &tamRegistro) {
+	
+	unsigned short espLibre = this->getTamanioBloqueDatos() - Tamanios::TAMANIO_ESPACIO_LIBRE - Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+	char* bloqueDatos = new char[this->getTamanioBloqueDatos()];
+	int nroBloque = this->siguienteBloque;
+	int resultado = this->archivo->siguienteBloque(bloqueDatos, nroBloque, espLibre);
+	
+	if (resultado == ResultadosFisica::OK) {
+		
+		this->bloque->setDatos(bloqueDatos);
+		registro = this->bloque->getNextRegister();
+		this->siguienteBloque = ++nroBloque; 
+		this->pedirBloque = false;
+		
+	} else {
+		delete[] bloqueDatos;
+		tamRegistro = 0;
+	}
+	
+	return resultado;
+}
 
 /* Devuelve el siguiente registro con datos validos en el archivo de
  * datos. Si pudo obtener un registro, lo devuelve en 'registro' y
@@ -96,36 +118,38 @@ int FileManager::escribirRegistro(void* registro, unsigned short tamRegistro) {
  * Si no pudo, porque no existen más registros, 
  * retorna ResultadosMetadata::FIN_REGISTROS.
  */
-int FileManager::siguienteRegistro(void* registro, unsigned short &tamRegistro) {
+int FileManager::siguienteRegistro(void* &registro, unsigned short &tamRegistro) {
+	int resultado = ResultadosMetadata::OK;
 	
-	char* bloqueDatos = new char[this->getTamanioBloqueDatos()];
-	int nroBloque = this->siguienteBloque;
-	unsigned short espLibre = this->getTamanioBloqueDatos() - Tamanios::TAMANIO_ESPACIO_LIBRE - Tamanios::TAMANIO_CANTIDAD_REGISTROS;
-	int resultado = this->archivo->siguienteBloque(bloqueDatos, nroBloque, espLibre);
-	
-	if (resultado == ResultadosFisica::OK) {
+	if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES) {
 		
-		if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES) {
-			
-			this->bloque->setDatos(bloqueDatos);
-			
-			//TODO Terminar de implementar!!!
-			
-			resultado = ResultadosIndices::OK;
-		
-		} else if (this->getTipoOrganizacion() == TipoOrganizacion::REG_FIJOS) {
-			
-			memcpy(registro, bloqueDatos, this->getTamanioBloqueDatos());
-			delete[] bloqueDatos;
-			resultado = ResultadosIndices::OK;
+		if (pedirBloque) {
+			if(this->getNextBloque(registro, tamRegistro) != ResultadosFisica::OK)
+				resultado = ResultadosMetadata::FIN_REGISTROS;
+		} else {
+			registro = this->bloque->getNextRegister();
+			if (!registro) {
+				if(this->getNextBloque(registro, tamRegistro) != ResultadosFisica::OK)
+					resultado = ResultadosMetadata::FIN_REGISTROS;
+			}
 			
 		}
 		
-		this->siguienteBloque = ++nroBloque;
+	} else if (this->getTipoOrganizacion() == TipoOrganizacion::REG_FIJOS) {
 		
-	} else {
-		delete[] bloqueDatos;
-		tamRegistro = 0;
+		char *bloqueDatos = new char[this->getTamanioBloqueDatos()];
+		int nroBloque = this->siguienteBloque;
+		
+		if (this->archivo->siguienteBloque(bloqueDatos, nroBloque, 0) == ResultadosFisica::OK) {
+			registro = bloqueDatos;
+			tamRegistro = this->getTamanioBloqueDatos();
+			this->siguienteBloque = ++nroBloque;
+		} else {
+			delete[] bloqueDatos;
+			tamRegistro = 0;
+			resultado = ResultadosMetadata::FIN_REGISTROS;
+		}
+		
 	}
 	
 	return resultado;
