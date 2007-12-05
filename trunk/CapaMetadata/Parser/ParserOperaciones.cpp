@@ -46,15 +46,15 @@ ParserOperaciones::~ParserOperaciones() {
 
 int ParserOperaciones::proximaOperacion() {	
 	string linea;
-	list<string> lineaParseada;
-	list<string>::iterator iter;
-	list<string> nombresAtributos;
-	list<string>::iterator iterNombresAtributos;
-	list<string> valoresAtributos;
-	list<string>::iterator iterValoresAtributos;
+	ListaStrings lineaParseada;
+	ListaStrings::iterator iter;
+	ListaStrings nombresAtributos;
+	ListaStrings::iterator iterNombresAtributos;
+	ListaStrings valoresAtributos;
+	ListaStrings::iterator iterValoresAtributos;
 	string tipoOp;
 	unsigned char resultado = ResultadosParserOperaciones::FIN_ARCHIVO;
-	char operacion;
+	char operacion = 0;
 	
 	while ( (!cin.fail()) && (resultado == ResultadosParserOperaciones::FIN_ARCHIVO) ){
 		getline(cin, linea, FIN_OPERACION);
@@ -68,10 +68,10 @@ int ParserOperaciones::proximaOperacion() {
 				this->mapValoresAtributos = NULL;
 			}
 			
-			this->mapValoresAtributos = new DefinitionsManager::MapaValoresAtributos();
+			this->mapValoresAtributos = new MapaValoresAtributos();
 			
 			this->estructuraCampos.operacion = NO_OPERACION;
-			this->estructuraCampos.listaCampos.clear(); // = new DefinitionsManager::ListaCampos();
+			this->estructuraCampos.listaCampos.clear();
 			
 			this->estructuraConsulta.listaCamposSeleccionados.clear();
 			this->estructuraConsulta.listaNombresTipos.clear();
@@ -162,7 +162,7 @@ int ParserOperaciones::proximaOperacion() {
 						}
 						
 						while (iter != lineaParseada.end()){
-							DefinitionsManager::NodoListaCampos nodo;
+							NodoListaCampos nodo;
 							nodo.nombreCampo = *(iter++);
 							mayus(&(nodo.nombreCampo));
 							if (*iter == "<") nodo.operacion = ExpresionesLogicas::MENOR;
@@ -238,7 +238,7 @@ int ParserOperaciones::proximaOperacion() {
 						}
 						
 						while (iter != lineaParseada.end()){
-							DefinitionsManager::NodoListaCampos nodo;
+							NodoListaCampos nodo;
 							nodo.nombreCampo = *(iter++);
 							mayus(&(nodo.nombreCampo));
 							if (*iter == "<") nodo.operacion = ExpresionesLogicas::MENOR;
@@ -275,12 +275,12 @@ int ParserOperaciones::proximaOperacion() {
 					} break;
 					
 					case OperacionesCapas::CONSULTAS_CONSULTA: {
-						DefinitionsManager::ListaStrings campos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR);
-						DefinitionsManager::EstructuraNombres estructuraNombres;
-						DefinitionsManager::ListaStrings campo;
-						DefinitionsManager::NodoListaOperaciones nodoOperaciones;
+						ListaStrings campos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR);
+						EstructuraNombres estructuraNombres;
+						ListaStrings campo;
+						NodoListaOperaciones nodoOperaciones;
 						
-						for (DefinitionsManager::ListaStrings::iterator iterStrings = campos.begin(); iterStrings != campos.end(); ++iterStrings){
+						for (ListaStrings::iterator iterStrings = campos.begin(); iterStrings != campos.end(); ++iterStrings){
 							campo = parsearString(*iterStrings, SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR);
 							estructuraNombres.nombreTipo = *(campo.begin());
 							estructuraNombres.nombreCampo = *(++campo.begin());
@@ -293,7 +293,7 @@ int ParserOperaciones::proximaOperacion() {
 						}
 						
 						campos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR);
-						for (DefinitionsManager::ListaStrings::iterator iterStrings = campos.begin(); iterStrings != campos.end(); ++iterStrings){
+						for (ListaStrings::iterator iterStrings = campos.begin(); iterStrings != campos.end(); ++iterStrings){
 							this->estructuraConsulta.listaNombresTipos.push_back(*iterStrings);
 						}
 						
@@ -398,7 +398,7 @@ int ParserOperaciones::proximaOperacion() {
 							campos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR);
 							
 							
-							for (DefinitionsManager::ListaStrings::iterator iterStrings = campos.begin(); iterStrings != campos.end(); ++iterStrings){
+							for (ListaStrings::iterator iterStrings = campos.begin(); iterStrings != campos.end(); ++iterStrings){
 								campo = parsearString(*iterStrings, SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR);
 								estructuraNombres.nombreTipo = *(campo.begin());
 								estructuraNombres.nombreCampo = *(++campo.begin());

@@ -1,12 +1,12 @@
 #include "FileManager.h"
 
 FileManager::FileManager(const string &nombreArchivo, unsigned short tamBloque,
-						 unsigned char tipoOrg, ListaNodos* listaTiposAtributos) {
-	
+						 unsigned char tipoOrg, ListaInfoRegistro* listaTiposAtributos) {
+		
 	this->tamBloque = tamBloque;
 	this->tipoOrg = tipoOrg;
 	this->siguienteBloque = 0;
-	this->listaNodos = listaTiposAtributos;
+	this->listaInfoReg = listaTiposAtributos;
 	this->pedirBloque = true;
 	
 	switch (tipoOrg) {
@@ -62,14 +62,14 @@ int FileManager::escribirRegistro(void* registro, unsigned short tamRegistro) {
 			this->bloque->setNroBloque(nroBloque);		
 			this->bloque->setDatos(contenidoBloque);
 			// Inserta el registro.
-			this->bloque->altaRegistro(this->listaNodos, (char*)registro);
+			this->bloque->altaRegistro(this->listaInfoReg, (char*)registro);
 			// Sobreescribe el archivo de datos en la posicion 'nroBloque'
 			resultado = ((ArchivoDatosBloques*)this->archivo)->escribirBloque(this->bloque->getDatos(), nroBloque,
 																			  this->bloque->getTamanioEspacioLibre());
 		}else{
 			
 			// Inserta el registro.
-			this->bloque->altaRegistro(this->listaNodos, (char*)registro);
+			this->bloque->altaRegistro(this->listaInfoReg, (char*)registro);
 			
 			// Agrega un nuevo bloque de datos al archivo
 			nroBloque = ((ArchivoDatosBloques*)this->archivo)->escribirBloque(this->bloque->getDatos(),
@@ -164,17 +164,15 @@ void FileManager::eliminarArchivosTemporales(const string &extension) {
 	
 }
 		
-void FileManager::renombrarArchivosTemporales(DefinitionsManager::ListaStrings &listaNombres,
+void FileManager::renombrarArchivosTemporales(ListaStrings &listaNombres,
 											  const string &extVieja, const string &extNueva) {
 	
 	string operacion;
 	
-	for (DefinitionsManager::ListaStrings::iterator it = listaNombres.begin();
-		 it != listaNombres.end(); ++it) {
+	for (ListaStrings::iterator it = listaNombres.begin(); it != listaNombres.end(); ++it) {
 		
 		operacion = "mv " + *it + "." + extVieja + " " + *it + "." + extNueva;
-		system(operacion.c_str());
-		
+		system(operacion.c_str());	
 	}
 	
 }

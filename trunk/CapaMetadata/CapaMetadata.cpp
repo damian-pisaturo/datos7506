@@ -16,9 +16,9 @@
 
 #include "CapaMetadata.h"
 
-typedef map<string, DefinitionsManager::ListaOperaciones*> MapaRestricciones;
+typedef map<string, ListaOperaciones*> MapaRestricciones;
 
-typedef map<string, DefinitionsManager::ListaStrings*> MapaExtensiones;
+typedef map<string, ListaStrings*> MapaExtensiones;
 
 // MÉTODOS PARA RESOLVER LAS CONSULTAS CON JOINS
 
@@ -41,11 +41,11 @@ char invertirOperadorLogico(char operador) {
 	
 }
 
-void invertirOperacionLogica(const string &nombreTipo, DefinitionsManager::ListaOperaciones &lista) {
+void invertirOperacionLogica(const string &nombreTipo, ListaOperaciones &lista) {
 	
-	DefinitionsManager::EstructuraNombres estructuraAuxiliar;
+	EstructuraNombres estructuraAuxiliar;
 	
-	for (DefinitionsManager::ListaOperaciones::iterator it = lista.begin();
+	for (ListaOperaciones::iterator it = lista.begin();
 		 it != lista.end(); ++it) {
 		
 		if (it->estructuraNombresDer.nombreTipo == nombreTipo) {
@@ -61,13 +61,13 @@ void invertirOperacionLogica(const string &nombreTipo, DefinitionsManager::Lista
 	
 }
 
-void cargarMapasRestricciones(DefinitionsManager::ListaOperaciones &lista, MapaRestricciones &mapa) {
+void cargarMapasRestricciones(ListaOperaciones &lista, MapaRestricciones &mapa) {
 	
-	DefinitionsManager::ListaOperaciones* listaOp = NULL;
+	ListaOperaciones* listaOp = NULL;
 	MapaRestricciones::iterator iterMapa;
 	string nombreTipo("");
 	
-	for (DefinitionsManager::ListaOperaciones::iterator it = lista.begin();
+	for (ListaOperaciones::iterator it = lista.begin();
 		 it != lista.end(); ++it) {
 		
 		nombreTipo = it->estructuraNombresIzq.nombreTipo;
@@ -77,7 +77,7 @@ void cargarMapasRestricciones(DefinitionsManager::ListaOperaciones &lista, MapaR
 		if (iterMapa != mapa.end()) // Se encontró el nombre del tipo en el mapa	
 			iterMapa->second->push_back(*it);
 		else {	
-			listaOp = new DefinitionsManager::ListaOperaciones();
+			listaOp = new ListaOperaciones();
 			listaOp->push_back(*it);
 			mapa[nombreTipo] = listaOp;
 		}
@@ -140,22 +140,22 @@ bool compararClaves(Clave *clave, unsigned char operacion, Clave* claveAComparar
 	return comparacion;
 }
 
-char* obtenerCampo(unsigned int numeroCampo, char* registro, DefinitionsManager::ListaTiposAtributos &listaTiposAtributos) {
+char* obtenerCampo(unsigned int numeroCampo, char* registro, ListaTiposAtributos &listaTiposAtributos) {
 
 	unsigned short offset = 0;
 	
-	DefinitionsManager::ListaTiposAtributos::iterator itLTA = listaTiposAtributos.begin();
+	ListaTiposAtributos::iterator itLTA = listaTiposAtributos.begin();
 	
 	if (numeroCampo < listaTiposAtributos.size()) {
 		
-		if (itLTA->tipo == TipoDatos::TIPO_VARIABLE) 
+		if (itLTA->tipoDato == TipoDatos::TIPO_VARIABLE) 
 			offset = Tamanios::TAMANIO_LONGITUD;
 	
 		++itLTA;
 		
 		for (unsigned int i=1; i<numeroCampo; i++) {
 			
-			switch (itLTA->tipo) {
+			switch (itLTA->tipoDato) {
 				case TipoDatos::TIPO_BOOL:
 					offset += sizeof(bool);
 					break;
@@ -188,12 +188,12 @@ char* obtenerCampo(unsigned int numeroCampo, char* registro, DefinitionsManager:
 		return NULL;
 }
 
-int compararCamposRegistros(DefinitionsManager::ListaNombresAtributos &listaNombresAtributos1, DefinitionsManager::ListaNombresAtributos
-							 &listaNombresAtributos2, DefinitionsManager::ListaTiposAtributos &listaTiposAtributos1,
-							 DefinitionsManager::ListaTiposAtributos &listaTiposAtributos2, string nombre1, string nombre2,
+int compararCamposRegistros(ListaNombresAtributos &listaNombresAtributos1, ListaNombresAtributos
+							 &listaNombresAtributos2, ListaTiposAtributos &listaTiposAtributos1,
+							ListaTiposAtributos &listaTiposAtributos2, string nombre1, string nombre2,
 							 char* registro1, char* registro2, char operacion)
 {
-	DefinitionsManager::ListaNombresAtributos::iterator itNombres = listaNombresAtributos1.begin();
+	ListaNombresAtributos::iterator itNombres = listaNombresAtributos1.begin();
  
 	// Obtiene el campo pedido del primer registro.
 	unsigned int numeroCampo = 1;
@@ -205,17 +205,17 @@ int compararCamposRegistros(DefinitionsManager::ListaNombresAtributos &listaNomb
 	
 	char* campo1 = obtenerCampo(numeroCampo, registro1, listaTiposAtributos1);
 	
-	DefinitionsManager::ListaTiposAtributos::iterator itTipos = listaTiposAtributos1.begin();
+	ListaTiposAtributos::iterator itTipos = listaTiposAtributos1.begin();
 
 	// itera la lista de tipos para obtener el tipo del campo "campo1".
 	for (unsigned int i = 0; i < numeroCampo; ++i)
 		++itTipos;
 	
-	int tipoCampo1;
-	Clave * clave1;
+	unsigned char tipoCampo1 = 0;
+	Clave * clave1 = NULL;
 	
 	// Se genera una clave que contenga el campo1 para usarla luego en la comparación con el campo2
-	switch (itTipos->tipo) {
+	switch (itTipos->tipoDato) {
 		case TipoDatos::TIPO_BOOL: {	
 			bool valorCampo;
 			memcpy(&valorCampo, campo1, sizeof(bool));
@@ -294,11 +294,11 @@ int compararCamposRegistros(DefinitionsManager::ListaNombresAtributos &listaNomb
 	for (unsigned int i = 0; i < numeroCampo; ++i)
 		++itTipos;
 	
-	Clave* clave2;
+	Clave* clave2 = NULL;
 	
 	// Comprueba que el campo2 sea del mismo tipo que el campo1.
 	// Y genera con el una clave para usar en la comparacion.
-	switch (itTipos->tipo) {
+	switch (itTipos->tipoDato) {
 		case TipoDatos::TIPO_BOOL: {
 			if (tipoCampo1 != TipoDatos::TIPO_BOOL)
 				return ResultadosMetadata::ERROR_DISTINTO_TIPO_DATO;
@@ -373,11 +373,11 @@ int compararCamposRegistros(DefinitionsManager::ListaNombresAtributos &listaNomb
 	return ResultadosMetadata::CAMPOS_DISTINTOS;
 }
 
-bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos &listaNombresAtributos, 
-				  	   DefinitionsManager::ListaTiposAtributos &listaTiposAtributos, 
-				  	   DefinitionsManager::NodoListaOperaciones &nodoListaOperaciones)
+bool cumpleRestriccion(char *registro, ListaNombresAtributos &listaNombresAtributos, 
+				  	  ListaTiposAtributos &listaTiposAtributos, 
+				  	   NodoListaOperaciones &nodoListaOperaciones)
 {
-	DefinitionsManager::ListaNombresAtributos::iterator itNombres = listaNombresAtributos.begin();
+	ListaNombresAtributos::iterator itNombres = listaNombresAtributos.begin();
 	unsigned int numeroCampo = 1;
 	
 	while ((nodoListaOperaciones.estructuraNombresIzq.nombreCampo != *itNombres) && (itNombres != listaNombresAtributos.end())) {
@@ -387,21 +387,21 @@ bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos
 	
 	char* campo = obtenerCampo(numeroCampo, registro, listaTiposAtributos);
 	
-	DefinitionsManager::ListaTiposAtributos::iterator itTipos = listaTiposAtributos.begin();
+	ListaTiposAtributos::iterator itTipos = listaTiposAtributos.begin();
 
 	// itera la lista de tipos para obtener el tipo del campo "campo".
 	for (unsigned int i = 0; i < numeroCampo; ++i)
 		++itTipos;
 	
 	stringstream conversorCampoAComparar;
-	Clave* clave;
-	Clave* claveAComparar;
+	Clave* clave = NULL;
+	Clave* claveAComparar = NULL;
 	
 	// En "nodoListaOperaciones.estructuraNombresDer.nombreCampo" se encuentra el valor constante 
 	// con el cual hay que hacer la comparación.
 	conversorCampoAComparar << nodoListaOperaciones.estructuraNombresDer.nombreCampo;
 	
-	switch (itTipos->tipo) {
+	switch (itTipos->tipoDato) {
 		case TipoDatos::TIPO_BOOL: {	
 			bool valorCampo;
 			memcpy(&valorCampo, campo, sizeof(bool));
@@ -510,15 +510,15 @@ bool cumpleRestriccion(char *registro, DefinitionsManager::ListaNombresAtributos
  * Se supone que en la listaOperaciones vienen primero todas las restricciones con valores constantes, 
  * y luego las que comparan contra campos de una tabla.
  * */
-bool cumpleRestricciones(char* registro, DefinitionsManager::ListaOperaciones &listaOperaciones, 
-						 char operacion, DefinitionsManager::ListaNombresAtributos &listaNombresAtributos, 
-						 DefinitionsManager::ListaTiposAtributos &listaTiposAtributos)
+bool cumpleRestricciones(char* registro, ListaOperaciones &listaOperaciones, 
+						 char operacion, ListaNombresAtributos &listaNombresAtributos, 
+						 ListaTiposAtributos &listaTiposAtributos)
 {
 	bool cumple = true;
 	bool continuar = true;
 	
-	DefinitionsManager::ListaOperaciones::iterator itLO = listaOperaciones.begin();
-	DefinitionsManager::NodoListaOperaciones nodo;
+	ListaOperaciones::iterator itLO = listaOperaciones.begin();
+	NodoListaOperaciones nodo;
 	
 	// Itera las restricciones a verificar
 	while (continuar &&  itLO != listaOperaciones.end()) {
@@ -674,10 +674,10 @@ int resolverJoins(const MapaRestricciones &mapaJoins, const MapaRestricciones &m
 // FIN MÉTODOS PARA JOINS
 
 
-void serializarListaClaves(string& s, DefinitionsManager::MapaValoresAtributos* mapaValores, 
-		DefinitionsManager::ListaNombresClaves* listaNombres)
+void serializarListaClaves(string& s,MapaValoresAtributos* mapaValores, 
+		ListaNombresClaves* listaNombres)
 {
-	DefinitionsManager::ListaNombresClaves::const_iterator iter;
+	ListaNombresClaves::const_iterator iter;
 	
 	for (iter = listaNombres->begin(); iter != listaNombres->end(); ++iter){
 		s += *iter; 
@@ -687,9 +687,9 @@ void serializarListaClaves(string& s, DefinitionsManager::MapaValoresAtributos* 
 	}
 }
 
-void serializarListaClaves(string& s, DefinitionsManager::ListaClaves* listaClaves)
+void serializarListaClaves(string& s, ListaInfoClave* listaClaves)
 {
-	DefinitionsManager::ListaClaves::const_iterator iter;
+	ListaInfoClave::const_iterator iter;
 	
 	for (iter = listaClaves->begin(); iter != listaClaves->end(); ++iter)
 	{
@@ -700,9 +700,9 @@ void serializarListaClaves(string& s, DefinitionsManager::ListaClaves* listaClav
 	}	
 }
 
-void serializarListaClaves(string &s, const DefinitionsManager::ListaEstructuraNombres &listaNombres)
+void serializarListaClaves(string &s, const ListaEstructuraNombres &listaNombres)
 {
-	DefinitionsManager::ListaEstructuraNombres::const_iterator iter;
+	ListaEstructuraNombres::const_iterator iter;
 	
 	for (iter = listaNombres.begin(); iter != listaNombres.end(); ++iter)
 	{
@@ -720,10 +720,10 @@ ComuDatos* instanciarPipe()
 	return new ComuDatos(path);
 }
 
-void armarListaClaves(DefinitionsManager::EstructuraCampos &estructuraCampos, DefinitionsManager::ListaClaves &listaClaves)
+void armarListaClaves(EstructuraCampos &estructuraCampos, ListaInfoClave &listaClaves)
 {
-	DefinitionsManager::ListaCampos::iterator iter;
-	DefinitionsManager::NodoListaClaves nodoListaClaves;
+	ListaCampos::iterator iter;
+	NodoListaClaves nodoListaClaves;
 	
 	for(iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter) {
 		nodoListaClaves.nombreClave = iter->nombreCampo;
@@ -735,7 +735,7 @@ void armarListaClaves(DefinitionsManager::EstructuraCampos &estructuraCampos, De
 }
 
 
-int baja(string nombreTipo,  DefinitionsManager::EstructuraCampos &estructuraCampos)
+int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 {
 	//TODO: FALTA VER EL TEMA DE LAS RESTRICCIONES!!!
 	ComuDatos * pipe = instanciarPipe();
@@ -754,7 +754,7 @@ int baja(string nombreTipo,  DefinitionsManager::EstructuraCampos &estructuraCam
 		// a eliminar por el pipe.
 		
 		string valoresClaves;
-		DefinitionsManager::ListaClaves listaClaves;
+		ListaInfoClave listaClaves;
 		
 		armarListaClaves(estructuraCampos, listaClaves);
 		
@@ -772,8 +772,8 @@ int baja(string nombreTipo,  DefinitionsManager::EstructuraCampos &estructuraCam
 	return pipeResult; 
 }
 
-int modificacion(string nombreTipo,DefinitionsManager::MapaValoresAtributos &mapaValoresAtributos, 
-				 DefinitionsManager::EstructuraCampos &estructuraCampos)
+int modificacion(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos, 
+				 EstructuraCampos &estructuraCampos)
 {
 	ComuDatos *pipe = instanciarPipe();
 	
@@ -791,7 +791,7 @@ int modificacion(string nombreTipo,DefinitionsManager::MapaValoresAtributos &map
 		// Envio de los valores de las claves de los registros
 		// a modificar por el pipe.
 		string valoresClaves;
-		DefinitionsManager::ListaClaves listaClaves;
+		ListaInfoClave listaClaves;
 		
 		armarListaClaves(estructuraCampos, listaClaves);
 		
@@ -807,10 +807,10 @@ int modificacion(string nombreTipo,DefinitionsManager::MapaValoresAtributos &map
 			DefinitionsManager& defManager = DefinitionsManager::getInstance();
 	
 			// Lista de los tipos de todos los atributos dentro de un registro.
-			DefinitionsManager::ListaTiposAtributos* listaTiposAtributos = NULL;
+			ListaTiposAtributos* listaTiposAtributos = NULL;
 	
 			// Lista de valores de todos los atributos dentro de un registro.
-			DefinitionsManager::ListaValoresAtributos* listaValAtributos = NULL;
+			ListaValoresAtributos* listaValAtributos = NULL;
 					
 			unsigned short tamRegistro = 0;
 			char* registro = NULL;
@@ -862,14 +862,14 @@ int modificacion(string nombreTipo,DefinitionsManager::MapaValoresAtributos &map
 	return pipeResult;
 }
 
-int alta(string nombreTipo, DefinitionsManager::MapaValoresAtributos &mapaValoresAtributos)
+int alta(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos)
 {
 	ComuDatos *pipe = instanciarPipe();
 
 	// Se instancia el DefinitionsManager (conocedor absoluto del universo).
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
 	
-	DefinitionsManager::ListaNombresClaves *listaNombres = defManager.getListaNombresClavesPrimarias(nombreTipo);
+	ListaNombresClaves *listaNombres = defManager.getListaNombresClavesPrimarias(nombreTipo);
 	
 	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_INSERTAR, 0); 
 	// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
@@ -894,10 +894,10 @@ int alta(string nombreTipo, DefinitionsManager::MapaValoresAtributos &mapaValore
 		if (pipeResult == ResultadosIndices::CLAVE_NO_ENCONTRADA){
 	
 			// Lista de valores de todos los atributos dentro de un registro.
-			DefinitionsManager::ListaValoresAtributos* listaValAtributos = NULL;
+			ListaValoresAtributos* listaValAtributos = NULL;
 			
 			// Lista de los tipos de todos los atributos dentro de un registro.
-			DefinitionsManager::ListaTiposAtributos* listaTiposAtributos = NULL;
+			ListaTiposAtributos* listaTiposAtributos = NULL;
 	
 			// Controlador de registros de datos
 			DataManager dataManager;
@@ -933,7 +933,7 @@ int alta(string nombreTipo, DefinitionsManager::MapaValoresAtributos &mapaValore
 }
 
 
-int consulta(DefinitionsManager::EstructuraConsulta &estructura) {
+int consulta(EstructuraConsulta &estructura) {
 	
 	//TODO: ver el tema de como se comunica con capaConsultas para pasar el resultado..
 	
@@ -956,9 +956,9 @@ int consulta(DefinitionsManager::EstructuraConsulta &estructura) {
 	
 	// Itero la lista con los nombres de los distintos tipos (tablas) que
 	// intervienen en la consulta.
-	DefinitionsManager::ListaStrings& listaNombresTipos = estructura.listaNombresTipos;
+	ListaStrings& listaNombresTipos = estructura.listaNombresTipos;
 	
-	for (DefinitionsManager::ListaStrings::iterator it = listaNombresTipos.begin();
+	for (ListaStrings::iterator it = listaNombresTipos.begin();
 		 it != listaNombresTipos.end(); ++it) {
 	
 		nombreTipo = *it;
@@ -1033,7 +1033,7 @@ int consulta(DefinitionsManager::EstructuraConsulta &estructura) {
 				} while (pipeResult == ResultadosIndices::OK);
 				
 				// Se agrega la extensión del primer archivo temporal
-				DefinitionsManager::ListaStrings* listaExtensiones = new DefinitionsManager::ListaStrings();
+				ListaStrings* listaExtensiones = new ListaStrings();
 				listaExtensiones->push_back(EXTENSION_TEMPORAL_INICIAL);
 				mapaExt[nombreTipo] = listaExtensiones;
 				
@@ -1074,7 +1074,7 @@ int main(int argc, char* argv[])
 		switch(operacion){
 			case OperacionesCapas::METADATA_CONSULTA:
 			{	
-				DefinitionsManager::EstructuraConsulta estructuraConsulta;
+				EstructuraConsulta estructuraConsulta;
 				
 				// Se recibe el contenido de estructuraConsulta, pero sin incluir la 
 				// lista de campos seleccionados.
@@ -1096,7 +1096,7 @@ int main(int argc, char* argv[])
 				pipe->leer(&estructuraConsulta.estructuraJoins.operacion);
 				pipe->leer(&cantidadElementos);
 				
-				DefinitionsManager::NodoListaOperaciones nodoListaOperaciones;
+				NodoListaOperaciones nodoListaOperaciones;
 				// Se itera para obtener cada nodo de la lista de operaciones.
 				for (unsigned int i=0; i<cantidadElementos; i++) {
 					pipe->leer(&longitudCadena);
@@ -1137,7 +1137,7 @@ int main(int argc, char* argv[])
 				// Se recibe el orderBy
 				pipe->leer(&cantidadElementos);
 				
-				DefinitionsManager::EstructuraNombres estructuraNombres;
+				EstructuraNombres estructuraNombres;
 				
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
 					pipe->leer(&longitudCadena);
@@ -1164,13 +1164,13 @@ int main(int argc, char* argv[])
 				// Obtiene el nombre del tipo sobre el cual se hace la baja.
 				pipe->parametro(1,nombreTipo);
 				
-				DefinitionsManager::EstructuraCampos estructuraCampos;
+				EstructuraCampos estructuraCampos;
 				
 				pipe->leer(&estructuraCampos.operacion);
 	
 				pipe->leer(&cantidadElementos);
 				
-				DefinitionsManager::NodoListaCampos nodoListaCampos;
+				NodoListaCampos nodoListaCampos;
 				
 				// Se itera para recibir cada nodo de la lista de campos.
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
@@ -1197,7 +1197,7 @@ int main(int argc, char* argv[])
 				pipe->parametro(1, nombreTipo);
 				
 				// Se recibe el mapaValoresAtributos.
-				DefinitionsManager::MapaValoresAtributos mapaValoresAtributos;
+				MapaValoresAtributos mapaValoresAtributos;
 				
 				pipe->leer(&cantidadElementos);
 				
@@ -1212,14 +1212,14 @@ int main(int argc, char* argv[])
 				
 				// Se recibe la información sobre los registros a modificar,
 				// dentro de una estructuraCampos.
-				DefinitionsManager::EstructuraCampos estructuraCampos;
+				EstructuraCampos estructuraCampos;
 				
 				pipe->leer(&estructuraCampos.operacion);
 				
 				// Se obtiene la cantidad de elementos en la lista de campos.
 				pipe->leer(&cantidadElementos);
 				
-				DefinitionsManager::NodoListaCampos nodoListaCampos;
+				NodoListaCampos nodoListaCampos;
 				
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
 					pipe->leer(&longitudCadena);
@@ -1245,7 +1245,7 @@ int main(int argc, char* argv[])
 				pipe->parametro(1,nombreTipo);
 
 				// Se recibe el mapaValoresAtributos.
-				DefinitionsManager::MapaValoresAtributos mapaValoresAtributos;
+				MapaValoresAtributos mapaValoresAtributos;
 				
 				pipe->leer(&cantidadElementos);
 				

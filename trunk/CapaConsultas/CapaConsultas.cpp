@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
 		string nombreTipo("");
 		
 		// Mapa contenedor de los valores de los atributos, indexados por sus nombres.
-		DefinitionsManager::MapaValoresAtributos* mapaValoresAtributos = NULL; 
+		MapaValoresAtributos* mapaValoresAtributos = NULL; 
 		
 		if (nombreArchivoDefiniciones != "") {
 			// TODO Llamar al metodo del DM que parsea las definiciones
@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
 						
 						if (pipeResult == ComuDatos::OK){						
 							
-							DefinitionsManager::EstructuraConsulta estructuraConsulta;
+							EstructuraConsulta estructuraConsulta;
 							
 							estructuraConsulta = parserOperaciones.getEstructuraConsulta();
 							
@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
 							unsigned int cantidadElementos = estructuraConsulta.listaNombresTipos.size();
 							pipe->escribir(cantidadElementos);
 							
-							DefinitionsManager::ListaStrings::iterator itLNT;
+							ListaStrings::iterator itLNT;
 							
 							for (itLNT = estructuraConsulta.listaNombresTipos.begin(); 
 								 itLNT != estructuraConsulta.listaNombresTipos.end(); ++itLNT) {
@@ -186,7 +186,7 @@ int main(int argc, char* argv[]) {
 							cantidadElementos = estructuraConsulta.estructuraJoins.listaOperaciones.size();
 							pipe->escribir(cantidadElementos);
 							
-							DefinitionsManager::ListaOperaciones::iterator itLOJoins;
+							ListaOperaciones::iterator itLOJoins;
 							
 							for(itLOJoins = estructuraConsulta.estructuraJoins.listaOperaciones.begin();
 								itLOJoins != estructuraConsulta.estructuraJoins.listaOperaciones.end(); ++itLOJoins) {
@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) {
 							cantidadElementos = estructuraConsulta.estructuraWhere.listaOperaciones.size();
 							pipe->escribir(cantidadElementos);
 							
-							DefinitionsManager::ListaOperaciones::iterator itLOWhere;
+							ListaOperaciones::iterator itLOWhere;
 							
 							for(itLOWhere = estructuraConsulta.estructuraWhere.listaOperaciones.begin();
 								itLOWhere != estructuraConsulta.estructuraWhere.listaOperaciones.end(); ++itLOWhere) {
@@ -231,7 +231,7 @@ int main(int argc, char* argv[]) {
 							cantidadElementos = estructuraConsulta.listaOrderBy.size();
 							pipe->escribir(cantidadElementos);
 							
-							DefinitionsManager::ListaEstructuraNombres::iterator itLEN;
+							ListaEstructuraNombres::iterator itLEN;
 							
 							for (itLEN = estructuraConsulta.listaOrderBy.begin();
 								 itLEN != estructuraConsulta.listaOrderBy.end(); ++itLEN) {
@@ -251,11 +251,11 @@ int main(int argc, char* argv[]) {
 								cantidadElementos = estructuraConsulta.listaNombresTipos.size(); 
 								
 								// Crea una lista de nombres de los campos a mostrar por cada tipo.
-								DefinitionsManager::ListaStrings* listasNombresCamposAMostrarPorTipo;
-								listasNombresCamposAMostrarPorTipo = new DefinitionsManager::ListaStrings[cantidadElementos];
+								ListaStrings* listasNombresCamposAMostrarPorTipo;
+								listasNombresCamposAMostrarPorTipo = new ListaStrings[cantidadElementos];
 	
 								// Se crea un mapa por tipo y su lista de nombres de campos a mostrar.
-								std::map<std::string, DefinitionsManager::ListaStrings*> mapaNombresCamposAImprimir;
+								std::map<std::string, ListaStrings*> mapaNombresCamposAImprimir;
 								unsigned int i = 0;
 								for (itLNT = estructuraConsulta.listaNombresTipos.begin(); 
 									 itLNT != estructuraConsulta.listaNombresTipos.end(); ++itLNT, i++) 
@@ -264,7 +264,7 @@ int main(int argc, char* argv[]) {
 								
 								// Se itera la lista de campos seleccionados, y se van agregando dichos campos a las 
 								// listas del mapa.
-								DefinitionsManager::ListaStrings *lista;
+								ListaStrings *lista;
 								for (itLEN = estructuraConsulta.listaCamposSeleccionados.begin();
 									 itLEN != estructuraConsulta.listaCamposSeleccionados.end(); ++itLEN) {
 		
@@ -333,7 +333,7 @@ int main(int argc, char* argv[]) {
 						if (pipeResult == ComuDatos::OK){
 							
 							// Se obtiene la información sobre los registros a eliminar, y se la envia por el pipe.
-							DefinitionsManager::EstructuraCampos estructuraCampos;
+							EstructuraCampos estructuraCampos;
 							
 							estructuraCampos = parserOperaciones.getEstructuraCampos();
 							
@@ -343,7 +343,7 @@ int main(int argc, char* argv[]) {
 							unsigned int numeroElementosLista = estructuraCampos.listaCampos.size();
 							pipe->escribir(numeroElementosLista); 
 							
-							DefinitionsManager::ListaCampos::iterator iter; 
+							ListaCampos::iterator iter; 
 							
 							// Manda cada nodo de la lista.
 							for (iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter) {
@@ -376,7 +376,7 @@ int main(int argc, char* argv[]) {
 							mapaValoresAtributos =  parserOperaciones.getMapaValoresAtributos();
 							
 							// Se envia el contenido del mapa por el pipe.
-							DefinitionsManager::MapaValoresAtributos::iterator itMapa;
+							MapaValoresAtributos::iterator itMapa;
 							unsigned int cantidadElementos = mapaValoresAtributos->size();
 							pipe->escribir(cantidadElementos);
 							
@@ -388,7 +388,7 @@ int main(int argc, char* argv[]) {
 							}
 							
 							// Se obtiene la información sobre los registros a modificar, y se la envia por el pipe.
-							DefinitionsManager::EstructuraCampos estructuraCampos;
+							EstructuraCampos estructuraCampos;
 			
 							estructuraCampos = parserOperaciones.getEstructuraCampos();
 							
@@ -398,7 +398,7 @@ int main(int argc, char* argv[]) {
 							cantidadElementos = estructuraCampos.listaCampos.size();
 							pipe->escribir(cantidadElementos); 
 							
-							DefinitionsManager::ListaCampos::iterator iter; 
+							ListaCampos::iterator iter; 
 							
 							// Manda cada nodo de la lista.
 							for (iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter) {
@@ -431,7 +431,7 @@ int main(int argc, char* argv[]) {
 							mapaValoresAtributos =  parserOperaciones.getMapaValoresAtributos();
 							
 							// Se envia el contenido del mapa por el pipe.
-							DefinitionsManager::MapaValoresAtributos::iterator itMapa;
+							MapaValoresAtributos::iterator itMapa;
 							unsigned int cantidadElementos = mapaValoresAtributos->size();
 							pipe->escribir(cantidadElementos);
 							

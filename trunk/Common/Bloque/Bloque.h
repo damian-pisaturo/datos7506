@@ -27,7 +27,6 @@
 
 #include "../../Common/Tamanios.h"
 #include "../../Common/TipoDatos.h"
-#include "../../Common/RegisterInfo/RegisterInfo.h"
 #include "../../Common/ResultadosIndices.h"
 #include "../Clave/Clave.h"
 
@@ -89,22 +88,22 @@ class Bloque
 		 * Si lo encuentra devuelve true y el offset al registro en "offsetReg"; de lo contrario, 
 		 * devuelve false.
 		 **/
-		bool buscarRegistro(const ListaNodos *listaParam, Clave &clavePrimaria, unsigned short *offsetReg);
+		bool buscarRegistro(const ListaInfoRegistro *listaInfoReg, Clave &clavePrimaria, unsigned short *offsetReg);
 		
 		/*
 		 * Inserta un nuevo registro dentro del bloque
 		 **/
-		int altaRegistro(const ListaNodos *listaParam, char *registro);
+		int altaRegistro(const ListaInfoRegistro *listaInfoReg, char *registro);
 		
 		/*
 		 * Elimina un registro del bloque, reorganizando el espacio libre
 		 **/
-		int bajaRegistro(const ListaNodos *listaParam, Clave &clavePrimaria);
+		int bajaRegistro(const ListaInfoRegistro *listaInfoReg, Clave &clavePrimaria);
 		
 		/*
 		 * Modifica el contenido de un registro.
 		 **/
-		int modificarRegistro(const ListaNodos *listaParam, unsigned short longReg, Clave &clavePrimaria, 
+		int modificarRegistro(const ListaInfoRegistro *listaInfoReg, unsigned short longReg, Clave &clavePrimaria, 
 							  char *registro);
 		
 		/*
@@ -117,18 +116,18 @@ class Bloque
 		 * Devuelve la longitud del registro, ya sea de longitud fija o varaible.
 		 * No incluye los bytes que se utilizan para guardar la longitud de los registros variables.
 		 **/
-		unsigned short getTamanioRegistros(const ListaNodos *listaParam, char *registro) const;
+		unsigned short getTamanioRegistros(const ListaInfoRegistro *listaInfoReg, char *registro) const;
 
 		/*
 		 * Devuelve la longitud del registro, ya sea de longitud fija o varaible.
 		 * En este último caso incluye los bytes utilizados para guardar la longitud del mismo.
 		 **/
-		unsigned short getTamanioRegistroConPrefijo(const ListaNodos *listaParam, char *registro) const;
+		unsigned short getTamanioRegistroConPrefijo(const ListaInfoRegistro *listaInfoReg, char *registro) const;
 		
 		/*
 		 * Devuelve la clave primaria de "registro".
 		 **/
-		Clave*  getClavePrimaria(const ListaNodos *listaParam, char *registro);
+		Clave*  getClavePrimaria(const ListaInfoRegistro *listaInfoReg, char *registro);
 		
 		/*
 		 * Devuelve el tamaño del bloque.

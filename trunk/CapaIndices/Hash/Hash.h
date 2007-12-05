@@ -23,8 +23,6 @@
 #include "Tabla.h"
 #include "Bucket.h"
 
-
-
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //------------------------------------------------------------------------
@@ -38,13 +36,13 @@ class Hash
 	//////////////////////////////////////////////////////////////////////
 		Tabla* tabla;
 		IndiceHashManager* archivo;
-		ListaNodos* listaParam;
+		ListaInfoRegistro* listaInfoRegistro;
 	
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		Hash(IndiceHashManager* indiceHash, ListaNodos* lista, unsigned int tamBucket);
+		Hash(IndiceHashManager* indiceHash, ListaInfoRegistro* lista, unsigned int tamBucket);
 		virtual ~Hash();	
 		
 	///////////////////////////////////////////////////////////////////////
@@ -96,7 +94,7 @@ class Hash
 		
 		char* serializarClave(void** clave);
 		
-		ListaNodos* getListaParametros();
+		ListaInfoRegistro* getListaInfoRegistro();
 
 	private:
 	///////////////////////////////////////////////////////////////////////

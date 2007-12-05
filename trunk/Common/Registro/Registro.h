@@ -23,15 +23,15 @@ class Registro
 		
 		unsigned char tipoOrg;                                             // Indica si el registro es de longitud variable o no.
 		ListaTipos* listaTipos;	                                           // Contiene una lista que indica como se compone un registro.
-		DefinitionsManager::ListaValoresClaves listaAtributos;             // Lista contenedora de los atributos del registros
-		DefinitionsManager::ListaNombresAtributos*  listaNombresAtributos; // Lista contenedora de los nombres de los atributos en el registro.
+		ListaValoresClaves listaAtributos;             // Lista contenedora de los atributos del registros
+		ListaNombresAtributos*  listaNombresAtributos; // Lista contenedora de los nombres de los atributos en el registro.
 	
 	public:
 	///////////////////////////////////////////////////////////////////////
     // Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		Registro(unsigned char tipoOrg, char* data, ListaTipos* listaTipos, 
-				DefinitionsManager::ListaNombresAtributos* listaNombresAtributos);
+				ListaNombresAtributos* listaNombresAtributos);
 		virtual ~Registro(); 
 	
 	///////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ class Registro
 		int getTipoAtributo(unsigned char posicion);
 		string getNombreAtributo(unsigned char posicion);
 		
-		Clave* getClave(const DefinitionsManager::ListaNombresClaves &listaNombreClaves);
+		Clave* getClave(const ListaNombresClaves &listaNombreClaves);
 		
 	///////////////////////////////////////////////////////////////////////
     // Getter

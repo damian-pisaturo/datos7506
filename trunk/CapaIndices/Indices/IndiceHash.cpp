@@ -2,7 +2,7 @@
 
 
 	IndiceHash::IndiceHash(unsigned char tipoIndice, ListaTipos *listaTiposClave,
-						   ListaNodos *listaParam, unsigned int tamBloqueLista,
+						   ListaInfoRegistro *listaParam, unsigned int tamBloqueLista,
 						   unsigned int tamBucket, const string& nombreArchivo) 
 	{
 		this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::HASH, 0, NULL, TipoIndices::HASH, 0, tamBucket, nombreArchivo);
@@ -10,7 +10,7 @@
 		this->tipoEstructura = TipoIndices::HASH;
 		this->tamBloqueDatos = tamBucket;
 		this->tamBloqueLista = tamBloqueLista;
-		this->listaNodos = listaParam;
+		this->listaInfoReg = listaParam;
 		this->listaTiposClave = listaTiposClave; // La memoria de esta lista no se libera xq viene del DefManager
 		// La siguiente lista contiene la información necesaria para administrar los registros armados
 		// a partir de una clave secundaria y un offset al archivo de las listas de claves primarias
@@ -74,7 +74,7 @@
 	
 		Bloque *bloque = new BloqueListaPrimaria(this->getTamanioBloqueLista());
 		
-		ListaNodos* listaNodos = this->getListaNodosClavePrimaria();
+		ListaInfoRegistro* listaNodos = this->getListaInfoRegClavePrimaria();
 		
 		if (encontrada){
 			// Si la clave secundaria está en el indice, obtiene su lista de claves primarias.
@@ -233,7 +233,7 @@
 		
 		if (this->tipoIndice == TipoIndices::GRIEGO) return ResultadosIndices::ERROR_INSERCION;
 		
-		ListaNodos* listaNodos = this->getListaNodosClavePrimaria();
+		ListaInfoRegistro* listaNodos = this->getListaInfoRegClavePrimaria();
 		ListaTipos* listaTipos = this->getListaTiposClavePrimaria();
 		char* clavePrimariaSerializada = Bloque::serializarClave(clavePrimaria, listaTipos);
 		
@@ -366,37 +366,37 @@
 // Métodos privados
 ///////////////////////////////////////////////////////////////////////////////////////////
 	
-	ListaNodos* IndiceHash::getListaNodosClave() const {
+	ListaInfoRegistro* IndiceHash::getListaNodosClave() const {
 		
 		if (!this->listaTiposClave) return NULL;
 		
-		ListaNodos* lista = new ListaNodos();
+		ListaInfoRegistro* lista = new ListaInfoRegistro();
 		
-		nodoLista nodo;
+		NodoInfoRegistro nodoIR;
 		
 		// Se construye el nodo que indica la cantidad de campos que componen la clave
 		// y el tipo de organización del registro
-		nodo.cantClaves = this->listaTiposClave->size();
-		nodo.pk = "";
-		nodo.tipo = TipoDatos::TIPO_VARIABLE;
+		nodoIR.cantClaves = this->listaTiposClave->size();
+		nodoIR.esPk = false;
+		nodoIR.tipoDato = TipoDatos::TIPO_VARIABLE;
 		
-		lista->push_back(nodo);
+		lista->push_back(nodoIR);
 		
 		// Se insertan los nodos que contienen la información de los tipos de datos de los
 		// campos que componen la clave
-		nodo.pk = "true";
+		nodoIR.esPk = true;
 		for (ListaTipos::iterator it = this->listaTiposClave->begin();
 			 it != this->listaTiposClave->end(); ++it) {
 			
-			nodo.tipo = *it;
-			lista->push_back(nodo);
+			nodoIR.tipoDato = *it;
+			lista->push_back(nodoIR);
 		}
 		
 		// Se construye el último nodo de la lista, que indica al tipo de dato
 		// del campo que guarda el offset al archivo de listas de claves primarias
-		nodo.tipo = TipoDatos::TIPO_ENTERO;
-		nodo.pk = "false";
-		lista->push_back(nodo);
+		nodoIR.tipoDato = TipoDatos::TIPO_ENTERO;
+		nodoIR.esPk = false;
+		lista->push_back(nodoIR);
 		
 		return lista;
 	}

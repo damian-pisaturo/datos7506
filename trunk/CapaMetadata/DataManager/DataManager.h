@@ -3,7 +3,6 @@
 
 #include "../../Common/DefManager/DefinitionsManager.h"
 #include "../../Common/TipoDatos.h"
-#include "../../Common/Tamanios.h"
 #include "../../Common/Clave/Clave.h"
 #include "../../Common/Bloque/Bloque.h"
 #include "../../Common/ClaveFactory/ClaveFactory.h"
@@ -24,41 +23,23 @@ private:
 	
 public:
 	DataManager();
-	virtual ~DataManager();
-
-/*	
-	 * Inserta un registro en disco 
-	 *
-	int insertar(const DefinitionsManager::ListaValoresAtributos* listaVA,
-				 const DefinitionsManager::ListaTiposAtributos* listaTipos, Bloque* bloque);
-	
-	 * Elimina un registro del disco 
-	 *
-	int eliminar(DefinitionsManager::ListaClaves* listaClaves,
-				 const DefinitionsManager::ListaTiposAtributos* listaTipos, Bloque* bloque);
-	
-	int modificar(const DefinitionsManager::ListaValoresAtributos* listaVA,
-				  const DefinitionsManager::ListaTiposAtributos* listaTipos,
-				  DefinitionsManager::ListaClaves* listaClaves, Bloque* bloque,
-				  char* registroEnDisco);
-*/	
+	virtual ~DataManager();	
 	/*
 	 * Calcula la longitud del registro para reservar memoria para el mismo
 	 * */ 
-	unsigned short getTamanioRegistro(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
-									  const DefinitionsManager::ListaValoresAtributos &listaVA);
+	unsigned short getTamanioRegistro(const ListaTiposAtributos &listaTiposAtributos,
+									  const ListaValoresAtributos &listaVA);
 
 	/*
 	 * Crea un registro a partir de modificaciones de otro 
 	 **/
-	unsigned short crearRegistroModificacion(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
-								   const DefinitionsManager::ListaValoresAtributos &listaVA,
-								   char *registroEnDisco);
+	unsigned short crearRegistroModificacion(const ListaTiposAtributos &listaTiposAtributos,
+								   const ListaValoresAtributos &listaVA, char *registroEnDisco);
 	
-	unsigned short crearRegistroAlta(const DefinitionsManager::ListaValoresAtributos &listaVA,
-						   const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos);
+	unsigned short crearRegistroAlta(const ListaValoresAtributos &listaVA,
+						   const ListaTiposAtributos &listaTiposAtributos);
 	
-	unsigned short crearRegistroAltaRandom(string &valoresClaves, const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos);	
+	unsigned short crearRegistroAltaRandom(string &valoresClaves, const ListaTiposAtributos &listaTiposAtributos);	
 
 	char* getRegistro() const
 	{
@@ -79,8 +60,8 @@ private:
 	 * Genera  el registro modificado
 	 * */
 	void generarRegistroModificado(char *registroNuevo, char *registroEnDisco, unsigned short longNuevoReg, 
-							  const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
-							  const DefinitionsManager::ListaValoresAtributos &listaVA);
+							  const ListaTiposAtributos &listaTiposAtributos,
+							  const ListaValoresAtributos &listaVA);
 	
 	
 	

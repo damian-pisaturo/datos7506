@@ -13,7 +13,7 @@
 	///////////////////////////////////////////////////////////////////////
 
 		Registro::Registro(unsigned char tipoOrg, char* data, ListaTipos* listaTipos,
-						   DefinitionsManager::ListaNombresAtributos* listaNombresAtributos)
+						   ListaNombresAtributos* listaNombresAtributos)
 		{
 			unsigned int offset = 0;
 			stringstream conversor;
@@ -128,7 +128,7 @@
 		
 		string Registro::getAtributo(unsigned char posicion)
 		{
-			DefinitionsManager::ListaValoresClaves::const_iterator iter = this->listaAtributos.begin();
+			ListaValoresClaves::const_iterator iter = this->listaAtributos.begin();
 			
 			for (unsigned char i = 0; i < posicion; i++) ++iter;
 			
@@ -148,7 +148,7 @@
 		
 		string Registro::getNombreAtributo(unsigned char posicion)
 		{
-			DefinitionsManager::ListaNombresAtributos::const_iterator iter = this->listaNombresAtributos->begin();
+			ListaNombresAtributos::const_iterator iter = this->listaNombresAtributos->begin();
 					
 			for (unsigned char i = 0; i < posicion; i++) iter++;
 					
@@ -156,20 +156,20 @@
 		}
 		
 		
-		Clave* Registro::getClave(const DefinitionsManager::ListaNombresClaves &listaNombresClaves)
+		Clave* Registro::getClave(const ListaNombresClaves &listaNombresClaves)
 		{
 			// Atributos necesarios para armar la clave
 			Clave* claveAux = NULL;
-			DefinitionsManager::ListaValoresClaves listaValoresClaves;
+			ListaValoresClaves listaValoresClaves;
 			ListaTipos listaTiposClaves;
 			
 			// Iteradores de las listas que tiene esta clase como atributos
-			DefinitionsManager::ListaNombresAtributos::const_iterator iterNomAtributos;
-			DefinitionsManager::ListaValoresClaves::const_iterator iterValAtributos;
+			ListaNombresAtributos::const_iterator iterNomAtributos;
+			ListaValoresClaves::const_iterator iterValAtributos;
 			ListaTipos::const_iterator iterTipos;
 			
 			// Iterador de la lista pasada por parámetro
-			DefinitionsManager::ListaNombresClaves::const_iterator iterNomClaves;
+			ListaNombresClaves::const_iterator iterNomClaves;
 			
 			// Se recorre la lista de nombres pasada por parametro y las listas de nombres de los 
 			// atributos del registro, sus valores y sus tipos. Si se encuentra una coincidencia entre

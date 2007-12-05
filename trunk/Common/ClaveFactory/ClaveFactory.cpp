@@ -2,9 +2,9 @@
 
 ClaveFactory ClaveFactory::instance;
 
-Clave* ClaveFactory::getClave(const DefinitionsManager::ListaValoresClaves& listaValoresClaves, const ListaTipos& listaTipos) const {
+Clave* ClaveFactory::getClave(const ListaValoresClaves& listaValoresClaves, const ListaTipos& listaTipos) const {
 	
-	DefinitionsManager::ListaValoresClaves::const_iterator iterLV;
+	ListaValoresClaves::const_iterator iterLV;
 	ListaTipos::const_iterator iterLT;
 	Clave* clave = NULL;
 	std::stringstream conversor;
@@ -95,23 +95,23 @@ Clave* ClaveFactory::getClave(const DefinitionsManager::ListaValoresClaves& list
 }
 
 
-Clave* ClaveFactory::getClave(const DefinitionsManager::ListaClaves& listaValoresClaves, const ListaNodos& listaNodos) const {
+Clave* ClaveFactory::getClave(const ListaInfoClave& listaValoresClaves, const ListaInfoRegistro& listaInfoReg) const {
 	
-	DefinitionsManager::ListaClaves::const_iterator iterLC;
-	ListaNodos::const_iterator iterLN;
+	ListaInfoClave::const_iterator iterLIC;
+	ListaInfoRegistro::const_iterator iterLIR;
 	Clave* clave = NULL;
 	std::stringstream conversor;
 	ListaClaves listaClaves;
 	
-	for (iterLC = listaValoresClaves.begin(), iterLN = ++(listaNodos.begin());
-		(iterLC != listaValoresClaves.end()) && (iterLN != listaNodos.end());
-		++iterLC, ++iterLN) {
+	for (iterLIC = listaValoresClaves.begin(), iterLIR = ++(listaInfoReg.begin());
+		(iterLIC != listaValoresClaves.end()) && (iterLIR != listaInfoReg.end());
+		++iterLIC, ++iterLIR) {
 		
-		switch((*iterLN).tipo) {
+		switch((*iterLIR).tipoDato) {
 					
 			case TipoDatos::TIPO_BOOL:
 			{
-				conversor << (*iterLC).valorClave;
+				conversor << (*iterLIC).valorClave;
 				bool valor;
 				conversor >> valor;
 				clave = new ClaveBoolean(valor);
@@ -119,7 +119,7 @@ Clave* ClaveFactory::getClave(const DefinitionsManager::ListaClaves& listaValore
 			}
 			case TipoDatos::TIPO_CHAR:
 			{
-				conversor << (*iterLC).valorClave;
+				conversor << (*iterLIC).valorClave;
 				char valor;
 				conversor >> valor;
 				clave = new ClaveChar(valor);
@@ -127,7 +127,7 @@ Clave* ClaveFactory::getClave(const DefinitionsManager::ListaClaves& listaValore
 			}
 			case TipoDatos::TIPO_SHORT:
 			{
-				conversor << (*iterLC).valorClave;
+				conversor << (*iterLIC).valorClave;
 				short valor;
 				conversor >> valor;
 				clave = new ClaveShort(valor);
@@ -135,7 +135,7 @@ Clave* ClaveFactory::getClave(const DefinitionsManager::ListaClaves& listaValore
 			}
 			case TipoDatos::TIPO_ENTERO:
 			{
-				conversor << (*iterLC).valorClave;
+				conversor << (*iterLIC).valorClave;
 				int valor;
 				conversor >> valor;
 				clave = new ClaveEntera(valor);
@@ -143,7 +143,7 @@ Clave* ClaveFactory::getClave(const DefinitionsManager::ListaClaves& listaValore
 			}
 			case TipoDatos::TIPO_FLOAT:
 			{
-				conversor << (*iterLC).valorClave;
+				conversor << (*iterLIC).valorClave;
 				float valor;
 				conversor >> valor;
 				clave = new ClaveReal(valor);
@@ -153,22 +153,22 @@ Clave* ClaveFactory::getClave(const DefinitionsManager::ListaClaves& listaValore
 			{
 				ClaveFecha::TFECHA valor;
 				unsigned short anio, dia, mes;
-				conversor << (*iterLC).valorClave.substr(0, 4);
+				conversor << (*iterLIC).valorClave.substr(0, 4);
 				conversor >> anio;
 				conversor.clear();
 				conversor.str("");
-				conversor << (*iterLC).valorClave.substr(4, 2);
+				conversor << (*iterLIC).valorClave.substr(4, 2);
 				conversor >> mes;
 				conversor.clear();
 				conversor.str("");
-				conversor << (*iterLC).valorClave.substr(6, 2);
+				conversor << (*iterLIC).valorClave.substr(6, 2);
 				conversor >> dia;
 				valor.crear(dia, mes, anio);
 				clave = new ClaveFecha(valor);
 				break;
 			}
 			case TipoDatos::TIPO_STRING:
-				clave = new ClaveVariable((*iterLC).valorClave);
+				clave = new ClaveVariable((*iterLIC).valorClave);
 				break;
 				
 		}

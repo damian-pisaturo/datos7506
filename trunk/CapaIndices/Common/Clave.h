@@ -20,19 +20,16 @@
 #ifndef CLAVE_H_
 #define CLAVE_H_
 
-#include "../../Common/CommonDefinitions.h"
 #include "../../Common/Tamanios.h"
 #include <iostream>
+#include <list>
+#include <vector>
 
 using namespace std;
 
 class Clave;
 
 typedef vector<Clave*> VectorClaves;
-
-//Definición del tipo de dato de la lista de claves utilizada en la clase
-//ClaveCompuesta
-typedef list<Clave*> ListaClaves;
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase
@@ -136,11 +133,6 @@ class Clave
 		unsigned int getHijoDer() const
 		{
 			return this->hijoDer;
-		}
-		
-		virtual unsigned int getTamanioValorConPrefijo() const
-		{
-			return this->getTamanioValor();
 		}
 		
 		virtual void** getValorParaHash() const;
@@ -431,12 +423,8 @@ class ClaveVariable: public Clave
 		//tipo de dato que usa internamente.
 		virtual unsigned int getTamanioValor() const;
 		
-		//Devuelve el tamaño del tipo de dato que usa internamente más el tamaño
-		//del atributo que se utilice como prefijo para almacenar la long por ej.
-		virtual unsigned int getTamanioValorConPrefijo() const;
-		
-		//Redefinición del método de la clase padre
-		virtual unsigned int getTamanioEnDisco(bool bstar) const;
+		//Devuelve el char* contenido en el valor string.
+		virtual void* getValor() const;
 
 }; //Fin clase ClaveVariable.
 
@@ -510,6 +498,11 @@ class ClaveFecha: public Clave
 }; //Fin clase ClaveFecha.
 
 
+//Definición del tipo de dato de la lista de claves utilizada en la clase
+//ClaveCompuesta
+
+typedef list<Clave*> ListaClaves;
+
 ///////////////////////////////////////////////////////////////////////////
 // Clase
 //-------------------------------------------------------------------------
@@ -561,10 +554,6 @@ class ClaveCompuesta: public Clave
 		//Este método es virtual para que cada clase heredera devuelva el tamaño del
 		//tipo de dato que usa internamente.
 		virtual unsigned int getTamanioValor() const;
-		
-		//Devuelve el tamaño del tipo de dato que usa internamente más el tamaño
-		//del atributo que se utilice como prefijo para almacenar la long por ej.
-		virtual unsigned int getTamanioValorConPrefijo() const;
 		
 		//Devuelve la lista de claves simples que componen esta clave
 		ListaClaves* getListaClaves() const;

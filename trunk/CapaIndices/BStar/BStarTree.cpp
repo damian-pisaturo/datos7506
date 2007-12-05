@@ -1344,7 +1344,3 @@ Clave* BStarTree::buscarSiguiente(NodoBStar* nodo, Clave* clave) const {
 	return auxClave;
 	
 }
-
-
-
-

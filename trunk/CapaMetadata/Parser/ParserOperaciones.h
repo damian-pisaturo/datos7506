@@ -60,10 +60,9 @@ class ParserOperaciones
 	//////////////////////////////////////////////////////////////////////
 		ifstream archivo; // Archivo de operaciones.
 		unsigned short numOperacion; // Numero de operacion actual. 		
-//		DefinitionsManager::ListaClaves* listaClaves; // Lista de claves presentes en cada operacion
-		DefinitionsManager::EstructuraCampos estructuraCampos;
-		DefinitionsManager::MapaValoresAtributos* mapValoresAtributos;
-		DefinitionsManager::EstructuraConsulta estructuraConsulta;
+		EstructuraCampos estructuraCampos;
+		MapaValoresAtributos* mapValoresAtributos;
+		EstructuraConsulta estructuraConsulta;
 		string nombreTipo;
 		unsigned char tipoOperacion; // Tipo de operaciones actual (Alta, Baja o Modificacion)
 		
@@ -97,17 +96,17 @@ class ParserOperaciones
 	// Getters/Setters
 	///////////////////////////////////////////////////////////////////////////
 		
-		DefinitionsManager::EstructuraCampos getEstructuraCampos()
+		EstructuraCampos getEstructuraCampos()
 		{
 			return this->estructuraCampos;
 		}
 		
-		DefinitionsManager::EstructuraConsulta getEstructuraConsulta()
+		EstructuraConsulta getEstructuraConsulta()
 		{
 			return this->estructuraConsulta;
 		}
 		
-		DefinitionsManager::MapaValoresAtributos* getMapaValoresAtributos()
+		MapaValoresAtributos* getMapaValoresAtributos()
 		{
 			return this->mapValoresAtributos;
 		}

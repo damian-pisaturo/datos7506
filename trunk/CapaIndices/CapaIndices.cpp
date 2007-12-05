@@ -2,7 +2,7 @@
 
 // Declaración global de la lista de los nombres de los campos
 // que componen la clave por la cual se realiza la operación.
-DefinitionsManager::ListaNombresClaves listaNombresClaves;
+ListaNombresClaves listaNombresClaves;
 
 /*
  * Crea todos los indices correspondientes a un tipo, y carga su mapa de indices.
@@ -12,10 +12,10 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 	Indice* indice;
 	unsigned char tipoIndice;
-	DefinitionsManager::EstructTipoIndice estructura;
-	DefinitionsManager::NodoListaIndices nodoListaIndices;
-	DefinitionsManager::ListaTiposIndices *listaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
-	DefinitionsManager::ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	EstructTipoIndice estructura;
+	NodoListaIndices nodoListaIndices;
+	ListaTiposIndices *listaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
+	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	char tipoOrg = defManager.getTipoOrgRegistro(nombreTipo);
 	
 	// TODO Pedirle el tamaño del bloque de datos y el tamaño del bloque de lista al DM
@@ -23,7 +23,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 	unsigned short tamBloqueLista = Tamanios::TAMANIO_BLOQUE_DATO;
 	
 	
-	for (DefinitionsManager::ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
+	for (ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
 		iter != listaTiposIndices->end(); ++iter) {
 		
 		nodoListaIndices = *iter;
@@ -61,7 +61,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 }
 
 
-Indice* obtenerIndiceParaOrderBy(const DefinitionsManager::ListaNombresClaves &listaNombresClaves) {
+Indice* obtenerIndiceParaOrderBy(const ListaNombresClaves &listaNombresClaves) {
 	
 	// TODO Implementar
 	return NULL;
@@ -388,7 +388,7 @@ void consultaIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 		if (resultado == ResultadosIndices::OK) {
 			
 			//Obtengo el índice primario
-			DefinitionsManager::ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
+			ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
 			indice = mapaIndices[*listaNombresClaves];
 			
 			//Envío la cantidad de registros (Un registro por cada clave primaria)

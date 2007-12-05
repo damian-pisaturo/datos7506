@@ -1,16 +1,9 @@
 #ifndef VISTA_H_
 #define VISTA_H_
 
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <list>
-
 #include "../../Common/DefManager/DefinitionsManager.h"
 #include "../DataManager/DataManager.h"
 #include "../../Common/Bloque/Bloque.h"
-#include "../../Common/Tamanios.h"
-
 
 class Vista
 {
@@ -20,14 +13,15 @@ public:
 	/*
 	 * Muestra por consola el contenido de un registro
 	 * */
-	void showRegister(char *registro, ListaNodos *listaTiposAtributos);
+	void showRegister(char *registro, ListaTiposAtributos *listaTiposAtributos);
 
-	void showRegister(char *registro, ListaNodos *listaTiposAtributos,DefinitionsManager:: ListaNombresAtributos *listaNombresAtributos ,list<string>& listaNombresCampos);
+	void showRegister(char *registro, ListaTiposAtributos  *listaTiposAtributos,  ListaNombresAtributos *listaNombresAtributos, 
+			ListaStrings& listaNombresCampos);
 	
 	/*
 	 * Muestra por consola los campos de un tipo correspondiente
 	 * */
-	void showTipoContent(list<string>& listaNombresCampos);
+	void showTipoContent(ListaStrings& listaNombresCampos);
 	
 private:
 	

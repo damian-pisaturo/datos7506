@@ -27,10 +27,10 @@
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
-		Hash::Hash(IndiceHashManager* arch, ListaNodos* lista, unsigned int tamBucket)
+		Hash::Hash(IndiceHashManager* arch, ListaInfoRegistro* lista, unsigned int tamBucket)
 		{
 			this->archivo    = arch;
-			this->listaParam = lista;	
+			this->listaInfoRegistro = lista;	
 			this->tabla = new Tabla(this->archivo, tamBucket);
 		}
 	
@@ -71,7 +71,7 @@
 			// Se busca si el registro ya existe.
 			unsigned short aux = 0;
 			
-			if (bucket->buscarRegistro(this->listaParam, clave, &aux))
+			if (bucket->buscarRegistro(this->listaInfoRegistro, clave, &aux))
 			{
 				if (bucket) delete bucket;
 			
@@ -81,7 +81,7 @@
 			
 			// Si el registro no existe, hay que insertarlo.
 			// Se obtiene la longitud del registro independientemente de si es variable o fija.
-			unsigned short longReg = bucket->getTamanioRegistros(this->listaParam, registro);
+			unsigned short longReg = bucket->getTamanioRegistros(this->listaInfoRegistro, registro);
 			
 			// si el registro es variable se agrega a su longitud los bytes que contienen la misma.
 			if (esRegistroVariable())
@@ -90,7 +90,7 @@
 			if (bucket->verificarEspacioDisponible(longReg, bucket->getEspacioLibre()))
 			{
 				// Da de alta el registro en el bloque y persiste en disco.
-				bucket->altaRegistro(this->listaParam,registro);
+				bucket->altaRegistro(this->listaInfoRegistro,registro);
 				bucket->incrementarCantRegistros();
 				bucket->actualizarEspLibre();
 				
@@ -158,7 +158,7 @@
 			
 			//Se da de baja el registro cuya clave coincide con la pasada
 			//por parametro.
-			resultado = bucket->bajaRegistro(this->listaParam, clave);		
+			resultado = bucket->bajaRegistro(this->listaInfoRegistro, clave);		
 			
 			if (resultado == ResultadosIndices::OK){
 
@@ -219,22 +219,22 @@
 			
 			// Si no encuentro el registro buscado devuelvo false. Pero si lo encuentro,
 			// tengo el offset al mismo en offsetToReg.
-			if (bucket->buscarRegistro(this->listaParam, clave, &offsetToReg)){
+			if (bucket->buscarRegistro(this->listaInfoRegistro, clave, &offsetToReg)){
 		
 				unsigned short longReg = 0;	
 				char *datos = bucket->getDatos();
 				
-				tamanioBloque = bucket->getTamanioRegistroConPrefijo(this->listaParam, datos + offsetToReg);
+				tamanioBloque = bucket->getTamanioRegistroConPrefijo(this->listaInfoRegistro, datos + offsetToReg);
 				// Obtiene la longitud.
-				longReg = bucket->getTamanioRegistros(this->listaParam, datos + offsetToReg);	
+				longReg = bucket->getTamanioRegistros(this->listaInfoRegistro, datos + offsetToReg);	
 				
-				ListaNodos::const_iterator it;
-				it = this->listaParam->begin();
+				ListaInfoRegistro::const_iterator it;
+				it = this->listaInfoRegistro->begin();
 				
 				if (registro) 
 					delete[] registro;
 				
-				if (it->tipo == TipoDatos::TIPO_VARIABLE){
+				if (it->tipoDato == TipoDatos::TIPO_VARIABLE){
 					registro = new char[Tamanios::TAMANIO_LONGITUD + longReg];
 					
 					memcpy(registro, datos + offsetToReg,Tamanios::TAMANIO_LONGITUD + longReg);
@@ -268,7 +268,7 @@
 			tamanioBucket = bucket->getTamanioBloque();
 			
 			// Chequea que el registro esté dentro del bucket.
-			if (bucket->buscarRegistro(this->listaParam, clave, &offsetToReg)){
+			if (bucket->buscarRegistro(this->listaInfoRegistro, clave, &offsetToReg)){
 				// Hago una copia del contenido del bucket para devolver.
 				memcpy(datosBucket,bucket->getDatos(), tamanioBucket);
 				
@@ -279,9 +279,9 @@
 			return false;
 		}
 		
-		ListaNodos* Hash::getListaParametros()
+		ListaInfoRegistro* Hash::getListaInfoRegistro()
 		{
-			return this->listaParam;
+			return this->listaInfoRegistro;
 		}
 
 	///////////////////////////////////////////////////////////////////////
@@ -354,20 +354,20 @@
 			// Se crea un bucket auxiliar para poner los registros que deberían quedar en bucket.
 			Bucket * bucketAux = new Bucket(bucket->getNroBloque(),bucket->getTamDispersion(), bucket->getTamanioBloque());
 			
-			ListaNodos::const_iterator it = this->listaParam->begin();
-			nodoLista regAtribute = *it;
+			ListaInfoRegistro::const_iterator it = this->listaInfoRegistro->begin();
+			NodoInfoRegistro regAttribute = *it;
 			
 			// Se obtiene el tipo de atributo del registro.
-			int tipo = regAtribute.tipo;
+			unsigned char tipo = regAttribute.tipoDato;
 		
 			// Se recorren los registros reubicándolos.
 			for(int i = 0; i < bucket->getCantRegs(); i++)
 			{		
 				// Obtengo el tamaño del registro.	
-				longReg = bucket->getTamanioRegistros(this->listaParam, &datos[offsetReg]);
+				longReg = bucket->getTamanioRegistros(this->listaInfoRegistro, &datos[offsetReg]);
 				
 				// Obtengo la clave primaria.
-				clave = bucket->getClavePrimaria(this->listaParam, &datos[offsetReg]);
+				clave = bucket->getClavePrimaria(this->listaInfoRegistro, &datos[offsetReg]);
 				
 				
 				posicion = aplicarHash(*clave) % this->tabla->getTamanio(); 
@@ -379,12 +379,12 @@
 				// Se decide en cual de los 2 buckets se inserta el registro.
 				if (nroBucket == nuevoBucket->getNroBloque())
 				{
-					nuevoBucket->altaRegistro(this->listaParam, &datos[offsetReg]);
+					nuevoBucket->altaRegistro(this->listaInfoRegistro, &datos[offsetReg]);
 					nuevoBucket->incrementarCantRegistros();
 				}
 				else
 				{
-					bucketAux->altaRegistro(this->listaParam, &datos[offsetReg]);
+					bucketAux->altaRegistro(this->listaInfoRegistro, &datos[offsetReg]);
 					bucketAux->incrementarCantRegistros();
 				}
 				
@@ -426,17 +426,17 @@
 		 **/ 
 		bool Hash::esRegistroVariable()
 		{
-			ListaNodos::const_iterator it;
-			it = this->listaParam->begin();
+			ListaInfoRegistro::const_iterator it;
+			it = this->listaInfoRegistro->begin();
 			
-			return (it->tipo == TipoDatos::TIPO_VARIABLE);
+			return (it->tipoDato == TipoDatos::TIPO_VARIABLE);
 		}
 
 		char* Hash::serializarClave(void** claveVoid)
 		{
-			ListaNodos::const_iterator it = this->listaParam->begin();
+			ListaInfoRegistro::const_iterator it = this->listaInfoRegistro->begin();
 			
-			int tipo = 0;			
+			unsigned char tipo = 0;			
 			unsigned char cantClaves = it->cantClaves; //Cantidad de claves primarias
 			
 			// En este vector se pondrá la longitud de cada clave.
@@ -444,9 +444,9 @@
 			int tamanio = 0;
 			int i = 0;  // recorre las posiciones del vectorTamanios.
 			
-			for( ++it ;it != listaParam->end() ; ++it){
-				tipo = it->tipo;
-				if (it->pk == "true"){
+			for( ++it ;it != listaInfoRegistro->end() ; ++it){
+				tipo = it->tipoDato;
+				if (it->esPk){
 					
 					switch(tipo){
 					
@@ -522,5 +522,5 @@
 		
 		int Hash::getTipoOrganizacion()
 		{
-			return this->listaParam->begin()->tipo; 
+			return this->listaInfoRegistro->begin()->tipoDato; 
 		}

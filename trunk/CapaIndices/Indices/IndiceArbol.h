@@ -17,7 +17,7 @@ class IndiceArbol: public Indice {
 	public:
 		
 		IndiceArbol(unsigned char tipoIndice, int tipoDato,
-					ListaTipos* listaTiposClave, ListaNodos* listaTipos,
+					ListaTipos* listaTiposClave, ListaInfoRegistro* listaTipos,
 					unsigned char tipoEstructura, unsigned short tamBloqueDatos,
 					unsigned short tamNodo, unsigned short tamBloqueLista,
 					const string& nombreArchivo, unsigned char tipoOrg);

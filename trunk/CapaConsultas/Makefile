@@ -15,6 +15,9 @@ extension = cpp
 fuentes = ../CapaMetadata/Parser/ParserOperaciones.cpp
 fuentes += ../CapaMetadata/Vista/Vista.cpp
 fuentes += ../Common/DefManager/DefinitionsManager.cpp
+fuentes += ../Common/Archivo/Archivo.cpp
+fuentes += ../Common/ArchivoMaestro/ArchivoMaestro.cpp
+fuentes += ../Common/ParserDefiniciones/ParserDefiniciones.cpp
 fuentes += ../ComuDatos/ComuDatos.cpp
 fuentes += CapaConsultas.cpp
 

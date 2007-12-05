@@ -1,7 +1,7 @@
 #include "IndiceArbol.h"
 
 IndiceArbol::IndiceArbol(unsigned char tipoIndice, int tipoDato,
-						 ListaTipos* listaTiposClave, ListaNodos* listaTipos,
+						 ListaTipos* listaTiposClave, ListaInfoRegistro* listaTipos,
 						 unsigned char tipoEstructura, unsigned short tamBloqueDatos,
 						 unsigned short tamNodo, unsigned short tamBloqueLista,
 						 const string& nombreArchivo, unsigned char tipoOrg) {
@@ -11,7 +11,7 @@ IndiceArbol::IndiceArbol(unsigned char tipoIndice, int tipoDato,
 	this->tamBloqueDatos = tamBloqueDatos;
 	this->tamBloqueLista = tamBloqueLista;
 	this->tipoOrg = tipoOrg;
-	this->listaNodos = listaTipos;
+	this->listaInfoReg = listaTipos;
 	this->indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(tipoIndice, tipoDato,
 																			   new ListaTipos(*listaTiposClave), 
 																			   tipoEstructura, tamNodo, 0,
@@ -75,13 +75,13 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 				this->bloque->setNroBloque(nroBloque);		
 				this->bloque->setDatos(contenidoBloque);
 				// Inserta el registro.
-				this->bloque->altaRegistro(this->listaNodos, registro);
+				this->bloque->altaRegistro(this->listaInfoReg, registro);
 				// Sobreescribe el archivo de datos en la posicion 'nroBloque'
 				resultado = this->bloqueManager->escribirBloqueDatos(nroBloque, this->bloque->getDatos());
 			}else{
 				
 				// Inserta el registro.
-				this->bloque->altaRegistro(this->listaNodos, registro);
+				this->bloque->altaRegistro(this->listaInfoReg, registro);
 				
 				// Agrega un nuevo bloque de datos al archivo
 				nroBloque = this->bloqueManager->escribirBloqueDatos(this->bloque->getDatos());
@@ -115,7 +115,7 @@ int IndiceArbol::insertar(Clave *claveSecundaria, Clave* clavePrimaria) {
 	Clave* claveBuscada = bTree->buscar(claveSecundaria);
 	int resultado = ResultadosIndices::OK;
 	
-	ListaNodos* listaNodos = this->getListaNodosClavePrimaria();
+	ListaInfoRegistro* listaInfoReg = this->getListaInfoRegClavePrimaria();
 	ListaTipos* listaTipos = this->getListaTiposClavePrimaria();
 	char* claveSerializada = Bloque::serializarClave(clavePrimaria, listaTipos);
 	
@@ -125,7 +125,7 @@ int IndiceArbol::insertar(Clave *claveSecundaria, Clave* clavePrimaria) {
 		
 		if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), bloqueLista) == ResultadosFisica::OK) {
 			this->bloque->setDatos(bloqueLista);
-			this->bloque->altaRegistro(listaNodos, claveSerializada);			
+			this->bloque->altaRegistro(listaInfoReg, claveSerializada);			
 			this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
 		} else {
 			delete[] bloqueLista;
@@ -137,7 +137,7 @@ int IndiceArbol::insertar(Clave *claveSecundaria, Clave* clavePrimaria) {
 	} else {
 	
 		this->bloque->clear();
-		this->bloque->altaRegistro(listaNodos, claveSerializada);
+		this->bloque->altaRegistro(listaInfoReg, claveSerializada);
 		resultado = this->bloqueManager->escribirBloqueDatos(this->bloque->getDatos());
 		
 		if (resultado >= 0) {			
@@ -150,7 +150,7 @@ int IndiceArbol::insertar(Clave *claveSecundaria, Clave* clavePrimaria) {
 	
 	}
 	
-	delete listaNodos;
+	delete listaInfoReg;
 	delete listaTipos;
 	delete[] claveSerializada;
 	
@@ -174,7 +174,7 @@ int IndiceArbol::eliminar(Clave *clave) {
 			char *contenidoBloque =  new char[this->getTamanioBloqueDatos()];
 			if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), contenidoBloque) == ResultadosFisica::OK){
 				this->bloque->setDatos(contenidoBloque);
-				this->bloque->bajaRegistro(this->listaNodos, *claveBuscada);
+				this->bloque->bajaRegistro(this->listaInfoReg, *claveBuscada);
 				this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
 			} else
 				delete[] contenidoBloque;
@@ -199,7 +199,7 @@ int IndiceArbol::eliminar(Clave* claveSecundaria, Clave *clavePrimaria) {
 	Clave* claveBuscada = bTree->buscar(claveSecundaria);
 	int resultado = ResultadosIndices::OK;
 	
-	ListaNodos* listaNodos = this->getListaNodosClavePrimaria();
+	ListaInfoRegistro* listaInfoReg = this->getListaInfoRegClavePrimaria();
 	
 	if (claveBuscada) {
 
@@ -207,7 +207,7 @@ int IndiceArbol::eliminar(Clave* claveSecundaria, Clave *clavePrimaria) {
 		
 		if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), bloqueLista) == ResultadosFisica::OK) {
 			this->bloque->setDatos(bloqueLista);
-			this->bloque->bajaRegistro(listaNodos, *clavePrimaria);			
+			this->bloque->bajaRegistro(listaInfoReg, *clavePrimaria);			
 			if (this->bloque->getCantidadRegistros() == 0) {
 				this->bTree->eliminar(claveSecundaria);
 				this->bloqueManager->eliminarBloqueDatos(claveBuscada->getReferencia());
@@ -222,7 +222,7 @@ int IndiceArbol::eliminar(Clave* claveSecundaria, Clave *clavePrimaria) {
 		
 	} else resultado = ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	
-	delete listaNodos;
+	delete listaInfoReg;
 	
 	return resultado;
 	
@@ -247,9 +247,9 @@ int IndiceArbol::buscar(Clave *clave, char* &registro, unsigned short &tamanioRe
 		
 			unsigned short offsetToReg = 0;
 			
-			if (this->bloque->buscarRegistro(this->listaNodos, *clave, &offsetToReg)) {
+			if (this->bloque->buscarRegistro(this->listaInfoReg, *clave, &offsetToReg)) {
 			
-				tamanioRegistro = this->bloque->getTamanioRegistroConPrefijo(this->listaNodos, this->bloque->getDatos() + offsetToReg);
+				tamanioRegistro = this->bloque->getTamanioRegistroConPrefijo(this->listaInfoReg, this->bloque->getDatos() + offsetToReg);
 				
 				if (registro) delete[] registro;
 				
@@ -379,7 +379,7 @@ int IndiceArbol::siguienteBloque(Bloque* &bloque) {
 		} else if (this->getTipoOrganizacion() == TipoOrganizacion::REG_FIJOS) {
 			
 			bloque = new Bloque(0, Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS + this->getTamanioBloqueDatos(), this->getTipoOrganizacion());
-			bloque->altaRegistro(this->getListaNodos(), bloqueDatos);
+			bloque->altaRegistro(this->getListaInfoReg(), bloqueDatos);
 			delete[] bloqueDatos;
 			resultado = ResultadosIndices::OK;
 			
