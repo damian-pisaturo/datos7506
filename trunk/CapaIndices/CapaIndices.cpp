@@ -92,6 +92,8 @@ void destruirListaClaves(ListaClaves* &listaClaves) {
 
 bool compararClaves(Clave *claveMenor, Clave *claveMayor, Clave *clave)
 {	
+	if ((claveMenor == NULL) && (claveMayor == NULL))
+		return true;
 	if (claveMenor == NULL)
 		return (*clave < *claveMayor);
 	
@@ -109,21 +111,26 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 	
 	// Se obtiene la lista de los tipos de datos de los atributos del tipo 'nombreTipo', con
 	// los campos pk en "true" para los atributos cuyos nombres figuran en la listaNombresClaves.
-	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo, listaNombresClaves);
+//	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo, listaNombresClaves);
+	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	
 	Bloque* bloque = NULL;
 	char* registro = NULL;
 	unsigned short tamanioRegistro = 0;
 	unsigned short cantidadRegistros = 0;
 	Clave* claveDelRegistro;
-	
 	// Obtiene un bloque de datos.
 	int resultado = indice->siguienteBloque(bloque);
+	
+	cout << "Sigte bloque: " << resultado<< endl;
 	// Se indica a la capa superior si hay un bloque siguiente.
 	pipe.escribir(resultado);
 	
+	char operacion;
+	
 	 while (resultado == ResultadosIndices::OK) {
 		
+	
 		// Se obtiene un registro.
 		registro = bloque->getNextRegister();
 	
@@ -143,9 +150,29 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 				pipe.escribir(tamanioRegistro);
 				pipe.escribir(registro, tamanioRegistro);
 				
+				pipe.leer(&operacion);
+				
+				cout <<"operacione q llego a indices: "<< (int)operacion << endl;
+				
+				if (operacion == OperacionesCapas::INDICES_ELIMINAR) {
+					
+					cout << "voy a eliminar la clave : " << endl;
+					Clave* clave =bloque->getClavePrimaria(listaTiposAtributos,registro);
+					clave->imprimir(cout);
+					eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
+					
+					delete clave;
+				}
+				
 				// Vuelve a mandar el resultado, para que se esperen mas registros.
 				pipe.escribir(resultado);
 			}
+			else {
+				cantidadRegistros = 0;
+				pipe.escribir(cantidadRegistros);
+				pipe.escribir(resultado);
+			}
+			
 			delete claveDelRegistro;
 			delete[] registro;
 			registro = bloque->getNextRegister();	
@@ -164,6 +191,66 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 	
 	delete listaTiposAtributos;
 }
+
+void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndices,
+									DefinitionsManager &defManager, ComuDatos &pipe) {
+	
+	// Obtiene el indice primario para poder obtener luego los bloques de datos.
+	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
+	
+	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	
+	Bloque* bloque = NULL;
+	char* registro = NULL;
+	unsigned short tamanioRegistro = 0;
+	unsigned short cantidadRegistros = 0;
+
+	// Obtiene un bloque de datos.
+	int resultado = indice->siguienteBloque(bloque);
+	
+	char operacion;
+	
+	 while (resultado == ResultadosIndices::OK) {
+		
+		// Se obtiene un registro.
+		registro = bloque->getNextRegister();
+	
+		while (registro) {
+			
+			// Indica a metadata que tiene un registro para enviarle.
+			pipe.escribir(resultado);
+				
+			// Obtiene el tamaño del registro a enviar.
+			tamanioRegistro = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, registro);
+			pipe.escribir(tamanioRegistro);
+			pipe.escribir(registro, tamanioRegistro);
+			
+			pipe.leer(&operacion);
+				
+			cout <<"operacione q llego a indices: "<< (int)operacion << endl;
+			
+			if (operacion == OperacionesCapas::INDICES_ELIMINAR) {
+				
+				cout << "voy a eliminar la clave : " << endl;
+				Clave* clave =bloque->getClavePrimaria(listaTiposAtributos,registro);
+				clave->imprimir(cout);
+				eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
+				
+				delete clave;
+			}
+			
+			delete[] registro;
+			registro = bloque->getNextRegister();	
+		}	
+
+		delete bloque;
+		bloque = NULL;
+		resultado = indice->siguienteBloque(bloque);
+	}
+	
+	delete listaTiposAtributos;
+}
+
 
 void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 						Clave *clave, DefinitionsManager &defManager, ComuDatos &pipe) {
@@ -401,6 +488,7 @@ int eliminarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 	//Antes de eliminar la clave primaria obtengo su registro de datos
 	//para luego armar las claves secundarias.
 	resultado = indicePrimario->buscar(clave, registroDatos, tamRegistro);
+
 	
 	if (resultado == ResultadosIndices::OK) {
 		
@@ -478,7 +566,7 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 			
 			//Elimino todas las claves primarias vinculadas a esta clave secundaria
 			for (unsigned i = 0; i < listaClavesPrimarias->size(); ++i, ++iterClaves)
-				resultado = eliminarClavePrimaria(nombreTipo, mapaIndices, indicePrimario, *iterClaves, defManager);
+				resultado = eliminarClavePrimaria(nombreTipo, mapaIndices, indicePrimario, *iterClaves, defManager); 
 			
 			delete indicePrimario;
 			
@@ -491,6 +579,57 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 	//Envío el resultado a la capa de metadata
 	pipe.escribir(resultado);
 	
+}
+
+
+void eliminarPorRango(const string &nombreTipo, MapaIndices &mapaIndices,
+	   	  	  Indice *indice, Clave *clave,
+	   	  	  DefinitionsManager &defManager, ComuDatos &pipe, char operacion) {
+	/*
+	int resultado = ResultadosIndices::OK;
+	
+	if (indice->getTipoIndice() == TipoIndices::GRIEGO) {
+		
+		//Saco el índice primario para no volver a eliminar.
+		mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
+		//Elimino la clave primaria y actualizo los índices secundarios.
+		resultado = eliminarClavePrimariaPorRango(nombreTipo, mapaIndices, indice, clave, defManager, operacion);
+		//Elimino el índice primario que saqué del mapa
+		delete indice;
+		
+	} else { //Indice Secundario
+		
+		ListaClaves* listaClavesPrimarias = NULL;
+		
+		
+		int resultado = indice->buscar(clave, listaClavesPrimarias);
+		
+		if (resultado == ResultadosIndices::OK) {
+			
+			ListaClaves::iterator iterClaves = listaClavesPrimarias->begin();
+			
+			//Obtengo el índice primario
+			MapaIndices::iterator it = mapaIndices.find(*defManager.getListaNombresClavesPrimarias(nombreTipo));
+			Indice* indicePrimario = it->second;
+			//Saco el índice primario del mapa para que no sea encontrado cuando se busquen los
+			//índices secundarios en 'eliminarClavePrimaria'
+			mapaIndices.erase(it);
+			
+			//Elimino todas las claves primarias vinculadas a esta clave secundaria
+			for (unsigned i = 0; i < listaClavesPrimarias->size(); ++i, ++iterClaves)
+				resultado = eliminarClavePrimaria(nombreTipo, mapaIndices, indicePrimario, *iterClaves, defManager); //TODO verlo bien
+			
+			delete indicePrimario;
+			
+			destruirListaClaves(listaClavesPrimarias);
+			
+		}
+		
+	}
+	
+	//Envío el resultado a la capa de metadata
+	pipe.escribir(resultado);
+	*/
 }
 
 
@@ -710,7 +849,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			// Si la eliminación es a partir de una clave secundaria, se obtienen
 			// todas las claves primarias y se lleva a cabo la eliminación para cada
 			// una de ellas.
-			eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
+			eliminacionNoIndexadaPorRango(nombreTipo, mapaIndices, defManager, pipe);			
 			break;
 		case OperacionesCapas::INDICES_MODIFICAR:
 			// Si la modificación se hace a partir de una clave primaria, se modifica

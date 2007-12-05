@@ -14,6 +14,7 @@
 #include "../Common/OperacionesCapas.h"
 #include "../Common/ClaveFactory/ClaveFactory.h"
 #include "Common/BloqueListaPrimaria/BloqueListaPrimaria.h"
+#include "../Common/ExpresionesLogicas.h"
  
 using namespace std;
 
@@ -32,6 +33,10 @@ void destruirIndices(MapaIndices &mapaIndices);
  * Procesa la operación que le llega desde la Capa de Metadata
  */
 int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe);
+
+void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
+	   	  	  Indice *indice, Clave *clave,
+	   	  	  DefinitionsManager &defManager, ComuDatos &pipe);
 
 int main(int argc, char* argv[]);
 
