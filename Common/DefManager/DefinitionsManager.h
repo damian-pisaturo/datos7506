@@ -1,117 +1,70 @@
+///////////////////////////////////////////////////////////////////////////
+//	Archivo   : DefinitionsManager.h
+//  Namespace : Common
+////////////////////////////////////////////////////////////////////////////
+//	75.06 Organizacion de Datos
+//	Trabajo practico: Framework de Persistencia
+////////////////////////////////////////////////////////////////////////////
+//	Descripcion
+//		Cabeceras e interfaz de las clase DefinitionsManager.
+///////////////////////////////////////////////////////////////////////////
+//	Integrantes
+//		- Alvarez Fantone, Nicolas;
+//      - Caravatti, Estefanía;
+//		- Garcia Cabrera, Manuel;
+//      - Grisolia, Nahuel;
+//		- Pisaturo, Damian;	
+//		- Rodriguez, Maria Laura.
+///////////////////////////////////////////////////////////////////////////
 #ifndef DEFINITIONSMANAGER_H_
 #define DEFINITIONSMANAGER_H_
 
-#include "../../CapaIndices/Common/TipoIndices.h"
-#include "../RegisterInfo/RegisterInfo.h"
 #include "../Clave/Clave.h"
-#include "../TipoDatos.h"
-#include <list>
-#include <map>
+#include "../ArchivoMaestro/ArchivoMaestro.h"
 
-class DefinitionsManager {
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: DefinitionsManager 
+//	(Contiene las definiciones de los tipos de datos declarados en el 
+// 	archivo de definiciones, almacenadas en estructuras (mapas, listas)
+// 	que pueden ser consultadas)
+///////////////////////////////////////////////////////////////////////////
+class DefinitionsManager 
+{
+	// Instancia única del DefinitionsManager
+		static DefinitionsManager instance;
+
+	///////////////////////////////////////////////////////////////////////////
+	// Atributos
+	///////////////////////////////////////////////////////////////////////////
+		ArchivoMaestro archivoMaestro; // Archivo Maestro conocedor del Universo circundante.
+		
+		// Mapas contenedores de las listas con las definiciones
+		// parseadas del archivo maestro.
+		MapaTiposAtributos mapaTiposAtributos;		
+		MapaTiposIndices mapaTiposIndices;		
+		MapaNombresAtributos mapaNombresAtributos;		
+		MapaNombresClavesPrimarias mapaNombresClavesPrimarias;
+		
+	///////////////////////////////////////////////////////////////////////////
+	// Constructor (privado)
+	///////////////////////////////////////////////////////////////////////////
+		DefinitionsManager();
 	
 	public:
-		//Definiciones
-		typedef ListaNodos ListaTiposAtributos;
-		
-		typedef std::list<std::string> ListaNombresAtributos;
-		
-		typedef std::list<std::string> ListaValoresAtributos;
-		
-		typedef struct _nodoListaClaves {
-			std::string nombreClave;
-			std::string valorClave;
-		} NodoListaClaves;
-		
-		typedef std::list<NodoListaClaves> ListaClaves;
-		
-		typedef struct _nodoListaCampos {
-			std::string nombreCampo;
-			std::string valorCampo;
-			char operacion;
-		} NodoListaCampos;
-		
-		typedef std::list<NodoListaCampos> ListaCampos;
-		
-		typedef struct _estructuraCampos {
-			char operacion;
-			ListaCampos listaCampos;
-		} EstructuraCampos;
-		
-		typedef struct _estructuraNombres {
-			string nombreTipo;
-			string nombreCampo;
-		} EstructuraNombres;
-		
-		typedef struct _nodoListaOperaciones {
-			EstructuraNombres estructuraNombresIzq;
-			EstructuraNombres estructuraNombresDer;
-			char operacion;
-		} NodoListaOperaciones;
-		
-		typedef std::list<NodoListaOperaciones> ListaOperaciones;
-		
-		typedef struct _estructuraOperaciones {
-			char operacion;
-			ListaOperaciones listaOperaciones;
-		} EstructuraOperaciones;
-				
-		typedef std::list<string> ListaStrings;
-		
-		typedef std::list<EstructuraNombres> ListaEstructuraNombres;
-		
-		typedef struct _estructuraConsulta {
-			ListaStrings listaNombresTipos;
-			ListaEstructuraNombres listaCamposSeleccionados;
-			EstructuraOperaciones estructuraJoins;
-			EstructuraOperaciones estructuraWhere;
-			ListaEstructuraNombres listaOrderBy;
-		} EstructuraConsulta;
-		
-		typedef std::list<std::string> ListaNombresClaves;
-		
-		typedef std::list<std::string> ListaValoresClaves;
-		
-		typedef struct _estructTipoIndice {
-			unsigned char tipoIndice;
-			unsigned char tipoEstructura;
-			unsigned short tamanioBloque;
-			int tipoClave;
-			string nombreArchivo;
-		} EstructTipoIndice;
-		
-		typedef struct _nodoListaIndices {
-			EstructTipoIndice estructTipoIndice;
-			ListaNombresClaves* listaNombresClaves;
-			ListaTipos* listaTipos;
-		} NodoListaIndices;
-		
-		typedef std::list<NodoListaIndices> ListaTiposIndices;
-		
-		typedef std::map<std::string, ListaTiposAtributos*> MapaTiposAtributos;
-		
-		typedef std::map<std::string, std::string> MapaValoresAtributos;
-		
-		typedef std::map<std::string, ListaNombresAtributos*> MapaNombresAtributos;
-		
-		typedef std::map<std::string, ListaNombresClaves*> MapaNombresClavesPrimarias;
-		
-		typedef std::map<std::string, ListaTiposIndices*> MapaTiposIndices;
-		
-		//Destructor
+	///////////////////////////////////////////////////////////////////////////
+	// Destructor 
+	///////////////////////////////////////////////////////////////////////////
 		virtual ~DefinitionsManager();
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Métodos publicos
+	///////////////////////////////////////////////////////////////////////////
 		
 		//Método para obtener la instancia de este objeto
-		static DefinitionsManager& getInstance() { return instance; }
-		
-		//Devuelve la lista de los tipos de cada atributo de la clase 'nombreTipo'.
-		//NO hay que liberar la memoria de la lista.
-		ListaTiposAtributos* getListaTiposAtributos(const string &nombreTipo);
-		
-		//Devuelve la lista de los tipos de cada atributo de la clase 'nombreTipo',
-		//con los campos pk = "true" para aquellos cuyos nombres figuren en 'listaNombresClaves'.
-		//HAY que liberar la memoria de la lista.
-		ListaTiposAtributos* getListaTiposAtributos(const string &nombreTipo, const ListaNombresClaves &listaNombresClaves);
+		static DefinitionsManager& getInstance() { return instance; }		
+
 		
 		//Devuelve la lista de los tipos de cada atributo de la clase 'nombreTipo'.
 		//HAY que liberar la memoria de la lista.
@@ -128,65 +81,64 @@ class DefinitionsManager {
 		ListaValoresAtributos* getListaValoresAtributos(const string &nombreTipo,
 														const MapaValoresAtributos &mapaValoresAtributos);
 		
+		char cargarArchivoMaestro(const string& nomArchivoDefiniciones)
+		{
+			return 0;
+			//return this->archivoMaestro.agregarTipo(nomArchivoDefiniciones);
+		}
+		
+		const MapaTiposAtributos& getMapaTiposAtributos() const 
+		{
+			return this->mapaTiposAtributos;
+		}
+		
+		const MapaTiposIndices& getMapaTiposIndices() const 
+		{
+			return this->mapaTiposIndices;
+		}
+		
+		const MapaNombresAtributos& getMapaNombresAtributos() const 
+		{
+			return this->mapaNombresAtributos;
+		}
+		
+		const MapaNombresClavesPrimarias& getMapaNombresClavesPrimarias() const
+		{
+			return this->mapaNombresClavesPrimarias;
+		}
+		
+		//Devuelve la lista de los tipos de cada atributo de la clase 'nombreTipo',
+		//con los campos pk = "true" para aquellos cuyos nombres figuren en 'listaNombresClaves'.
+		//HAY que liberar la memoria de la lista.
+		ListaTiposAtributos* getListaTiposAtributos(const string &nombreTipo, const ListaNombresClaves &listaNombresClaves);
+
+		//Devuelve la lista de los tipos de cada atributo de la clase 'nombreTipo'.
+		//NO hay que liberar la memoria de la lista.
+		ListaTiposAtributos* getListaTiposAtributos(const string &nombreTipo);
+		
+		unsigned char getTipoOrgRegistro(const string &nombreTipo);
+		
+		unsigned short getTamBloqueDatos(const string& nombreTipo);
+		
+		//Devuelve una lista con los nombres de los campos de la clave primaria.
+		//NO hay que liberar la memoria de la lista.
+		ListaNombresClaves* getListaNombresClavesPrimarias(const string &nombreTipo);
+		
+		//Devuelve una lista con los nombres de todos los atributos/campos de la clase 'nombreTipo'.
+		//NO hay que liberar la memoria de la lista.
+		ListaNombresAtributos* getListaNombresAtributos(const string &nombreTipo);
+		
 		//Devuelve una lista con todos los datos correspondientes a cada índice de la clase 'nombreTipo'.
 		//NO hay que liberar la memoria de la lista.
 		ListaTiposIndices* getListaTiposIndices(const string &nombreTipo);
 		
-		const MapaTiposAtributos& getMapaTiposAtributos() const {
-			return this->mapaTiposAtributos;
-		}
-		
-		const MapaTiposIndices& getMapaTiposIndices() const {
-			return this->mapaTiposIndices;
-		}
-		
-		const MapaNombresAtributos& getMapaNombresAtributos() const {
-			return this->mapaNombresAtributos;
-		}
-		
-		unsigned char getTipoOrgRegistro(const string &nombreTipo) {
-			return this->mapaTiposAtributos[nombreTipo]->begin()->tipo;
-		}
-		
-		//Devuelve una lista con los nombres de los campos de la clave primaria.
-		//NO hay que liberar la memoria de la lista.
-		ListaNombresClaves* getListaNombresClavesPrimarias(const string &nombreTipo) {
-			return this->mapaNombresClavesPrimarias[nombreTipo];
-		}
-		
-		//Devuelve una lista con los nombres de todos los atributos/campos de la clase 'nombreTipo'.
-		//NO hay que liberar la memoria de la lista.
-		ListaNombresAtributos* getListaNombresAtributos(const string &nombreTipo) {
-			return this->mapaNombresAtributos[nombreTipo];
-		}
 		
 	private:
-		DefinitionsManager();
-
-		static DefinitionsManager instance;
-		
-		//Atributos
-		MapaTiposAtributos mapaTiposAtributos;
-		
-		MapaTiposIndices mapaTiposIndices;
-		
-		MapaNombresAtributos mapaNombresAtributos;
-		
-		MapaNombresClavesPrimarias mapaNombresClavesPrimarias;
-				
-		//Metodos
-		void cargarDefiniciones();
-		
-		void cargarNombresAtributos();
-		
-		void cargarTiposAtributos();
-		
-		void cargarTiposIndices();
-		
+	///////////////////////////////////////////////////////////////////////////
+	// Método privado
+	///////////////////////////////////////////////////////////////////////////
 		bool buscarNombre(const string &nombre, const ListaNombresClaves &listaNombresClaves) const;
-		
+		char recuperarTipo(const string& nombreTipo);
 };
-
-
 
 #endif /*DEFINITIONSMANAGER_H_*/

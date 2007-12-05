@@ -32,8 +32,8 @@ ListaTipos* Indice::getListaTipos() const {
 	
 	ListaTipos* listaTipos = new ListaTipos();
 	
-	for (ListaNodos::iterator it = ++(this->getListaNodos()->begin()); it != this->getListaNodos()->end(); ++it)
-		listaTipos->push_back(it->tipo);
+	for (ListaInfoRegistro::iterator it = ++(this->getListaInfoReg()->begin()); it != this->getListaInfoReg()->end(); ++it)
+		listaTipos->push_back(it->tipoDato);
 	
 	return listaTipos;
 	
@@ -43,12 +43,12 @@ ListaTipos* Indice::getListaTipos() const {
 ListaTipos* Indice::getListaTiposClavePrimaria() const {
 	
 	ListaTipos* listaTipos = new ListaTipos();
-	ListaNodos::iterator it = this->getListaNodos()->begin();
+	ListaInfoRegistro::iterator it = this->getListaInfoReg()->begin();
 	unsigned short cantClaves = it->cantClaves, i = 0;
 	
-	for (++it; (i < cantClaves) && (it != this->getListaNodos()->end()); ++it) {
-		if (it->pk == "true") {
-			listaTipos->push_back(it->tipo);
+	for (++it; (i < cantClaves) && (it != this->getListaInfoReg()->end()); ++it) {
+		if (it->esPk) {
+			listaTipos->push_back(it->tipoDato);
 			++i;
 		}
 	}
@@ -58,21 +58,21 @@ ListaTipos* Indice::getListaTiposClavePrimaria() const {
 }
 
 
-ListaNodos* Indice::getListaNodosClavePrimaria() const {
+ListaInfoRegistro* Indice::getListaInfoRegClavePrimaria() const {
 	
-	ListaNodos* listaTipos = new ListaNodos();
-	ListaNodos::iterator it = this->getListaNodos()->begin();
+	ListaInfoRegistro* listaTipos = new ListaInfoRegistro();
+	ListaInfoRegistro::iterator it = this->getListaInfoReg()->begin();
 	unsigned short i = 0;
 	
-	nodoLista nodo;
-	nodo.cantClaves = it->cantClaves;
-	nodo.pk = "";
-	nodo.tipo = TipoDatos::TIPO_VARIABLE;
+	NodoInfoRegistro nodoIR;
+	nodoIR.cantClaves = it->cantClaves;
+	nodoIR.esPk = false;
+	nodoIR.tipoDato = TipoDatos::TIPO_VARIABLE;
 	
-	listaTipos->push_back(nodo);
+	listaTipos->push_back(nodoIR);
 	
-	for (++it; (i < nodo.cantClaves) && (it != this->getListaNodos()->end()); ++it) {
-		if (it->pk == "true") {
+	for (++it; (i < nodoIR.cantClaves) && (it != this->getListaInfoReg()->end()); ++it) {
+		if (it->esPk) {
 			listaTipos->push_back(*it);
 			++i;
 		}

@@ -21,10 +21,10 @@ using namespace std;
 #define EXTENSION_ESPACIO_LIBRE		"nfo"
 
 ComuDatos* instanciarPipe();
-void serializarListaClaves(string& s, DefinitionsManager::ListaClaves* listaClaves);
-bool cumpleRestricciones(char* registro, DefinitionsManager::ListaOperaciones &listaOperaciones, 
-						 char operacion, DefinitionsManager::ListaNombresAtributos &listaNombresAtributos, 
-						 DefinitionsManager::ListaTiposAtributos &listaTiposAtributos);
+void serializarListaClaves(string& s, ListaInfoClave* listaClaves);
+bool cumpleRestricciones(char* registro, ListaOperaciones &listaOperaciones, 
+						 char operacion, ListaNombresAtributos &listaNombresAtributos, 
+						 ListaTiposAtributos &listaTiposAtributos);
 int main(int argc, char* argv[]);
 
 #endif /*CAPAMETADATA_H_*/

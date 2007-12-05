@@ -40,14 +40,14 @@ class IndiceHash :public Indice
 	//////////////////////////////////////////////////////////////////////
 		Hash* hash;
 		ListaTipos* listaTiposClave;
-		ListaNodos* listaNodosClave;
+		ListaInfoRegistro* listaNodosClave;
 		
 	public:
 	///////////////////////////////////////////////////////////////////////
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 		IndiceHash(unsigned char tipoIndice, ListaTipos *listaTiposClave,
-				   ListaNodos *listaParam, unsigned int tamBloqueLista,
+				ListaInfoRegistro* listaInfoReg, unsigned int tamBloqueLista,
 				   unsigned int tamBucket, const string& nombreArchivo);
 		
 		virtual ~IndiceHash();
@@ -130,7 +130,7 @@ class IndiceHash :public Indice
 		void setOffsetToList(unsigned int offset, char *registro, unsigned short tamanioRegistro);
 		
 	private:
-		ListaNodos* getListaNodosClave() const;
+		ListaInfoRegistro* getListaNodosClave() const;
 };
 
 #endif /*INDICEHASH_H_*/

@@ -37,6 +37,9 @@ fuentes += ../Common/ClaveFactory/ClaveFactory.cpp
 fuentes += ../Common/DefManager/DefinitionsManager.cpp
 fuentes += ../Common/Registro/Registro.cpp
 fuentes += ../ComuDatos/ComuDatos.cpp
+fuentes += ../Common/Archivo/Archivo.cpp
+fuentes += ../Common/ArchivoMaestro/ArchivoMaestro.cpp
+fuentes += ../Common/ParserDefiniciones/ParserDefiniciones.cpp
 fuentes += CapaIndices.cpp
 
 # CONFIGURACION "AVANZADA"

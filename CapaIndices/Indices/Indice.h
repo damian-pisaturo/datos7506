@@ -12,20 +12,19 @@
 #include "../Common/BloqueListaPrimaria/BloqueListaPrimaria.h"
 #include "../Manager/BloqueManager/BloqueDatosManager/BloqueDatosManager.h"
 #include "../Manager/BloqueManager/BloqueListaManager/BloqueListaManager.h"
-#include <vector>
-#include <map>
 #include <set>
 
+using namespace std;
 
 class Indice;
 
-typedef std::map<DefinitionsManager::ListaNombresClaves, Indice*> MapaIndices;
+typedef map<ListaNombresClaves, Indice*> MapaIndices;
 
-typedef std::map<std::string, MapaIndices*> MapaMapaIndices;
+typedef map<std::string, MapaIndices*> MapaMapaIndices;
 
-typedef std::vector<Indice*> VectorIndices;
+typedef vector<Indice*> VectorIndices;
 
-typedef std::set<unsigned int> SetEnteros;
+typedef set<unsigned int> SetEnteros;
 
 class Indice
 {
@@ -35,7 +34,7 @@ class Indice
 		unsigned char tipoEstructura;
 		unsigned short tamBloqueDatos;
 		unsigned short tamBloqueLista;
-		ListaNodos* listaNodos;
+		ListaInfoRegistro* listaInfoReg;
 		BloqueManager* bloqueManager;
 		
 	public:
@@ -138,13 +137,13 @@ class Indice
 		
 		unsigned short getTamanioBloqueLista() const { return this->tamBloqueLista; }
 		
-		ListaNodos* getListaNodos() const { return this->listaNodos; }
+		ListaInfoRegistro* getListaInfoReg() const { return this->listaInfoReg; }
 		
 		ListaTipos* getListaTipos() const;
 
 		ListaTipos* getListaTiposClavePrimaria() const;
 		
-		ListaNodos* getListaNodosClavePrimaria() const;
+		ListaInfoRegistro* getListaInfoRegClavePrimaria() const;
 		
 };
 

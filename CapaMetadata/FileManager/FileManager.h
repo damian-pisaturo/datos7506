@@ -14,7 +14,7 @@ class FileManager {
 		unsigned char tipoOrg;
 		int siguienteBloque;
 		Bloque* bloque;
-		ListaNodos* listaNodos;
+		ListaInfoRegistro* listaInfoReg;
 		bool pedirBloque;
 	
 	public:
@@ -22,7 +22,7 @@ class FileManager {
 		 * Recibe el nombre del archivo (incluida la extensión)
 		 */
 		FileManager(const string &nombreArchivo, unsigned short tamBloque,
-					unsigned char tipoOrg, ListaNodos* listaTiposAtributos);
+					unsigned char tipoOrg, ListaInfoRegistro* listaTiposAtributos);
 		
 		virtual ~FileManager();
 		
@@ -58,7 +58,7 @@ class FileManager {
 		 * Las extensiones no deben incluir el punto inicial.
 		 * Ejemplo: tmp, tmp.nfo
 		 */
-		static void renombrarArchivosTemporales(DefinitionsManager::ListaStrings &listaNombres,
+		static void renombrarArchivosTemporales(ListaStrings &listaNombres,
 												const string &extVieja, const string &extNueva);
 		
 	private:

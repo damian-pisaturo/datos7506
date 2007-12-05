@@ -9,16 +9,16 @@ DataManager::~DataManager()
 {
 	if(this->registro)
 		delete[] registro;
-
 }
 
-unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaValoresAtributos &listaVA,
-									const DefinitionsManager::ListaTiposAtributos &listaTipos) {
+unsigned short DataManager::crearRegistroAlta(const ListaValoresAtributos &listaVA,
+									const ListaTiposAtributos &listaTipos) {
 	
-	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTipos.begin();
-	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
-	int tipo; //Indica si el tipo de campo del registro es variable o fijo
-	nodoLista regAttribute;
+	ListaTiposAtributos::const_iterator itTipos = listaTipos.begin();
+	ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
+	unsigned char tipo = 0; //Indica si el tipo de campo del registro es variable o fijo
+	NodoInfoRegistro regAttribute;
+	
 	unsigned short offsetToCampo = 0;
 	unsigned short longRegistro = this->getTamanioRegistro(listaTipos,listaVA);
 	char *registro = new char[longRegistro];
@@ -26,7 +26,7 @@ unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaVal
 	
 	regAttribute = *itTipos;
 	// Si el registro es de tipo variable le guardo la longitud al registro
-	if(regAttribute.tipo == TipoDatos::TIPO_VARIABLE){
+	if(regAttribute.tipoDato == TipoDatos::TIPO_VARIABLE){
 		// Guardo la longitud del registro en los primeros dos bytes del mismo
 		unsigned short longVariable = longRegistro - Tamanios::TAMANIO_LONGITUD;
 		memcpy(registro,&longVariable,Tamanios::TAMANIO_LONGITUD);
@@ -36,10 +36,11 @@ unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaVal
 	// Y se van guardando los datos del registro
 	for(++itTipos ; itTipos != listaTipos.end() ; ++itTipos,++itValoresAtributos){
 		regAttribute = *itTipos;
-		tipo = regAttribute.tipo;
+		tipo = regAttribute.tipoDato;
 		// Obtengo el campo del registro
 		campoRegistro = *itValoresAtributos;
-		if(tipo == TipoDatos::TIPO_ENTERO){
+		
+		if (tipo == TipoDatos::TIPO_ENTERO){
 			int entero = atoi(campoRegistro.c_str());
 			memcpy(&registro[offsetToCampo],&entero,sizeof(int));
 			offsetToCampo += sizeof(int);
@@ -108,18 +109,18 @@ unsigned short DataManager::crearRegistroAlta(const DefinitionsManager::ListaVal
 }
 
 
-unsigned short DataManager::crearRegistroAltaRandom(string &valoresClaves, const DefinitionsManager::ListaTiposAtributos &listaTipos) {
+unsigned short DataManager::crearRegistroAltaRandom(string &valoresClaves, const ListaTiposAtributos &listaTipos) {
 	
-	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTipos.begin();
-	DefinitionsManager::ListaValoresAtributos listaVA;
-	int tipo; //Indica si el tipo de campo del registro es variable o fijo
+	ListaTiposAtributos::const_iterator itTipos = listaTipos.begin();
+	ListaValoresAtributos listaVA;
+	unsigned char tipo; //Indica si el tipo de campo del registro es variable o fijo
 	stringstream conversor;
 	
 	// Se itera la lista de atributos del registro.
 	// Y se van generando aleatoriamente los datos del registro.
 	for(++itTipos; itTipos != listaTipos.end(); ++itTipos) {
 		
-		tipo = itTipos->tipo;
+		tipo = itTipos->tipoDato;
 		
 		if(tipo == TipoDatos::TIPO_ENTERO){
 			
@@ -195,20 +196,20 @@ unsigned short DataManager::crearRegistroAltaRandom(string &valoresClaves, const
 }
 
 
-unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
-											   const DefinitionsManager::ListaValoresAtributos &listaVA){
+unsigned short DataManager::getTamanioRegistro(const ListaTiposAtributos &listaTiposAtributos,
+											   const ListaValoresAtributos &listaVA){
 	// Obtengo los iteradores de ambas listas
-	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
-	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
+	ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
+	ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
 	
 	unsigned short tamanioRegistro = 0;
-	nodoLista regAttribute = *itTipos;
+	NodoInfoRegistro regAttribute = *itTipos;
 	string campoRegistro;
-	int tipo;
+	unsigned char tipo;
 	
 	// Si el tipo de registro es fijo obtengo directamente la longitud 
-		if(regAttribute.tipo == TipoDatos::TIPO_FIJO)
-			tamanioRegistro = ((unsigned short)atoi(regAttribute.pk.c_str()));
+		if(regAttribute.tipoDato == TipoDatos::TIPO_FIJO)
+			tamanioRegistro = regAttribute.tamRegistro;
 			
 		else{
 			// Le sumo los bytes que contendran la longitud del registro
@@ -219,7 +220,7 @@ unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTi
 			// acerca del registro
 			for(++itTipos ;itTipos != listaTiposAtributos.end(); ++itTipos,++itValoresAtributos){
 				regAttribute = *itTipos;
-				tipo = regAttribute.tipo;
+				tipo = regAttribute.tipoDato;
 				
 				if(tipo == TipoDatos::TIPO_ENTERO)
 					tamanioRegistro += sizeof(int);
@@ -247,12 +248,10 @@ unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTi
 				}
 				else if(tipo == TipoDatos::TIPO_BOOL)
 					tamanioRegistro += sizeof(bool);
-				
-				
-			}
-			
+			}		
 		}
-		return tamanioRegistro;
+		
+	return tamanioRegistro;
 }
 
 
@@ -260,23 +259,23 @@ unsigned short DataManager::getTamanioRegistro(const DefinitionsManager::ListaTi
  *  Genera un nuevo registro con los cambios pedidos en la modificacion
  *  Una vez que ya lo geenra lo setea en el atributo registro de dataManager
  * */
-unsigned short DataManager::crearRegistroModificacion(const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
-											const DefinitionsManager::ListaValoresAtributos &listaVA,
+unsigned short DataManager::crearRegistroModificacion(const ListaTiposAtributos &listaTiposAtributos,
+											const ListaValoresAtributos &listaVA,
 											char *registroEnDisco){
 	// Obtengo los iteradores de ambas listas
-	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
-	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
+	ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
+	ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
 
-	nodoLista regAttribute = *itTipos;
+	NodoInfoRegistro regAttribute = *itTipos;
 	unsigned short offsetRegDisco = 0;
 	unsigned short longRegNuevo = 0;
-	int tipo = 0;
+	unsigned char tipo = 0;
 	string valorModificado("");
 	unsigned char longCampoVariable = 0; 
 	
 	// Si el tipo de registro es fijo obtengo la longitud de la lista de tipos 
-	if(regAttribute.tipo == TipoDatos::TIPO_FIJO)
-		longRegNuevo = ((unsigned short)atoi(regAttribute.pk.c_str()));
+	if(regAttribute.tipoDato == TipoDatos::TIPO_FIJO)
+		longRegNuevo = regAttribute.tamRegistro;
 	// Obtengo el tamanio del nuevo registro, reservo espacio para el msimo y lo genero con las nuevas modificaciones
 	else{
 			// Incremento el offset en dos bytes, que son los que ocupan la longitud del registro
@@ -286,7 +285,7 @@ unsigned short DataManager::crearRegistroModificacion(const DefinitionsManager::
 			// Itero las listas para obtener el tamanio del nuevo registro y reservar memoria para el mismo
 			for(++itTipos; itTipos != listaTiposAtributos.end(); ++itTipos, ++itValoresAtributos){
 				regAttribute = *itTipos;
-				tipo = regAttribute.tipo;
+				tipo = regAttribute.tipoDato;
 				
 				if(tipo == TipoDatos::TIPO_ENTERO){
 					longRegNuevo += sizeof(int);
@@ -347,17 +346,17 @@ unsigned short DataManager::crearRegistroModificacion(const DefinitionsManager::
  * Genera el nuevo registro con las modificaciones correspondientes
  * */
 void DataManager::generarRegistroModificado(char *registroNuevo, char *registroViejo, unsigned short longNuevoReg, 
-							   const DefinitionsManager::ListaTiposAtributos &listaTiposAtributos,
-		   					   const DefinitionsManager::ListaValoresAtributos &listaVA) {
+							   const ListaTiposAtributos &listaTiposAtributos,
+		   					   const ListaValoresAtributos &listaVA) {
 	// Obtengo los iteradores de ambas listas
-	DefinitionsManager::ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
-	DefinitionsManager::ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
+	ListaTiposAtributos::const_iterator itTipos = listaTiposAtributos.begin();
+	ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
 	unsigned short offsetRegViejo = 0;
 	unsigned short offsetRegNuevo = 0;
-	nodoLista registerAttribute;
+	NodoInfoRegistro registerAttribute;
 	string valorModificado("");
-	nodoLista regAttribute = *itTipos;
-	int tipo = regAttribute.tipo;
+	NodoInfoRegistro regAttribute = *itTipos;
+	unsigned char tipo = regAttribute.tipoDato;
 	
 	// Si el registro es variable guardo la longitud del mismo en los primeros dos bytes
 	if(tipo == TipoDatos::TIPO_VARIABLE){
@@ -369,7 +368,7 @@ void DataManager::generarRegistroModificado(char *registroNuevo, char *registroV
 	 
 	for(++itTipos; itTipos != listaTiposAtributos.end(); ++itTipos, ++itValoresAtributos) {
 		regAttribute = *itTipos;
-		tipo = regAttribute.tipo;
+		tipo = regAttribute.tipoDato;
 		valorModificado = *itValoresAtributos;
 		bool estaModificado  = (valorModificado != CAMPO_NO_MODIFICADO);
 		
@@ -499,41 +498,3 @@ void DataManager::generarRegistroModificado(char *registroNuevo, char *registroV
 	}
 	
 }
-
-
-/*int DataManager::insertar(const DefinitionsManager::ListaValoresAtributos* listaVA,
-				 		  const DefinitionsManager::ListaTiposAtributos* listaTipos, Bloque* bloque) {
-	
-	this->crearRegistroAlta(*listaVA, *listaTipos);
-	return bloque->altaRegistro(listaTipos, this->registro); 
-	
-}*/
-
-
-/*int DataManager::eliminar(DefinitionsManager::ListaClaves* listaClaves,
-						  const DefinitionsManager::ListaTiposAtributos* listaTipos, Bloque* bloque) {
-	
-	return bloque->bajaRegistro(listaTipos, *ClaveFactory::getInstance().getClave(*listaClaves, *listaTipos));
-	
-}
-
-
-int DataManager::modificar(const DefinitionsManager::ListaValoresAtributos* listaVA,
-			  			   const DefinitionsManager::ListaTiposAtributos* listaTipos,
-			  			   DefinitionsManager::ListaClaves* listaClaves, Bloque* bloque,
-			  			   char* registroEnDisco) {
-	
-	this->crearRegistroModificacion(*listaTipos, *listaVA, registroEnDisco);
-	unsigned short longReg;
-	nodoLista nodo = *(listaTipos->begin());
-	// Si el registro es fijo, obtengo la longitud del primer nodo de la lista de tipos.
-	if (nodo.tipo == TipoDatos::TIPO_FIJO)
-		longReg = atoi(nodo.pk.c_str());
-	else
-		memcpy(&longReg, this->registro, sizeof(unsigned short));
-	
-	return bloque->modificarRegistro(listaTipos, longReg, *ClaveFactory::getInstance().getClave(*listaClaves, *listaTipos), this->registro ); 
-
-}
-*/
-
