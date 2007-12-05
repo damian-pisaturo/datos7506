@@ -195,12 +195,13 @@ ListaTiposAtributos* DefinitionsManager::getListaTiposAtributos(const string &no
 	ListaTiposAtributos* lta = NULL;
 	MapaTiposAtributos::iterator iterMapaTA = this->mapaTiposAtributos.find(nombreTipo);
 	
-	if (iterMapaTA == this->mapaTiposAtributos.end()){ cout << "El tipo " << nombreTipo << " no esta cargado." << endl;	
-		resultado = this->recuperarTipo(nombreTipo);}
+	if (iterMapaTA == this->mapaTiposAtributos.end())	
+		resultado = this->recuperarTipo(nombreTipo);
 	
-	if (resultado == ArchivoMaestro::OK)
+	if (resultado == ArchivoMaestro::OK) {
+		cout << "voy a devolver la lista tipos atributos desde el mapa" << endl;
 		lta = this->mapaTiposAtributos[nombreTipo];
-	
+	}
 	return lta;
 }
 
@@ -282,6 +283,12 @@ unsigned short DefinitionsManager::getTamBloqueDatos(const string& nombreTipo)
 	}
 	
 	return tamBloqueDatos;
+	
+}
+
+unsigned short DefinitionsManager::getTamBloqueLista(const string& nombreTipo) {
+	
+	return Tamanios::TAMANIO_BLOQUE_DATO;;
 	
 }
 

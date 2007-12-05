@@ -83,6 +83,7 @@ class DefinitionsManager
 		
 		char cargarArchivoMaestro(const string& nomArchivoDefiniciones)
 		{
+			cout << "cargo definiciones: " << nomArchivoDefiniciones << endl;
 			return this->archivoMaestro.agregarTipo(nomArchivoDefiniciones);
 		}
 		
@@ -118,6 +119,8 @@ class DefinitionsManager
 		unsigned char getTipoOrgRegistro(const string &nombreTipo);
 		
 		unsigned short getTamBloqueDatos(const string& nombreTipo);
+		
+		unsigned short getTamBloqueLista(const string& nombreTipo);
 		
 		//Devuelve una lista con los nombres de los campos de la clave primaria.
 		//NO hay que liberar la memoria de la lista.
