@@ -130,6 +130,14 @@ class ArchivoDatosBloques : public ArchivoDatos
 	
 }; /*Fin clase ArchivoDatosBloques*/
 
+///////////////////////////////////////////////////////////////////////////
+// Clase
+//------------------------------------------------------------------------
+// Nombre: ArchivoDatosRegistros
+//			(Implementa primitivas para el manejo de archivos
+//           de datos con organizacion de registros de longitud fija 
+//			 en disco).
+///////////////////////////////////////////////////////////////////////////
 class ArchivoDatosRegistros : public ArchivoDatos
 {	
 	public:

@@ -217,12 +217,38 @@
 		/* Devuelve en 'registro' el registro cuya posicion en el archivo es 
 		 * numReg.
 		 */
-		char ArchivoDatosRegistros::leerRegistro(void* registro, unsigned short numReg){return 0;}	
+		char ArchivoDatosRegistros::leerRegistro(void* registro, unsigned short numReg)
+		{
+			char resultado = this->posicionarse(numReg);
+					
+			if (resultado == ResultadosFisica::OK)
+				resultado = this->leer(registro);
+			
+			return resultado;	
+		}	
 		
 		/*Sobre-escribe en la posicion relativa numReg el registro pasado
 		 * por parametro.
 		 */
-		char ArchivoDatosRegistros::escribirRegistro(void* registro, unsigned short numReg){return 0;}
+		char ArchivoDatosRegistros::escribirRegistro(void* registro, unsigned short numReg)
+		{
+			char resultado = ResultadosFisica::OK;
+			bool valor = false;
+			ArchivoELFijo* archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
+			
+			resultado = this->posicionarse(numReg);
+			
+			if (resultado == ResultadosFisica::OK){
+				
+				resultado = this->escribir(registro);
+			
+				//Se modifica la entrada correspondiente al bloque 
+				//modificado en el archivo de control de espacio libre.
+				archivoEL->modificarRegistro(&valor, numReg);
+			}
+			
+			return resultado;
+		}
 		
 		/*Escribe en el archivo de datos el registro pasado por parametro
 		 * en la posicion del primer registro libre que encuentre, utilizando
@@ -230,13 +256,45 @@
 		 * se encuentran ocupados, appendea al final del archivo.
 		 * Devuelve la posicion en donde fue escrito finalmente.
 		 */
-		 short ArchivoDatosRegistros::escribirRegistro(void* registro){return 0;}
+		 short ArchivoDatosRegistros::escribirRegistro(void* registro)
+		 {
+				bool valor = false;
+				ArchivoELFijo* archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
+				
+				short regLibre = archivoEL->buscarBloqueLibre();
+				
+				if (regLibre == ResultadosFisica::BLOQUES_OCUPADOS){
+					//Si ningun bloque esta libre, appendea al
+					//final del archivo. 
+					this->posicionarseFin();
+					regLibre = this->posicion();
+					
+					//Se modifica el atributo booleano de control
+					//en el archivo de espacio libre.
+					archivoEL->agregarRegistro(&valor);
+
+				}else{
+					this->posicionarse(regLibre);
+					archivoEL->modificarRegistro(&valor, regLibre);
+				}
+				
+				//Escritura del bloque a disco.
+				this->escribir(registro);
+				
+				return regLibre;
+		}
 		
 		/*Modifica el archivo de control de espacio libre
 		 * para que el bloque cuya posicion relativa en el archivo es
 		 * numBloque se considere vacio.
 		 */
-		char ArchivoDatosRegistros::eliminarRegistro(unsigned short numBloque){ return 0;}
+		char ArchivoDatosRegistros::eliminarRegistro(unsigned short numBloque)
+		{
+			bool valor = true;
+			ArchivoEL* archivoEL = this->getArchivoEL();
+			
+			return archivoEL->modificarRegistro(&valor, numBloque);
+		}
 		
 		char ArchivoDatosRegistros::siguienteBloque(void* bloque, int& numBloque, unsigned short espLibre)
 		{			

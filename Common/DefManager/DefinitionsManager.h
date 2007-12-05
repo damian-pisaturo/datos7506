@@ -83,7 +83,6 @@ class DefinitionsManager
 		
 		char cargarArchivoMaestro(const string& nomArchivoDefiniciones)
 		{
-			cout << "cargo definiciones: " << nomArchivoDefiniciones << endl;
 			return this->archivoMaestro.agregarTipo(nomArchivoDefiniciones);
 		}
 		

@@ -129,13 +129,11 @@ int main(int argc, char* argv[]) {
 		// Mapa contenedor de los valores de los atributos, indexados por sus nombres.
 		MapaValoresAtributos* mapaValoresAtributos = NULL; 
 		
-		DefinitionsManager& defManager = DefinitionsManager::getInstance();
-		
-		if (nombreArchivoDefiniciones != "") {
-			char c = defManager.cargarArchivoMaestro(nombreArchivoDefiniciones);
-			cout << "carga del archivo maestro: " << (int)c << endl;
-		}
-		
+		DefinitionsManager& defManager = DefinitionsManager::getInstance();		
+
+		if (nombreArchivoDefiniciones != "") 
+			defManager.cargarArchivoMaestro(nombreArchivoDefiniciones);
+
 		// Parser del archivo de operaciones.
 		ParserOperaciones parserOperaciones(nombreArchivoOperaciones);
 		
@@ -447,7 +445,6 @@ int main(int argc, char* argv[]) {
 							
 							// Se obtiene el resultado de la operacion.
 							pipe->leer(&pipeResult);
-							
 						}	
 					}break;
 					
@@ -459,8 +456,10 @@ int main(int argc, char* argv[]) {
 				
 				cout << endl << resultado << endl;
 				
-				delete pipe;
-				pipe = NULL;
+				if (pipe){
+					delete pipe;
+					pipe = NULL;
+				}
 				
 				usleep(100); //Recibe microsegundos
 			}
