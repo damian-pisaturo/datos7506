@@ -5,6 +5,7 @@
 #include "ResultadosFisica.h"
 #include "ResultadosIndices.h"
 #include "CodigosPipe.h"
+#include "ResultadosParserOperaciones.h"
 
 class Resultado {
 

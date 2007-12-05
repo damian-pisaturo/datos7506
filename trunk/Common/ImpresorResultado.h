@@ -49,6 +49,10 @@ ostream& operator << (ostream &out, const Resultado &e) {
         	out << "Se encontró la clave."; break;
         case ResultadosIndices::CLAVE_NO_ENCONTRADA:
         	out << "La clave solicitada no existe."; break;
+        case ResultadosIndices::ERROR_NO_HAY_INDICE:
+        	out << "No existe un índice por el campo pedido."; break; 
+        case ResultadosIndices::ERROR_INDICE_NO_SOPORTA:
+        	out << "El índice no soporta la operación requerida."; break;         	
         case ResultadosIndices::FIN_BLOQUES:
         case ResultadosFisica::FIN_BLOQUES:
         	out << "Se terminaron de consultar los bloques de datos."; break;
@@ -62,6 +66,30 @@ ostream& operator << (ostream &out, const Resultado &e) {
         	out << "El formato del campo de tipo Fecha es inválido.\nDebe ser de la forma AAAAMMDD."; break;
         case Resultado::SIN_RESULTADO:
         	out << "No se ha registrado ningún resultado."; break;
+        case ResultadosParserOperaciones::ERROR_SINTAXIS_INTO:
+        	out << "Error de Sintáxis: No se encontró cláusula INTO luego de INSERT."; break;
+        case ResultadosParserOperaciones::ERROR_SINTAXIS_PARENTESIS:
+        	out << "Error de Sintáxis: Se esperaban encontrar paréntesis."; break;
+        case ResultadosParserOperaciones::ERROR_SINTAXIS_VALUES:
+        	out << "Error de Sintáxis: No se encontró cláusula VALUES."; break;
+        case ResultadosParserOperaciones::ERROR_SINTAXIS_CANT_VALORES:
+        	out << "Error de Sintáxis: La cantidad de valores no se corresponde con la cantidad de campos."; break;
+        case ResultadosParserOperaciones::ERROR_SINTAXIS_TIPO_OPERACION:
+        	out << "Error de Sintáxis: Operación desconocida. Operaciones soportadas: INSERT, DELETE, UPDATE, SELECT."; break;
+        case ResultadosParserOperaciones::ERROR_SINTAXIS_FROM:
+        	out << "Error de Sintáxis: No se encontró la cláusula FROM."; break;
+        case ResultadosParserOperaciones::ERROR_SINTAXIS_WHERE:
+        	out << "Error de Sintáxis: Probablemente haya querido utilizar la cláusula WHERE."; break;
+        case ResultadosParserOperaciones::ERROR_SINTAXIS_OPERACION:
+        	out << "Error de Sintáxis: Operación no soportada. Operaciones soportadas: <, <=, >, >=, =."; break;
+        case ResultadosParserOperaciones::ERROR_SINTAXIS_AND_OR:
+        	out << "Error de Sintáxis: No se permite operaciones de AND y OR en una misma sentencia."; break;
+        case ResultadosParserOperaciones::ERROR_SINTAXIS_SET:
+        	out << "Error de Sintáxis: No se encontró cláusula SET."; break;
+        case ResultadosParserOperaciones::ERROR_SINTAXIS_ON:
+        	out << "Error de Sintáxis: No se encontró cláusula ON requerida por el JOIN."; break;
+        case ResultadosParserOperaciones::ERROR_SINTAXIS_ORDER_BY:
+        	out << "Error de Sintáxis: Probablemente haya querido utilizar la cláusula ORDER BY."; break;
         default:
         	out << "Resultado inválido"; break;
     }

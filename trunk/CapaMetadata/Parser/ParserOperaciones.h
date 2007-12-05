@@ -19,22 +19,29 @@
 #ifndef PARSEROPERACIONES_H_
 #define PARSEROPERACIONES_H_
 
-#define SEPARATOR_CAMPOS ';'
+#define SEPARATOR_CAMPOS ' '
 #define SEPARATOR_ATRIBUTOS ','
-#define ASIGNACION_ATRIBUTOS '='
+#define SEPARATOR_TIPO_NOMBRE '.'
+#define FIN_OPERACION ';'
+#define CARACTER_AGRUPADOR '\''
 #define CARACTER_COMENTARIO '#'
 
-#define ALTA 'A'
-#define BAJA 'B'
-#define MODIFICACION 'M'
-#define CONSULTA 'C'
+#define ALTA "INSERT"
+#define BAJA "DELETE"
+#define MODIFICACION "UPDATE"
+#define CONSULTA "SELECT"
+
+#define NO_OPERACION 127
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #include "../../Common/DefManager/DefinitionsManager.h"
 #include "../DataManager/DataManager.h"
 #include "../../Common/OperacionesCapas.h"
+#include "../../Common/ExpresionesLogicas.h"
+#include "../../Common/ResultadosParserOperaciones.h"
 
 using namespace std;
 
@@ -53,8 +60,10 @@ class ParserOperaciones
 	//////////////////////////////////////////////////////////////////////
 		ifstream archivo; // Archivo de operaciones.
 		unsigned short numOperacion; // Numero de operacion actual. 		
-		DefinitionsManager::ListaClaves* listaClaves; // Lista de claves presentes en cada operacion
+//		DefinitionsManager::ListaClaves* listaClaves; // Lista de claves presentes en cada operacion
+		DefinitionsManager::EstructuraCampos estructuraCampos;
 		DefinitionsManager::MapaValoresAtributos* mapValoresAtributos;
+		DefinitionsManager::EstructuraConsulta estructuraConsulta;
 		string nombreTipo;
 		unsigned char tipoOperacion; // Tipo de operaciones actual (Alta, Baja o Modificacion)
 		
@@ -70,19 +79,32 @@ class ParserOperaciones
 	//////////////////////////////////////////////////////////////////////
 		
 		/* Obtiene la siguiente operacion indicada en el archivo de operaciones.
-		 * Si no existe una proxima linea, devuelve false; en caso contrario, 
-		 * devuelve true.
+		 * Devuelve el resultado de la operación.
 		 */
-		bool proximaOperacion();
+		int proximaOperacion();
 		
+	private:
+		
+		list<string> parsearString(string s, char caracterDelimitador, char caracterAgrupador);
+		void reemplazarCaracter(string* s, char caracterViejo, char caracterNuevo);
+		void limpiarInicio(string* s, char caracterALimpiar);
+		void removerCaracter(string* s, char caracter);
+		string* mayus(string* s);
+		
+	public:
 		
 	///////////////////////////////////////////////////////////////////////////
 	// Getters/Setters
 	///////////////////////////////////////////////////////////////////////////
 		
-		DefinitionsManager::ListaClaves* getListaClaves()
+		DefinitionsManager::EstructuraCampos getEstructuraCampos()
 		{
-			return this->listaClaves;
+			return this->estructuraCampos;
+		}
+		
+		DefinitionsManager::EstructuraConsulta getEstructuraConsulta()
+		{
+			return this->estructuraConsulta;
 		}
 		
 		DefinitionsManager::MapaValoresAtributos* getMapaValoresAtributos()
