@@ -127,12 +127,13 @@ int main(int argc, char* argv[]) {
 		string nombreTipo("");
 		
 		// Mapa contenedor de los valores de los atributos, indexados por sus nombres.
-		MapaValoresAtributos* mapaValoresAtributos = NULL; 
+		MapaValoresAtributos* mapaValoresAtributos = NULL;
 		
-		if (nombreArchivoDefiniciones != "") {
-			// TODO Llamar al metodo del DM que parsea las definiciones
-		}
+		DefinitionsManager& defManager = DefinitionsManager::getInstance();
 		
+		if (nombreArchivoDefiniciones != "")
+			defManager.cargarArchivoMaestro(nombreArchivoDefiniciones);
+
 		// Parser del archivo de operaciones.
 		ParserOperaciones parserOperaciones(nombreArchivoOperaciones);
 		
@@ -417,7 +418,7 @@ int main(int argc, char* argv[]) {
 					}break;
 					
 					case OperacionesCapas::CONSULTAS_ALTA:
-					{					
+					{	
 						pipe->agregarParametro((unsigned char)OperacionesCapas::METADATA_ALTA, 0); 
 						// Nombre del tipo de dato a ser dado de alta.
 						pipe->agregarParametro(nombreTipo, 1);

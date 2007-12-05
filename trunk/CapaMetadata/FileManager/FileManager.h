@@ -40,7 +40,7 @@ class FileManager {
 		 * Si no pudo, porque no existen más registros, 
 		 * retorna ResultadosMetadata::FIN_REGISTROS.
 		 */
-		int siguienteRegistro(void* &registro, unsigned short &tamRegistro);
+		int siguienteRegistro(char* &registro, unsigned short &tamRegistro);
 		
 		unsigned short getTamanioBloqueDatos() const { return this->tamBloque; }
 		
@@ -62,7 +62,7 @@ class FileManager {
 												const string &extVieja, const string &extNueva);
 		
 	private:
-		int getNextBloque(void* &registro, unsigned short &tamRegistro);
+		int getNextBloque(char* &registro, unsigned short &tamRegistro);
 		
 };
 

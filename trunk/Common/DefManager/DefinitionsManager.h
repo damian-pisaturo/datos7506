@@ -83,8 +83,7 @@ class DefinitionsManager
 		
 		char cargarArchivoMaestro(const string& nomArchivoDefiniciones)
 		{
-			return 0;
-			//return this->archivoMaestro.agregarTipo(nomArchivoDefiniciones);
+			return this->archivoMaestro.agregarTipo(nomArchivoDefiniciones);
 		}
 		
 		const MapaTiposAtributos& getMapaTiposAtributos() const 
