@@ -2,7 +2,6 @@
 #define VISTA_H_
 
 #include "../../Common/DefManager/DefinitionsManager.h"
-#include "../DataManager/DataManager.h"
 #include "../../Common/Bloque/Bloque.h"
 
 class Vista

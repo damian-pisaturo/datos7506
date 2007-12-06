@@ -14,8 +14,6 @@ extension = cpp
 
 fuentes = DataManager/DataManager.cpp
 fuentes += FileManager/FileManager.cpp
-fuentes += Parser/ParserOperaciones.cpp
-fuentes += Vista/Vista.cpp
 fuentes += ../Common/Bloque/Bloque.cpp
 fuentes += ../Common/Clave/Clave.cpp
 fuentes += ../Common/ClaveFactory/ClaveFactory.cpp
