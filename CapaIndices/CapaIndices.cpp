@@ -164,8 +164,8 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 				
 				if (operacion == OperacionesCapas::INDICES_ELIMINAR) {
 					Clave* clave = bloque->getClavePrimaria(listaTiposAtributos,registro);
-					eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
-					delete clave;
+					eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);					delete clave;
+					delete clave;				
 				}
 				
 				// Vuelve a mandar el resultado, para que se esperen mas registros.
@@ -228,7 +228,7 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 			
 			pipe.leer(&operacion);
 			
-			if (operacion == OperacionesCapas::INDICES_ELIMINAR) {
+			if (operacion == OperacionesCapas::INDICES_ELIMINAR) {		
 				Clave* clave =bloque->getClavePrimaria(listaTiposAtributos,registro);
 				eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 				delete clave;
@@ -561,7 +561,7 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 			for (unsigned i = 0; i < listaClavesPrimarias->size(); ++i, ++iterClaves)
 				resultado = eliminarClavePrimaria(nombreTipo, mapaIndices, indicePrimario, *iterClaves, defManager); 
 			
-			mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indicePrimario; 
+			mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indicePrimario;
 			
 			destruirListaClaves(listaClavesPrimarias);
 			
@@ -703,6 +703,66 @@ int modificarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 	return resultado;
 	
 }
+void modificacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndices,
+									DefinitionsManager &defManager, ComuDatos &pipe) {
+	
+			cout << "llego aca" << endl;
+	// Obtiene el indice primario para poder obtener luego los bloques de datos.
+	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
+	
+	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	
+	Bloque* bloque = NULL;
+	char* registroViejo = NULL;
+	char* registroNuevo = NULL;
+	unsigned short tamanioRegistroViejo = 0;
+	unsigned short tamanioRegistroNuevo = 0;
+
+	// Obtiene un bloque de datos.
+	int resultado = indice->siguienteBloque(bloque);
+	
+	char operacion;
+	
+	// Se itera mientras haya registros.
+	 while (resultado == ResultadosIndices::OK) {
+		
+		// Se obtiene un registro.
+		registroViejo = bloque->getNextRegister();
+	
+		while (registroViejo) {
+			
+			// Indica a metadata que tiene un registro para enviarle.
+			pipe.escribir(resultado);
+				
+			// Obtiene el tamaño del registro a enviar.
+			tamanioRegistroViejo = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, registroViejo);
+			pipe.escribir(tamanioRegistroViejo);
+			pipe.escribir(registroViejo, tamanioRegistroViejo);
+			
+			pipe.leer(&operacion);
+			
+			// Si el registro debe ser modificado, llega por el pipe, el nuevo registro;
+			if (operacion == OperacionesCapas::INDICES_MODIFICAR) {
+
+				pipe.leer(&tamanioRegistroNuevo);
+				registroNuevo = new char[tamanioRegistroNuevo];
+				pipe.leer(tamanioRegistroNuevo, registroNuevo);
+				
+				Clave* claveVieja =bloque->getClavePrimaria(listaTiposAtributos,registroViejo);
+				modificar(nombreTipo,mapaIndices,indice,claveVieja,defManager,pipe);
+				
+				delete claveVieja;
+			}
+			
+			delete[] registroViejo;
+			registroViejo = bloque->getNextRegister();	
+		}	
+
+		delete bloque;
+		bloque = NULL;
+		resultado = indice->siguienteBloque(bloque);
+	}
+}
 
 void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
  	  	  	   Indice *indice, Clave *clave,
@@ -720,8 +780,8 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 		mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
 		//Modifico la clave primaria y actualizo los índices secundarios.
 		resultado = modificarClavePrimaria(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
-		//Elimino el índice primario que saqué del mapa
-		delete indice;
+		// Vuelvo a insertar el índice primario que saqué del mapa
+		mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indice;
 		
 	} else { //Indice Secundario
 		
@@ -747,7 +807,7 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 			for (unsigned i = 0; i < listaClavesPrimarias->size(); ++i, ++iterClaves)
 				resultado = modificarClavePrimaria(nombreTipo, mapaIndices, indicePrimario, *iterClaves, defManager, pipe);
 			
-			delete indicePrimario;
+			mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indicePrimario;
 			
 			destruirListaClaves(listaClavesPrimarias);
 			
@@ -861,7 +921,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			// Si la modificación es a partir de una clave secundaria, se obtienen
 			// todas las claves primarias y se lleva a cabo la modificación para cada
 			// una de ellas.
-			modificar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
+			modificacionNoIndexadaPorRango(nombreTipo, mapaIndices, defManager, pipe);
 			break;
 		default:
 			//No se reconoce la operación

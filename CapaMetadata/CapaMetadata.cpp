@@ -527,10 +527,11 @@ bool cumpleRestricciones(char* registro, ListaOperaciones &listaOperaciones,
 		if (itLO->estructuraNombresDer.nombreTipo != "")
 			continuar = false;
 		else {
+			
 			nodo = *itLO;
 			// Se comprueba si se cumple con la restricción que hay en el iterador de la lista de operaciones.
 			cumple = cumpleRestriccion(registro, listaNombresAtributos, listaTiposAtributos, nodo);
-	
+			
 			// Si la operación es AND y hay una que no cumple, ya no cumple con las restricciones.
 			if ((!cumple) && (operacion == ExpresionesLogicas::AND))
 				continuar = false;
@@ -792,15 +793,16 @@ void armarListaClaves(EstructuraCampos &estructuraCampos, ListaInfoClave &listaC
 int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 {
 	ComuDatos * pipe = instanciarPipe();
-		
+				
 	// Codigo de operacion de consulta para la Capa de Indices
 	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_ELIMINAR, 0); 
+	
 	// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
 	pipe->agregarParametro(nombreTipo, 1);
 	
 	// Se lanza el proceso de la Capa Indices.
 	int pipeResult = pipe->lanzar();
-	int resultadoEliminacion;
+	int resultadoEliminacion= ResultadosIndices::OK;
 	char operacion;
 	
 	if (pipeResult == ComuDatos::OK){
@@ -820,16 +822,6 @@ int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 		ListaOperaciones listaOperaciones;
 		NodoListaOperaciones nodoListaOperaciones;
 		
-		for (ListaCampos::iterator iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter){
-			nodoListaOperaciones.estructuraNombresIzq.nombreTipo = nombreTipo;
-			nodoListaOperaciones.estructuraNombresIzq.nombreCampo = iter->nombreCampo;
-			nodoListaOperaciones.estructuraNombresDer.nombreTipo = "";
-			nodoListaOperaciones.estructuraNombresDer.nombreCampo = iter->valorCampo;
-			nodoListaOperaciones.operacion = iter->operacion;
-			listaOperaciones.push_back(nodoListaOperaciones);
-		}
-		
-		
 		DefinitionsManager& defManager = DefinitionsManager::getInstance();
 		ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 		ListaNombresAtributos *listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);
@@ -848,7 +840,7 @@ int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 			pipe->leer(&tamRegistro);
 			
 			if (tamRegistro == 0) {
-				pipeResult = ResultadosIndices::ERROR_ELIMINACION;
+				resultadoEliminacion = ResultadosIndices::ERROR_ELIMINACION;
 				break;
 			}
 			
@@ -857,8 +849,18 @@ int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 			// Se obtiene el registro de datos consultado.
 			pipe->leer(tamRegistro, registro);
 
+			for (ListaCampos::iterator iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter){
+				nodoListaOperaciones.estructuraNombresIzq.nombreTipo = nombreTipo;
+				nodoListaOperaciones.estructuraNombresIzq.nombreCampo = iter->nombreCampo;
+				nodoListaOperaciones.estructuraNombresDer.nombreTipo = "";
+				nodoListaOperaciones.estructuraNombresDer.nombreCampo = iter->valorCampo;
+				nodoListaOperaciones.operacion = iter->operacion;
+				listaOperaciones.push_back(nodoListaOperaciones);
+			}
+			
 			if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
 				operacion = OperacionesCapas::INDICES_ELIMINAR;
+				cout << "voy a eliminar" << endl;
 				pipe->escribir(operacion);
 				pipe->leer(&resultadoEliminacion);
 			}
@@ -866,6 +868,7 @@ int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 				operacion = OperacionesCapas::INDICES_NO_OPERACION;
 				pipe->escribir(operacion);
 			}
+			
 			delete[] registro;
 			registro = NULL;
 			
@@ -875,8 +878,8 @@ int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 		}
 	}	
 	delete pipe;
-	
-	return pipeResult; 
+		
+	return resultadoEliminacion; 
 }
 
 int modificacion(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos, 
@@ -891,10 +894,10 @@ int modificacion(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos,
 	
 	// Se lanza el proceso de la Capa Indices.
 	int pipeResult = pipe->lanzar();
+	int resultadoModificacion = ResultadosIndices::OK;
 	
 	if (pipeResult == ComuDatos::OK){
 	
-		unsigned short cantRegistros;
 		// Envio de los valores de las claves de los registros
 		// a modificar por el pipe.
 		string valoresClaves;
@@ -905,69 +908,127 @@ int modificacion(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos,
 		serializarListaClaves(valoresClaves,&listaClaves);
 		pipe->escribir((unsigned short)valoresClaves.length());
 		pipe->escribir(valoresClaves);
-		
-		// Se obtiene la cantidad de registros a ser modificados.
-		pipe->leer(&cantRegistros);
-		
-		if (cantRegistros > 0) {
-			
-			DefinitionsManager& defManager = DefinitionsManager::getInstance();
-	
-			// Lista de los tipos de todos los atributos dentro de un registro.
-			ListaTiposAtributos* listaTiposAtributos = NULL;
-	
-			// Lista de valores de todos los atributos dentro de un registro.
-			ListaValoresAtributos* listaValAtributos = NULL;
-					
-			unsigned short tamRegistro = 0;
-			char* registro = NULL;
-			
-			// Controlador de registros de datos
-			DataManager dataManager;
-			
-			listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-			listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
-			pipeResult = ResultadosIndices::OK;
-			
-			for (unsigned short i = 0; (i < cantRegistros) && (pipeResult == ResultadosIndices::OK); i++){
 				
-				// Se obtiene el resultado de la búsqueda de la clave
-				pipe->leer(&pipeResult);
+		DefinitionsManager& defManager = DefinitionsManager::getInstance();
+
+		// Lista de los tipos de todos los atributos dentro de un registro.
+		ListaTiposAtributos* listaTiposAtributos = NULL;
+
+		// Lista de valores de todos los atributos dentro de un registro.
+		ListaValoresAtributos* listaValAtributos = NULL;
+		
+		NodoListaOperaciones nodoListaOperaciones;
+		ListaOperaciones listaOperaciones;
 				
-				if (pipeResult == ResultadosIndices::OK) {
-							
-					// Se obtiene el tamano del registro original a modificar.
-					pipe->leer(&tamRegistro);
-					registro = new char[tamRegistro];
-					
-					pipe->leer(tamRegistro, registro);
-					
-					// Crea un nuevo registro con las modificaciones pertinentes. Devuelve su nueva longitud.
-					tamRegistro = dataManager.crearRegistroModificacion(*listaTiposAtributos, *listaValAtributos, registro);
-					
-					// Se envia el tamano del registro modificado por el pipe.
-					pipe->escribir(tamRegistro);
-					
-					// Se envia el nuevo registro con la modificacion.
-					pipe->escribir(dataManager.getRegistro(), tamRegistro);
-					
-					// Se obtiene el resultado de la modificacion.
-					pipe->leer(&pipeResult);
-					
-					delete[] registro;
-				}
-			delete listaValAtributos;
+		unsigned short tamRegistro = 0;
+		char* registro = NULL;
+		char operacion;
+		
+		// Controlador de registros de datos
+		DataManager dataManager;
+		ListaNombresAtributos *listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);	
+		listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+		listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
+		pipeResult = ResultadosIndices::OK;
+		
+		// Lee si hay registros de datos. Si los hay, los va obteniendo para ver si cumplen con las 
+		// cláusulas WHERE
+		pipe->leer(&pipeResult);
+		
+
+		while (pipeResult == ResultadosIndices::OK) {
+
+			// Obtiene un registro.
+			pipe->leer(&tamRegistro);
+
+			registro = new char[tamRegistro];
+			
+			pipe->leer(tamRegistro, registro);
+	
+			for (ListaCampos::iterator iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter){
+				nodoListaOperaciones.estructuraNombresIzq.nombreTipo = nombreTipo;
+				nodoListaOperaciones.estructuraNombresIzq.nombreCampo = iter->nombreCampo;
+				nodoListaOperaciones.estructuraNombresDer.nombreTipo = "";
+				nodoListaOperaciones.estructuraNombresDer.nombreCampo = iter->valorCampo;
+				nodoListaOperaciones.operacion = iter->operacion;
+				listaOperaciones.push_back(nodoListaOperaciones);
 			}
-			
-			registro = NULL;
-			
-		} else pipeResult = cantRegistros; //Se produjo un error en CapaIndices
+
+			cout << "me fijo si cumple las restricciones..." << endl;
+			if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
+				cout << "las cumple..." << endl;
+				operacion = OperacionesCapas::INDICES_MODIFICAR;
+				pipe->escribir(operacion);
+				
+				// Crea un nuevo registro con las modificaciones pertinentes. Devuelve su nueva longitud.
+				tamRegistro = dataManager.crearRegistroModificacion(*listaTiposAtributos, *listaValAtributos, registro);
+				
+				// Se envia el tamano del registro modificado por el pipe.
+				pipe->escribir(tamRegistro);
+				
+				// Se envia el nuevo registro con la modificacion.
+				pipe->escribir(dataManager.getRegistro(), tamRegistro);
+
+				// Se obtiene el resultado de la modificacion.
+				pipe->leer(&resultadoModificacion);
+			}
+			else {
+				operacion = OperacionesCapas::INDICES_NO_OPERACION;
+				pipe->escribir(operacion);
+			}
+
+			delete[] registro;
+						
+			// Obtiene si hay mas registros.
+			pipe->leer(&pipeResult);
+		}
+		
+		delete listaValAtributos;
+				
 	}
 	
 	delete pipe;
-	
-	return pipeResult;
+	pipe = NULL;
+	return resultadoModificacion;	
+		
 }
+//		for (unsigned short i = 0; (i < cantRegistros) && (pipeResult == ResultadosIndices::OK); i++){
+//				
+//				// Se obtiene el resultado de la búsqueda de la clave
+//				pipe->leer(&pipeResult);
+//				
+//				if (pipeResult == ResultadosIndices::OK) {
+//							
+//					// Se obtiene el tamano del registro original a modificar.
+//					pipe->leer(&tamRegistro);
+//					registro = new char[tamRegistro];
+//					
+//					pipe->leer(tamRegistro, registro);
+//					
+//					// Crea un nuevo registro con las modificaciones pertinentes. Devuelve su nueva longitud.
+//					tamRegistro = dataManager.crearRegistroModificacion(*listaTiposAtributos, *listaValAtributos, registro);
+//					
+//					// Se envia el tamano del registro modificado por el pipe.
+//					pipe->escribir(tamRegistro);
+//					
+//					// Se envia el nuevo registro con la modificacion.
+//					pipe->escribir(dataManager.getRegistro(), tamRegistro);
+//					
+//					// Se obtiene el resultado de la modificacion.
+//					pipe->leer(&pipeResult);
+//					
+//					delete[] registro;
+//		//		}
+//			delete listaValAtributos;
+//			}
+//			
+//			registro = NULL;
+//			
+//		} else pipeResult = cantRegistros; //Se produjo un error en CapaIndices
+//	}	
+//	delete pipe;
+//	
+//	return pipeResult;
 
 int alta(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos)
 {
@@ -1018,8 +1079,6 @@ int alta(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos)
 			pipe->escribir(tamRegistro);
 			
 			if (tamRegistro > 0) {
-				
-//					vista.showRegister(dataManager.getRegistro(), listaTiposAtributos);
 				
 				// Se envia el registro a dar de alta por el pipe.
 				pipe->escribir(dataManager.getRegistro(), tamRegistro);
@@ -1372,11 +1431,7 @@ int main(int argc, char* argv[])
 			default:
 				pipeResult = ResultadosMetadata::OPERACION_INVALIDA;
 		}
-			
-		resultado << pipeResult;
-		
-		cout << endl << resultado << endl;
-		
+	
 		usleep(100); //Recibe microsegundos
 		
 		if (pipe)
