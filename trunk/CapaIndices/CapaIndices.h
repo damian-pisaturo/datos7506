@@ -8,12 +8,12 @@
 #include <iostream>
 #include "Indices/IndiceArbol.h"
 #include "Indices/IndiceHash.h"
+#include "Common/BloqueListaPrimaria/BloqueListaPrimaria.h"
 #include "../Common/DefManager/DefinitionsManager.h"
 #include "../Common/Registro/Registro.h"
 #include "../Common/CodigosPipe.h"
 #include "../Common/OperacionesCapas.h"
 #include "../Common/ClaveFactory/ClaveFactory.h"
-#include "Common/BloqueListaPrimaria/BloqueListaPrimaria.h"
 #include "../Common/ExpresionesLogicas.h"
  
 using namespace std;

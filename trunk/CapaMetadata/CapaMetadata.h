@@ -6,13 +6,12 @@
 #include "../Common/ResultadosIndices.h"
 #include "../Common/ImpresorResultado.h"
 #include "../Common/NombresCapas.h"
+#include "../Common/OperacionesCapas.h"
 #include "../Common/ExpresionesLogicas.h"
 #include "../ComuDatos/ComuDatos.h"
 #include "../Common/DefManager/DefinitionsManager.h"
-#include "Parser/ParserOperaciones.h"
 #include "DataManager/DataManager.h"
 #include "FileManager/FileManager.h"
-#include "Vista/Vista.h"
 #include <string>
 
 using namespace std;

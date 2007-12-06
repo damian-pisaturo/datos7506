@@ -12,8 +12,8 @@ extension = cpp
 # descomentar la línea (quitarle el '#' del principio).
 # NOTA: No poner cabeceras (.h). 
 
-fuentes = ../CapaMetadata/Parser/ParserOperaciones.cpp
-fuentes += ../CapaMetadata/Vista/Vista.cpp
+fuentes = ParserOperaciones/ParserOperaciones.cpp
+fuentes += Vista/Vista.cpp
 fuentes += ../Common/DefManager/DefinitionsManager.cpp
 fuentes += ../Common/Archivo/Archivo.cpp
 fuentes += ../Common/ArchivoMaestro/ArchivoMaestro.cpp
