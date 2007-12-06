@@ -53,6 +53,12 @@ class FileManager {
 		static void eliminarArchivosTemporales(const string &extension);
 		
 		/*
+		 * Recibe el nombre y la extensión del archivo a borrar.
+		 * Ejemplo: tmp, tmp.nfo
+		 */
+		static void eliminarArchivoTemporal(const string &nombre, const string &extension);
+		
+		/*
 		 * Recibe la lista con los nombres de los archivos a renombrar (sin la extensión),
 		 * luego la extensión vieja y por último la extensión nueva.
 		 * Las extensiones no deben incluir el punto inicial.

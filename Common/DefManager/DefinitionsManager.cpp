@@ -198,7 +198,7 @@ ListaTiposAtributos* DefinitionsManager::getListaTiposAtributos(const string &no
 	if (iterMapaTA == this->mapaTiposAtributos.end())	
 		resultado = this->recuperarTipo(nombreTipo);
 	
-	if (resultado == ArchivoMaestro::OK) 
+	if (resultado == ArchivoMaestro::OK)
 		lta = this->mapaTiposAtributos[nombreTipo];
 	
 	return lta;

@@ -129,6 +129,11 @@ class IndiceHash :public Indice
 		
 		void setOffsetToList(unsigned int offset, char *registro, unsigned short tamanioRegistro);
 		
+		virtual void primero() {}
+		virtual void mayorOIgual(Clave* clave) {}
+		virtual void mayor(Clave* clave) {}
+		virtual Clave* siguiente() { return NULL; }
+		
 	private:
 		ListaInfoRegistro* getListaNodosClave() const;
 };
