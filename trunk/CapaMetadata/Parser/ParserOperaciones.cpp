@@ -92,8 +92,8 @@ int ParserOperaciones::proximaOperacion() {
 			separatorPos = linea.find(SEPARATOR_CAMPOS);
 			
 			lineaParseada = parsearString(linea, SEPARATOR_CAMPOS, CARACTER_AGRUPADOR);
-			iter = lineaParseada.begin();
-			
+			iter = lineaParseada.begin();		
+		
 			tipoOp = *(iter++);
 			mayus(&tipoOp);
 			
