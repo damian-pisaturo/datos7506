@@ -163,6 +163,15 @@ void FileManager::eliminarArchivosTemporales(const string &extension) {
 	system(operacion.c_str());
 	
 }
+
+
+void FileManager::eliminarArchivoTemporal(const string &nombre, const string &extension) {
+	
+	string operacion("rm " + nombre + "." + extension);
+	system(operacion.c_str());
+	
+}
+
 		
 void FileManager::renombrarArchivosTemporales(ListaStrings &listaNombres,
 											  const string &extVieja, const string &extNueva) {

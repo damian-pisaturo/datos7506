@@ -145,6 +145,11 @@ class Indice
 		
 		ListaInfoRegistro* getListaInfoRegClavePrimaria() const;
 		
+		virtual void primero() = 0;
+		virtual void mayorOIgual(Clave* clave) = 0;
+		virtual void mayor(Clave* clave) = 0;
+		virtual Clave* siguiente() = 0;
+		
 };
 
 #endif /*INDICE_H_*/
