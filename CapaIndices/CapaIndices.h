@@ -18,6 +18,11 @@
  
 using namespace std;
 
+
+// Declaración global de la lista de los nombres de los campos
+// que componen la clave por la cual se realiza la operación.
+ListaNombresClaves listaNombresClaves;
+
 /*
  * Crea todos los índices correspondientes a un tipo, y carga su mapa de índices.
  **/

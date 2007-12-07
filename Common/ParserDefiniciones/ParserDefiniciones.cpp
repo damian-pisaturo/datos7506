@@ -47,19 +47,19 @@
 		
 		while ( (!this->archivo.fail()) && (linea != HEADER_FIN) ){
 			this->leerLinea(linea);
-			
 			if (linea == HEADER_TIPO){
-				tipo = new DefinicionTipo();
 				
+				tipo = new DefinicionTipo();				
 				parsearTipo(tipo->nombreTipo);
+				
 				this->leerLinea(linea);
 				
 				while ( (!this->archivo.fail()) && (linea != HEADER_FIN) && (linea != HEADER_TIPO) ){				
 					
-					if (linea == HEADER_ORGREG) parsearOrgRegistro(tipo->tipoOrganizacion);
-					else if (linea == HEADER_ATRIBUTOS) parsearAtributos(tipo->nombresAtributos, tipo->tiposAtributos);
-					else if (linea == HEADER_INDICES) parsearIndices(tipo->datosIndicesGriegos, tipo->datosIndicesRomanos);
-					else if (linea == HEADER_INTEGRIDAD) parsearIntegridad();
+					if (linea == HEADER_ORGREG) this->parsearOrgRegistro(tipo->tipoOrganizacion);
+					else if (linea == HEADER_ATRIBUTOS) this->parsearAtributos(tipo->nombresAtributos, tipo->tiposAtributos);
+					else if (linea == HEADER_INDICES) this->parsearIndices(tipo->datosIndicesGriegos, tipo->datosIndicesRomanos);
+					else if (linea == HEADER_INTEGRIDAD) this->parsearIntegridad();
 					
 					this->leerLinea(linea);
 				}			
@@ -99,6 +99,7 @@
 		string::size_type posIgual      = 0,
 						  posPrimerChar = 0,
 						  posUltimoChar = 0;
+		bool continuarTipo = false;
 		string linea(""), valor("");
 
 		
@@ -106,9 +107,12 @@
 			this->leerLinea(linea);
 			this->aMayuscula(linea);
 			posPrimerChar = linea.find_first_not_of(C_VACIO, 0);
-		}while ( ((linea[posPrimerChar] == C_COMENTARIO) || (linea.find(NOMBRE_TIPO, posPrimerChar) == string::npos)) && (!this->archivo.fail()) );
+			continuarTipo = (linea != HEADER_ATRIBUTOS) && (linea != HEADER_INDICES) && (linea != HEADER_INTEGRIDAD)
+						&& (linea != HEADER_ORGREG);
+		}while ( ((linea[posPrimerChar] == C_COMENTARIO) || (linea.find(NOMBRE_TIPO, posPrimerChar) == string::npos)) && 
+				(continuarTipo) && (!this->archivo.fail()) );
 		
-		if (!this->archivo.fail()){	
+		if (!this->archivo.fail() && (continuarTipo)){	
 			
 			// Obtencion del valor asociado al atributo.
 			posIgual      = linea.find(C_IGUAL, posPrimerChar);
@@ -125,15 +129,17 @@
 		string::size_type posIgual      = 0,
 						  posPrimerChar = 0,
 						  posUltimoChar = 0;
+		bool continuarOrgRegistro = true;
 		string linea(""), valor("");
 		
 		do{
 			this->leerLinea(linea);
-			posPrimerChar = linea.find_first_not_of(C_VACIO, 0);
-		}while ( ( (linea[posPrimerChar] == C_COMENTARIO) || (linea.find(ORG_REGISTROS, posPrimerChar) == string::npos)) && (!this->archivo.fail()) );
+			continuarOrgRegistro = (linea != HEADER_ATRIBUTOS) && (linea != HEADER_INDICES) && (linea != HEADER_INTEGRIDAD);
+			if (continuarOrgRegistro) posPrimerChar = linea.find_first_not_of(C_VACIO, 0);
+		}while ( ( (linea[posPrimerChar] == C_COMENTARIO) || (linea.find(ORG_REGISTROS, posPrimerChar) == string::npos)) && 
+				(continuarOrgRegistro) && (!this->archivo.fail()) );
 		
-		if (!this->archivo.fail()){
-				
+		if (!this->archivo.fail() && (continuarOrgRegistro)){				
 			// Obtencion del valor asociado al atributo.
 			posIgual      = linea.find(C_IGUAL, posPrimerChar);		
 			posPrimerChar = linea.find_first_not_of(C_VACIO, posIgual + 1);

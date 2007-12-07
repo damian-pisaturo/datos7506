@@ -62,8 +62,18 @@ ostream& operator << (ostream &out, const Resultado &e) {
         	out << "Operación de CapaMetadata finalizada con éxito."; break;
         case ResultadosMetadata::OPERACION_INVALIDA:
         	out << "Operación de CapaMetadata inválida."; break;
-        case ResultadosMetadata::ERROR_FORMATO_FECHA:
-        	out << "El formato del campo de tipo Fecha es inválido.\nDebe ser de la forma AAAAMMDD."; break;
+        case ResultadosMetadata::FECHA_INVALIDA:
+        	out << "Uno o mas campos del tipo Fecha es invalido. Compruebe el formato y sus valores.\nDebe ser de la forma AAAAMMDD."; break;
+        case ResultadosMetadata::ENTERO_INVALIDO:
+        	out << "Uno o mas campos del tipo Entero es invalido. Compruebe que no existan caracteres alfabeticos ni exceda el rango definido."; break;
+        case ResultadosMetadata::SHORT_INVALIDO:
+        	out << "Uno o mas campos del tipo Short es invalido. Compruebe que no existan caracteres alfabeticos ni exceda el rango definido."; break;
+        case ResultadosMetadata::CHAR_INVALIDO:
+        	out << "Uno o mas campos del tipo Char es invalido. Compruebe que su longitud no exceda de un caracter."; break;
+        case ResultadosMetadata::BOOL_INVALIDO:
+        	out << "Uno o mas campos del tipo Bool es invalido. Los valores aceptados son TRUE o FALSE (sin distincion de mayusculas o minusculas)."; break;
+        case ResultadosMetadata::STRING_INVALIDO:
+        	out << "Uno o mas campos del tipo String es invalido. La cantidad de caracteres ingresados excede el maximo permitido."; break;
         case Resultado::SIN_RESULTADO:
         	out << "No se ha registrado ningún resultado."; break;
         case ResultadosParserOperaciones::ERROR_SINTAXIS_INTO:
