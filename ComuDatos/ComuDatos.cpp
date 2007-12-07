@@ -90,8 +90,8 @@
 			string pipeLee = this->nombreProceso + "_ComuDatosH";
 			string pipeEscribe = this->nombreProceso + "_ComuDatosP";
 			
-		//	mkfifo(pipeLee.c_str(), 0666);
-		//	mkfifo(pipeEscribe.c_str(), 0666);
+			mkfifo(pipeLee.c_str(), 0666);
+			mkfifo(pipeEscribe.c_str(), 0666);
 			
 			// Parametro 1 lectura y 2 escritura hijo.
 			argumentos[1] = new char[sizeof(char)*(pipeEscribe.length() + 1)];
@@ -110,10 +110,11 @@
 			}
 			
 			argumentos[paramSize + CORRIMIENTOARGUMENTO] = NULL;
+			
+			wait(NULL); // Si existe un proceso hijo aun en ejecucion, se espera a su finalizacion.
+			this->id_procesoHijo = fork();
 		
-			//this->id_procesoHijo = fork();
-		
-			if (this->id_procesoHijo > 0)
+			if (this->id_procesoHijo == 0)
 			{
 				if (execv(argumentos[0], argumentos) == -1)
 					resultado = ERROR_EJECUCION;

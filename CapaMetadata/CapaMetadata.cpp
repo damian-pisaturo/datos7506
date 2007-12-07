@@ -1053,7 +1053,7 @@ int alta(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos)
 		
 		serializarListaClaves(valoresClaves, &mapaValoresAtributos, listaNombres);
 		
-		pipe->escribir((unsigned short)valoresClaves.length());
+		//pipe->escribir((unsigned short)valoresClaves.length());
 		pipe->escribir(valoresClaves);
 		
 		// Se obtiene el resultado de la operacion.
@@ -1145,7 +1145,7 @@ int consulta(EstructuraConsulta &estructura) {
 		
 		if (pipeResult == ComuDatos::OK){						
 			// Envio de los valores de las claves a consultar por el pipe
-			pipe->escribir((unsigned short)valoresClaves.length());
+		//	pipe->escribir((unsigned short)valoresClaves.length());
 			pipe->escribir(valoresClaves);
 	
 			// Obtencion del resultado de la operacion
