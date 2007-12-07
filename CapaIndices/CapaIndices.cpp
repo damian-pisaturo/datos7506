@@ -406,6 +406,68 @@ void consultaIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 }
 
 
+void consultaIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndices,
+			   		  		  Indice *indice, Clave *clave, char operador,
+			   		  		  DefinitionsManager &defManager, ComuDatos &pipe) {
+	
+	Clave* claveSiguiente = NULL;
+	char* registro = NULL;
+	unsigned short tamRegistro = 0;
+	int resultado = ResultadosIndices::OK;
+	
+	if (operador == ExpresionesLogicas::MAYOR) {
+		// Se le indica a la capa de metadata que va a recibir un bloque de datos
+		pipe.escribir(resultado);
+		indice->mayor(clave);
+		claveSiguiente = indice->siguiente();
+		while (claveSiguiente) {
+			indice->buscar(claveSiguiente, registro, tamRegistro);
+			pipe.escribir(resultado);
+			
+			// TODO Terminar!!!
+/*			
+			if(bloque->buscarRegistro(listaTiposAtributos, *clave, &offsetToReg)){
+				
+				cantidadRegistros = 1;
+				pipe.escribir(cantidadRegistros);
+				
+				
+				// Obtengo la longitud del registro corriente
+				longReg = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, bloque->getDatos() + offsetToReg);				
+
+				// Envío su longitud
+				pipe.escribir(longReg);
+				
+				// Actualizo el offset a datos
+				bloque->setOffsetADatos(offsetToReg + longReg);
+				
+				// Obtengo el registro
+				registro = bloque->getRegistro(longReg, offsetToReg);
+				
+				// Envío el registro
+				pipe.escribir(registro, longReg);
+				
+				delete[] registro;
+				
+				pipe.escribir(resultado);
+			}
+			// Si no encontro mas registros ceso la busqueda dentro del bloque
+			else {
+				seguirBuscando = false;
+				cantidadRegistros = 0;
+				pipe.escribir(cantidadRegistros);
+			}
+*/			
+			
+			claveSiguiente = indice->siguiente();
+			
+		}
+		
+	}
+	
+}
+
+
 void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		   	  Indice *indice, Clave *clave,
 		   	  DefinitionsManager &defManager, ComuDatos &pipe) {
@@ -818,6 +880,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
 	ListaValoresClaves listaValoresClaves;
 	string::size_type posAnterior = 0, posActual = 0, posSeparador = 0;
+	char operador = 0;
 	
 	MapaIndices mapaIndices;
 	Clave *clave = NULL;
@@ -831,18 +894,22 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	//Se crean los indices correspondientes al tipo 'nombreTipo'
 	crearIndices(nombreTipo, mapaIndices, defManager);
 	
-	if (buffer.size() > 3) {
+	if (buffer.size() > 5) {
 		
-		if (buffer[0] == COD_CONSULTAR_TODO)
+		if (codOp == OperacionesCapas::INDICES_CONSULTAR_TODO)
 			indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
 		else {
-			//Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes (NOMBRE_CLAVE=VALOR_CLAVE)
+			// Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes
+			// (NOMBRE_CLAVE-COMIENZO_OPERADOR-OPERADOR-FIN_OPERADOR-VALOR_CLAVE)
 			posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
 			while ( (posActual != string::npos) ) {
-				auxStr = buffer.substr(posAnterior, posActual - posAnterior); //En auxStr tengo NOMBRE_CLAVE=VALOR_CLAVE
-				posSeparador = auxStr.find(SEPARADOR);
+				auxStr = buffer.substr(posAnterior, posActual - posAnterior);
+				// En auxStr tengo (NOMBRE_CLAVE-COMIENZO_OPERADOR-OPERADOR-FIN_OPERADOR-VALOR_CLAVE)
+				// sin los guiones.
+				posSeparador = auxStr.find(CodigosPipe::COMIENZO_OPERADOR);
+				operador = auxStr[posSeparador + 1];
 				listaNombresClaves.push_back(auxStr.substr(0, posSeparador));
-				listaValoresClaves.push_back(auxStr.substr(posSeparador+1));
+				listaValoresClaves.push_back(auxStr.substr(posSeparador+3));
 				posAnterior = posActual + 1;
 				posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
 			}
@@ -857,6 +924,12 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			if ( (listaNombresClaves.size() > 0) && (listaValoresClaves.size() == 0) ) {
 				// La operación es una consulta con un OrderBy
 				indice = obtenerIndiceParaOrderBy(mapaIndices, listaNombresClaves);
+				if (!indice) {
+					// No se encontró un índice para devolver los registros ordenados
+					// por los campos indicados. Se devuelve el error correspondiente.
+					resultado = ResultadosIndices::ERROR_NO_HAY_INDICE;
+					pipe.escribir(resultado);
+				}
 				clave = NULL;				
 			} else {
 				MapaIndices::iterator it = mapaIndices.find(listaNombresClaves);
@@ -873,50 +946,71 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 		
 		resultado = ResultadosIndices::ERROR_VALORES_CLAVES;
 		pipe.escribir(resultado);
-		return resultado;
 		
 	}
 	
-	switch(codOp) {
-		case OperacionesCapas::INDICES_CONSULTAR:
-			// Si la consulta se hace a un índice primario, se envía el registro
-			// pedido, sino se envían todos los registros correspondiente a las
-			// claves primarias de la lista del indice secundario.
-			// Si no se encuentra ningún índice por el campo solicitado,
-			// se realiza una búsqueda secuencial en el archivo de datos,
-			// y se envían todos los registros que coincidan con el campo solicitado.
-			if (indice) 
+	if (resultado == ResultadosIndices::OK) {
+		
+		switch(codOp) {
+			case OperacionesCapas::INDICES_CONSULTAR:
+				// Si la consulta se hace a un índice primario, se envía el registro
+				// pedido, sino se envían todos los registros correspondiente a las
+				// claves primarias de la lista del indice secundario.
+				// Si no se encuentra ningún índice por el campo solicitado,
+				// se realiza una búsqueda secuencial en el archivo de datos,
+				// y se envían todos los registros que coincidan con el campo solicitado.
+				if (indice) {
+					
+					if (operador == ExpresionesLogicas::IGUAL)
+						consultaIndexada(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
+					else {
+						
+						if (indice->getTipoEstructura() != TipoIndices::HASH)
+							consultaIndexadaPorRango(nombreTipo, mapaIndices, indice, clave, operador, defManager, pipe);
+						else {
+							// No se encontró un índice para devolver los registros ordenados
+							// por los campos indicados. Se devuelve el error correspondiente.
+							resultado = ResultadosIndices::ERROR_NO_HAY_INDICE;
+							pipe.escribir(resultado);
+						}
+						
+					}
+					
+				} else
+					consultaNoIndexada(nombreTipo, mapaIndices, clave, defManager, pipe);
+				break;
+			case OperacionesCapas::INDICES_CONSULTAR_TODO:
 				consultaIndexada(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
-			else
-				consultaNoIndexada(nombreTipo, mapaIndices, clave, defManager, pipe);
-			break;
-		case OperacionesCapas::INDICES_INSERTAR:
-			// Siempre se inserta un registro a partir de su clave primaria,
-			// y luego se actualizan los índices secundarios.
-			insertar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
-			break;
-		case OperacionesCapas::INDICES_ELIMINAR:
-			// Si la eliminación se hace a partir de una clave primaria, se elimina
-			// dicha clave y su correspondiente registro de datos, y se actualizan
-			// todos los indices secundarios.
-			// Si la eliminación es a partir de una clave secundaria, se obtienen
-			// todas las claves primarias y se lleva a cabo la eliminación para cada
-			// una de ellas.
-			eliminacionNoIndexadaPorRango(nombreTipo, mapaIndices, defManager, pipe);			
-			break;
-		case OperacionesCapas::INDICES_MODIFICAR:
-			// Si la modificación se hace a partir de una clave primaria, se modifica
-			// dicha clave y su correspondiente registro de datos, y se actualizan
-			// todos los indices secundarios.
-			// Si la modificación es a partir de una clave secundaria, se obtienen
-			// todas las claves primarias y se lleva a cabo la modificación para cada
-			// una de ellas.
-			modificacionNoIndexadaPorRango(nombreTipo, mapaIndices, defManager, pipe);
-			break;
-		default:
-			//No se reconoce la operación
-			resultado = ResultadosIndices::OPERACION_INVALIDA;
-			pipe.escribir(resultado);
+				break;
+			case OperacionesCapas::INDICES_INSERTAR:
+				// Siempre se inserta un registro a partir de su clave primaria,
+				// y luego se actualizan los índices secundarios.
+				insertar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
+				break;
+			case OperacionesCapas::INDICES_ELIMINAR:
+				// Si la eliminación se hace a partir de una clave primaria, se elimina
+				// dicha clave y su correspondiente registro de datos, y se actualizan
+				// todos los indices secundarios.
+				// Si la eliminación es a partir de una clave secundaria, se obtienen
+				// todas las claves primarias y se lleva a cabo la eliminación para cada
+				// una de ellas.
+				eliminacionNoIndexadaPorRango(nombreTipo, mapaIndices, defManager, pipe);			
+				break;
+			case OperacionesCapas::INDICES_MODIFICAR:
+				// Si la modificación se hace a partir de una clave primaria, se modifica
+				// dicha clave y su correspondiente registro de datos, y se actualizan
+				// todos los indices secundarios.
+				// Si la modificación es a partir de una clave secundaria, se obtienen
+				// todas las claves primarias y se lleva a cabo la modificación para cada
+				// una de ellas.
+				modificacionNoIndexadaPorRango(nombreTipo, mapaIndices, defManager, pipe);
+				break;
+			default:
+				//No se reconoce la operación
+				resultado = ResultadosIndices::OPERACION_INVALIDA;
+				pipe.escribir(resultado);
+		}
+		
 	}
 	
 	destruirIndices(mapaIndices);

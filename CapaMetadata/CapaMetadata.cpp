@@ -669,6 +669,9 @@ int join(const MapaRestricciones &mapaOp, MapaExtensiones &mapaExt) {
 						if (cumpleRestriccion) {
 							archivoNuevo1->escribirRegistro(registro1, tamRegistro1);
 							archivoNuevo2->escribirRegistro(registro2, tamRegistro2);
+							
+							//TODO Escribir los registros que antes habian joineado con nombreTipo1
+							
 							registrosJoineados = true;
 						}
 					
@@ -736,7 +739,7 @@ void serializarListaClaves(string& s,MapaValoresAtributos* mapaValores,
 	
 	for (iter = listaNombres->begin(); iter != listaNombres->end(); ++iter){
 		s += *iter; 
-		s += "=";
+		s += CodigosPipe::COMIENZO_OPERADOR + ExpresionesLogicas::IGUAL + CodigosPipe::FIN_OPERADOR;
 		s += (*mapaValores)[*iter];
 		s += CodigosPipe::COD_FIN_CLAVE;
 	}
@@ -749,12 +752,13 @@ void serializarListaClaves(string& s, ListaInfoClave* listaClaves)
 	for (iter = listaClaves->begin(); iter != listaClaves->end(); ++iter)
 	{
 		s += (*iter).nombreClave;
-		s += "=";
+		s += CodigosPipe::COMIENZO_OPERADOR + ExpresionesLogicas::IGUAL + CodigosPipe::FIN_OPERADOR;
 		s += (*iter).valorClave;
 		s += CodigosPipe::COD_FIN_CLAVE;
 	}	
 }
 
+// Serializa una clave para hacer una consulta ordenada por algún campo.
 void serializarListaClaves(string &s, const ListaEstructuraNombres &listaNombres)
 {
 	ListaEstructuraNombres::const_iterator iter;
@@ -762,8 +766,39 @@ void serializarListaClaves(string &s, const ListaEstructuraNombres &listaNombres
 	for (iter = listaNombres.begin(); iter != listaNombres.end(); ++iter)
 	{
 		s += iter->nombreCampo;
-		s += "=";
+		s += CodigosPipe::COMIENZO_OPERADOR + ExpresionesLogicas::IGUAL + CodigosPipe::FIN_OPERADOR;
 		s += CodigosPipe::COD_FIN_CLAVE;
+	}	
+}
+
+// La ListaOperaciones debe contener todas las operaciones relacionadas a un tipo/tabla.
+// En esta lista llegan primero las restriccines numéricas y luego las restricciones
+// referidas a campos de otras tablas.
+// El string 's' se arma con los nombres y los valores (numéricos) de los campos.
+// Si se encuentra un <, >, <= o >=, la clave serializada contendrá sólo ese campo.
+// NOTA: esta método debería llamarse sólo si la operación del WHERE es una AND.
+void serializarListaClaves(string &s, const ListaOperaciones &listaOp)
+{
+	ListaOperaciones::const_iterator iter;
+	bool continuar = true;
+	
+	for (iter = listaOp.begin(); (iter != listaOp.end()) && continuar; ++iter)
+	{
+		if (iter->estructuraNombresDer.nombreTipo == "") { // El campo contiene un valor numérico
+			
+			if (iter->operacion == ExpresionesLogicas::IGUAL)
+				s += iter->estructuraNombresIzq.nombreCampo;
+			else {
+				s = iter->estructuraNombresIzq.nombreCampo;
+				continuar = false;
+			}
+			
+			s += CodigosPipe::COMIENZO_OPERADOR + iter->operacion + CodigosPipe::FIN_OPERADOR;
+			s += iter->estructuraNombresDer.nombreCampo;
+			s += CodigosPipe::COD_FIN_CLAVE;
+			
+		} else continuar = false; 	// Se terminaron de recorrer los campos que
+									// estaban igualados a un valor numérico
 	}	
 }
 
@@ -810,7 +845,7 @@ int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 		// Envio de los valores de las claves de los registros
 		// a eliminar por el pipe.
 		
-		string valoresClaves;
+		string valoresClaves("");
 		ListaInfoClave listaClaves;
 		
 		armarListaClaves(estructuraCampos, listaClaves);
@@ -899,7 +934,7 @@ int modificacion(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos,
 	
 		// Envio de los valores de las claves de los registros
 		// a modificar por el pipe.
-		string valoresClaves;
+		string valoresClaves("");
 		ListaInfoClave listaClaves;
 		
 		armarListaClaves(estructuraCampos, listaClaves);
@@ -1045,7 +1080,7 @@ int alta(string nombreTipo, MapaValoresAtributos& mapaValoresAtributos)
 	if (pipeResult == ComuDatos::OK){
 		// Envio de los valores de las claves de los registros
 		// a modificar por el pipe.
-		string valoresClaves;		
+		string valoresClaves("");		
 		
 		serializarListaClaves(valoresClaves, &mapaValoresAtributos, listaNombres);
 		
@@ -1104,6 +1139,7 @@ int consulta(EstructuraConsulta &estructura) {
 	string valoresClaves("");
 	string nombreTipo("");
 	int pipeResult;
+	unsigned char operacionCapaIndices = 0;
 	
 	// Se instancia el DefinitionsManager (conocedor absoluto del universo).
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
@@ -1120,20 +1156,38 @@ int consulta(EstructuraConsulta &estructura) {
 	ListaStrings& listaNombresTipos = estructura.listaNombresTipos;
 	
 	for (ListaStrings::iterator it = listaNombresTipos.begin();
-		 it != listaNombresTipos.end(); ++it) {
+		 (it != listaNombresTipos.end()) && (pipeResult != ResultadosIndices::ERROR_NO_HAY_INDICE); ++it) {
 	
 		nombreTipo = *it;
 		
 		// Se verifica si la consulta se debe devolver ordenada
-		if ((estructura.listaOrderBy.size() > 0) && (estructura.listaOrderBy.begin()->nombreTipo == nombreTipo))
+		if ((estructura.listaOrderBy.size() > 0) && (estructura.listaOrderBy.begin()->nombreTipo == nombreTipo)) {
+			// Se invierten los campos y los operadores lógicos de las restricciones
+			// para que siempre quede como primer tabla la tabla por la que se debe ordenar.
+			invertirOperacionLogica(nombreTipo, estructura.estructuraWhere.listaOperaciones);
+			invertirOperacionLogica(nombreTipo, estructura.estructuraJoins.listaOperaciones);
+			// Se serializa la clave para indicarle a la capa de índices los campos por los
+			// que debe ordenar. Si no se encuentra un índice para ordenar por esos campos,
+			// se devuelve un error.
 			serializarListaClaves(valoresClaves, estructura.listaOrderBy);
-		else
-			valoresClaves = "*=*" + CodigosPipe::COD_FIN_CLAVE;
+			operacionCapaIndices = OperacionesCapas::INDICES_CONSULTAR;
+		} else {
+			if (estructura.estructuraWhere.operacion == ExpresionesLogicas::AND) {
+				// Se construye la clave para enviar a la capa de índices
+				serializarListaClaves(valoresClaves, estructura.estructuraWhere.listaOperaciones);
+				// Codigo de operacion de consulta para la Capa de Indices
+				if (valoresClaves.size() > 0)
+					operacionCapaIndices = OperacionesCapas::INDICES_CONSULTAR;
+				else
+					operacionCapaIndices = OperacionesCapas::INDICES_CONSULTAR_TODO;
+			} else
+				operacionCapaIndices = OperacionesCapas::INDICES_CONSULTAR_TODO;
+		}
 		
 		ComuDatos* pipe = instanciarPipe();
 		
 		// Codigo de operacion de consulta para la Capa de Indices
-		pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_CONSULTAR, 0); 
+		pipe->agregarParametro(operacionCapaIndices, 0); 
 		// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula/etc)
 		pipe->agregarParametro(nombreTipo, 1);
 		
@@ -1209,6 +1263,8 @@ int consulta(EstructuraConsulta &estructura) {
 	// Una vez que se terminaron de aplicar los filtros/restricciones a los registros
 	// de las distintas tablas, se resuelven los joins (en caso que haya).
 	pipeResult = resolverJoins(mapaJoins, mapaWhere, mapaExt);
+	
+	// TODO Mandar los registros a la capa de consultas
 	
 	return pipeResult;
 }

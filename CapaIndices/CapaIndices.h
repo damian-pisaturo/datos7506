@@ -1,10 +1,6 @@
 #ifndef CAPAINDICES_H_
 #define CAPAINDICES_H_
 
-#define ERROR				1
-#define SEPARADOR			'='
-#define COD_CONSULTAR_TODO	'*'
-
 #include <iostream>
 #include "Indices/IndiceArbol.h"
 #include "Indices/IndiceHash.h"
