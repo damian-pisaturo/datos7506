@@ -83,7 +83,7 @@ class Indice
 		/*
 		 * Busca una clave secundaria y devuelve la lista de claves primarias
 		 */
-		virtual int buscar(Clave *clave, ListaClaves* &listaClavesPrimarias) const = 0;
+		virtual int buscar(Clave *clave, SetClaves* &setClavesPrimarias) const = 0;
 		
 		/*
 		 * Método utilizado para saber si una clave ya se encuentra insertada en el índice

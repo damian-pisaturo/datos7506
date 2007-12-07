@@ -93,7 +93,7 @@ class IndiceHash :public Indice
 		 * Busca una clave en un indice secundario, y si la encuntra retorna su lista invertida,
 		 * que contiene las claves primarias en listaClaves.
 		 **/
-		virtual int buscar(Clave *clave, ListaClaves* &listaClaves) const ;
+		virtual int buscar(Clave *clave, SetClaves* &setClavesPrimarias) const ;
 		
 		/*
 		 * Método utilizado para saber si una clave ya se encuentra insertada en el índice

@@ -6,6 +6,7 @@
 #include "../../../Common/Bloque/Bloque.h"
 #include "../../../Common/TipoDatos.h"
 #include "../../Common/TipoIndices.h"
+#include "../../Common/SetClaves.h"
 #include "../../../Common/CodigosPipe.h"
 #include <list>
 #include <sstream>
@@ -32,7 +33,7 @@ class BloqueListaPrimaria : public Bloque {
 		
 		unsigned short getCantClaves(const char* lista) const;
 */		
-		ListaClaves* getListaClaves(const char* lista, ListaTipos* listaTipos) const;
+		SetClaves* getSetClavesPrimarias(const char* lista, ListaTipos* listaTipos) const;
 
 		
 };

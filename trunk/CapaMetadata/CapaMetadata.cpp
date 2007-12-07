@@ -1140,6 +1140,7 @@ int consulta(EstructuraConsulta &estructura) {
 	string nombreTipo("");
 	int pipeResult;
 	unsigned char operacionCapaIndices = 0;
+	bool mapasCargados = false;
 	
 	// Se instancia el DefinitionsManager (conocedor absoluto del universo).
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
@@ -1147,9 +1148,6 @@ int consulta(EstructuraConsulta &estructura) {
 	// Mapas que contienen listas de restricciones para cada tipo/clase.
 	MapaRestricciones mapaJoins, mapaWhere;
 	MapaExtensiones mapaExt;
-	
-	cargarMapasRestricciones(estructura.estructuraJoins.listaOperaciones, mapaJoins);
-	cargarMapasRestricciones(estructura.estructuraWhere.listaOperaciones, mapaWhere);	
 	
 	// Itero la lista con los nombres de los distintos tipos (tablas) que
 	// intervienen en la consulta.
@@ -1166,12 +1164,21 @@ int consulta(EstructuraConsulta &estructura) {
 			// para que siempre quede como primer tabla la tabla por la que se debe ordenar.
 			invertirOperacionLogica(nombreTipo, estructura.estructuraWhere.listaOperaciones);
 			invertirOperacionLogica(nombreTipo, estructura.estructuraJoins.listaOperaciones);
+			// Cargo los mapas de restricciones con las listas ordenadas por la tabla
+			// por la que se debe ordenar la consulta.
+			cargarMapasRestricciones(estructura.estructuraJoins.listaOperaciones, mapaJoins);
+			cargarMapasRestricciones(estructura.estructuraWhere.listaOperaciones, mapaWhere);
 			// Se serializa la clave para indicarle a la capa de índices los campos por los
 			// que debe ordenar. Si no se encuentra un índice para ordenar por esos campos,
 			// se devuelve un error.
 			serializarListaClaves(valoresClaves, estructura.listaOrderBy);
 			operacionCapaIndices = OperacionesCapas::INDICES_CONSULTAR;
 		} else {
+			if (!mapasCargados) { // Cargo las restricciones sin ordenarlas
+				cargarMapasRestricciones(estructura.estructuraJoins.listaOperaciones, mapaJoins);
+				cargarMapasRestricciones(estructura.estructuraWhere.listaOperaciones, mapaWhere);
+				mapasCargados = true;
+			}
 			if (estructura.estructuraWhere.operacion == ExpresionesLogicas::AND) {
 				// Se construye la clave para enviar a la capa de índices
 				serializarListaClaves(valoresClaves, estructura.estructuraWhere.listaOperaciones);
@@ -1265,6 +1272,12 @@ int consulta(EstructuraConsulta &estructura) {
 	pipeResult = resolverJoins(mapaJoins, mapaWhere, mapaExt);
 	
 	// TODO Mandar los registros a la capa de consultas
+	
+	
+	// Se destruyen los mapas de las restricciones y el mapa de las extensiones
+	destruirMapaRestricciones(mapaWhere);
+	destruirMapaRestricciones(mapaJoins);
+	destruirMapaExtensiones(mapaExt);
 	
 	return pipeResult;
 }
