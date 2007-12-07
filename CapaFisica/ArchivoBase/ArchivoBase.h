@@ -16,11 +16,9 @@
 #ifndef ARCHIVOBASE_H_
 #define ARCHIVOBASE_H_
 
+#include "../../Common/Archivo/Archivo.h"
 #include "../../Common/Tamanios.h"
 #include "../../Common/ResultadosFisica.h"
-
-#include <iostream>
-#include <fstream>
 #include <sstream>
 
 using namespace std;
@@ -39,10 +37,8 @@ class ArchivoBase
 	///////////////////////////////////////////////////////////////////////
 	// Atributos
 	///////////////////////////////////////////////////////////////////////
-		fstream archivo;  //Referencia al archivo
+		Archivo archivo;  //Referencia al archivo
 	    unsigned short tamBloque;  //Tamaño en bytes del bloque
-	    bool archivoValido; //Indica si el archivo corresponde a uno perteneciente
-	    					//proyecto o no.
 
 	public:
 	///////////////////////////////////////////////////////////////////////
@@ -50,9 +46,9 @@ class ArchivoBase
 	///////////////////////////////////////////////////////////////////////
 		
 		/*Abre el archivo. Si no existe lo crea. Los primeros
-		 * Tamanios::TAMANIO_LONGITUD bytes contienen el tamaño de
+		 * Tamanios::TAMANIO_LONGITUD bytes contienen el tamaÃ±o de
 		 * un bloque del archivo. El primer byte del archivo contiene
-		 *  un identificador mágico.
+		 *  un identificador mÃ¡gico.
 		 */
 		ArchivoBase(string nombre, unsigned short tamBloque);
 		
@@ -63,15 +59,15 @@ class ArchivoBase
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////
 		 
-		/*Escribe el bloque en el archivo en la posición actual.
-		  * Recibe un puntero a una estructura de datos de tamaño tamBloque.
+		/*Escribe el bloque en el archivo en la posiciÃ³n actual.
+		  * Recibe un puntero a una estructura de datos de tamaÃ±o tamBloque.
 		  * Devuelve ResFisica::ERROR_ESCRITURA si se produjo algun error al
 		  * escribir el bloque; ResFisica::NO_ABIERTO si el archivo no fue 
 		  * previamente abierto, o ResFisica::OK de no haberse encontrado errores.
 		 */		 
 		char escribir(const void* bloque);
 		
-		/* Lee del archivo el bloque en la posición actual y lo devuelve
+		/* Lee del archivo el bloque en la posiciÃ³n actual y lo devuelve
 		 * en 'bloque'. Devuelve ResFisica::ERROR_LECTURA si se produjo algun 
 		 * error al leer el bloque solicitado; ResFisica::NO_ABIERTO si el 
 		 * archivo no fue previamente abierto, o ResFisica::OK de no haberse
@@ -96,31 +92,22 @@ class ArchivoBase
 		 * ResFisica::ERROR_POSICION; en caso contrario, devuelve
 		 * ResFisica::OK;
 		*/
-		char posicionarse(unsigned short numBloque);		
-
-		/* Se posiciona al final del archivo.
-		*/
+		char posicionarse(unsigned short numBloque);
+		
+		/* Se posiciona el final del archivo.
+		 */
 		void posicionarseFin();
 		
-		/*Retorna el tamaño total en bytes del archivo.
+		/*Devuelve en tamaño del archivo en bytes.
 		 */
-		long size();
+		size_t size();
 
 	///////////////////////////////////////////////////////////////////////
 	// Getters
 	///////////////////////////////////////////////////////////////////////
 		unsigned short getTamanioBloque();
 		bool esValido();
-	
-	private:
-	///////////////////////////////////////////////////////////////////////
-	// Metodo privado
-	///////////////////////////////////////////////////////////////////////
-		
-		/* Crea y devuelve un identificador unico para el archivo actual.
-		 */
-		virtual int generarID(string &nomArchivo);
-		
+
 }; /*Fin clase ArchivoBase*/
 
 #endif /*ARCHIVOBASE_H_*/
