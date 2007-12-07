@@ -129,7 +129,7 @@
 	}
 	
 	
-	int IndiceHash::buscar(Clave *clave, ListaClaves* &listaClaves) const 
+	int IndiceHash::buscar(Clave *clave, SetClaves* &setClavesPrimarias) const 
 	{
 		char *registro = NULL;
 		unsigned short tamanioRegistro = 0;
@@ -156,7 +156,7 @@
 			
 			// Se pone en listaClaves una lista de todas las claves primarias que hay en la lista invertida.
 			ListaTipos* listaTiposClavePrimaria = this->getListaTiposClavePrimaria();
-			listaClaves = ((BloqueListaPrimaria*)bloque)->getListaClaves(bloqueLista, listaTiposClavePrimaria);
+			setClavesPrimarias = ((BloqueListaPrimaria*)bloque)->getSetClavesPrimarias(bloqueLista, listaTiposClavePrimaria);
 			delete listaTiposClavePrimaria;
 			
 			resultado = ResultadosIndices::OK;

@@ -280,7 +280,7 @@ int IndiceArbol::buscar(Clave *clave, char* &registro, unsigned short &tamanioRe
  * Este método busca una clave secundaria y devuelve la lista de claves primarias
  * correspondiente a dicha clave.
  */
-int IndiceArbol::buscar(Clave *claveSecundaria, ListaClaves* &listaClavesPrimarias) const {
+int IndiceArbol::buscar(Clave *claveSecundaria, SetClaves* &setClavesPrimarias) const {
 	
 	Clave* claveRecuperada = bTree->buscar(claveSecundaria);
 	if (!claveRecuperada) return ResultadosIndices::CLAVE_NO_ENCONTRADA;
@@ -292,7 +292,7 @@ int IndiceArbol::buscar(Clave *claveSecundaria, ListaClaves* &listaClavesPrimari
 	if (resultado == ResultadosFisica::OK) {
 		
 		ListaTipos* listaTiposClavePrimaria = this->getListaTiposClavePrimaria();
-		listaClavesPrimarias = ((BloqueListaPrimaria*)this->bloque)->getListaClaves(bloqueLista, listaTiposClavePrimaria);
+		setClavesPrimarias = ((BloqueListaPrimaria*)this->bloque)->getSetClavesPrimarias(bloqueLista, listaTiposClavePrimaria);
 		delete listaTiposClavePrimaria;
 		
 		resultado = ResultadosIndices::OK;

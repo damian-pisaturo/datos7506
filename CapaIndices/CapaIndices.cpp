@@ -310,6 +310,249 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 }
 
+
+void enviarClavesMayoresOIguales(const string &nombreTipo, MapaIndices &mapaIndices,
+		 						 Indice *indice, DefinitionsManager &defManager,
+		 						 ComuDatos &pipe) {
+	
+	Clave* claveSiguiente = NULL;
+	char* registro = NULL;
+	unsigned short tamRegistro = 0, cantRegistros = 1;
+	int resultado = ResultadosIndices::OK;
+	
+	claveSiguiente = indice->siguiente();
+	if (!claveSiguiente) resultado = ResultadosIndices::FIN_BLOQUES;
+	// Se le indica a la capa de metadata si va a recibir un bloque de datos
+	pipe.escribir(resultado);
+	
+	while (claveSiguiente) {
+		
+		if (indice->getTipoIndice() == TipoIndices::GRIEGO) { // Índice Primario
+			
+			resultado = indice->buscar(claveSiguiente, registro, tamRegistro);
+			delete claveSiguiente;
+			
+			if (resultado == ResultadosIndices::OK) {
+				
+				cantRegistros = 1;
+				pipe.escribir(cantRegistros);
+				
+				// Envío su longitud del registro
+				pipe.escribir(tamRegistro);
+				
+				// Envío el registro
+				pipe.escribir(registro, tamRegistro);
+				
+				delete[] registro;
+				registro = NULL;
+				
+				claveSiguiente = indice->siguiente();
+				
+				if (!claveSiguiente) resultado = ResultadosIndices::FIN_BLOQUES;
+				
+			} else {
+				claveSiguiente = NULL;
+				cantRegistros = 0;
+				pipe.escribir(cantRegistros);
+			}
+			
+		} else { // Índice Secundario
+			
+			SetClaves* setClaves = NULL;
+			resultado = indice->buscar(claveSiguiente, setClaves);
+			delete claveSiguiente;
+			
+			if (resultado == ResultadosIndices::OK) {
+				
+				//Obtengo el índice primario
+				ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
+				indice = mapaIndices[*listaNombresClaves];
+				
+				//Envío la cantidad de registros (Un registro por cada clave primaria)
+				cantRegistros = setClaves->size();
+				pipe.escribir(cantRegistros);
+				
+				//Consulto el registro de datos de cada clave primaria
+				for (SetClaves::iterator it = setClaves->begin(); it != setClaves->end(); ++it) {
+					
+					resultado = indice->buscar(*it, registro, tamRegistro);
+					
+					//Si el tamaño del registro es 0, la capa de metadata sabe que se produjo un error. 
+					pipe.escribir(tamRegistro);
+					
+					if (resultado == ResultadosIndices::OK)
+						pipe.escribir(registro, tamRegistro);
+					else break;
+				}
+				
+				delete setClaves;
+				
+				claveSiguiente = indice->siguiente();
+								
+				if (!claveSiguiente) resultado = ResultadosIndices::FIN_BLOQUES;
+				
+			} else {
+				claveSiguiente = NULL;
+				cantRegistros = 0;
+				pipe.escribir(cantRegistros);
+			}
+			
+		}
+		
+		pipe.escribir(resultado);
+		
+	}
+	
+}
+
+
+void enviarClavesMenoresOIguales(const string &nombreTipo, MapaIndices &mapaIndices,
+								 Indice *indice, Clave *clave, char operador,
+								 DefinitionsManager &defManager, ComuDatos &pipe) {
+	
+	Clave* claveSiguiente = NULL;
+	char* registro = NULL;
+	unsigned short tamRegistro = 0, cantRegistros = 1;
+	int resultado = ResultadosIndices::OK;
+	bool continuar = false;
+	
+	indice->primero();
+	claveSiguiente = indice->siguiente();
+	
+	if (!claveSiguiente)
+		resultado = ResultadosIndices::FIN_BLOQUES;
+	else {
+		if (operador == ExpresionesLogicas::MENOR)
+			continuar = (*claveSiguiente < *clave);
+		else
+			continuar = ((*claveSiguiente < *clave) || (*claveSiguiente == *clave));
+		
+		if (!continuar) resultado = ResultadosIndices::FIN_BLOQUES;
+	}
+	
+	// Se le indica a la capa de metadata si va a recibir un bloque de datos
+	pipe.escribir(resultado);
+	
+	while (claveSiguiente && continuar) {
+		
+		if (indice->getTipoIndice() == TipoIndices::GRIEGO) { // Índice Primario
+			
+			resultado = indice->buscar(claveSiguiente, registro, tamRegistro);
+			delete claveSiguiente;
+			
+			if (resultado == ResultadosIndices::OK) {
+				
+				cantRegistros = 1;
+				pipe.escribir(cantRegistros);
+				
+				// Envío su longitud del registro
+				pipe.escribir(tamRegistro);
+				
+				// Envío el registro
+				pipe.escribir(registro, tamRegistro);
+				
+				delete[] registro;
+				registro = NULL;
+				
+				claveSiguiente = indice->siguiente();
+				
+				if (!claveSiguiente)
+					resultado = ResultadosIndices::FIN_BLOQUES;
+				else {
+					if (operador == ExpresionesLogicas::MENOR)
+						continuar = (*claveSiguiente < *clave);
+					else
+						continuar = ((*claveSiguiente < *clave) || (*claveSiguiente == *clave));
+					
+					if (!continuar) resultado = ResultadosIndices::FIN_BLOQUES;
+				}
+				
+			} else {
+				claveSiguiente = NULL;
+				cantRegistros = 0;
+				pipe.escribir(cantRegistros);
+			}
+			
+		} else { // Índice Secundario
+			
+			SetClaves* setClaves = NULL;
+			resultado = indice->buscar(claveSiguiente, setClaves);
+			delete claveSiguiente;
+			
+			if (resultado == ResultadosIndices::OK) {
+				
+				//Obtengo el índice primario
+				ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
+				indice = mapaIndices[*listaNombresClaves];
+				
+				//Envío la cantidad de registros (Un registro por cada clave primaria)
+				cantRegistros = setClaves->size();
+				pipe.escribir(cantRegistros);
+				
+				//Consulto el registro de datos de cada clave primaria
+				for (SetClaves::iterator it = setClaves->begin(); it != setClaves->end(); ++it) {
+					
+					resultado = indice->buscar(*it, registro, tamRegistro);
+					
+					//Si el tamaño del registro es 0, la capa de metadata sabe que se produjo un error. 
+					pipe.escribir(tamRegistro);
+					
+					if (resultado == ResultadosIndices::OK)
+						pipe.escribir(registro, tamRegistro);
+					else break;
+				}
+				
+				delete setClaves;
+				
+				claveSiguiente = indice->siguiente();
+								
+				if (!claveSiguiente)
+					resultado = ResultadosIndices::FIN_BLOQUES;
+				else {
+					if (operador == ExpresionesLogicas::MENOR)
+						continuar = (*claveSiguiente < *clave);
+					else
+						continuar = ((*claveSiguiente < *clave) || (*claveSiguiente == *clave));
+					
+					if (!continuar) resultado = ResultadosIndices::FIN_BLOQUES;
+				}
+				
+			} else {
+				claveSiguiente = NULL;
+				cantRegistros = 0;
+				pipe.escribir(cantRegistros);
+			}
+			
+		}
+		
+		pipe.escribir(resultado);
+		
+	}
+	
+}
+
+
+void enviarTodasLasClavesPrimarias(const string &nombreTipo, MapaIndices &mapaIndices,
+								   Indice *indice, DefinitionsManager &defManager,
+								   ComuDatos &pipe) {
+	
+	// Se devuelven todos los registros almacenados en el indice.
+	indice->primero();
+	Clave* primeraClave = indice->siguiente();
+	
+	if (primeraClave) {
+		indice->mayorOIgual(primeraClave);
+		enviarClavesMayoresOIguales(nombreTipo, mapaIndices, indice, defManager, pipe);
+		delete primeraClave;
+	} else {
+		// Le indico a la capa superior que no va a recibir mas bloques
+		int resultado = ResultadosIndices::FIN_BLOQUES;
+		pipe.escribir(resultado);
+	}
+	
+}
+
+
 void consultaIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 			   		  Indice *indice, Clave *clave,
 			   		  DefinitionsManager &defManager, ComuDatos &pipe) {
@@ -336,71 +579,48 @@ void consultaIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 			}
 			
 		}
-		else
-		{
-			// Se devuelven todos los registros almacenados en el indice.
+		else enviarTodasLasClavesPrimarias(nombreTipo, mapaIndices, indice, defManager, pipe);
+	}
+	else { //Indice Secundario
+		
+		if (clave) {
 			
-			Bloque* bloque = NULL;
-			
-			resultado = indice->siguienteBloque(bloque);
+			SetClaves* setClaves = NULL;
+			resultado = indice->buscar(clave, setClaves);
 			pipe.escribir(resultado);
 			
-			while (resultado == ResultadosIndices::OK) {
+			if (resultado == ResultadosIndices::OK) {
 				
-				pipe.escribir(bloque->getCantidadRegistros());
+				//Obtengo el índice primario
+				ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
+				indice = mapaIndices[*listaNombresClaves];
 				
-				for(unsigned short i = 0; i < bloque->getCantidadRegistros(); i++) {
-					tamRegistro = bloque->getTamanioRegistros();
+				//Envío la cantidad de registros (Un registro por cada clave primaria)
+				cantRegistros = setClaves->size();
+				pipe.escribir(cantRegistros);
+				
+				//Consulto el registro de datos de cada clave primaria
+				for (SetClaves::iterator it = setClaves->begin(); it != setClaves->end(); ++it) {
+					
+					resultado = indice->buscar(*it, registroDatos, tamRegistro);
+					
+					//Si el tamaño del registro es 0, la capa de metadata sabe que se produjo un error. 
 					pipe.escribir(tamRegistro);
-					registroDatos = bloque->getNextRegister();
-					pipe.escribir(registroDatos, tamRegistro);
-					delete[] registroDatos;
+					
+					if (resultado == ResultadosIndices::OK)
+						pipe.escribir(registroDatos, tamRegistro);
+					else break;
 				}
 				
-				delete bloque;
-				
-				resultado = indice->siguienteBloque(bloque);
-				
+				// Le indico a la capa superior que no va a recibir mas bloques
+				resultado = ResultadosIndices::FIN_BLOQUES;
 				pipe.escribir(resultado);
 				
-			}
-		}
-	}
-	else{ //Indice Secundario
-		
-		ListaClaves* listaClaves = NULL;
-		resultado = indice->buscar(clave, listaClaves);
-		pipe.escribir(resultado);
-		
-		if (resultado == ResultadosIndices::OK) {
-			
-			//Obtengo el índice primario
-			ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
-			indice = mapaIndices[*listaNombresClaves];
-			
-			//Envío la cantidad de registros (Un registro por cada clave primaria)
-			cantRegistros = listaClaves->size();
-			pipe.escribir(cantRegistros);
-			
-			//Consulto el registro de datos de cada clave primaria
-			for (ListaClaves::iterator it = listaClaves->begin(); it != listaClaves->end(); ++it) {
-				
-				resultado = indice->buscar(*it, registroDatos, tamRegistro);
-				
-				//Si el tamaño del registro es 0, la capa de metadata sabe que se produjo un error. 
-				pipe.escribir(tamRegistro);
-				
-				if (resultado == ResultadosIndices::OK)
-					pipe.escribir(registroDatos, tamRegistro);
-				else break;
+				delete setClaves;
 			}
 			
-			// Le indico a la capa superior que no va a recibir mas bloques
-			resultado = ResultadosIndices::FIN_BLOQUES;
-			pipe.escribir(resultado);
-			
-			destruirListaClaves(listaClaves);
-		}
+		} else enviarTodasLasClavesPrimarias(nombreTipo, mapaIndices, indice, defManager, pipe);
+		
 	}
 	
 }
@@ -410,60 +630,17 @@ void consultaIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndices
 			   		  		  Indice *indice, Clave *clave, char operador,
 			   		  		  DefinitionsManager &defManager, ComuDatos &pipe) {
 	
-	Clave* claveSiguiente = NULL;
-	char* registro = NULL;
-	unsigned short tamRegistro = 0;
-	int resultado = ResultadosIndices::OK;
-	
 	if (operador == ExpresionesLogicas::MAYOR) {
-		// Se le indica a la capa de metadata que va a recibir un bloque de datos
-		pipe.escribir(resultado);
-		indice->mayor(clave);
-		claveSiguiente = indice->siguiente();
-		while (claveSiguiente) {
-			indice->buscar(claveSiguiente, registro, tamRegistro);
-			pipe.escribir(resultado);
-			
-			// TODO Terminar!!!
-/*			
-			if(bloque->buscarRegistro(listaTiposAtributos, *clave, &offsetToReg)){
-				
-				cantidadRegistros = 1;
-				pipe.escribir(cantidadRegistros);
-				
-				
-				// Obtengo la longitud del registro corriente
-				longReg = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, bloque->getDatos() + offsetToReg);				
-
-				// Envío su longitud
-				pipe.escribir(longReg);
-				
-				// Actualizo el offset a datos
-				bloque->setOffsetADatos(offsetToReg + longReg);
-				
-				// Obtengo el registro
-				registro = bloque->getRegistro(longReg, offsetToReg);
-				
-				// Envío el registro
-				pipe.escribir(registro, longReg);
-				
-				delete[] registro;
-				
-				pipe.escribir(resultado);
-			}
-			// Si no encontro mas registros ceso la busqueda dentro del bloque
-			else {
-				seguirBuscando = false;
-				cantidadRegistros = 0;
-				pipe.escribir(cantidadRegistros);
-			}
-*/			
-			
-			claveSiguiente = indice->siguiente();
-			
-		}
 		
-	}
+		indice->mayor(clave);
+		enviarClavesMayoresOIguales(nombreTipo, mapaIndices, indice, defManager, pipe);
+		
+	} else if (operador == ExpresionesLogicas::MAYOR_O_IGUAL) {
+		
+		indice->mayorOIgual(clave);
+		enviarClavesMayoresOIguales(nombreTipo, mapaIndices, indice, defManager, pipe);
+		
+	} else enviarClavesMenoresOIguales(nombreTipo, mapaIndices, indice, clave, operador, defManager, pipe);
 	
 }
 
@@ -599,12 +776,12 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 		
 	} else { //Indice Secundario
 		
-		ListaClaves* listaClavesPrimarias = NULL;
-		int resultado = indice->buscar(clave, listaClavesPrimarias);
+		SetClaves* setClavesPrimarias = NULL;
+		int resultado = indice->buscar(clave, setClavesPrimarias);
 		
 		if (resultado == ResultadosIndices::OK) {
 			
-			ListaClaves::iterator iterClaves = listaClavesPrimarias->begin();
+			SetClaves::iterator iterClaves = setClavesPrimarias->begin();
 			
 			//Obtengo el índice primario
 			MapaIndices::iterator it = mapaIndices.find(*defManager.getListaNombresClavesPrimarias(nombreTipo));
@@ -614,12 +791,12 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 			mapaIndices.erase(it);
 			
 			//Elimino todas las claves primarias vinculadas a esta clave secundaria
-			for (unsigned i = 0; i < listaClavesPrimarias->size(); ++i, ++iterClaves)
+			for (unsigned i = 0; i < setClavesPrimarias->size(); ++i, ++iterClaves)
 				resultado = eliminarClavePrimaria(nombreTipo, mapaIndices, indicePrimario, *iterClaves, defManager); 
 			
 			mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indicePrimario;
 			
-			destruirListaClaves(listaClavesPrimarias);
+			delete setClavesPrimarias;
 			
 		}
 		
@@ -841,16 +1018,16 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 		
 	} else { //Indice Secundario
 		
-		ListaClaves* listaClavesPrimarias = NULL;
-		int resultado = indice->buscar(clave, listaClavesPrimarias);
+		SetClaves* setClavesPrimarias = NULL;
+		int resultado = indice->buscar(clave, setClavesPrimarias);
 		
 		if (resultado == ResultadosIndices::OK) {
 			
 			//Se envía la cantidad de registros que se deben modificar
-			cantRegistros = listaClavesPrimarias->size();
+			cantRegistros = setClavesPrimarias->size();
 			pipe.escribir(cantRegistros);
 			
-			ListaClaves::iterator iterClaves = listaClavesPrimarias->begin();
+			SetClaves::iterator iterClaves = setClavesPrimarias->begin();
 			
 			//Obtengo el índice primario
 			MapaIndices::iterator it = mapaIndices.find(*defManager.getListaNombresClavesPrimarias(nombreTipo));
@@ -860,12 +1037,12 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 			mapaIndices.erase(it);
 			
 			//Modifico todas las claves primarias vinculadas a esta clave secundaria
-			for (unsigned i = 0; i < listaClavesPrimarias->size(); ++i, ++iterClaves)
+			for (unsigned i = 0; i < setClavesPrimarias->size(); ++i, ++iterClaves)
 				resultado = modificarClavePrimaria(nombreTipo, mapaIndices, indicePrimario, *iterClaves, defManager, pipe);
 			
 			mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indicePrimario;
 			
-			destruirListaClaves(listaClavesPrimarias);
+			delete setClavesPrimarias;
 			
 		}
 		
@@ -876,7 +1053,7 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 
 int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe) {
 	int resultado = ResultadosIndices::OK;
-	string buffer(""), auxStr("");
+	string buffer(""), auxStr(""), valorClave("");
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
 	ListaValoresClaves listaValoresClaves;
 	string::size_type posAnterior = 0, posActual = 0, posSeparador = 0;
@@ -909,7 +1086,8 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 				posSeparador = auxStr.find(CodigosPipe::COMIENZO_OPERADOR);
 				operador = auxStr[posSeparador + 1];
 				listaNombresClaves.push_back(auxStr.substr(0, posSeparador));
-				listaValoresClaves.push_back(auxStr.substr(posSeparador+3));
+				valorClave = auxStr.substr(posSeparador+3);
+				if (valorClave.size() > 0) listaValoresClaves.push_back(valorClave);
 				posAnterior = posActual + 1;
 				posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
 			}
@@ -980,6 +1158,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 					consultaNoIndexada(nombreTipo, mapaIndices, clave, defManager, pipe);
 				break;
 			case OperacionesCapas::INDICES_CONSULTAR_TODO:
+				// Se devuelven todos los registros ordenados según el índice primario
 				consultaIndexada(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 				break;
 			case OperacionesCapas::INDICES_INSERTAR:

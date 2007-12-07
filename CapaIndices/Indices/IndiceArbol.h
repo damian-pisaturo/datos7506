@@ -52,7 +52,7 @@ class IndiceArbol: public Indice {
 		virtual int buscar(Clave *clave, char* &registro, unsigned short &tamanioRegistro) const;
 		
 		
-		virtual int buscar(Clave *clave, ListaClaves* &listaClavesPrimarias) const;
+		virtual int buscar(Clave *clave, SetClaves* &setClavesPrimarias) const;
 		
 		/*
 		 * Método utilizado para saber si una clave ya se encuentra insertada en el índice
