@@ -1,9 +1,5 @@
 #include "CapaIndices.h"
 
-// Declaración global de la lista de los nombres de los campos
-// que componen la clave por la cual se realiza la operación.
-ListaNombresClaves listaNombresClaves;
-
 /*
  * Crea todos los indices correspondientes a un tipo, y carga su mapa de indices.
  **/
@@ -122,21 +118,20 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 	
 	// Se obtiene la lista de los tipos de datos de los atributos del tipo 'nombreTipo', con
 	// los campos pk en "true" para los atributos cuyos nombres figuran en la listaNombresClaves.
-//	ListaNodos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo, listaNombresClaves);
 	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	
 	Bloque* bloque = NULL;
 	char* registro = NULL;
 	unsigned short tamanioRegistro = 0;
 	unsigned short cantidadRegistros = 0;
-	Clave* claveDelRegistro;
+	Clave* clave = NULL;
+	Clave* claveDelRegistro = NULL;
 	// Obtiene un bloque de datos.
 	int resultado = indice->siguienteBloque(bloque);
+	char operacion = 0;
 	
 	// Se indica a la capa superior si hay un bloque siguiente.
-	pipe.escribir(resultado);
-	
-	char operacion;
+	pipe.escribir(resultado);	
 	
 	 while (resultado == ResultadosIndices::OK) {
 		
@@ -163,8 +158,8 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 				pipe.leer(&operacion);
 				
 				if (operacion == OperacionesCapas::INDICES_ELIMINAR) {
-					Clave* clave = bloque->getClavePrimaria(listaTiposAtributos,registro);
-					eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);					delete clave;
+					clave = bloque->getClavePrimaria(listaTiposAtributos,registro);
+					eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);	
 					delete clave;				
 				}
 				
@@ -202,14 +197,13 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 	
 	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	
+	Clave* clave = NULL;
 	Bloque* bloque = NULL;
 	char* registro = NULL;
 	unsigned short tamanioRegistro = 0;
-
+	char operacion = 0;
 	// Obtiene un bloque de datos.
 	int resultado = indice->siguienteBloque(bloque);
-	
-	char operacion;
 	
 	 while (resultado == ResultadosIndices::OK) {
 		
@@ -229,7 +223,7 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 			pipe.leer(&operacion);
 			
 			if (operacion == OperacionesCapas::INDICES_ELIMINAR) {		
-				Clave* clave =bloque->getClavePrimaria(listaTiposAtributos,registro);
+				clave =bloque->getClavePrimaria(listaTiposAtributos,registro);
 				eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 				delete clave;
 			}
@@ -255,7 +249,7 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 	char *registro = NULL;
 	unsigned short offsetToReg = 0;
 	unsigned short longReg = 0;
-	bool seguirBuscando;
+	bool seguirBuscando = false;
 	unsigned short cantidadRegistros = 0;
 	
 	// Se obtiene la lista de los tipos de datos de los atributos del tipo 'nombreTipo', con
@@ -416,7 +410,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		   	  Indice *indice, Clave *clave,
 		   	  DefinitionsManager &defManager, ComuDatos &pipe) {
 	
-	unsigned short tamRegistro = 0;
+	short tamRegistro = 0;
 	char *registroDatos = NULL;
 	
 	int resultado = indice->buscar(clave);
@@ -426,7 +420,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		// Recibe el tamaño del registro a insertar.
 		pipe.leer(&tamRegistro);
 		
-		if (tamRegistro == 0) return;
+		if (tamRegistro <= 0) return;
 		
 		registroDatos = new char[tamRegistro];
 		
@@ -491,7 +485,7 @@ int eliminarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 			
 			//Actualizo los indices secundarios
 			Indice* indiceSecundario = NULL;
-			Clave* claveSecundaria = NULL;
+			Clave* claveSecundaria   = NULL;
 			
 			//Se instancia un objeto Registro, el cual es el encargado de
 			//administrar el registro de los datos y de proporcionar las claves
@@ -706,12 +700,12 @@ int modificarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 void modificacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndices,
 									DefinitionsManager &defManager, ComuDatos &pipe) {
 	
-			cout << "llego aca" << endl;
 	// Obtiene el indice primario para poder obtener luego los bloques de datos.
 	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
 	
 	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	
+	Clave* claveVieja = NULL;
 	Bloque* bloque = NULL;
 	char* registroViejo = NULL;
 	char* registroNuevo = NULL;
@@ -721,7 +715,7 @@ void modificacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaI
 	// Obtiene un bloque de datos.
 	int resultado = indice->siguienteBloque(bloque);
 	
-	char operacion;
+	char operacion = 0;
 	
 	// Se itera mientras haya registros.
 	 while (resultado == ResultadosIndices::OK) {
@@ -748,7 +742,7 @@ void modificacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaI
 				registroNuevo = new char[tamanioRegistroNuevo];
 				pipe.leer(tamanioRegistroNuevo, registroNuevo);
 				
-				Clave* claveVieja =bloque->getClavePrimaria(listaTiposAtributos,registroViejo);
+				claveVieja =bloque->getClavePrimaria(listaTiposAtributos,registroViejo);
 				modificar(nombreTipo,mapaIndices,indice,claveVieja,defManager,pipe);
 				
 				delete claveVieja;
@@ -821,7 +815,6 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe) {
 	int resultado = ResultadosIndices::OK;
 	string buffer(""), auxStr("");
-	unsigned short tamanioBuffer = 0;
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
 	ListaValoresClaves listaValoresClaves;
 	string::size_type posAnterior = 0, posActual = 0, posSeparador = 0;
@@ -831,9 +824,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	Indice* indice = NULL;
 	
 	//Si la operación es una inserción, recibo la clave o la lista de claves del índice primario
-	
-	//TODO Testeando el nuevo leer()
-	
+		
 	//Leo el buffer con los nombres y los valores de cada campo de la variable
 	pipe.leer(buffer);
 	

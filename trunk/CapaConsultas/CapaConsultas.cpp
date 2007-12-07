@@ -177,8 +177,6 @@ int main(int argc, char* argv[]) {
 							
 							for (itLNT = estructuraConsulta.listaNombresTipos.begin(); 
 								 itLNT != estructuraConsulta.listaNombresTipos.end(); ++itLNT) {
-							//TODO Testeando el nuevo escribir()
-								//pipe->escribir((unsigned int)itLNT->size());
 								pipe->escribir(*itLNT);
 							}
 												
@@ -191,15 +189,9 @@ int main(int argc, char* argv[]) {
 							
 							for(itLOJoins = estructuraConsulta.estructuraJoins.listaOperaciones.begin();
 								itLOJoins != estructuraConsulta.estructuraJoins.listaOperaciones.end(); ++itLOJoins) {
-							//TODO Testeando el nuevo escribir()
-								//pipe->escribir((unsigned int)itLOJoins->estructuraNombresIzq.nombreTipo.size());
 								pipe->escribir(itLOJoins->estructuraNombresIzq.nombreTipo);
-								//pipe->escribir((unsigned int)itLOJoins->estructuraNombresIzq.nombreCampo.size());
 								pipe->escribir(itLOJoins->estructuraNombresIzq.nombreCampo);
-								
-								//pipe->escribir((unsigned int)itLOJoins->estructuraNombresDer.nombreTipo.size());
 								pipe->escribir(itLOJoins->estructuraNombresDer.nombreTipo);
-								//pipe->escribir((unsigned int)itLOJoins->estructuraNombresDer.nombreCampo.size());
 								pipe->escribir(itLOJoins->estructuraNombresDer.nombreCampo);
 								
 								pipe->escribir(itLOJoins->operacion);
@@ -214,15 +206,9 @@ int main(int argc, char* argv[]) {
 							
 							for(itLOWhere = estructuraConsulta.estructuraWhere.listaOperaciones.begin();
 								itLOWhere != estructuraConsulta.estructuraWhere.listaOperaciones.end(); ++itLOWhere) {
-							//TODO Testeando el nuevo escribir()
-								//pipe->escribir((unsigned int)itLOWhere->estructuraNombresIzq.nombreTipo.size());
 								pipe->escribir(itLOWhere->estructuraNombresIzq.nombreTipo);
-								//pipe->escribir((unsigned int)itLOWhere->estructuraNombresIzq.nombreCampo.size());
 								pipe->escribir(itLOWhere->estructuraNombresIzq.nombreCampo);
-								
-								//pipe->escribir((unsigned int)itLOWhere->estructuraNombresDer.nombreTipo.size());
 								pipe->escribir(itLOWhere->estructuraNombresDer.nombreTipo);
-								//pipe->escribir((unsigned int)itLOWhere->estructuraNombresDer.nombreCampo.size());
 								pipe->escribir(itLOWhere->estructuraNombresDer.nombreCampo);
 								
 								pipe->escribir(itLOWhere->operacion);
@@ -236,10 +222,7 @@ int main(int argc, char* argv[]) {
 							
 							for (itLEN = estructuraConsulta.listaOrderBy.begin();
 								 itLEN != estructuraConsulta.listaOrderBy.end(); ++itLEN) {
-									//TODO Testeando el nuevo escribir()
-							//	pipe->escribir((unsigned int)itLEN->nombreTipo.size());
 								pipe->escribir(itLEN->nombreTipo);
-							//	pipe->escribir((unsigned int)itLEN->nombreCampo.size());
 								pipe->escribir(itLEN->nombreCampo);				
 							}
 								
@@ -348,10 +331,7 @@ int main(int argc, char* argv[]) {
 							
 							// Manda cada nodo de la lista.
 							for (iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter) {
-								//TODO Testeando el nuevo escribir()
-								//pipe->escribir((unsigned int)iter->nombreCampo.size());
 								pipe->escribir(iter->nombreCampo);
-								//pipe->escribir((unsigned int)iter->valorCampo.size());
 								pipe->escribir(iter->valorCampo);
 								pipe->escribir(iter->operacion);
 							}
@@ -382,10 +362,7 @@ int main(int argc, char* argv[]) {
 							pipe->escribir(cantidadElementos);
 							
 							for (itMapa = mapaValoresAtributos->begin(); itMapa != mapaValoresAtributos->end(); ++itMapa) {
-								//TODO Testeando el nuevo escribir()
-								//pipe->escribir((unsigned int)itMapa->first.size());
 								pipe->escribir(itMapa->first);
-								//pipe->escribir((unsigned int)itMapa->second.size());
 								pipe->escribir(itMapa->second);
 							}
 							
@@ -404,10 +381,7 @@ int main(int argc, char* argv[]) {
 							
 							// Manda cada nodo de la lista.
 							for (iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter) {
-								// TODO Testeando el nuevo escribir()
-								//pipe->escribir((unsigned int)iter->nombreCampo.size());
 								pipe->escribir(iter->nombreCampo);
-							//	pipe->escribir((unsigned int)iter->valorCampo.size());
 								pipe->escribir(iter->valorCampo);
 								pipe->escribir(iter->operacion);
 							}
@@ -438,10 +412,7 @@ int main(int argc, char* argv[]) {
 							pipe->escribir(cantidadElementos);
 							
 							for (itMapa = mapaValoresAtributos->begin(); itMapa != mapaValoresAtributos->end(); ++itMapa) {
-								//TODO Testeando el nuevo escribir()
-								//pipe->escribir((unsigned int)itMapa->first.size());
 								pipe->escribir(itMapa->first);
-								//pipe->escribir((unsigned int)itMapa->second.size());
 								pipe->escribir(itMapa->second);
 							}
 							
@@ -461,8 +432,6 @@ int main(int argc, char* argv[]) {
 				
 				delete pipe;
 				pipe = NULL;
-				
-				usleep(100); //Recibe microsegundos
 			}
 				
 		}

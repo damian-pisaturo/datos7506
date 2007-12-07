@@ -803,7 +803,7 @@ int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 	// Se lanza el proceso de la Capa Indices.
 	int pipeResult = pipe->lanzar();
 	int resultadoEliminacion= ResultadosIndices::OK;
-	char operacion;
+	char operacion = 0;
 	
 	if (pipeResult == ComuDatos::OK){
 		
@@ -816,7 +816,7 @@ int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 		armarListaClaves(estructuraCampos, listaClaves);
 		
 		serializarListaClaves(valoresClaves,&listaClaves);
-		pipe->escribir((unsigned short)valoresClaves.length());
+		
 		pipe->escribir(valoresClaves);
 	
 		ListaOperaciones listaOperaciones;
@@ -860,7 +860,6 @@ int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 			
 			if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
 				operacion = OperacionesCapas::INDICES_ELIMINAR;
-				cout << "voy a eliminar" << endl;
 				pipe->escribir(operacion);
 				pipe->leer(&resultadoEliminacion);
 			}
@@ -906,7 +905,6 @@ int modificacion(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos,
 		armarListaClaves(estructuraCampos, listaClaves);
 		
 		serializarListaClaves(valoresClaves,&listaClaves);
-		pipe->escribir((unsigned short)valoresClaves.length());
 		pipe->escribir(valoresClaves);
 				
 		DefinitionsManager& defManager = DefinitionsManager::getInstance();
@@ -954,9 +952,7 @@ int modificacion(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos,
 				listaOperaciones.push_back(nodoListaOperaciones);
 			}
 
-			cout << "me fijo si cumple las restricciones..." << endl;
 			if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
-				cout << "las cumple..." << endl;
 				operacion = OperacionesCapas::INDICES_MODIFICAR;
 				pipe->escribir(operacion);
 				
@@ -1030,7 +1026,7 @@ int modificacion(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos,
 //	
 //	return pipeResult;
 
-int alta(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos)
+int alta(string nombreTipo, MapaValoresAtributos& mapaValoresAtributos)
 {
 	ComuDatos *pipe = instanciarPipe();
 
@@ -1040,7 +1036,7 @@ int alta(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos)
 	ListaNombresClaves *listaNombres = defManager.getListaNombresClavesPrimarias(nombreTipo);
 	
 	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_INSERTAR, 0); 
-	// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
+	// Nombre del tipo de dato a ser dado de alta.
 	pipe->agregarParametro(nombreTipo, 1);
 	
 	// Se lanza el proceso de la Capa Indices.
@@ -1053,7 +1049,6 @@ int alta(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos)
 		
 		serializarListaClaves(valoresClaves, &mapaValoresAtributos, listaNombres);
 		
-		//pipe->escribir((unsigned short)valoresClaves.length());
 		pipe->escribir(valoresClaves);
 		
 		// Se obtiene el resultado de la operacion.
@@ -1074,19 +1069,21 @@ int alta(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos)
 			listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 			
 			// Se crea el registro a dar de alta y se obtiene su longitud
-			unsigned short tamRegistro = dataManager.crearRegistroAlta(*listaValAtributos, *listaTiposAtributos);
+			short tamRegistro = dataManager.crearRegistroAlta(*listaValAtributos, *listaTiposAtributos);
 			
 			pipe->escribir(tamRegistro);
 			
-			if (tamRegistro > 0) {
-				
+			// Si el registro contiene datos validos, crearRegistroAlta devolvera
+			// el tamano (positivo) del registro a ser dado de alta. De lo contrario,
+			// retorna un codigo de error menor a 0. 
+			if (tamRegistro > 0) {			
 				// Se envia el registro a dar de alta por el pipe.
 				pipe->escribir(dataManager.getRegistro(), tamRegistro);
 				
 				// Se obtiene el resultado de la insercion
 				pipe->leer(&pipeResult);
 				
-			} else pipeResult = ResultadosMetadata::ERROR_FORMATO_FECHA;
+			}else pipeResult = tamRegistro;
 			
 			delete listaValAtributos;
 			
@@ -1251,7 +1248,6 @@ int main(int argc, char* argv[])
 				string cadena;
 				
 				for (unsigned int i = 0; i < cantidadElementos; i++) {
-					//TODO Testeando nuevo leer()
 					pipe->leer(cadena);
 					estructuraConsulta.listaNombresTipos.push_back(cadena);
 				}
@@ -1263,8 +1259,6 @@ int main(int argc, char* argv[])
 				NodoListaOperaciones nodoListaOperaciones;
 				// Se itera para obtener cada nodo de la lista de operaciones.
 				for (unsigned int i=0; i<cantidadElementos; i++) {
-					
-					// TODO Testeando nuevo leer()
 					pipe->leer(nodoListaOperaciones.estructuraNombresIzq.nombreTipo);
 					pipe->leer(nodoListaOperaciones.estructuraNombresIzq.nombreCampo);
 					pipe->leer(nodoListaOperaciones.estructuraNombresDer.nombreTipo);
@@ -1280,7 +1274,6 @@ int main(int argc, char* argv[])
 				pipe->leer(&cantidadElementos);
 				
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
-					// TODO Testeando nuevo leer()
 					pipe->leer(nodoListaOperaciones.estructuraNombresIzq.nombreTipo);
 					pipe->leer(nodoListaOperaciones.estructuraNombresIzq.nombreCampo);
 					pipe->leer(nodoListaOperaciones.estructuraNombresDer.nombreTipo);
@@ -1329,7 +1322,6 @@ int main(int argc, char* argv[])
 				
 				// Se itera para recibir cada nodo de la lista de campos.
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
-					//TODO Testeando el nuevo leer()
 					pipe->leer(nodoListaCampos.nombreCampo);
 					pipe->leer(nodoListaCampos.valorCampo);
 					pipe->leer(&nodoListaCampos.operacion);
@@ -1346,7 +1338,6 @@ int main(int argc, char* argv[])
 			case OperacionesCapas::METADATA_MODIFICACION:
 			{		
 				unsigned int cantidadElementos;
-			//	unsigned int longitudCadena;
 				string nombreAtributo, valorAtributo;
 				pipe->parametro(1, nombreTipo);
 				
@@ -1356,7 +1347,6 @@ int main(int argc, char* argv[])
 				pipe->leer(&cantidadElementos);
 				
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
-					// TODO Testeando el nuevo leer()
 					pipe->leer(nombreAtributo);
 					pipe->leer(valorAtributo);
 					
@@ -1401,7 +1391,6 @@ int main(int argc, char* argv[])
 				pipe->leer(&cantidadElementos);
 				
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
-					//TODO Testeando nuevo leer()
 					pipe->leer(nombreAtributo);
 					pipe->leer(valorAtributo);
 					
@@ -1417,8 +1406,6 @@ int main(int argc, char* argv[])
 			default:
 				pipeResult = ResultadosMetadata::OPERACION_INVALIDA;
 		}
-	
-		usleep(100); //Recibe microsegundos
 		
 		if (pipe)
 			delete pipe;
