@@ -1247,12 +1247,12 @@ int main(int argc, char* argv[])
 				unsigned int cantidadElementos;
 				pipe->leer(&cantidadElementos);
 				
-				unsigned int longitudCadena;
+				//unsigned int longitudCadena;
 				string cadena;
 				
 				for (unsigned int i = 0; i < cantidadElementos; i++) {
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, cadena);
+					//TODO Testeando nuevo leer()
+					pipe->leer(cadena);
 					estructuraConsulta.listaNombresTipos.push_back(cadena);
 				}
 				
@@ -1263,15 +1263,12 @@ int main(int argc, char* argv[])
 				NodoListaOperaciones nodoListaOperaciones;
 				// Se itera para obtener cada nodo de la lista de operaciones.
 				for (unsigned int i=0; i<cantidadElementos; i++) {
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreTipo);
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreCampo);
 					
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreTipo);
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreCampo);
+					// TODO Testeando nuevo leer()
+					pipe->leer(nodoListaOperaciones.estructuraNombresIzq.nombreTipo);
+					pipe->leer(nodoListaOperaciones.estructuraNombresIzq.nombreCampo);
+					pipe->leer(nodoListaOperaciones.estructuraNombresDer.nombreTipo);
+					pipe->leer(nodoListaOperaciones.estructuraNombresDer.nombreCampo);
 					
 					pipe->leer(&nodoListaOperaciones.operacion);
 					
@@ -1283,15 +1280,11 @@ int main(int argc, char* argv[])
 				pipe->leer(&cantidadElementos);
 				
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreTipo);
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresIzq.nombreCampo);
-					
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreTipo);
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nodoListaOperaciones.estructuraNombresDer.nombreCampo);
+					// TODO Testeando nuevo leer()
+					pipe->leer(nodoListaOperaciones.estructuraNombresIzq.nombreTipo);
+					pipe->leer(nodoListaOperaciones.estructuraNombresIzq.nombreCampo);
+					pipe->leer(nodoListaOperaciones.estructuraNombresDer.nombreTipo);
+					pipe->leer(nodoListaOperaciones.estructuraNombresDer.nombreCampo);
 					
 					pipe->leer(&nodoListaOperaciones.operacion);
 					
@@ -1304,10 +1297,8 @@ int main(int argc, char* argv[])
 				EstructuraNombres estructuraNombres;
 				
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, estructuraNombres.nombreTipo);
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, estructuraNombres.nombreCampo);
+					pipe->leer(estructuraNombres.nombreTipo);
+					pipe->leer(estructuraNombres.nombreCampo);
 					
 					estructuraConsulta.listaOrderBy.push_back(estructuraNombres);
 				}
@@ -1323,7 +1314,7 @@ int main(int argc, char* argv[])
 			case OperacionesCapas::METADATA_BAJA:
 			{
 				unsigned int cantidadElementos;
-				unsigned int longitudCadena;
+				//unsigned int longitudCadena;
 				
 				// Obtiene el nombre del tipo sobre el cual se hace la baja.
 				pipe->parametro(1,nombreTipo);
@@ -1338,10 +1329,9 @@ int main(int argc, char* argv[])
 				
 				// Se itera para recibir cada nodo de la lista de campos.
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nodoListaCampos.nombreCampo);
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nodoListaCampos.valorCampo);
+					//TODO Testeando el nuevo leer()
+					pipe->leer(nodoListaCampos.nombreCampo);
+					pipe->leer(nodoListaCampos.valorCampo);
 					pipe->leer(&nodoListaCampos.operacion);
 					
 					estructuraCampos.listaCampos.push_back(nodoListaCampos);
@@ -1356,7 +1346,7 @@ int main(int argc, char* argv[])
 			case OperacionesCapas::METADATA_MODIFICACION:
 			{		
 				unsigned int cantidadElementos;
-				unsigned int longitudCadena;
+			//	unsigned int longitudCadena;
 				string nombreAtributo, valorAtributo;
 				pipe->parametro(1, nombreTipo);
 				
@@ -1366,10 +1356,9 @@ int main(int argc, char* argv[])
 				pipe->leer(&cantidadElementos);
 				
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nombreAtributo);
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, valorAtributo);
+					// TODO Testeando el nuevo leer()
+					pipe->leer(nombreAtributo);
+					pipe->leer(valorAtributo);
 					
 					mapaValoresAtributos[nombreAtributo] = valorAtributo;
 				}
@@ -1386,10 +1375,8 @@ int main(int argc, char* argv[])
 				NodoListaCampos nodoListaCampos;
 				
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nodoListaCampos.nombreCampo);
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nodoListaCampos.valorCampo);
+					pipe->leer(nodoListaCampos.nombreCampo);
+					pipe->leer(nodoListaCampos.valorCampo);
 					pipe->leer(&nodoListaCampos.operacion);
 					
 					estructuraCampos.listaCampos.push_back(nodoListaCampos);
@@ -1404,7 +1391,7 @@ int main(int argc, char* argv[])
 			case OperacionesCapas::METADATA_ALTA:
 			{	
 				unsigned int cantidadElementos;
-				unsigned int longitudCadena;
+				//unsigned int longitudCadena;
 				string nombreAtributo, valorAtributo;
 				pipe->parametro(1,nombreTipo);
 
@@ -1414,10 +1401,9 @@ int main(int argc, char* argv[])
 				pipe->leer(&cantidadElementos);
 				
 				for (unsigned int i = 0; i < cantidadElementos; ++i) {
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, nombreAtributo);
-					pipe->leer(&longitudCadena);
-					pipe->leer(longitudCadena, valorAtributo);
+					//TODO Testeando nuevo leer()
+					pipe->leer(nombreAtributo);
+					pipe->leer(valorAtributo);
 					
 					mapaValoresAtributos[nombreAtributo] = valorAtributo;
 				}

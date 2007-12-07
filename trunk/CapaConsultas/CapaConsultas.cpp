@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
 		// Clase de impresion de registros.
 		Vista vista;
 		
-		int resultadoProxOp;
+		int resultadoProxOp = 0;
 		
 		while ((resultadoProxOp = parserOperaciones.proximaOperacion()) != ResultadosParserOperaciones::FIN_ARCHIVO) {
 			if (resultadoProxOp != ResultadosParserOperaciones::SINTAXIS_CORRECTA){
