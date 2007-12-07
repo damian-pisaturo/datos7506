@@ -832,11 +832,10 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	
 	//Si la operación es una inserción, recibo la clave o la lista de claves del índice primario
 	
-	//Leo el tamanio del buffer a recibir
-	pipe.leer(&tamanioBuffer);
+	//TODO Testeando el nuevo leer()
 	
 	//Leo el buffer con los nombres y los valores de cada campo de la variable
-	pipe.leer(tamanioBuffer, buffer);
+	pipe.leer(buffer);
 	
 	//Se crean los indices correspondientes al tipo 'nombreTipo'
 	crearIndices(nombreTipo, mapaIndices, defManager);
