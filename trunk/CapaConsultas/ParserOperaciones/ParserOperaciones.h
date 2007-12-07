@@ -83,7 +83,7 @@ class ParserOperaciones
 		
 	private:
 		
-		list<string> parsearString(string s, char caracterDelimitador, char caracterAgrupador);
+		list<string> parsearString(string s, char caracterDelimitador, char caracterAgrupadorOpen, char caracterAgrupadorClose);
 		void reemplazarCaracter(string* s, char caracterViejo, char caracterNuevo);
 		void limpiarInicio(string* s, char caracterALimpiar);
 		void removerCaracter(string* s, char caracter);
