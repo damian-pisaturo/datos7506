@@ -41,6 +41,7 @@ class OperacionesCapas
 		const static unsigned char INDICES_ELIMINAR				= 29;
 		const static unsigned char INDICES_MODIFICAR			= 30;
 		const static unsigned char INDICES_NO_OPERACION			= 45;
+		const static unsigned char INDICES_CONSULTAR_TODO		= 46;
 		
 		const static unsigned char METADATA_MODIFICACION	    = 31;
 		const static unsigned char METADATA_ALTA	            = 32;
