@@ -5,8 +5,11 @@ CAPA_CONSULTAS_DIR	= CapaConsultas
 CAPA_FISICA_DIR		= CapaFisica
 CAPA_INDICES_DIR	= CapaIndices
 CAPA_METADATA_DIR	= CapaMetadata
+TESTS_DIR 			= test
 
-SUBDIRS = $(CAPA_FISICA_DIR) $(CAPA_INDICES_DIR) $(CAPA_METADATA_DIR) $(CAPA_CONSULTAS_DIR)
+SUBDIRS = $(CAPA_FISICA_DIR) $(CAPA_INDICES_DIR) $(CAPA_METADATA_DIR) $(CAPA_CONSULTAS_DIR) $(TESTS_DIR)
+
+
 
 # REGLAS
 #########
@@ -31,6 +34,10 @@ indices:
 metadata:
 	@echo "make all in CapaMetadata..."; \
 	(cd $(CAPA_METADATA_DIR); $(MAKE) $(MFLAGS) all);
+	
+test:
+	@echo "make all in test..."; \
+	(cd $(TESTS_DIR); $(MAKE) $(MFLAGS) all);
 
 clean:
 	@for i in $(SUBDIRS); do \

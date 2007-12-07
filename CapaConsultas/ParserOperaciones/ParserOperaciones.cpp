@@ -91,7 +91,7 @@ int ParserOperaciones::proximaOperacion() {
 			
 			separatorPos = linea.find(SEPARATOR_CAMPOS);
 			
-			lineaParseada = parsearString(linea, SEPARATOR_CAMPOS, CARACTER_AGRUPADOR);
+			lineaParseada = parsearString(linea, SEPARATOR_CAMPOS, '(', ')');
 			iter = lineaParseada.begin();		
 		
 			tipoOp = *(iter++);
@@ -121,7 +121,7 @@ int ParserOperaciones::proximaOperacion() {
 			
 						removerCaracter(&(*iter), '(');
 						removerCaracter(&(*iter), ')');
-						nombresAtributos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR);
+						nombresAtributos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
 						if ( *mayus(&(*(iter++))) != "VALUES" ){
 							resultado = ResultadosParserOperaciones::ERROR_SINTAXIS_VALUES;
 							break;
@@ -134,7 +134,7 @@ int ParserOperaciones::proximaOperacion() {
 	
 						removerCaracter(&(*iter), '(');
 						removerCaracter(&(*iter), ')');
-						valoresAtributos = parsearString(*(iter++), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR);
+						valoresAtributos = parsearString(*(iter++), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
 						if (nombresAtributos.size() != valoresAtributos.size()){
 							resultado = ResultadosParserOperaciones::ERROR_SINTAXIS_CANT_VALORES;
 							break;
@@ -275,13 +275,13 @@ int ParserOperaciones::proximaOperacion() {
 					} break;
 					
 					case OperacionesCapas::CONSULTAS_CONSULTA: {
-						ListaStrings campos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR);
+						ListaStrings campos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
 						EstructuraNombres estructuraNombres;
 						ListaStrings campo;
 						NodoListaOperaciones nodoOperaciones;
 						
 						for (ListaStrings::iterator iterStrings = campos.begin(); iterStrings != campos.end(); ++iterStrings){
-							campo = parsearString(*iterStrings, SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR);
+							campo = parsearString(*iterStrings, SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
 							estructuraNombres.nombreTipo = *(campo.begin());
 							estructuraNombres.nombreCampo = *(++campo.begin());
 							this->estructuraConsulta.listaCamposSeleccionados.push_back(estructuraNombres);
@@ -292,7 +292,7 @@ int ParserOperaciones::proximaOperacion() {
 							break;
 						}
 						
-						campos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR);
+						campos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
 						for (ListaStrings::iterator iterStrings = campos.begin(); iterStrings != campos.end(); ++iterStrings){
 							this->estructuraConsulta.listaNombresTipos.push_back(*iterStrings);
 						}
@@ -307,7 +307,7 @@ int ParserOperaciones::proximaOperacion() {
 								break;
 							}
 							
-							campo = parsearString(*mayus(&(*(iter++))), SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR);
+							campo = parsearString(*mayus(&(*(iter++))), SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
 							nodoOperaciones.estructuraNombresIzq.nombreTipo = *(campo.begin());
 							nodoOperaciones.estructuraNombresIzq.nombreCampo = *(++campo.begin());
 							
@@ -322,7 +322,7 @@ int ParserOperaciones::proximaOperacion() {
 							}
 							
 							++iter;
-							campo = parsearString(*mayus(&(*(iter++))), SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR);
+							campo = parsearString(*mayus(&(*(iter++))), SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
 							nodoOperaciones.estructuraNombresDer.nombreTipo = *(campo.begin());
 							nodoOperaciones.estructuraNombresDer.nombreCampo = *(++campo.begin());
 							
@@ -336,7 +336,7 @@ int ParserOperaciones::proximaOperacion() {
 							++iter;
 							while ( (iter != lineaParseada.end()) && (*mayus(&(*iter)) != "ORDER") ){
 								
-								campo = parsearString(*mayus(&(*(iter++))), SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR);
+								campo = parsearString(*mayus(&(*(iter++))), SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
 								nodoOperaciones.estructuraNombresIzq.nombreTipo = *(campo.begin());
 								nodoOperaciones.estructuraNombresIzq.nombreCampo = *(++campo.begin());
 								
@@ -351,7 +351,7 @@ int ParserOperaciones::proximaOperacion() {
 								}
 								
 								++iter;
-								campo = parsearString(*(iter++), SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR);
+								campo = parsearString(*(iter++), SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
 								if (campo.size() < 2){
 									nodoOperaciones.estructuraNombresDer.nombreTipo = "";
 									removerCaracter(&(*campo.begin()), CARACTER_AGRUPADOR);
@@ -395,11 +395,11 @@ int ParserOperaciones::proximaOperacion() {
 								break;
 							}
 							
-							campos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR);
+							campos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
 							
 							
 							for (ListaStrings::iterator iterStrings = campos.begin(); iterStrings != campos.end(); ++iterStrings){
-								campo = parsearString(*iterStrings, SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR);
+								campo = parsearString(*iterStrings, SEPARATOR_TIPO_NOMBRE, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
 								estructuraNombres.nombreTipo = *(campo.begin());
 								estructuraNombres.nombreCampo = *(++campo.begin());
 								this->estructuraConsulta.listaOrderBy.push_back(estructuraNombres);
@@ -421,18 +421,18 @@ int ParserOperaciones::proximaOperacion() {
 	
 }
 
-list<string> ParserOperaciones::parsearString(string s, char caracterDelimitador, char caracterAgrupador) {
+list<string> ParserOperaciones::parsearString(string s, char caracterDelimitador, char caracterAgrupadorOpen, char caracterAgrupadorClose) {
 	list<string> parseado;
 	int separatorPos = -1;
 	size_t nextSeparatorPos = 0, nextCaracterAgrupador = 0;
 
 	nextSeparatorPos = s.find(caracterDelimitador);
-	nextCaracterAgrupador = s.find(caracterAgrupador);
+	nextCaracterAgrupador = s.find(caracterAgrupadorOpen);
 	while (nextSeparatorPos < string::npos){
 		if (nextSeparatorPos > nextCaracterAgrupador){
-			nextCaracterAgrupador = s.find(caracterAgrupador, nextCaracterAgrupador + 1);
+			nextCaracterAgrupador = s.find(caracterAgrupadorClose, nextCaracterAgrupador + 1);
 			nextSeparatorPos = s.find(caracterDelimitador, nextCaracterAgrupador + 1);
-			nextCaracterAgrupador = s.find(caracterAgrupador, nextSeparatorPos + 1);
+			nextCaracterAgrupador = s.find(caracterAgrupadorOpen, nextSeparatorPos + 1);
 		}
 
 		if (nextSeparatorPos != string::npos){
@@ -441,7 +441,7 @@ list<string> ParserOperaciones::parsearString(string s, char caracterDelimitador
 			separatorPos = nextSeparatorPos;
 			nextSeparatorPos = s.find(caracterDelimitador, separatorPos + 1);
 			
-			nextCaracterAgrupador = s.find(caracterAgrupador, separatorPos + 1);
+			nextCaracterAgrupador = s.find(caracterAgrupadorOpen, separatorPos + 1);
 		}
 	}
 	parseado.push_back(s.substr(separatorPos + 1));
