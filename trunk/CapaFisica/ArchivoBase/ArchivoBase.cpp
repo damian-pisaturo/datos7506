@@ -27,45 +27,15 @@
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 
-		ArchivoBase::ArchivoBase(string nombre, unsigned short tamBloque)
-		{
-			int id = this->generarID(nombre);
-			
-			//Abre el archivo en modo lectura - escritura binario  
-			this->archivo.open(nombre.c_str(), ios::in |ios::out |ios::binary);
-			
-			//Determina si tuvo éxito la apertura del archivo
-			if (!this->archivo.is_open()){	
-				
-			    //Limpia los flags de control de estado del archivo.
-			    this->archivo.clear();
-				  
-			    //Si el archivo no existe, se crea    
-			    this->archivo.open(nombre.c_str(), ios::out | ios::binary);      
-			    this->archivo.close();
-				    
-			    //Reabre el archivo para lectura - escritura binario
-			    this->archivo.open(nombre.c_str(),ios::in|ios::out|ios::binary);
-			    
-			    //Escribe el numero magico identificador.
-			    this->archivo.write((char*)&id, Tamanios::TAMANIO_IDENTIFICADOR);
-			    
-			    this->archivoValido  = true;
-			}else{
-				int idPresente = 0;
-				
-				this->archivo.read((char*)&idPresente, Tamanios::TAMANIO_IDENTIFICADOR);				
-				this->archivoValido = (id == idPresente);
-			}
-			
+		ArchivoBase::ArchivoBase(string nombre, unsigned short tamBloque):
+			archivo(nombre)
+		{			
 			this->tamBloque = tamBloque;
 		}
 	
 		ArchivoBase::~ArchivoBase()
 		{
-			//Cierra el archivo
 			this->tamBloque = 0;
-			this->archivo.close();
 		}
 
 	///////////////////////////////////////////////////////////////////////
@@ -126,8 +96,7 @@
 		
 		  return esEof;
 		 
-		}
-	
+		}	
 	
 		short ArchivoBase::posicion()
 		{
@@ -165,59 +134,26 @@
 			
 			return resultado;
 		}
-	
+		
 		void ArchivoBase::posicionarseFin()
 		{
-			this->archivo.seekg(0, ios_base::end);
+			this->archivo.end();
 		}
 		
-		long ArchivoBase::size()
-		{			
-			this->posicionarseFin();
-			return this->archivo.tellg();	
-		}
-
-	///////////////////////////////////////////////////////////////////////
-	// Metodo privado
-	///////////////////////////////////////////////////////////////////////
-		int ArchivoBase::generarID(string &nomArchivo)
+		size_t ArchivoBase::size()
 		{
-			int id = 1;
-			string idString, nombre, extension;
-			size_t posPunto = nomArchivo.rfind('.');			
-		
-			idString  = "_7506";
-		
-			nombre    = nomArchivo.substr(0, posPunto);
-			extension = nomArchivo.substr(posPunto);
-			
-			if (nombre.length() > 4)
-				idString += nombre.substr(0,4);
-			else
-				idString += nombre;
-			
-			idString += extension;			
-			idString += '_';			
-			
-			for (string::const_iterator it = idString.begin(); 
-				it != idString.end(); ++it){
-				id *= (*it);
-			}
-			
-			return id / 97;
+			return this->archivo.size();
 		}
-
+		
+		bool ArchivoBase::esValido()
+		{
+			return this->archivo.esValido();
+		}
+		
 	///////////////////////////////////////////////////////////////////////
 	// Getters
 	///////////////////////////////////////////////////////////////////////
-
 		unsigned short ArchivoBase::getTamanioBloque()
 		{
 			return this->tamBloque;
 		}
-				
-		bool ArchivoBase::esValido()
-		{
-			return this->archivoValido;
-		}
-

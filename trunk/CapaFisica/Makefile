@@ -13,6 +13,7 @@ extension = cpp
 # NOTA: No poner cabeceras (.h). 
 
 fuentes = ../ComuDatos/ComuDatos.cpp
+fuentes += ../Common/Archivo/Archivo.cpp
 fuentes += ArchivoBase/ArchivoBase.cpp
 fuentes += ArchivoDatos/ArchivoDatos.cpp
 fuentes += ArchivoEL/ArchivoEL.cpp
