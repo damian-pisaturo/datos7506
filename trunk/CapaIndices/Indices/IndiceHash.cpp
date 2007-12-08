@@ -15,7 +15,9 @@
 		// La siguiente lista contiene la información necesaria para administrar los registros armados
 		// a partir de una clave secundaria y un offset al archivo de las listas de claves primarias
 		this->listaNodosClave = this->getListaNodosClave();
-		this->hash = new Hash((IndiceHashManager*)indiceManager, this->listaNodosClave, tamBucket);
+		
+		//TODO Aca creo que va la listaParam (antes estaba this->listaNodosClave
+		this->hash = new Hash((IndiceHashManager*)indiceManager, listaParam, tamBucket);
 		
 		// Si el IndiceHash se está usando como un índice secundario,
 		// se crea un BloqueListaManager.
@@ -228,16 +230,9 @@
 	 * */
 	int IndiceHash::insertar(Clave *claveSecundaria, Clave* clavePrimaria)
 	{
+		int resultado = ResultadosIndices::OK;
 		char* registro = NULL;
 		unsigned short tamanioRegistro = 0;
-		
-		cout << "CLAVE SECUNDARIA: " << endl;
-		claveSecundaria->imprimir(cout);
-		
-		cout << endl << "CLAVE PRIMARIA:" << endl;
-		clavePrimaria->imprimir(cout);
-		
-		
 		
 		if (this->tipoIndice == TipoIndices::GRIEGO) return ResultadosIndices::ERROR_INSERCION;
 		
@@ -246,11 +241,9 @@
 		char* clavePrimariaSerializada = Bloque::serializarClave(clavePrimaria, listaTipos);
 		
 		// Comprueba si la clave secundaria ya está presente en el indice.
-		// De ser así, recupera en registro dicha clave, y el offset a la 
+		// De ser así, recupera el registro con esa clave, y el offset a la 
 		// lista invertida.
-		bool encontrado = this->hash->recuperarRegistro(*claveSecundaria, registro, tamanioRegistro);
-		
-		int resultado = ResultadosIndices::OK;
+		bool encontrado = this->hash->recuperarRegistro(*claveSecundaria, registro, tamanioRegistro);		
 		
 		// Crea un bloque de lista.
 		Bloque *bloque =  new BloqueListaPrimaria(this->getTamanioBloqueLista());
@@ -289,11 +282,6 @@
 			if (resultado >= 0) {	
 				// Crea un registro donde se guarda la clave secundaria serializada, concatenada con
 				// el offset a la lista invertida.
-				
-				cout << "lista tipos de la clave:" << endl;
-				for (ListaTipos::iterator it = this->listaTiposClave->begin(); it != this->listaTiposClave->end(); ++it)
-					cout << "tipo: " << (int)*it << endl;
-				
 				char* claveSecundariaSerializada = Bloque::serializarClave(claveSecundaria, this->listaTiposClave);
 				tamanioRegistro = Tamanios::TAMANIO_LONGITUD + claveSecundaria->getTamanioValorConPrefijo();
 				

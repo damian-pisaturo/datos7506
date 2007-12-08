@@ -35,11 +35,12 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 										estructura.nombreArchivo, tipoOrg);				
 				break;
 				
-			case TipoIndices::HASH:
-				indice = new IndiceHash(estructura.tipoIndice, nodoListaIndices.listaTipos,
+			case TipoIndices::HASH:{
+					indice = new IndiceHash(estructura.tipoIndice, nodoListaIndices.listaTipos,
 										listaTiposAtributos, tamBloqueLista,
 										estructura.tamanioBloque, estructura.nombreArchivo);
 				break;
+			}
 		}
 		
 		mapaIndices[*(nodoListaIndices.listaNombresClaves)] = indice;
@@ -205,15 +206,15 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 	int resultado = indice->siguienteBloque(bloque);
 	
 	 while (resultado == ResultadosIndices::OK) {
-		
+	 
 		// Se obtiene un registro.
 		registro = bloque->getNextRegister();
 	
 		while (registro) {
-
+		
 			// Indica a metadata que tiene un registro para enviarle.
 			pipe.escribir(resultado);
-				
+			
 			// Obtiene el tamaño del registro a enviar.
 			tamanioRegistro = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, registro);
 			pipe.escribir(tamanioRegistro);
@@ -311,7 +312,6 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 	delete listaTiposAtributos;
 	
 }
-
 
 void enviarClavesMayoresOIguales(const string &nombreTipo, MapaIndices &mapaIndices,
 		 						 Indice *indice, DefinitionsManager &defManager,
@@ -554,7 +554,6 @@ void enviarTodasLasClavesPrimarias(const string &nombreTipo, MapaIndices &mapaIn
 	
 }
 
-
 void consultaIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 			   		  Indice *indice, Clave *clave,
 			   		  DefinitionsManager &defManager, ComuDatos &pipe) {
@@ -654,7 +653,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 	unsigned short tamRegistro = 0;
 	char * registroDatos       = NULL;
 	Clave* claveSecundaria 	   = NULL;
-
+	
 	int resultado = indice->buscar(clave);
 	pipe.escribir(resultado);
 	
@@ -668,9 +667,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		// Recibe el registro de datos.
 		pipe.leer(tamRegistro, registroDatos);
 		
-		resultado = indice->insertar(clave, registroDatos, tamRegistro); //TODO Este es el metodo conflictivo.
-		
-		cout << "resultado luego de insertar la clave primaria: " << resultado << endl;
+		resultado = indice->insertar(clave, registroDatos, tamRegistro);
 		
 		if (resultado == ResultadosIndices::OK) {
 			
@@ -685,19 +682,13 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 							  registroDatos, defManager.getListaTipos(nombreTipo),
 							  defManager.getListaNombresAtributos(nombreTipo));
 			
-			cout << "voy a actualizar los indices secundarios" << endl;
-			
 			for (MapaIndices::iterator iter = mapaIndices.begin();
 				(iter != mapaIndices.end()) && (resultado == ResultadosIndices::OK); ++iter) {
 				
 				claveSecundaria = registro.getClave(iter->first);
 				indice = iter->second;
 				
-				cout << "antes de insertar la clave secundaria" << endl;
-				
-				resultado = indice->insertar(claveSecundaria, clave);
-				
-				cout << "despues de insertar la clave secundaria" << endl;
+				resultado = indice->insertar(claveSecundaria, clave);				
 				
 				delete claveSecundaria;
 			}
@@ -1050,14 +1041,10 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 			
 			mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indicePrimario;
 			
-			delete setClavesPrimarias;
-			
-		}
-		
-	}
-	
+			delete setClavesPrimarias;			
+		}		
+	}	
 }
-
 
 int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe) {
 	int resultado = ResultadosIndices::OK;
@@ -1209,18 +1196,16 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	return resultado;	
 }
 
-
 int main(int argc, char* argv[]) {
 	
 	ComuDatos pipe(argv);
-	unsigned char codOp = 0;
 	string nombreTipo;
+	unsigned char codOp = 0;
 	
 	pipe.parametro(0, codOp);
 	pipe.parametro(1, nombreTipo);
 	
-	procesarOperacion(codOp, nombreTipo, pipe);
-		
+	procesarOperacion(codOp, nombreTipo, pipe);	
+	
 	cout << "Fin Capa Indices" << endl;
 }
-

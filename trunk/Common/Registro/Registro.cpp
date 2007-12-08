@@ -113,7 +113,8 @@
 	
 		Registro::~Registro()
 		{
-			//No se libera la memoria de las listas xq son propias del DefinitionsManager
+			if (this->listaTipos)
+				delete this->listaTipos;
 		}
 
 	///////////////////////////////////////////////////////////////////////
