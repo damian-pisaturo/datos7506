@@ -2,6 +2,7 @@
 #define IMPRESORRESULTADO_H_
 
 #include "Resultado.h"
+#include "../ComuDatos/ComuDatos.h"
 #include <ostream>
 
 using namespace std;
@@ -79,7 +80,9 @@ ostream& operator << (ostream &out, const Resultado &e) {
         case ResultadosMetadata::NOM_ATRIBUTO_INVALIDO:
         	out << "Uno o mas nombres de atributos indicados es invalido o no existe para el tipo por el cual se intenta llevar a cabo la consulta."; break; 
         case ResultadosMetadata::TIPO_NO_DEFINIDO:
-        	out << "El tipo de dato por el cual se esta intentando consultar es invalido o no fue previamente definido.\nSi desea ingresar un nuevo tipo, cree un archivo de definiciones con su especificacion y ejecute\n\t./capaConsultas -d <archivoDfiniciones>\nY a continuacion, vuelva a realizar la consulta."; break;  
+        	out << "El tipo de dato por el cual se esta intentando consultar es invalido o no fue previamente definido.\nSi desea ingresar un nuevo tipo, cree un archivo de definiciones con su especificacion y ejecute\n\t./capaConsultas -d <archivoDfiniciones>\nY a continuacion, vuelva a realizar la consulta."; break;
+        case ResultadosMetadata::FIN_REGISTROS:
+        	out << "Se terminaron de consultar los registros de datos."; break;
         case Resultado::SIN_RESULTADO:
         	out << "No se ha registrado ningún resultado."; break;
         case ResultadosParserOperaciones::ERROR_SINTAXIS_INTO:
@@ -106,6 +109,8 @@ ostream& operator << (ostream &out, const Resultado &e) {
         	out << "Error de Sintáxis: No se encontró cláusula ON requerida por el JOIN."; break;
         case ResultadosParserOperaciones::ERROR_SINTAXIS_ORDER_BY:
         	out << "Error de Sintáxis: Probablemente haya querido utilizar la cláusula ORDER BY."; break;
+        case ComuDatos::ERROR_EJECUCION:
+        	out << "Se ha producido un error al intentar lanzar una capa del Framework."; break;
         default:
         	out << "Resultado inválido"; break;
     }
