@@ -64,9 +64,7 @@
 		char campoChar   = 0;
 		float campoFloat = 0;
 		bool campoBooleano  = false;
-		unsigned short anio = 0;
-		unsigned char dia   = 0, 
-					  mes   = 0;
+		unsigned short anio = 0, dia = 0, mes = 0;
 		unsigned char longCampoString = 0;
 		const char* campoString       = NULL;
 		
@@ -89,7 +87,7 @@
 			// Obtengo el campo del registro
 			campoRegistro = *itValoresAtributos;
 			
-			if (tipo == TipoDatos::TIPO_ENTERO){		
+			if (tipo == TipoDatos::TIPO_ENTERO){					
 				conversor << campoRegistro;
 				conversor >> campoEntero;
 				memcpy(&registro[offsetToCampo],&campoEntero,sizeof(int));
@@ -107,16 +105,17 @@
 				memcpy(&registro[offsetToCampo], &anio, sizeof(unsigned short));
 				offsetToCampo += sizeof(unsigned short);
 				
+				conversor.clear();
 				conversor << campoRegistro.substr(4, 2);
-				conversor >> mes;
+				conversor >> mes;	
 				memcpy(&registro[offsetToCampo], &mes, sizeof(unsigned char));
 				offsetToCampo += sizeof(unsigned char);
-				
+							
+				conversor.clear();
 				conversor << campoRegistro.substr(6, 2);
-				conversor >> dia;
+				conversor >> dia;;
 				memcpy(&registro[offsetToCampo], &dia, sizeof(unsigned char));
 				offsetToCampo += sizeof(unsigned char);
-				
 			}
 			else if (tipo == TipoDatos::TIPO_FLOAT){
 				conversor << campoRegistro;
@@ -151,6 +150,9 @@
 				memcpy(&registro[offsetToCampo],&campoBooleano,sizeof(bool));
 				offsetToCampo += sizeof(bool);				
 			}
+			
+			conversor.clear();
+			conversor.str("");
 		}
 		
 
