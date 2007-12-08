@@ -373,11 +373,13 @@ void BPlusTree::eliminarInterno(NodoBPlus* &nodoTarget, char* codigo, Clave* cla
 				}
 				
 				if (!pudoRedistribuir) this->pasarMaximoPosibleHaciaIzquierda(nodoTarget, nodoPadre, nodoHnoDer, clavePadreDer);
+				
 			} else { // tiene hermano izquierdo
 				if ( pudoRedistribuir = nodoHnoIzq->puedePasarClaveHaciaDer(nodoTarget, nodoPadre, clavePadreIzq))
 					this->pasarClaveHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
 				
 				if (!pudoRedistribuir) this->pasarMaximoPosibleHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
+				
 			}
 			
 			if (!pudoRedistribuir) { //Se realiza la concatenación de 'nodoTarget' con un nodo hermano. Si es un nodo
@@ -688,9 +690,10 @@ void BPlusTree::pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodo
 	
 		clavePadre->setHijoDer(nodoHnoDer->getHijoIzq());
 		
-		if ( tamanioClavePadre < bytesRequeridos)
+		if ( tamanioClavePadre < bytesRequeridos) 
 			setIntercambio = nodoHnoDer->cederBytes(bytesRequeridos - tamanioClavePadre);
-
+		
+		
 		clavePromocionada = nodoHnoDer->extraerPrimeraClave();
 	
 		nodoHnoDer->setHijoIzq(clavePromocionada->getHijoDer());
@@ -716,55 +719,59 @@ void BPlusTree::pasarClaveHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodo
 }
 
 
-void BPlusTree::pasarMaximoPosibleHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre, NodoBPlus* nodoHnoDer, Clave* clavePadre){
-/*	cout << "QUIERO HACERLO IZQ" << endl;
+void BPlusTree::pasarMaximoPosibleHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre, NodoBPlus* nodoHnoDer, Clave* &clavePadre){
+
 	char codigo;
 	unsigned short bytesAEntregar;
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(false);
 	SetClaves* setIntercambio = NULL;
 	Clave* clavePromocionada = NULL;
 	
-	if (nodoHnoDer->getTamanioEnDiscoSetClaves() > nodoHnoDer->getTamanioMinimo()){
-		bytesAEntregar = nodoHnoDer->getTamanioEnDiscoSetClaves() - nodoHnoDer->getTamanioMinimo();
+	bytesAEntregar = nodoHnoDer->obtenerBytesSobreMinimo();
 	
+	if (bytesAEntregar > 0){
+		
 		nodoPadre->extraerClave(clavePadre);
 		
 		if (nodoDestino->getNivel() == 0) {
 		
 			setIntercambio = nodoHnoDer->cederBytes(bytesAEntregar);
-			
+		
 			clavePromocionada = nodoHnoDer->obtenerPrimeraClave()->copiar();
 			
 		} else {
-		
-			clavePadre->setHijoDer(nodoHnoDer->getHijoIzq());
 			
-			if ( tamanioClavePadre < bytesAEntregar)
+			clavePadre->setHijoDer(nodoHnoDer->getHijoIzq());
+
+			if ( tamanioClavePadre < bytesAEntregar )
 				setIntercambio = nodoHnoDer->cederBytes(bytesAEntregar - tamanioClavePadre);
-	
+			
 			clavePromocionada = nodoHnoDer->extraerPrimeraClave();
 		
 			nodoHnoDer->setHijoIzq(clavePromocionada->getHijoDer());
 			
 			nodoDestino->insertarClave(clavePadre, &codigo);
-			
 		}
 			
+		
 		clavePromocionada->setHijoDer(nodoHnoDer->getPosicionEnArchivo());
-		
+	
 		nodoPadre->insertarClave(clavePromocionada, &codigo);
-		
-		if (setIntercambio) {
+		clavePadre = clavePromocionada;
+			
+		if ( setIntercambio ){
 			nodoDestino->recibir(setIntercambio);
 			delete setIntercambio;
 		}
-		
+			
 		//Se actualizan los nodos en disco
 		indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
 		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 		indiceManager.escribirBloque(nodoHnoDer->getPosicionEnArchivo(), nodoHnoDer);
+		
+	}
 
-	}*/
+
 }
 
 
@@ -788,17 +795,16 @@ void BPlusTree::pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPa
 	
 		clavePadre->setHijoDer(nodoDestino->getHijoIzq());
 		
-		if ( tamanioClavePadre < bytesRequeridos)
+		if ( tamanioClavePadre < bytesRequeridos) {
 			setIntercambio = nodoHnoIzq->cederBytes(bytesRequeridos - tamanioClavePadre, false);
-
-		clavePromocionada = *(setIntercambio->begin());
+			clavePromocionada = *(setIntercambio->begin());
+			setIntercambio->erase(setIntercambio->begin());
+		}
+		else 
+			clavePromocionada = nodoHnoIzq->extraerUltimaClave();
 		
-		setIntercambio->erase(setIntercambio->begin());
-	
 		nodoDestino->setHijoIzq(clavePromocionada->getHijoDer());
-		
-		nodoDestino->insertarClave(clavePadre, &codigo);
-		
+		nodoDestino->insertarClave(clavePadre, &codigo);		
 	}
 		
 	clavePromocionada->setHijoDer(nodoDestino->getPosicionEnArchivo());
@@ -818,16 +824,17 @@ void BPlusTree::pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPa
 }
 
 
-void BPlusTree::pasarMaximoPosibleHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre, NodoBPlus* nodoHnoIzq, Clave* clavePadre) {
-/*cout << "QUIERO HACERLO DER" << endl;
+void BPlusTree::pasarMaximoPosibleHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre, NodoBPlus* nodoHnoIzq, Clave* &clavePadre) {
+
 	char codigo;
 	unsigned short bytesAEntregar;
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(false);
 	SetClaves* setIntercambio = NULL;
 	Clave* clavePromocionada = NULL;
 	
-	if (nodoHnoIzq->getTamanioEnDiscoSetClaves() > nodoHnoIzq->getTamanioMinimo()){
-		bytesAEntregar = nodoHnoIzq->getTamanioEnDiscoSetClaves() - nodoHnoIzq->getTamanioMinimo();
+	bytesAEntregar = nodoHnoIzq->obtenerBytesSobreMinimo(false);
+
+	if (bytesAEntregar > 0){
 	
 		nodoPadre->extraerClave(clavePadre);
 		
@@ -836,37 +843,39 @@ void BPlusTree::pasarMaximoPosibleHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus
 			setIntercambio = nodoHnoIzq->cederBytes(bytesAEntregar, false);
 			
 			clavePromocionada = (*(setIntercambio->begin()))->copiar();
-			
+
 		} else {
 		
 			clavePadre->setHijoDer(nodoDestino->getHijoIzq());
 			
-			if ( tamanioClavePadre < bytesAEntregar )
+			if ( tamanioClavePadre < bytesAEntregar ){
 				setIntercambio = nodoHnoIzq->cederBytes(bytesAEntregar - tamanioClavePadre, false);
-	
-			clavePromocionada = *(setIntercambio->begin());
+				clavePromocionada = *(setIntercambio->begin());
+				setIntercambio->erase(setIntercambio->begin());
+			}
+			else clavePromocionada = nodoHnoIzq->extraerUltimaClave();
 			
-			setIntercambio->erase(setIntercambio->begin());
-		
 			nodoDestino->setHijoIzq(clavePromocionada->getHijoDer());
-			
 			nodoDestino->insertarClave(clavePadre, &codigo);
-			
+
 		}
-			
+				
 		clavePromocionada->setHijoDer(nodoDestino->getPosicionEnArchivo());
 		
 		nodoPadre->insertarClave(clavePromocionada, &codigo);
+		clavePadre = clavePromocionada;
 		
 		if (setIntercambio) {
 			nodoDestino->recibir(setIntercambio);
 			delete setIntercambio;
 		}
-	
+							
 		//Se actualizan los nodos en disco
 		indiceManager.escribirBloque(nodoDestino->getPosicionEnArchivo(), nodoDestino);
 		indiceManager.escribirBloque(nodoPadre->getPosicionEnArchivo(), nodoPadre);
 		indiceManager.escribirBloque(nodoHnoIzq->getPosicionEnArchivo(), nodoHnoIzq);
 		
-	}*/
+	}
+
 }
+

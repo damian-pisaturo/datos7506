@@ -151,6 +151,8 @@ class Nodo : public BloqueIndice
 		//Devuelve la cantidad de bytes que sobran en un nodo luego de una inserción con overflow.
 		//En 'cantClaves' devuelve la cantidad de claves que representan los bytes sobrantes.
 		unsigned short obtenerBytesSobrantes(unsigned short &cantClaves, bool izquierda = true) const;
+
+		unsigned short obtenerBytesSobreMinimo(bool izquierda = true) const;
 				
 		SetClaves* cederBytes(unsigned short bytesRequeridos, bool izquierda = true);
 		

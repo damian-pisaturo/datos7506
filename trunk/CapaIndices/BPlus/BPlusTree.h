@@ -119,13 +119,13 @@ class BPlusTree : public BTree
 	    							  NodoBPlus* nodoHnoDer, Clave* clavePadre);
 	    
 	    void pasarMaximoPosibleHaciaIzquierda(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
-	    									  NodoBPlus* nodoHnoDer, Clave* clavePadre);
+	    									  NodoBPlus* nodoHnoDer, Clave* &clavePadre);
 	    
 	    void pasarClaveHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
 	    							NodoBPlus* nodoHnoIzq, Clave* clavePadre);
 	    
 	    void pasarMaximoPosibleHaciaDerecha(NodoBPlus* nodoDestino, NodoBPlus* nodoPadre,
-	    									NodoBPlus* nodoHnoIzq, Clave* clavePadre);
+	    									NodoBPlus* nodoHnoIzq, Clave* &clavePadre);
 	  	
 }; //Fin clase BPlusTree.
 
