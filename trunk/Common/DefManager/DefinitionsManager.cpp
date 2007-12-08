@@ -189,6 +189,28 @@ ListaTipos* DefinitionsManager::getListaTiposClaves(const string &nombreTipo, co
 	return listaTipos;
 }
 
+ListaValoresClaves* DefinitionsManager::getListaValoresClaves(const ListaInfoClave& listaInfoClave)
+{
+	// Lista a retornar
+	ListaValoresClaves* listaValClaves = new ListaValoresClaves();
+		
+	for (ListaInfoClave::const_iterator iterIC = listaInfoClave.begin(); iterIC != listaInfoClave.end(); ++iterIC)
+				listaValClaves->push_back(iterIC->valorClave);	
+	
+	return listaValClaves;
+}
+
+ListaNombresClaves* DefinitionsManager::getListaNombresClaves(const ListaInfoClave& listaInfoClave)
+{
+	// Lista a retornar
+	ListaNombresClaves* listaNomClaves = new ListaNombresClaves();	
+		
+	for (ListaInfoClave::const_iterator iterIC = listaInfoClave.begin(); iterIC != listaInfoClave.end(); ++iterIC)	
+				listaNomClaves->push_back(iterIC->nombreClave);	
+	
+	return listaNomClaves;
+}
+
 ListaTiposAtributos* DefinitionsManager::getListaTiposAtributos(const string &nombreTipo)
 {
 	char resultado = ArchivoMaestro::OK;

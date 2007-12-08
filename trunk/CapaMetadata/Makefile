@@ -13,6 +13,7 @@ extension = cpp
 # NOTA: No poner cabeceras (.h). 
 
 fuentes = DataManager/DataManager.cpp
+fuentes += ValidadorDatos/ValidadorDatos.cpp
 fuentes += FileManager/FileManager.cpp
 fuentes += ../Common/Bloque/Bloque.cpp
 fuentes += ../Common/Clave/Clave.cpp

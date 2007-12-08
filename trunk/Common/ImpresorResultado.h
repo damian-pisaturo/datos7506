@@ -74,6 +74,12 @@ ostream& operator << (ostream &out, const Resultado &e) {
         	out << "Uno o mas campos del tipo Bool es invalido. Los valores aceptados son TRUE o FALSE (sin distincion de mayusculas o minusculas)."; break;
         case ResultadosMetadata::STRING_INVALIDO:
         	out << "Uno o mas campos del tipo String es invalido. La cantidad de caracteres ingresados excede el maximo permitido."; break;
+        case ResultadosMetadata::NOM_CLAVE_INVALIDA:
+        	out << "Uno o mas campos de la clave por la que se esta realizando la consulta o es invalida o no existe para el tipo especificado"; break;
+        case ResultadosMetadata::NOM_ATRIBUTO_INVALIDO:
+        	out << "Uno o mas nombres de atributos indicados es invalido o no existe para el tipo por el cual se intenta llevar a cabo la consulta."; break; 
+        case ResultadosMetadata::TIPO_NO_DEFINIDO:
+        	out << "El tipo de dato por el cual se esta intentando consultar es invalido o no fue previamente definido.\nSi desea ingresar un nuevo tipo, cree un archivo de definiciones con su especificacion y ejecute\n\t./capaConsultas -d <archivoDfiniciones>\nY a continuacion, vuelva a realizar la consulta."; break;  
         case Resultado::SIN_RESULTADO:
         	out << "No se ha registrado ningún resultado."; break;
         case ResultadosParserOperaciones::ERROR_SINTAXIS_INTO:

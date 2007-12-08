@@ -10,7 +10,7 @@
 ///////////////////////////////////////////////////////////////////////////
 //	Integrantes
 //		- Alvarez Fantone, Nicolas;
-//      - Caravatti, Estefan�a;
+//      - Caravatti, Estefania;
 //		- Garcia Cabrera, Manuel;
 //      - Grisolia, Nahuel;
 //		- Pisaturo, Damian;	

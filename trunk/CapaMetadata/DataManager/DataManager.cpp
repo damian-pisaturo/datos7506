@@ -45,11 +45,9 @@
 	// Metodos publicos
 	///////////////////////////////////////////////////////////////////////////
 
-	short DataManager::crearRegistroAlta(const ListaValoresAtributos &listaVA,
+	unsigned short DataManager::crearRegistroAlta(const ListaValoresAtributos &listaVA,
 										const ListaTiposAtributos &listaTipos)
 	{
-		bool registroValido = true;
-		short resultado     = ResultadosMetadata::OK;
 		ListaTiposAtributos::const_iterator itTipos = listaTipos.begin();
 		ListaValoresAtributos::const_iterator itValoresAtributos = listaVA.begin();
 		unsigned char tipo = 0; //Indica si el tipo de campo del registro es variable o fijo
@@ -85,53 +83,39 @@
 		}
 		// Se itera la lista de atributos del registro.
 		// Y se van guardando los datos del registro
-		for(++itTipos ; (registroValido) && (itTipos != listaTipos.end()) ; ++itTipos,++itValoresAtributos){
+		for(++itTipos ; itTipos != listaTipos.end() ; ++itTipos,++itValoresAtributos){
 			regAttribute = *itTipos;
 			tipo = regAttribute.tipoDato;
 			// Obtengo el campo del registro
 			campoRegistro = *itValoresAtributos;
 			
-			if (tipo == TipoDatos::TIPO_ENTERO){
-				
-				resultado = this->validarEntero(campoRegistro); 
-				if (resultado == ResultadosMetadata::OK){
-					conversor << campoRegistro;
-					conversor >> campoEntero;
-					memcpy(&registro[offsetToCampo],&campoEntero,sizeof(int));
-					offsetToCampo += sizeof(int);
-				}else registroValido = false;
-				
+			if (tipo == TipoDatos::TIPO_ENTERO){		
+				conversor << campoRegistro;
+				conversor >> campoEntero;
+				memcpy(&registro[offsetToCampo],&campoEntero,sizeof(int));
+				offsetToCampo += sizeof(int);				
 			}
-			else if (tipo == TipoDatos::TIPO_CHAR){
-				
-				resultado = this->validarChar(campoRegistro); 
-				if (resultado == ResultadosMetadata::OK){
-					conversor << campoRegistro;
-					conversor >> campoChar;
-					memcpy(&registro[offsetToCampo],&campoChar,sizeof(char));
-					offsetToCampo += sizeof(char);
-				}else registroValido = false;
-					
+			else if (tipo == TipoDatos::TIPO_CHAR){					
+				conversor << campoRegistro;
+				conversor >> campoChar;
+				memcpy(&registro[offsetToCampo],&campoChar,sizeof(char));
+				offsetToCampo += sizeof(char);					
 			}
 			else if (tipo == TipoDatos::TIPO_FECHA){
+				conversor << campoRegistro.substr(0, 4);
+				conversor >> anio;
+				memcpy(&registro[offsetToCampo], &anio, sizeof(unsigned short));
+				offsetToCampo += sizeof(unsigned short);
 				
-				resultado = this->validarFecha(campoRegistro); 
-				if (resultado == ResultadosMetadata::OK){
-					conversor << campoRegistro.substr(0, 4);
-					conversor >> anio;
-					memcpy(&registro[offsetToCampo], &anio, sizeof(unsigned short));
-					offsetToCampo += sizeof(unsigned short);
-					
-					conversor << campoRegistro.substr(4, 2);
-					conversor >> mes;
-					memcpy(&registro[offsetToCampo], &mes, sizeof(unsigned char));
-					offsetToCampo += sizeof(unsigned char);
-					
-					conversor << campoRegistro.substr(6, 2);
-					conversor >> dia;
-					memcpy(&registro[offsetToCampo], &dia, sizeof(unsigned char));
-					offsetToCampo += sizeof(unsigned char);			
-				}else registroValido = false;
+				conversor << campoRegistro.substr(4, 2);
+				conversor >> mes;
+				memcpy(&registro[offsetToCampo], &mes, sizeof(unsigned char));
+				offsetToCampo += sizeof(unsigned char);
+				
+				conversor << campoRegistro.substr(6, 2);
+				conversor >> dia;
+				memcpy(&registro[offsetToCampo], &dia, sizeof(unsigned char));
+				offsetToCampo += sizeof(unsigned char);
 				
 			}
 			else if (tipo == TipoDatos::TIPO_FLOAT){
@@ -141,54 +125,38 @@
 				offsetToCampo += sizeof(float);
 			}
 			else if(tipo == TipoDatos::TIPO_SHORT){
-				
-				resultado = this->validarShort(campoRegistro); 
-				if (resultado == ResultadosMetadata::OK){
-					conversor << campoRegistro;
-					conversor >> campoShort;
-					memcpy(&registro[offsetToCampo],&campoShort,sizeof(short));
-					offsetToCampo += sizeof(short);
-				}else registroValido = false;
+				conversor << campoRegistro;
+				conversor >> campoShort;
+				memcpy(&registro[offsetToCampo],&campoShort,sizeof(short));
+				offsetToCampo += sizeof(short);
 			}
 			else if(tipo == TipoDatos::TIPO_STRING){
-				
-				resultado = this->validarString(campoRegistro);
-				
-				if (resultado == ResultadosMetadata::OK){
-					// Obtengo la longitud del campo variable
-					longCampoString = campoRegistro.size();
-					// Guardo la longitud del campo variable en el registro
-					memcpy(&registro[offsetToCampo],&longCampoString,Tamanios::TAMANIO_LONGITUD_CADENA);
-					// Al offset le sumo los bytes de la longitud
-					offsetToCampo += Tamanios::TAMANIO_LONGITUD_CADENA;
-					campoString = campoRegistro.c_str();
-					// Guardo el campo variable sin el '/0'
-					memcpy(&registro[offsetToCampo], campoString, longCampoString);
-					offsetToCampo += longCampoString;
-				}else registroValido = false;
+				// Obtengo la longitud del campo variable
+				longCampoString = campoRegistro.size();
+				// Guardo la longitud del campo variable en el registro
+				memcpy(&registro[offsetToCampo],&longCampoString,Tamanios::TAMANIO_LONGITUD_CADENA);
+				// Al offset le sumo los bytes de la longitud
+				offsetToCampo += Tamanios::TAMANIO_LONGITUD_CADENA;
+				campoString = campoRegistro.c_str();
+				// Guardo el campo variable sin el '/0'
+				memcpy(&registro[offsetToCampo], campoString, longCampoString);
+				offsetToCampo += longCampoString;
 				
 			}
 			else if(tipo == TipoDatos::TIPO_BOOL){
-				transform(campoRegistro.begin(), campoRegistro.end(), campoRegistro.begin(), (int (*)(int))std::toupper);
+				transform(campoRegistro.begin(), campoRegistro.end(), campoRegistro.begin(), (int (*)(int))std::toupper);				
+				if (campoRegistro == "TRUE") campoBooleano = true;
+				else if (campoRegistro == "FALSE") campoBooleano = false;
 				
-				resultado = this->validarBool(campoRegistro);
-				if (resultado == ResultadosMetadata::OK){					
-					if (campoRegistro == VAL_TRUE) campoBooleano = true;
-					else campoBooleano = false;
-					
-					memcpy(&registro[offsetToCampo],&campoBooleano,sizeof(bool));
-					offsetToCampo += sizeof(bool);
-				}
+				memcpy(&registro[offsetToCampo],&campoBooleano,sizeof(bool));
+				offsetToCampo += sizeof(bool);				
 			}
 		}
 		
-		if (registroValido)
+
+		if (registro)
 			this->setRegistro(registro);
-		else{
-			delete[] registro;
-			longRegistro = resultado;
-		}
-		
+
 		return longRegistro;
 	}
 
@@ -577,100 +545,4 @@
 			
 		}
 		
-	}
-
-	char DataManager::validarEntero(const string& valorEntero) const
-	{
-		char resultado = ResultadosMetadata::OK;
-		stringstream conversor;
-		string::size_type posNoNumero = valorEntero.find_first_not_of(VALORES_NUMERICOS);
-		string::size_type posSignoMenos = 0;
-		
-		if (posNoNumero == string::npos){ // El valor entero no contiene caracteres alfabeticos
-			posSignoMenos = valorEntero.find_first_of(SIGNO_MENOS);
-			
-			if (posSignoMenos != string::npos){ // Valor entero negativo
-				conversor << INT_MIN;
-				if ( (valorEntero.size() > conversor.str().size())  || 
-				   (valorEntero.size() == conversor.str().size()) && (valorEntero < conversor.str()) )
-					resultado = ResultadosMetadata::ENTERO_INVALIDO;
-			}else{ // Valor entero positivo
-				conversor << INT_MAX;
-				if ( (valorEntero.size() > conversor.str().size())  || 
-				   (valorEntero.size() == conversor.str().size()) && (valorEntero > conversor.str()) )
-					resultado = ResultadosMetadata::ENTERO_INVALIDO;
-			}
-			
-		}else resultado = ResultadosMetadata::ENTERO_INVALIDO;
-				
-		return resultado;
-	}
-		
-	char DataManager::validarShort(const string& valorShort) const
-	{
-		char resultado = ResultadosMetadata::OK;
-		stringstream conversor;
-		string::size_type posNoNumero = valorShort.find_first_not_of(VALORES_NUMERICOS);
-		string::size_type posSignoMenos = 0;
-		
-		if (posNoNumero == string::npos){ // El valor short no contiene caracteres alfabeticos
-			posSignoMenos = valorShort.find_first_of(SIGNO_MENOS);
-			
-			if (posSignoMenos != string::npos){ // Valor short negativo
-				conversor << SHRT_MIN;
-				if ( (valorShort.size() > conversor.str().size())  || 
-				   (valorShort.size() == conversor.str().size()) && (valorShort < conversor.str()) )
-					resultado = ResultadosMetadata::SHORT_INVALIDO;
-			}else{							// Valor short positivo
-				conversor << SHRT_MAX;
-				if ( (valorShort.size() > conversor.str().size())  || 
-				   (valorShort.size() == conversor.str().size()) && (valorShort > conversor.str()) )
-					resultado = ResultadosMetadata::SHORT_INVALIDO;
-			}
-			
-		}else resultado = ResultadosMetadata::SHORT_INVALIDO;
-				
-		return resultado;			
-	}
-		
-	char DataManager::validarChar(const string& valorChar) const
-	{
-		char resultado = ResultadosMetadata::OK;
-		
-		if (valorChar.size() > 1) 
-			resultado = ResultadosMetadata::CHAR_INVALIDO;
-				
-		return resultado;
-	}
-	
-	char DataManager::validarBool(const string& valorBool) const
-	{
-		char resultado = ResultadosMetadata::OK;
-		
-		if ( (valorBool != VAL_TRUE) || (valorBool != VAL_FALSE) ) 
-			resultado = ResultadosMetadata::BOOL_INVALIDO;
-		
-		return resultado;
-	}
-		
-	char DataManager::validarFecha(const string& fecha) const
-	{
-		char resultado = ResultadosMetadata::OK;
-		
-		if (fecha.find_first_not_of(VALORES_NUMERICOS_POS) == string::npos ){ // La fecha contiene solo caracteres numericos.
-			if ( (fecha.size() != 8) || (fecha.substr(4,2) > "12") || (fecha.substr(6,2) > "31") )  
-				resultado = ResultadosMetadata::FECHA_INVALIDA; 	
-		}else resultado = ResultadosMetadata::FECHA_INVALIDA; // Le fecha contiene caracteres no numericos.
-		 
-		return resultado;
-	}
-	
-	char DataManager::validarString(const string& s) const
-	{
-		char resultado = ResultadosMetadata::OK;
-		
-		if (s.size() > UCHAR_MAX)
-			resultado = ResultadosMetadata::STRING_INVALIDO;
-		
-		return resultado;
 	}

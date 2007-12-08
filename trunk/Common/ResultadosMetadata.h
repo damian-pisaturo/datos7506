@@ -13,6 +13,9 @@ class ResultadosMetadata
 		static const char FECHA_INVALIDA            = -59;
 		static const char BOOL_INVALIDO             = -60;
 		static const char STRING_INVALIDO			= -61;
+		static const char NOM_CLAVE_INVALIDA 		= -62;
+		static const char NOM_ATRIBUTO_INVALIDO 	= -63;
+		static const char TIPO_NO_DEFINIDO 			= -64;
 		static const char FIN_REGISTROS         	= -53;
 		static const char CAMPOS_IGUALES			= -54;
 		static const char CAMPOS_DISTINTOS			= -55;
