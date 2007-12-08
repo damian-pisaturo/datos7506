@@ -69,6 +69,7 @@ int ParserOperaciones::proximaOperacion() {
 			}
 			
 			this->mapValoresAtributos = new MapaValoresAtributos();
+			this->mapValoresAtributos = new MapaValoresAtributos();
 			
 			this->estructuraCampos.operacion = NO_OPERACION;
 			this->estructuraCampos.listaCampos.clear();
@@ -93,7 +94,7 @@ int ParserOperaciones::proximaOperacion() {
 			
 			lineaParseada = parsearString(linea, SEPARATOR_CAMPOS, '(', ')');
 			iter = lineaParseada.begin();		
-		
+			
 			tipoOp = *(iter++);
 			mayus(&tipoOp);
 			

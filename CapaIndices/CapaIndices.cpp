@@ -665,8 +665,8 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		// Recibe el registro de datos.
 		pipe.leer(tamRegistro, registroDatos);
 		
-		resultado = indice->insertar(clave, registroDatos, tamRegistro);
-
+		resultado = indice->insertar(clave, registroDatos, tamRegistro); //TODO Este es el metodo conflictivo.
+		
 		if (resultado == ResultadosIndices::OK) {
 			
 			//Actualizo los indices secundarios

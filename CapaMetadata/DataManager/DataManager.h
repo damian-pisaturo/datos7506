@@ -26,9 +26,9 @@
 #include "../../Common/Bloque/Bloque.h"
 #include "../../Common/ClaveFactory/ClaveFactory.h"
 #include "../../Common/CodigosPipe.h"
+#include <algorithm>
 #include <string>
 #include <sstream>
-#include <algorithm>
 
 #define CAMPO_NO_MODIFICADO ""
 #define SIGNO_MENOS '-'

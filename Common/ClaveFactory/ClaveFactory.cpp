@@ -59,17 +59,18 @@ Clave* ClaveFactory::getClave(const ListaValoresClaves& listaValoresClaves, cons
 			case TipoDatos::TIPO_FECHA:
 			{
 				ClaveFecha::TFECHA valor;
-				unsigned short anio, dia, mes;
+				unsigned short anio = 0, dia = 0, mes = 0;
 				conversor << (*iterLV).substr(0, 4);
 				conversor >> anio;
 				conversor.clear();
-				conversor.str("");
+				
 				conversor << (*iterLV).substr(4, 2);
 				conversor >> mes;
 				conversor.clear();
-				conversor.str("");
+				
 				conversor << (*iterLV).substr(6, 2);
 				conversor >> dia;
+				
 				valor.crear(dia, mes, anio);
 				clave = new ClaveFecha(valor);
 				break;
