@@ -43,7 +43,7 @@ class Indice
 		virtual ~Indice() { 
 			if (indiceManager) delete indiceManager;
 			if (bloqueManager) delete bloqueManager;
-			// La memoria de listaNodos no se libera porque apunta a una lista del DefManager
+			// La memoria de listaInfoReg no se libera porque apunta a una lista del DefManager
 		}
 		
 		/*

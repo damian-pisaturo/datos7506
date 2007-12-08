@@ -29,7 +29,7 @@
 	///////////////////////////////////////////////////////////////////////
 		Hash::Hash(IndiceHashManager* arch, ListaInfoRegistro* lista, unsigned int tamBucket)
 		{
-			this->archivo    = arch;
+			this->archivo = arch;
 			this->listaInfoRegistro = lista;	
 			this->tabla = new Tabla(this->archivo, tamBucket);
 		}
@@ -248,6 +248,7 @@
 			
 			if (bucket)
 				delete bucket;
+			
 			return false;
 		}
 		

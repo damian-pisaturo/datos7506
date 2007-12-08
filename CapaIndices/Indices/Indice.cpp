@@ -22,11 +22,8 @@ int Indice::modificar(Clave* claveSecundariaVieja, Clave* claveSecundariaNueva,
 		
 	}
 	
-	return resultado;
-	
+	return resultado;	
 }
-
-
 
 ListaTipos* Indice::getListaTipos() const {
 	
@@ -44,7 +41,7 @@ ListaTipos* Indice::getListaTiposClavePrimaria() const {
 	
 	ListaTipos* listaTipos = new ListaTipos();
 	ListaInfoRegistro::iterator it = this->getListaInfoReg()->begin();
-	unsigned short cantClaves = it->cantClaves, i = 0;
+	unsigned char cantClaves = it->cantClaves, i = 0;
 	
 	for (++it; (i < cantClaves) && (it != this->getListaInfoReg()->end()); ++it) {
 		if (it->esPk) {
@@ -53,21 +50,21 @@ ListaTipos* Indice::getListaTiposClavePrimaria() const {
 		}
 	}
 	
-	return listaTipos;
-	
+	return listaTipos;	
 }
 
 
 ListaInfoRegistro* Indice::getListaInfoRegClavePrimaria() const {
 	
 	ListaInfoRegistro* listaTipos = new ListaInfoRegistro();
-	ListaInfoRegistro::iterator it = this->getListaInfoReg()->begin();
-	unsigned short i = 0;
+	ListaInfoRegistro::iterator it = this->getListaInfoReg()->begin();	
+	
+	unsigned char i = 0;
 	
 	NodoInfoRegistro nodoIR;
 	nodoIR.cantClaves = it->cantClaves;
 	nodoIR.esPk = false;
-	nodoIR.tipoDato = TipoDatos::TIPO_VARIABLE;
+	nodoIR.tipoDato =it->tipoDato;
 	
 	listaTipos->push_back(nodoIR);
 	
@@ -78,7 +75,6 @@ ListaInfoRegistro* Indice::getListaInfoRegClavePrimaria() const {
 		}
 	}
 	
-	return listaTipos;
-	
+	return listaTipos;	
 }
 
