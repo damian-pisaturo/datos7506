@@ -64,8 +64,7 @@ int IndiceArbol::insertar(Clave *clave, char* &registro, unsigned short tamRegis
 		
 		if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES) {
 			contenidoBloque = new char[this->getTamanioBloqueDatos()];
-			
-			// TODO Acá estaba el exit(0) de Nico...
+			memset(contenidoBloque, 0, this->getTamanioBloqueDatos());
 			
 			// Lee de disco el contenido del bloque donde debe insertar.
 			nroBloque = this->buscarBloqueDestino(tamRegistro, contenidoBloque);
