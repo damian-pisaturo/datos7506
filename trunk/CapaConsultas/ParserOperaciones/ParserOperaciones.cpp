@@ -86,16 +86,8 @@ int ParserOperaciones::proximaOperacion() {
 			
 			resultado = ResultadosParserOperaciones::SINTAXIS_CORRECTA;
 			this->numOperacion++;
-									
-			size_t separatorPos;
-			string nombreAtributo, valorAtributo;
 			
-			separatorPos = linea.find(SEPARATOR_CAMPOS);
-			
-			lineaParseada = parsearString(linea, SEPARATOR_CAMPOS, '(', ')');
-			iter = lineaParseada.begin();		
-			
-			tipoOp = *(iter++);
+			tipoOp = linea.substr(0, linea.find(SEPARATOR_CAMPOS));
 			mayus(&tipoOp);
 			
 			if (tipoOp == ALTA) this->tipoOperacion = OperacionesCapas::CONSULTAS_ALTA;
@@ -107,6 +99,9 @@ int ParserOperaciones::proximaOperacion() {
 			if (resultado == ResultadosParserOperaciones::SINTAXIS_CORRECTA){
 				switch (this->tipoOperacion){
 					case OperacionesCapas::CONSULTAS_ALTA: {
+						lineaParseada = parsearString(linea, SEPARATOR_CAMPOS, '(', ')');
+						iter = ++lineaParseada.begin();
+						
 						if ( *mayus(&(*(iter++))) != "INTO" ){
 							resultado = ResultadosParserOperaciones::ERROR_SINTAXIS_INTO;
 							break;
@@ -149,6 +144,9 @@ int ParserOperaciones::proximaOperacion() {
 					} break;
 					
 					case OperacionesCapas::CONSULTAS_BAJA: {
+						lineaParseada = parsearString(linea, SEPARATOR_CAMPOS, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
+						iter = ++lineaParseada.begin();
+						
 						if ( *mayus(&(*(iter++))) != "FROM" ){
 							resultado = ResultadosParserOperaciones::ERROR_SINTAXIS_FROM;
 							break;
@@ -200,6 +198,9 @@ int ParserOperaciones::proximaOperacion() {
 					} break;
 					
 					case OperacionesCapas::CONSULTAS_MODIFICACION: {
+						lineaParseada = parsearString(linea, SEPARATOR_CAMPOS, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
+						iter = ++lineaParseada.begin();
+						
 						this->nombreTipo = *(iter++);
 						mayus(&(this->nombreTipo));
 						
@@ -276,6 +277,9 @@ int ParserOperaciones::proximaOperacion() {
 					} break;
 					
 					case OperacionesCapas::CONSULTAS_CONSULTA: {
+						lineaParseada = parsearString(linea, SEPARATOR_CAMPOS, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
+						iter = ++lineaParseada.begin();
+						
 						ListaStrings campos = parsearString(*mayus(&(*(iter++))), SEPARATOR_ATRIBUTOS, CARACTER_AGRUPADOR, CARACTER_AGRUPADOR);
 						EstructuraNombres estructuraNombres;
 						ListaStrings campo;
