@@ -643,7 +643,7 @@
 		 * Retorna el registro que se encuentra en la posición 'numReg',
 		 * comenzando desde 0. En 'tamReg' devuelve el tamaño del mismo.
 		 * */
-		char* Bloque::getRegistro(unsigned short numReg, unsigned short &tamReg) const {
+		char* Bloque::getRegistroPorNro(unsigned short numReg, unsigned short &tamReg) const {
 			
 			unsigned short offsetToReg = this->offsetADatos;
 			unsigned short offsetEspLibre = 0, longReg = 0;

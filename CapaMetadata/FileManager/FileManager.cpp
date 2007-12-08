@@ -69,7 +69,7 @@ int FileManager::leerRegistro(char* &registro, unsigned short numReg, unsigned s
 				if ((cantRegistrosLeidos + cantRegistrosEnBloque) >= numReg) {
 					// Obtengo el registro
 					unsigned short nroRegistro = numReg - cantRegistrosLeidos;
-					registro = bloque.getRegistro(nroRegistro, tamReg);
+					registro = bloque.getRegistroPorNro(nroRegistro, tamReg);
 					encontrado = true;
 				} else cantRegistrosLeidos += cantRegistrosEnBloque;
 				
