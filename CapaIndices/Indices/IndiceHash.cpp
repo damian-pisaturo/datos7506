@@ -231,6 +231,14 @@
 		char* registro = NULL;
 		unsigned short tamanioRegistro = 0;
 		
+		cout << "CLAVE SECUNDARIA: " << endl;
+		claveSecundaria->imprimir(cout);
+		
+		cout << endl << "CLAVE PRIMARIA:" << endl;
+		clavePrimaria->imprimir(cout);
+		
+		
+		
 		if (this->tipoIndice == TipoIndices::GRIEGO) return ResultadosIndices::ERROR_INSERCION;
 		
 		ListaInfoRegistro* listaNodos = this->getListaInfoRegClavePrimaria();
@@ -281,8 +289,18 @@
 			if (resultado >= 0) {	
 				// Crea un registro donde se guarda la clave secundaria serializada, concatenada con
 				// el offset a la lista invertida.
+				
+				cout << "lista tipos de la clave:" << endl;
+				for (ListaTipos::iterator it = this->listaTiposClave->begin(); it != this->listaTiposClave->end(); ++it)
+					cout << "tipo: " << (int)*it << endl;
+				
 				char* claveSecundariaSerializada = Bloque::serializarClave(claveSecundaria, this->listaTiposClave);
 				tamanioRegistro = Tamanios::TAMANIO_LONGITUD + claveSecundaria->getTamanioValorConPrefijo();
+				
+				cout << "clave secundaria serializada: " << endl;
+				for (unsigned i = 0; i < tamanioRegistro; ++i)
+					printf("%2x", claveSecundariaSerializada[i]);
+				
 				registro = new char[tamanioRegistro + Tamanios::TAMANIO_REFERENCIA];
 				memcpy(registro, claveSecundariaSerializada, tamanioRegistro);
 				this->setOffsetToList(resultado, registro, tamanioRegistro);

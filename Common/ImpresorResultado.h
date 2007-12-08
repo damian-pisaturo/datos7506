@@ -3,6 +3,7 @@
 
 #include "Resultado.h"
 #include "../ComuDatos/ComuDatos.h"
+#include "../Common/ArchivoMaestro/ArchivoMaestro.h"
 #include <ostream>
 
 using namespace std;
@@ -111,6 +112,22 @@ ostream& operator << (ostream &out, const Resultado &e) {
         	out << "Error de Sintáxis: Probablemente haya querido utilizar la cláusula ORDER BY."; break;
         case ComuDatos::ERROR_EJECUCION:
         	out << "Se ha producido un error al intentar lanzar una capa del Framework."; break;
+        case ArchivoMaestro::ARCHIVO_INVALIDO:
+        	out << "Error: Se ha intentado abrir un archivo que está corrupto, fue modificado o no pertenece al Framework de Persistencia."; break;
+        case ArchivoMaestro::ATRIBUTO_NO_DEFINIDO:
+            out << "Error: Se ha intentado utilizar un atributo que no pertenece al tipo definido en el archivo de definiciones."; break;
+        case ArchivoMaestro::ESTRUCTURA_RF_INVALIDA:
+        	out << "Error: Se ha encontrado un atributo de tipo variable en un registro de organización fija."; break;
+        case ArchivoMaestro::INDICE_GRIEGO_AMBIGUO:
+        	out << "Error: Se han intentado definir dos índices primarios."; break;
+        case ArchivoMaestro::TAMANIO_BLOQUE_INVALIDO:
+        	out << "Error: Se ha intentado definir un tamaño de bloque inválido. El tamaño debe ser múltiplo de 512 bytes."; break;
+        case ArchivoMaestro::TIPO_EXISTENTE:
+        	out << "Advertencia: Alguno de los tipos definidos en el archivo de definiciones ya existe en la Base de Datos."; break;
+        case ArchivoMaestro::TIPO_INEXISTENTE:
+        	out << "Error: Se ha intentado obtener definiciones de un tipo inexistente."; break;
+        case ArchivoMaestro::OK:
+        	out << "Definiciones cargadas con éxito!"; break;
         default:
         	out << "Resultado inválido"; break;
     }
