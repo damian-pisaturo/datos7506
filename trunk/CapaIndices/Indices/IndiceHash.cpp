@@ -10,19 +10,23 @@
 		this->tipoEstructura = TipoIndices::HASH;
 		this->tamBloqueDatos = tamBucket;
 		this->tamBloqueLista = tamBloqueLista;
-		this->listaInfoReg = listaParam;
-		this->listaTiposClave = listaTiposClave; // La memoria de esta lista no se libera xq viene del DefManager
+		this->listaInfoReg = new ListaInfoRegistro(*listaParam);
+		this->listaTiposClave = new ListaTipos(*listaTiposClave);
+		
 		// La siguiente lista contiene la información necesaria para administrar los registros armados
 		// a partir de una clave secundaria y un offset al archivo de las listas de claves primarias
 		this->listaNodosClave = this->getListaNodosClave();
-		this->hash = new Hash((IndiceHashManager*)indiceManager, this->listaInfoReg, tamBucket);
 		
 		// Si el IndiceHash se está usando como un índice secundario,
 		// se crea un BloqueListaManager.
-		if (tipoIndice == TipoIndices::ROMANO)
+		if (tipoIndice == TipoIndices::ROMANO) {
+			this->hash = new Hash((IndiceHashManager*)indiceManager, this->listaNodosClave, tamBucket);
 			// El tamaño de un bloque de la lista es igual que el tamaño de un bucket
 			this->bloqueManager = new BloqueListaManager(tamBloqueLista, nombreArchivo);
-		else this->bloqueManager = NULL;
+		} else {
+			this->hash = new Hash((IndiceHashManager*)indiceManager, this->listaInfoReg, tamBucket);
+			this->bloqueManager = NULL;
+		}
 		
 	}
 	
@@ -34,8 +38,10 @@
 		if (this->listaNodosClave)
 			delete this->listaNodosClave;
 		
+		if (this->listaTiposClave)
+			delete this->listaTiposClave;
+		
 		// BloqueManager e IndiceManager se liberan en el destructor de Indice.
-		// listaTiposClave no se libera porque apunta a una lista del DefinitionsManager.
 	}
 
 	/*
@@ -239,7 +245,7 @@
 		char* clavePrimariaSerializada = Bloque::serializarClave(clavePrimaria, listaTipos);
 		
 		// Comprueba si la clave secundaria ya está presente en el indice.
-		// De ser así, recupera el registro con esa clave, y el offset a la 
+		// De ser así, recupera en registro dicha clave, y el offset a la 
 		// lista invertida.
 		bool encontrado = this->hash->recuperarRegistro(*claveSecundaria, registro, tamanioRegistro);		
 		
@@ -279,7 +285,7 @@
 			
 			if (resultado >= 0) {	
 				// Crea un registro donde se guarda la clave secundaria serializada, concatenada con
-				// el offset a la lista invertida.
+				// el offset a la lista invertida.				
 				char* claveSecundariaSerializada = Bloque::serializarClave(claveSecundaria, this->listaTiposClave);
 				tamanioRegistro = Tamanios::TAMANIO_LONGITUD + claveSecundaria->getTamanioValorConPrefijo();
 				registro = new char[tamanioRegistro + Tamanios::TAMANIO_REFERENCIA];
@@ -386,6 +392,8 @@
 		nodoIR.esPk = true;
 		for (ListaTipos::iterator it = this->listaTiposClave->begin();
 			 it != this->listaTiposClave->end(); ++it) {
+			
+			cout << "esoty armando la listanodosClave, inserto el tipo: " << (int)*it << endl;
 			
 			nodoIR.tipoDato = *it;
 			lista->push_back(nodoIR);
