@@ -2,7 +2,7 @@
 //	75.06 Organizacion de Datos
 //	Trabajo practico: Framework de Persistencia
 ////////////////////////////////////////////////////////////////////////////
-//	Descripcionr
+//	Descripcion
 //		Funcion principal de la Capa Metadata.
 ///////////////////////////////////////////////////////////////////////////
 //	Integrantes
@@ -844,92 +844,122 @@ void armarListaClaves(EstructuraCampos &estructuraCampos, ListaInfoClave &listaC
 
 int baja(const string& nombreTipo,  EstructuraCampos &estructuraCampos)
 {
-	ComuDatos * pipe = instanciarPipe();
-				
-	// Codigo de operacion de consulta para la Capa de Indices
-	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_ELIMINAR, 0); 
-	
-	// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
-	pipe->agregarParametro(nombreTipo, 1);
-	
-	// Se lanza el proceso de la Capa Indices.
-	int pipeResult = pipe->lanzar();
-	int resultadoEliminacion= ResultadosIndices::OK;
+	int resultado = ResultadosIndices::OK;	
+	unsigned short tamRegistro = 0;
+	char* registro = NULL;
 	char operacion = 0;
 	
-	if (pipeResult == ComuDatos::OK){
-		
-		// Envio de los valores de las claves de los registros
-		// a eliminar por el pipe.	
-		string valoresClaves("");
-		ListaInfoClave listaClaves;
-		
-		armarListaClaves(estructuraCampos, listaClaves);
-		serializarListaClaves(valoresClaves,&listaClaves);
-		
-		pipe->escribir(valoresClaves);
+	ComuDatos * pipe = NULL;
 	
-		ListaOperaciones listaOperaciones;
-		NodoListaOperaciones nodoListaOperaciones;
-		
-		DefinitionsManager& defManager = DefinitionsManager::getInstance();
-		ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-		ListaNombresAtributos *listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);
-		
-		unsigned short tamRegistro;
-		char* registro = NULL;
-		
-		// CapaIndices hace una consulta no indexada y retorna todos los registros para 
-		// Comprobar la cláusula WHERE.
-		pipe->leer(&pipeResult);
-		
-		// Mientras haya resgistros que mandar
-		while (pipeResult == ResultadosIndices::OK) {
-			
-			pipe->leer(&tamRegistro);
-			
-			if (tamRegistro == 0) {
-				resultadoEliminacion = ResultadosIndices::ERROR_ELIMINACION;
-				break;
-			}
-			
-			registro = new char[tamRegistro];
-			
-			// Se obtiene el registro de datos consultado.
-			pipe->leer(tamRegistro, registro);
+	string valoresClaves("");
+	ListaInfoClave listaClaves;
+	
+	// Validador de nombres de claves a 
+	// dar de baja.
+	ValidadorDatos validador;
+	
+	ListaOperaciones listaOperaciones;
+	NodoListaOperaciones nodoListaOperaciones;
+	
+	ListaTiposAtributos *listaTiposAtributos     = NULL;
+	ListaNombresAtributos *listaNombresAtributos = NULL;
+	ListaNombresClaves* listaNombresClaves       = NULL;
+	
+	DefinitionsManager& defManager = DefinitionsManager::getInstance();
+	
+	armarListaClaves(estructuraCampos, listaClaves);
+	
+	listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);
+	
+	if (listaNombresAtributos){
+		listaNombresClaves = defManager.getListaNombresClaves(listaClaves);		
 
-			for (ListaCampos::iterator iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter){
-				nodoListaOperaciones.estructuraNombresIzq.nombreTipo = nombreTipo;
-				nodoListaOperaciones.estructuraNombresIzq.nombreCampo = iter->nombreCampo;
-				nodoListaOperaciones.estructuraNombresDer.nombreTipo = "";
-				nodoListaOperaciones.estructuraNombresDer.nombreCampo = iter->valorCampo;
-				nodoListaOperaciones.operacion = iter->operacion;
-				listaOperaciones.push_back(nodoListaOperaciones);
-			}
-			
-			if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
-				// Si el registro debe ser eliminado, se le avisa a capa indices para que lo haga.
-				operacion = OperacionesCapas::INDICES_ELIMINAR;
-				pipe->escribir(operacion);
-				pipe->leer(&resultadoEliminacion);
-			}
-			else {
-				// Si el registro no debe ser eliminado, se le avisa a indices que no lo haga.
-				operacion = OperacionesCapas::INDICES_NO_OPERACION;
-				pipe->escribir(operacion);
-			}
-			
-			delete[] registro;
-			registro = NULL;
-			
-			// Leo el resultado que indica si se van a recibir más registros
-			pipe->leer(&pipeResult);
-							
-		}
-	}	
-	delete pipe;
+		// Se validan los nombres de las claves por las que se esta 
+		// dando de baja.
+		resultado = validador.validarNombresClaves(*listaNombresAtributos, *listaNombresClaves);
 		
-	return resultadoEliminacion; 
+		if (resultado == ResultadosMetadata::OK){
+			pipe = instanciarPipe();
+			// Codigo de operacion de consulta para la Capa de Indices
+			pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_ELIMINAR, 0); 
+			
+			// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
+			pipe->agregarParametro(nombreTipo, 1);
+			
+			// Se lanza el proceso de la Capa Indices.
+			resultado = pipe->lanzar();
+			
+			if (resultado == ComuDatos::OK){
+				
+				// Envio de los valores de las claves de los registros
+				// a eliminar por el pipe.		
+				serializarListaClaves(valoresClaves,&listaClaves);
+				
+				pipe->escribir(valoresClaves);				
+				
+				listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+				
+				// CapaIndices hace una consulta no indexada y retorna todos los registros para 
+				// Comprobar la cláusula WHERE.
+				pipe->leer(&resultado);
+				
+				// Mientras haya registros que mandar
+				while (resultado == ResultadosIndices::OK) {
+					
+					pipe->leer(&tamRegistro);
+					
+					if (tamRegistro == 0)
+						resultado = ResultadosIndices::ERROR_ELIMINACION;
+					else{
+					
+						registro = new char[tamRegistro];
+						
+						// Se obtiene el registro de datos consultado.
+						pipe->leer(tamRegistro, registro);
+			
+						for (ListaCampos::iterator iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter){
+							nodoListaOperaciones.estructuraNombresIzq.nombreTipo = nombreTipo;
+							nodoListaOperaciones.estructuraNombresIzq.nombreCampo = iter->nombreCampo;
+							nodoListaOperaciones.estructuraNombresDer.nombreTipo = "";
+							nodoListaOperaciones.estructuraNombresDer.nombreCampo = iter->valorCampo;
+							nodoListaOperaciones.operacion = iter->operacion;
+							listaOperaciones.push_back(nodoListaOperaciones);
+						}
+						
+						if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
+							// Si el registro debe ser eliminado, se le avisa a capa indices para que lo haga.
+							operacion = OperacionesCapas::INDICES_ELIMINAR;
+							pipe->escribir(operacion);
+							pipe->leer(&resultado);
+						}else{
+							// Si el registro no debe ser eliminado, se le avisa a indices que no lo haga.
+							operacion = OperacionesCapas::INDICES_NO_OPERACION;
+							pipe->escribir(operacion);
+						}
+						
+						if (registro){
+							delete[] registro;
+							registro = NULL;
+						}
+						
+						// Leo el resultado que indica si se van a recibir más registros
+						pipe->leer(&resultado);
+					}										
+				}
+			}
+		}
+	}else resultado = ResultadosMetadata::TIPO_NO_DEFINIDO;
+	
+	if (pipe)
+		delete pipe;
+	
+	if (listaNombresClaves)
+		delete listaNombresClaves;
+	
+	if (resultado == ResultadosFisica::FIN_BLOQUES)
+		resultado = ResultadosMetadata::OK;
+	
+	return resultado; 
 }
 
 int modificacion(const string& nombreTipo, MapaValoresAtributos &mapaValoresAtributos, 
@@ -1537,7 +1567,6 @@ int main(int argc, char* argv[])
 			case OperacionesCapas::METADATA_BAJA:
 			{
 				unsigned int cantidadElementos;
-				//unsigned int longitudCadena;
 				
 				// Obtiene el nombre del tipo sobre el cual se hace la baja.
 				pipe->parametro(1,nombreTipo);
@@ -1561,6 +1590,7 @@ int main(int argc, char* argv[])
 				
 				pipeResult = baja(nombreTipo, estructuraCampos);
 				
+				cout << pipeResult << endl;
 				pipe->escribir(pipeResult);
 				
 			}break;

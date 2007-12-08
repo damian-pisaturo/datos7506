@@ -55,7 +55,7 @@ tamanoNodoIndice = 512
 campoIndice = DNI
 
 [romanos]
-tipoIndice = hash
+tipoIndice = ArbolB*
 tamanoBucket = 512
 campoIndice = NOMBRE
 campoIndice = FECHA
