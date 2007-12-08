@@ -31,6 +31,9 @@ Tabla::Tabla(IndiceHashManager* arch, unsigned int tamBucket)
 	unsigned int tamTabla = 0;
 	unsigned int * numerosTabla = NULL;
 	
+	this->nroBucket = NULL;
+	this->tamanio   = 0;
+	
 	if (arch){
 		this->archivo = arch;
 	
@@ -49,7 +52,7 @@ Tabla::Tabla(IndiceHashManager* arch, unsigned int tamBucket)
 
 Tabla::~Tabla()
 {	
-	if(this->nroBucket)
+	if (this->nroBucket)
 		delete[] this->nroBucket;
 }
 
@@ -246,14 +249,3 @@ void Tabla::actualizarReferencias(unsigned short tamDispActualizado,unsigned int
 			nroBucket[i] = nuevoNroBucket;
 	}
 }
-
-
-
-
-
-
-
-
-
-
-

@@ -6,8 +6,8 @@
 void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 				  DefinitionsManager &defManager) {
 	
-	Indice* indice;
-	unsigned char tipoIndice;
+	Indice* indice = NULL;
+	unsigned char tipoIndice = 0;
 	InfoIndice estructura;
 	NodoListaIndices nodoListaIndices;
 	ListaTiposIndices *listaTiposIndices = defManager.getListaTiposIndices(nombreTipo);
@@ -15,8 +15,7 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 	char tipoOrg = defManager.getTipoOrgRegistro(nombreTipo);
 	
 	unsigned short tamBloqueDatos = defManager.getTamBloqueDatos(nombreTipo);
-	unsigned short tamBloqueLista = defManager.getTamBloqueLista(nombreTipo);
-	
+	unsigned short tamBloqueLista = defManager.getTamBloqueLista(nombreTipo);	
 	
 	for (ListaTiposIndices::const_iterator iter = listaTiposIndices->begin();
 		iter != listaTiposIndices->end(); ++iter) {
@@ -192,6 +191,8 @@ void consultaNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndic
 void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndices,
 									DefinitionsManager &defManager, ComuDatos &pipe) {
 	
+	// TODO Este metodo estaba lleno de couts que no mergee.
+	
 	// Obtiene el indice primario para poder obtener luego los bloques de datos.
 	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
 	
@@ -206,36 +207,24 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 	int resultado = indice->siguienteBloque(bloque);
 	
 	 while (resultado == ResultadosIndices::OK) {
-		cout << "CI: entre en el while de q hay bloques" << endl;
 		// Se obtiene un registro.
 		registro = bloque->getNextRegister();
 	
 		while (registro) {
-			cout << "CI: entre el el while de q hay registros" << endl;
 			// Indica a metadata que tiene un registro para enviarle.
 			pipe.escribir(resultado);
-				
-			cout << "CI: escribi que hay mas registros:" << resultado << endl;
 			// Obtiene el tamaño del registro a enviar.
 			tamanioRegistro = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, registro);
-			
-			cout << "CI: mando el tamaño: "<< tamanioRegistro << endl;
 			pipe.escribir(tamanioRegistro);
-			
-			cout << "CI: mando el registro."<< endl;
 			pipe.escribir(registro, tamanioRegistro);
-			cout << "CI: ya mande el registro."<< endl;
 			
-			cout << "CI: voy a leer la operacion."<< endl;
 			pipe.leer(&operacion);
 			
 			if (operacion == OperacionesCapas::INDICES_ELIMINAR) {		
-				cout << "CI: lei la operacion, tengo q eliminar."<< endl;
-				clave = bloque->getClavePrimaria(listaTiposAtributos,registro);
+				clave =bloque->getClavePrimaria(listaTiposAtributos,registro);
 				eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 				delete clave;
-			}else
-				cout << "CI: lei la operacion, es no op: "<< (int)operacion << endl;
+			}
 			
 			delete[] registro;
 			registro = bloque->getNextRegister();	
@@ -662,7 +651,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 	unsigned short tamRegistro = 0;
 	char * registroDatos       = NULL;
 	Clave* claveSecundaria 	   = NULL;
-
+	
 	int resultado = indice->buscar(clave);
 	pipe.escribir(resultado);
 	
@@ -671,6 +660,7 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		pipe.leer(&tamRegistro);
 		
 		registroDatos = new char[tamRegistro];
+		memset(registroDatos, 0, tamRegistro);
 		
 		// Recibe el registro de datos.
 		pipe.leer(tamRegistro, registroDatos);
@@ -809,8 +799,8 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 		
 	}
 	
-	//Envía el resultado de la eliminación a la capa de metadata
-	cout << "CI: Termine de eliminar. Resultado: "<< resultado << ". lo mando." << endl;
+	//Envío el resultado a la capa de metadata
+	// TODO Aca habia un cout
 	pipe.escribir(resultado);
 	
 }
@@ -1050,14 +1040,10 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 			
 			mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indicePrimario;
 			
-			delete setClavesPrimarias;
-			
-		}
-		
-	}
-	
+			delete setClavesPrimarias;			
+		}		
+	}	
 }
-
 
 int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &pipe) {
 	int resultado = ResultadosIndices::OK;
@@ -1206,22 +1192,19 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	
 	if (clave) delete clave;
 	
-	return resultado;
-	
+	return resultado;	
 }
-
 
 int main(int argc, char* argv[]) {
 	
 	ComuDatos pipe(argv);
-	unsigned char codOp = 0;
 	string nombreTipo;
+	unsigned char codOp = 0;
 	
 	pipe.parametro(0, codOp);
 	pipe.parametro(1, nombreTipo);
 	
-	procesarOperacion(codOp, nombreTipo, pipe);
-		
+	procesarOperacion(codOp, nombreTipo, pipe);	
+	
 	cout << "Fin Capa Indices" << endl;
 }
-

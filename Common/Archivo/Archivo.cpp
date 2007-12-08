@@ -234,7 +234,7 @@
 		this->read(s, stringSize);
 		
 		val.assign(s, stringSize);
-		delete s;
+		delete[] s;
 		
 		return *this;
 	}
