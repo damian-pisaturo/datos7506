@@ -230,6 +230,7 @@
 		{
 			buffer = new char[tamBloque*sizeof(char)];
 			pipe.parametro(3, numBloque);
+
 			
 			archivo = new ArchivoIndiceHash(nombreArchivo, tamBloque);
 			

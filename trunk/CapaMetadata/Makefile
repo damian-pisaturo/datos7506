@@ -27,6 +27,7 @@ fuentes += ../CapaFisica/ArchivoBase/ArchivoBase.cpp
 fuentes += ../CapaFisica/ArchivoDatos/ArchivoDatos.cpp
 fuentes += ../CapaFisica/ArchivoEL/ArchivoEL.cpp
 fuentes += CapaMetadata.cpp
+fuentes += ../CapaConsultas/Vista/Vista.cpp
 
 # CONFIGURACION "AVANZADA"
 ###########################

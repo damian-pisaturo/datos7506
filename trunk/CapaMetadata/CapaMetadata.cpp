@@ -542,7 +542,6 @@ bool cumpleRestricciones(char* registro, ListaOperaciones &listaOperaciones,
 		}
 	
 	}
-	
 	return cumple;
 }
 
@@ -860,13 +859,11 @@ int baja(const string& nombreTipo,  EstructuraCampos &estructuraCampos)
 	if (pipeResult == ComuDatos::OK){
 		
 		// Envio de los valores de las claves de los registros
-		// a eliminar por el pipe.
-		
+		// a eliminar por el pipe.	
 		string valoresClaves("");
 		ListaInfoClave listaClaves;
 		
 		armarListaClaves(estructuraCampos, listaClaves);
-		
 		serializarListaClaves(valoresClaves,&listaClaves);
 		
 		pipe->escribir(valoresClaves);
@@ -878,20 +875,24 @@ int baja(const string& nombreTipo,  EstructuraCampos &estructuraCampos)
 		ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 		ListaNombresAtributos *listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);
 		
-		//unsigned short cantRegistros = 0;
 		unsigned short tamRegistro;
 		char* registro = NULL;
 		
 		// CapaIndices hace una consulta no indexada y retorna todos los registros para 
 		// Comprobar la cláusula WHERE.
+		cout << "CM: leo si hay registros para mandar"<< endl;
 		pipe->leer(&pipeResult);
+		cout << "CM: hay registros?: " << pipeResult << endl;
 		
 		// Mientras haya resgistros que mandar
 		while (pipeResult == ResultadosIndices::OK) {
-			
+		
+			cout << "CM: si, hay registros, entre en el while." << endl;
 			pipe->leer(&tamRegistro);
+			cout << "CM: me llego tamanio: "<< tamRegistro << endl;
 			
 			if (tamRegistro == 0) {
+				cout << "CM: llego tam=0"<< endl;
 				resultadoEliminacion = ResultadosIndices::ERROR_ELIMINACION;
 				break;
 			}
@@ -899,8 +900,15 @@ int baja(const string& nombreTipo,  EstructuraCampos &estructuraCampos)
 			registro = new char[tamRegistro];
 			
 			// Se obtiene el registro de datos consultado.
+			cout << "CM: voy a leer el reg"<< endl;
 			pipe->leer(tamRegistro, registro);
-
+			cout << "CM: lei el registro."<< endl;
+			
+			Vista vista;
+			vista.showRegister(registro, listaTiposAtributos);
+			
+			// Se arma una lista de operaciones con las condiciones de la cláusula where que debe cumplir un
+			// registro para ser eliminado.
 			for (ListaCampos::iterator iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter){
 				nodoListaOperaciones.estructuraNombresIzq.nombreTipo = nombreTipo;
 				nodoListaOperaciones.estructuraNombresIzq.nombreCampo = iter->nombreCampo;
@@ -910,13 +918,20 @@ int baja(const string& nombreTipo,  EstructuraCampos &estructuraCampos)
 				listaOperaciones.push_back(nodoListaOperaciones);
 			}
 			
+			cout << "CM: voy a ver si cumple restricciones."<< endl;
 			if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
+				// Si el registro debe ser eliminado, se le avisa a capa indices para que lo haga.
 				operacion = OperacionesCapas::INDICES_ELIMINAR;
+				cout << "CM: cumplio, lo elimino. Escribo la operacion: "<< (int)operacion << endl;
 				pipe->escribir(operacion);
+				cout << "CM: voy a leer el resultado de la eliminacion."<< endl;
 				pipe->leer(&resultadoEliminacion);
+				cout << "CM: el resultado fue: "<< resultadoEliminacion << endl;
 			}
 			else {
+				// Si el registro no debe ser eliminado, se le avisa a indices que no lo haga.
 				operacion = OperacionesCapas::INDICES_NO_OPERACION;
+				cout << "CM: no cumple, le mando no op."<< endl;
 				pipe->escribir(operacion);
 			}
 			
@@ -924,8 +939,9 @@ int baja(const string& nombreTipo,  EstructuraCampos &estructuraCampos)
 			registro = NULL;
 			
 			// Leo el resultado que indica si se van a recibir más registros
+			cout << "CM: voy a leer si hay mas registros"<< endl;
 			pipe->leer(&pipeResult);
-							
+			cout << "CM: recibi: " << pipeResult << endl;
 		}
 	}	
 	delete pipe;

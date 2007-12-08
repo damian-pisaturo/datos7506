@@ -13,6 +13,7 @@
 #include "../Common/DefManager/DefinitionsManager.h"
 #include "DataManager/DataManager.h"
 #include "FileManager/FileManager.h"
+#include "../CapaConsultas/Vista/Vista.h"
 
 #define EXTENSION_TEMPORAL_INICIAL	"tmp0"
 #define EXTENSION_ESPACIO_LIBRE		"nfo"
