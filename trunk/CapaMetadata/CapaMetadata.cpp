@@ -1389,15 +1389,16 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 			char* registro = NULL;
 			unsigned char tipoOrg;
 			
-			// Se envía la cantidad de registros
-			pipeCapaConsultas.escribir((unsigned short)listaNombresTipos.size());
-			
 			while (pipeResult == ResultadosMetadata::OK) {
+				
+				// Se envía la cantidad de registros
+				pipeCapaConsultas.escribir((unsigned short)listaNombresTipos.size());
 				
 				for (ListaStrings::const_iterator it = listaNombresTipos.begin();
 					 (it != listaNombresTipos.end()) && (pipeResult == ResultadosMetadata::OK); ++it) {
 					
 					nombreTipo = *it;
+					// Obetengo la última extensión del archivo temporal
 					extension = mapaExt[nombreTipo]->back();
 					nombreArchivo = nombreTipo + "." + extension;
 					tamBloque = defManager.getTamBloqueDatos(nombreTipo);
@@ -1419,6 +1420,9 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 					delete archivoResultados;
 					
 				}
+				
+				// Se indica a la capa superior si debe seguir recibiendo bloques
+				pipeCapaConsultas.escribir(pipeResult);
 				
 				++nroRegistro;
 				

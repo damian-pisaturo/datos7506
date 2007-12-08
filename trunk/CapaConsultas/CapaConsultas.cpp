@@ -284,10 +284,7 @@ int main(int argc, char* argv[]) {
 											// Se obtiene el tamaño del registro a levantar
 											pipe->leer(&tamRegistro);
 										
-											if (tamRegistro == 0) {
-												pipeResult = ResultadosIndices::ERROR_CONSULTA;
-												break;
-											}
+											if (tamRegistro == 0) break;
 											
 											registro = new char[tamRegistro];
 											
@@ -312,7 +309,7 @@ int main(int argc, char* argv[]) {
 									// Leo el resultado que indica si se van a recibir más bloques
 									pipe->leer(&pipeResult);
 									
-								} while (pipeResult == ResultadosIndices::OK);
+								} while (pipeResult == ResultadosMetadata::OK);
 								
 							}
 

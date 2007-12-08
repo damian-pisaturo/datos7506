@@ -56,9 +56,9 @@ class ComuDatos
 		static const unsigned int TOPE_ENVIAR_STRING = 4096;
 		static const unsigned char MAX_NUM 			 = 20;
 		static const unsigned char FIN_PARAMETROS    = 1;
-		static const unsigned char EXCEDE_TOPE       = 3;
 		static const unsigned char OK                = 2;
-		static const char ERROR_EJECUCION            = -1;
+		static const unsigned char EXCEDE_TOPE       = 3;
+		static const unsigned char ERROR_EJECUCION   = 4;
 
 	///////////////////////////////////////////////////////////////////////
 	//	Constructores/Destructor

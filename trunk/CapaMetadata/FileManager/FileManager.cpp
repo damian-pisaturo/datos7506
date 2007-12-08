@@ -74,7 +74,9 @@ int FileManager::leerRegistro(char* &registro, unsigned short numReg, unsigned s
 				} else cantRegistrosLeidos += cantRegistrosEnBloque;
 				
 				resultado = ResultadosMetadata::OK;
-			}
+				
+			} else if (resultado == ResultadosFisica::FIN_BLOQUES)
+				resultado = ResultadosMetadata::FIN_REGISTROS;
 				
 		}
 		
@@ -83,10 +85,13 @@ int FileManager::leerRegistro(char* &registro, unsigned short numReg, unsigned s
 		resultado = ((ArchivoDatosRegistros*)this->archivo)->leerRegistro(contenidoBloque, numReg);
 		
 		if (resultado == ResultadosFisica::OK) {
+			
 			registro = contenidoBloque;
 			tamReg = this->getTamanioBloqueDatos();
 			resultado = ResultadosMetadata::OK;
-		}
+			
+		} else if (resultado == ResultadosFisica::ERROR_POSICION)
+			resultado = ResultadosMetadata::FIN_REGISTROS;
 	}
 	
 	return resultado;
