@@ -348,6 +348,7 @@ using namespace std;
 				return *this;
 			}
 	}; /*Fin clase DatosIndices*/
+
 	
 	class DefinicionTipo
 	{

@@ -26,14 +26,11 @@
 #include "../../Common/Bloque/Bloque.h"
 #include "../../Common/ClaveFactory/ClaveFactory.h"
 #include "../../Common/CodigosPipe.h"
-#include <climits>
 #include <string>
 #include <sstream>
 #include <algorithm>
 
 #define CAMPO_NO_MODIFICADO ""
-#define VAL_TRUE "TRUE"
-#define VAL_FALSE "FALSE"
 #define SIGNO_MENOS '-'
 #define VALORES_NUMERICOS "-0123456789"
 #define VALORES_NUMERICOS_POS "0123456789"
@@ -78,7 +75,7 @@ class DataManager
 		unsigned short crearRegistroModificacion(const ListaTiposAtributos &listaTiposAtributos,
 									   const ListaValoresAtributos &listaVA, char *registroEnDisco);
 		
-		short crearRegistroAlta(const ListaValoresAtributos &listaVA,
+		unsigned short crearRegistroAlta(const ListaValoresAtributos &listaVA,
 							   const ListaTiposAtributos &listaTiposAtributos);
 		
 		unsigned short crearRegistroAltaRandom(string &valoresClaves, const ListaTiposAtributos &listaTiposAtributos);	
@@ -101,7 +98,7 @@ class DataManager
 	
 	private:
 	///////////////////////////////////////////////////////////////////////////
-	// Metodos privados
+	// Metodo privado
 	///////////////////////////////////////////////////////////////////////////
 		/*
 		 * Genera  el registro modificado
@@ -110,15 +107,7 @@ class DataManager
 								  const ListaTiposAtributos &listaTiposAtributos,
 								  const ListaValoresAtributos &listaVA);
 		
-		/* Metodos de validacion de los datos de entrada
-		 * constituyentes del registro.
-		 */
-		char validarEntero(const string& valorEntero) const;
-		char validarShort(const string& valorShort) const;
-		char validarChar(const string& valorChar) const;
-		char validarBool(const string& valorBool) const;
-		char validarFecha(const string& fecha) const;
-		char validarString(const string& s) const;
+
 		
 }; /*Fin clase DataManager*/
 

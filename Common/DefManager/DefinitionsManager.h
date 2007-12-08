@@ -81,6 +81,12 @@ class DefinitionsManager
 		ListaValoresAtributos* getListaValoresAtributos(const string &nombreTipo,
 														const MapaValoresAtributos &mapaValoresAtributos);
 		
+		// Devuelve las listas con los nombres y valores de la clave que corresponde a la
+		// ListaInfoClave pasada por parametro. En ambos casos HAY que liberar la memoria de
+		// la lista devuelta.
+		ListaValoresClaves* getListaValoresClaves(const ListaInfoClave& listaInfoClave);
+		ListaNombresClaves* getListaNombresClaves(const ListaInfoClave& listaInfoClave);
+		
 		char cargarArchivoMaestro(const string& nomArchivoDefiniciones)
 		{
 			return this->archivoMaestro.agregarTipo(nomArchivoDefiniciones);

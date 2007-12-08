@@ -16,10 +16,6 @@
 
 #include "CapaMetadata.h"
 
-typedef map<string, ListaOperaciones*> MapaRestricciones;
-
-typedef map<string, ListaStrings*> MapaExtensiones;
-
 // MÉTODOS PARA RESOLVER LAS CONSULTAS CON JOINS
 
 char invertirOperadorLogico(char operador) {
@@ -739,7 +735,9 @@ void serializarListaClaves(string& s,MapaValoresAtributos* mapaValores,
 	
 	for (iter = listaNombres->begin(); iter != listaNombres->end(); ++iter){
 		s += *iter; 
-		s += CodigosPipe::COMIENZO_OPERADOR + ExpresionesLogicas::IGUAL + CodigosPipe::FIN_OPERADOR;
+		s += CodigosPipe::COMIENZO_OPERADOR;
+		s += ExpresionesLogicas::IGUAL;
+		s += CodigosPipe::FIN_OPERADOR;
 		s += (*mapaValores)[*iter];
 		s += CodigosPipe::COD_FIN_CLAVE;
 	}
@@ -752,7 +750,9 @@ void serializarListaClaves(string& s, ListaInfoClave* listaClaves)
 	for (iter = listaClaves->begin(); iter != listaClaves->end(); ++iter)
 	{
 		s += (*iter).nombreClave;
-		s += CodigosPipe::COMIENZO_OPERADOR + ExpresionesLogicas::IGUAL + CodigosPipe::FIN_OPERADOR;
+		s += CodigosPipe::COMIENZO_OPERADOR ;
+		s += ExpresionesLogicas::IGUAL;
+		s += CodigosPipe::FIN_OPERADOR;
 		s += (*iter).valorClave;
 		s += CodigosPipe::COD_FIN_CLAVE;
 	}	
@@ -766,7 +766,9 @@ void serializarListaClaves(string &s, const ListaEstructuraNombres &listaNombres
 	for (iter = listaNombres.begin(); iter != listaNombres.end(); ++iter)
 	{
 		s += iter->nombreCampo;
-		s += CodigosPipe::COMIENZO_OPERADOR + ExpresionesLogicas::IGUAL + CodigosPipe::FIN_OPERADOR;
+		s += CodigosPipe::COMIENZO_OPERADOR;
+		s += ExpresionesLogicas::IGUAL;
+		s += CodigosPipe::FIN_OPERADOR;
 		s += CodigosPipe::COD_FIN_CLAVE;
 	}	
 }
@@ -825,7 +827,7 @@ void armarListaClaves(EstructuraCampos &estructuraCampos, ListaInfoClave &listaC
 }
 
 
-int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
+int baja(const string& nombreTipo,  EstructuraCampos &estructuraCampos)
 {
 	ComuDatos * pipe = instanciarPipe();
 				
@@ -916,112 +918,154 @@ int baja(string nombreTipo,  EstructuraCampos &estructuraCampos)
 	return resultadoEliminacion; 
 }
 
-int modificacion(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos, 
+int modificacion(const string& nombreTipo, MapaValoresAtributos &mapaValoresAtributos, 
 				 EstructuraCampos &estructuraCampos)
 {
-	ComuDatos *pipe = instanciarPipe();
+	int resultado              = ResultadosIndices::OK;	
+	unsigned short tamRegistro = 0;
+	char operacion             = 0;
+	char* registro             = NULL;
+	ComuDatos *pipe            = NULL;
 	
-	// Codigo de operacion de consulta para la Capa de Indices
-	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_MODIFICAR, 0); 
-	// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
-	pipe->agregarParametro(nombreTipo, 1);
+	// Controlador de registros de datos
+	DataManager dataManager;
 	
-	// Se lanza el proceso de la Capa Indices.
-	int pipeResult = pipe->lanzar();
-	int resultadoModificacion = ResultadosIndices::OK;
+	//Validador de datos a modificar
+	ValidadorDatos validador;
 	
-	if (pipeResult == ComuDatos::OK){
+	string valoresClaves;
+	ListaInfoClave listaClaves;
+	NodoListaOperaciones nodoListaOperaciones;
+	ListaOperaciones listaOperaciones;
 	
-		// Envio de los valores de las claves de los registros
-		// a modificar por el pipe.
-		string valoresClaves("");
-		ListaInfoClave listaClaves;
+	// Lista de los tipos de todos los atributos dentro de un registro.
+	ListaTiposAtributos* listaTiposAtributos     = NULL;
+	ListaTipos* listaTipos 				         = NULL;
+	ListaNombresAtributos *listaNombresAtributos = NULL;
+	ListaNombresClaves* listaNombresClaves 		 = NULL;
+	// Lista de valores de todos los atributos dentro de un registro.
+	ListaValoresAtributos* listaValAtributos     = NULL;
+	ListaValoresClaves* listaValClaves 			 = NULL;
+	
+	DefinitionsManager& defManager = DefinitionsManager::getInstance();
+	
+	listaTipos = defManager.getListaTipos(nombreTipo);
+	
+	if (listaTipos){
+		listaValAtributos = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
 		
-		armarListaClaves(estructuraCampos, listaClaves);
+		// Se valida el contenido del registro modificado.
+		resultado = validador.validarRegistro(*listaTipos, *listaValAtributos);
 		
-		serializarListaClaves(valoresClaves,&listaClaves);
-		pipe->escribir(valoresClaves);
-				
-		DefinitionsManager& defManager = DefinitionsManager::getInstance();
-
-		// Lista de los tipos de todos los atributos dentro de un registro.
-		ListaTiposAtributos* listaTiposAtributos = NULL;
-
-		// Lista de valores de todos los atributos dentro de un registro.
-		ListaValoresAtributos* listaValAtributos = NULL;
-		
-		NodoListaOperaciones nodoListaOperaciones;
-		ListaOperaciones listaOperaciones;
-				
-		unsigned short tamRegistro = 0;
-		char* registro = NULL;
-		char operacion;
-		
-		// Controlador de registros de datos
-		DataManager dataManager;
-		ListaNombresAtributos *listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);	
-		listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-		listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
-		pipeResult = ResultadosIndices::OK;
-		
-		// Lee si hay registros de datos. Si los hay, los va obteniendo para ver si cumplen con las 
-		// cláusulas WHERE
-		pipe->leer(&pipeResult);
-		
-
-		while (pipeResult == ResultadosIndices::OK) {
-
-			// Obtiene un registro.
-			pipe->leer(&tamRegistro);
-
-			registro = new char[tamRegistro];
+		if (resultado == ResultadosMetadata::OK){
 			
-			pipe->leer(tamRegistro, registro);
+			armarListaClaves(estructuraCampos, listaClaves);
+			
+			listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);
+			listaNombresClaves = defManager.getListaNombresClaves(listaClaves);
+			
+			// Se validan los nombres de las claves por las que se estan modificando.
+			resultado = validador.validarNombresClaves(*listaNombresAtributos, *listaNombresClaves);
+			
+			if (resultado == ResultadosMetadata::OK){
 	
-			for (ListaCampos::iterator iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter){
-				nodoListaOperaciones.estructuraNombresIzq.nombreTipo = nombreTipo;
-				nodoListaOperaciones.estructuraNombresIzq.nombreCampo = iter->nombreCampo;
-				nodoListaOperaciones.estructuraNombresDer.nombreTipo = "";
-				nodoListaOperaciones.estructuraNombresDer.nombreCampo = iter->valorCampo;
-				nodoListaOperaciones.operacion = iter->operacion;
-				listaOperaciones.push_back(nodoListaOperaciones);
-			}
-
-			if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
-				operacion = OperacionesCapas::INDICES_MODIFICAR;
-				pipe->escribir(operacion);
-				
-				// Crea un nuevo registro con las modificaciones pertinentes. Devuelve su nueva longitud.
-				tamRegistro = dataManager.crearRegistroModificacion(*listaTiposAtributos, *listaValAtributos, registro);
-				
-				// Se envia el tamano del registro modificado por el pipe.
-				pipe->escribir(tamRegistro);
-				
-				// Se envia el nuevo registro con la modificacion.
-				pipe->escribir(dataManager.getRegistro(), tamRegistro);
-
-				// Se obtiene el resultado de la modificacion.
-				pipe->leer(&resultadoModificacion);
-			}
-			else {
-				operacion = OperacionesCapas::INDICES_NO_OPERACION;
-				pipe->escribir(operacion);
-			}
-
-			delete[] registro;
+				listaValClaves = defManager.getListaValoresClaves(listaClaves);
+				listaTipos = defManager.getListaTiposClaves(nombreTipo, *listaNombresClaves);				
+					
+				// Se validan los valores de las claves por las que se quiere modificar el registro.
+				resultado = validador.validarClave(*listaTipos, *listaValClaves);		
+					
+				if (resultado == ResultadosMetadata::OK){				
+					pipe = instanciarPipe();
+					// Codigo de operacion de consulta para la Capa de Indices
+					pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_MODIFICAR, 0); 
+					// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula)
+					pipe->agregarParametro(nombreTipo, 1);
+					
+					// Se lanza el proceso de la Capa Indices.
+					resultado = pipe->lanzar();
+					
+					if (resultado == ComuDatos::OK){
+					
+						// Envio de los valores de las claves de los registros
+						// a modificar por el pipe.					
+						serializarListaClaves(valoresClaves,&listaClaves);
+						pipe->escribir(valoresClaves);		
+					
+						listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);	
+						listaTiposAtributos   = defManager.getListaTiposAtributos(nombreTipo);
 						
-			// Obtiene si hay mas registros.
-			pipe->leer(&pipeResult);
-		}
-		
-		delete listaValAtributos;
+						// Lee si hay registros de datos. Si los hay, los va obteniendo para ver si cumplen con las 
+						// cláusulas WHERE
+						pipe->leer(&resultado);		
 				
-	}
+						while (resultado == ResultadosIndices::OK) {
+				
+							// Obtiene un registro.
+							pipe->leer(&tamRegistro);
+				
+							registro = new char[tamRegistro];
+							
+							pipe->leer(tamRegistro, registro);
+					
+							for (ListaCampos::iterator iter = estructuraCampos.listaCampos.begin(); iter != estructuraCampos.listaCampos.end(); ++iter){
+								nodoListaOperaciones.estructuraNombresIzq.nombreTipo = nombreTipo;
+								nodoListaOperaciones.estructuraNombresIzq.nombreCampo = iter->nombreCampo;
+								nodoListaOperaciones.estructuraNombresDer.nombreTipo = "";
+								nodoListaOperaciones.estructuraNombresDer.nombreCampo = iter->valorCampo;
+								nodoListaOperaciones.operacion = iter->operacion;
+								listaOperaciones.push_back(nodoListaOperaciones);
+							}
+				
+							if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
+								operacion = OperacionesCapas::INDICES_MODIFICAR;
+								pipe->escribir(operacion);
+								
+								// Crea un nuevo registro con las modificaciones pertinentes. Devuelve su nueva longitud.
+								tamRegistro = dataManager.crearRegistroModificacion(*listaTiposAtributos, *listaValAtributos, registro);
+								
+								// Se envia el tamano del registro modificado por el pipe.
+								pipe->escribir(tamRegistro);
+								
+								// Se envia el nuevo registro con la modificacion.
+								pipe->escribir(dataManager.getRegistro(), tamRegistro);
+				
+								// Se obtiene el resultado de la modificacion.
+								pipe->leer(&resultado);
+							}
+							else {
+								operacion = OperacionesCapas::INDICES_NO_OPERACION;
+								pipe->escribir(operacion);
+							}
+				
+							if (registro)
+								delete[] registro;
+										
+							// Obtiene si hay mas registros.
+							pipe->leer(&resultado);
+						}
+					}							
+				}		
+			}
+		}
+	}else resultado = ResultadosMetadata::TIPO_NO_DEFINIDO;
 	
-	delete pipe;
-	pipe = NULL;
-	return resultadoModificacion;	
-		
+	if (pipe)
+		delete pipe;
+	
+	if (registro)
+		delete[] registro;
+	
+	if (listaValAtributos)
+		delete listaValAtributos;
+	
+	if (listaValClaves)
+		delete listaValClaves;
+	
+	if (listaNombresClaves)
+		delete listaNombresClaves;
+	
+	return resultado;	
 }
 //		for (unsigned short i = 0; (i < cantRegistros) && (pipeResult == ResultadosIndices::OK); i++){
 //				
@@ -1061,73 +1105,93 @@ int modificacion(string nombreTipo, MapaValoresAtributos &mapaValoresAtributos,
 //	
 //	return pipeResult;
 
-int alta(string nombreTipo, MapaValoresAtributos& mapaValoresAtributos)
+int alta(const string& nombreTipo, MapaValoresAtributos& mapaValoresAtributos)
 {
-	ComuDatos *pipe = instanciarPipe();
-
+	int resultado              = ResultadosIndices::OK;
+	unsigned short tamRegistro = 0;
+	ComuDatos *pipe            = NULL;
+	
+	// Validador de datos a dar de alta.
+	ValidadorDatos validador;
+	
+	// Controlador de registros de datos
+	DataManager dataManager;
+	
+	string valoresClaves;
+	// Lista de valores de todos los atributos dentro de un registro.
+	ListaValoresAtributos* listaValAtributos = NULL;	
+	// Lista de los tipos de todos los atributos dentro de un registro.
+	ListaTiposAtributos* listaTiposAtributos = NULL;
+	ListaTipos* listaTipos                   = NULL;
+	ListaNombresClaves *listaNomClaves		 = NULL;
+	ListaNombresAtributos *listaNomAtributos = NULL;
+	
 	// Se instancia el DefinitionsManager (conocedor absoluto del universo).
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
 	
-	ListaNombresClaves *listaNombres = defManager.getListaNombresClavesPrimarias(nombreTipo);
+	listaValAtributos = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
 	
-	pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_INSERTAR, 0); 
-	// Nombre del tipo de dato a ser dado de alta.
-	pipe->agregarParametro(nombreTipo, 1);
-	
-	// Se lanza el proceso de la Capa Indices.
-	int pipeResult = pipe->lanzar();
+	if (listaValAtributos){
+		listaTipos = defManager.getListaTipos(nombreTipo);
+		
+		// Se valida el registro a insertar.
+		resultado = validador.validarRegistro(*listaTipos, *listaValAtributos);
+		
+		if (resultado == ResultadosMetadata::OK){
+			
+			listaNomAtributos = defManager.getListaNombresAtributos(nombreTipo);
+			// Se validan los nombres de los campos del registro a dar de alta
+			resultado = validador.validarNombresAtributos(*listaNomAtributos, mapaValoresAtributos);
 
-	if (pipeResult == ComuDatos::OK){
-		// Envio de los valores de las claves de los registros
-		// a modificar por el pipe.
-		string valoresClaves("");		
-		
-		serializarListaClaves(valoresClaves, &mapaValoresAtributos, listaNombres);
-		
-		pipe->escribir(valoresClaves);
-		
-		// Se obtiene el resultado de la operacion.
-		pipe->leer(&pipeResult);
-		
-		if (pipeResult == ResultadosIndices::CLAVE_NO_ENCONTRADA){
-	
-			// Lista de valores de todos los atributos dentro de un registro.
-			ListaValoresAtributos* listaValAtributos = NULL;
-			
-			// Lista de los tipos de todos los atributos dentro de un registro.
-			ListaTiposAtributos* listaTiposAtributos = NULL;
-	
-			// Controlador de registros de datos
-			DataManager dataManager;
-			
-			listaValAtributos   = defManager.getListaValoresAtributos(nombreTipo, mapaValoresAtributos);
-			listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-			
-			// Se crea el registro a dar de alta y se obtiene su longitud
-			short tamRegistro = dataManager.crearRegistroAlta(*listaValAtributos, *listaTiposAtributos);
-			
-			pipe->escribir(tamRegistro);
-			
-			// Si el registro contiene datos validos, crearRegistroAlta devolvera
-			// el tamano (positivo) del registro a ser dado de alta. De lo contrario,
-			// retorna un codigo de error menor a 0. 
-			if (tamRegistro > 0) {			
-				// Se envia el registro a dar de alta por el pipe.
-				pipe->escribir(dataManager.getRegistro(), tamRegistro);
+			if (resultado == ResultadosMetadata::OK){
+				pipe = instanciarPipe();
 				
-				// Se obtiene el resultado de la insercion
-				pipe->leer(&pipeResult);
+				pipe->agregarParametro((unsigned char)OperacionesCapas::INDICES_INSERTAR, 0); 
+				// Nombre del tipo de dato a ser dado de alta.
+				pipe->agregarParametro(nombreTipo, 1);
 				
-			}else pipeResult = tamRegistro;
+				// Se lanza el proceso de la Capa Indices.
+				resultado = pipe->lanzar();
 			
-			delete listaValAtributos;
+				if (resultado == ComuDatos::OK){
+	
+					// Envio de los valores de las claves de los registros
+					// a modificar por el pipe.		
+					listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+					listaNomClaves      = defManager.getListaNombresClavesPrimarias(nombreTipo);
 			
+					serializarListaClaves(valoresClaves, &mapaValoresAtributos, listaNomClaves);
+					
+					pipe->escribir(valoresClaves);
+					
+					// Se obtiene el resultado de la operacion.
+					pipe->leer(&resultado);
+	
+					if (resultado == ResultadosIndices::CLAVE_NO_ENCONTRADA){				
+	
+						// Se crea el registro a dar de alta y se obtiene su longitud
+						tamRegistro = dataManager.crearRegistroAlta(*listaValAtributos, *listaTiposAtributos);
+						
+						pipe->escribir(tamRegistro);
+						// Se envia el registro a dar de alta por el pipe.
+						pipe->escribir(dataManager.getRegistro(), tamRegistro);
+						
+						// Se obtiene el resultado de la insercion
+						pipe->leer(&resultado);
+					}
+		
+				}
+			}
 		}
-	}
+	}else resultado = ResultadosMetadata::TIPO_NO_DEFINIDO;
 
-	delete pipe;
+	if (pipe)
+		delete pipe;	
+	
+	if (listaValAtributos)
+		delete listaValAtributos;		
 
-	return pipeResult;
+	return resultado;
 }
 
 
@@ -1480,9 +1544,11 @@ int main(int argc, char* argv[])
 			delete pipe;
 	}
 	
+	cout.flush();
+
 	cout << "Fin Capa Metadata" << endl;
+	cout << endl;
 	
-	return pipeResult;
-	
+	return pipeResult;	
 }
 

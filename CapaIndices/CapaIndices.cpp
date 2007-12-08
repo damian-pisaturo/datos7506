@@ -649,17 +649,16 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 		   	  Indice *indice, Clave *clave,
 		   	  DefinitionsManager &defManager, ComuDatos &pipe) {
 	
-	short tamRegistro = 0;
-	char *registroDatos = NULL;
-	
+	unsigned short tamRegistro = 0;
+	char * registroDatos       = NULL;
+	Clave* claveSecundaria 	   = NULL;
+
 	int resultado = indice->buscar(clave);
 	pipe.escribir(resultado);
 	
 	if (resultado == ResultadosIndices::CLAVE_NO_ENCONTRADA) {
 		// Recibe el tamaño del registro a insertar.
 		pipe.leer(&tamRegistro);
-		
-		if (tamRegistro <= 0) return;
 		
 		registroDatos = new char[tamRegistro];
 		
@@ -675,16 +674,14 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 			//Saco el índice primario para no volver a insertar.
 			MapaIndices::iterator it = mapaIndices.find(*defManager.getListaNombresClavesPrimarias(nombreTipo));
 			delete it->second;
-			mapaIndices.erase(it);
-			
-			Clave* claveSecundaria = NULL;
+			mapaIndices.erase(it);			
 			
 			Registro registro(defManager.getTipoOrgRegistro(nombreTipo),
 							  registroDatos, defManager.getListaTipos(nombreTipo),
 							  defManager.getListaNombresAtributos(nombreTipo));
 			
 			for (MapaIndices::iterator iter = mapaIndices.begin();
-				iter != mapaIndices.end(); ++iter) {
+				(iter != mapaIndices.end()) && (resultado == ResultadosIndices::OK); ++iter) {
 				
 				claveSecundaria = registro.getClave(iter->first);
 				indice = iter->second;
@@ -693,12 +690,12 @@ void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
 				
 				delete claveSecundaria;
 			}
-		}
-		
-		delete[] registroDatos;
-		
+		}		
 	}
 	
+	if (registroDatos)
+		delete[] registroDatos;
+
 	pipe.escribir(resultado);
 }
 
@@ -1060,8 +1057,9 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	char operador = 0;
 	
 	MapaIndices mapaIndices;
-	Clave *clave = NULL;
-	Indice* indice = NULL;
+	Clave *clave           = NULL;
+	Indice* indice         = NULL;
+	ListaTipos* listaTipos = NULL;
 	
 	//Si la operación es una inserción, recibo la clave o la lista de claves del índice primario
 		
@@ -1112,9 +1110,10 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 			} else {
 				MapaIndices::iterator it = mapaIndices.find(listaNombresClaves);
 				if (it != mapaIndices.end()) indice = it->second;
-				
-				ListaTipos* listaTipos = defManager.getListaTiposClaves(nombreTipo, listaNombresClaves);
+
+				listaTipos = defManager.getListaTiposClaves(nombreTipo, listaNombresClaves);
 				clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *listaTipos);
+
 				delete listaTipos;
 			}
 
