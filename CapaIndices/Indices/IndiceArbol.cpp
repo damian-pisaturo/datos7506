@@ -166,14 +166,20 @@ int IndiceArbol::eliminar(Clave *clave) {
 	Clave* claveBuscada = bTree->buscar(clave);
 	if (!claveBuscada) return ResultadosIndices::CLAVE_NO_ENCONTRADA;
 	
+	cout << "CI: Encontre la clave en arbol, voy a eliminarla."<< endl;
 	if (bTree->eliminar(clave)) {
 		
+		
 		if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES) {
-			
+			cout << "CI: organizacion variable." << endl;	
 			char *contenidoBloque =  new char[this->getTamanioBloqueDatos()];
+			
+			cout << "CI: voy a leer el bloque de datos del archivo." << endl;
 			if (this->bloqueManager->leerBloqueDatos(claveBuscada->getReferencia(), contenidoBloque) == ResultadosFisica::OK){
 				this->bloque->setDatos(contenidoBloque);
+				cout << "CI:los lei, voy a dar la baja." << endl;
 				this->bloque->bajaRegistro(this->listaInfoReg, *claveBuscada);
+				cout << "CI: di la baja, voy a escribir a disco los datos resultantes." << endl;
 				this->bloqueManager->escribirBloqueDatos(claveBuscada->getReferencia(), this->bloque->getDatos());
 			} else
 				delete[] contenidoBloque;

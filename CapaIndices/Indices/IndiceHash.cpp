@@ -15,9 +15,7 @@
 		// La siguiente lista contiene la información necesaria para administrar los registros armados
 		// a partir de una clave secundaria y un offset al archivo de las listas de claves primarias
 		this->listaNodosClave = this->getListaNodosClave();
-		
-		//TODO Aca creo que va la listaParam (antes estaba this->listaNodosClave
-		this->hash = new Hash((IndiceHashManager*)indiceManager, listaParam, tamBucket);
+		this->hash = new Hash((IndiceHashManager*)indiceManager, this->listaInfoReg, tamBucket);
 		
 		// Si el IndiceHash se está usando como un índice secundario,
 		// se crea un BloqueListaManager.
@@ -284,11 +282,6 @@
 				// el offset a la lista invertida.
 				char* claveSecundariaSerializada = Bloque::serializarClave(claveSecundaria, this->listaTiposClave);
 				tamanioRegistro = Tamanios::TAMANIO_LONGITUD + claveSecundaria->getTamanioValorConPrefijo();
-				
-				cout << "clave secundaria serializada: " << endl;
-				for (unsigned i = 0; i < tamanioRegistro; ++i)
-					printf("%2x", claveSecundariaSerializada[i]);
-				
 				registro = new char[tamanioRegistro + Tamanios::TAMANIO_REFERENCIA];
 				memcpy(registro, claveSecundariaSerializada, tamanioRegistro);
 				this->setOffsetToList(resultado, registro, tamanioRegistro);
