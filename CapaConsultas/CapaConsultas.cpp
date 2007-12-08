@@ -125,6 +125,8 @@ int main(int argc, char* argv[]) {
 		unsigned char operacion = 0;    // Tipo de operacion a ejecutar
 		string valoresClaves("");
 		string nombreTipo("");
+		unsigned short cantRegistros = 0, tamRegistro = 0;
+		char* registro = NULL;
 		
 		// Mapa contenedor de los valores de los atributos, indexados por sus nombres.
 		MapaValoresAtributos* mapaValoresAtributos = NULL; 
@@ -231,6 +233,8 @@ int main(int argc, char* argv[]) {
 							
 							if (pipeResult == ResultadosMetadata::OK) {
 								
+								// TODO: Adaptar la clase vista para mostrar determinados campos de un registro
+/*								
 								// Obtiene la cantidad de tipos involucrados en la consulta.
 								cantidadElementos = estructuraConsulta.listaNombresTipos.size(); 
 								
@@ -255,52 +259,63 @@ int main(int argc, char* argv[]) {
 									lista = mapaNombresCamposAImprimir[itLEN->nombreTipo];
 									lista->push_back(itLEN->nombreCampo);
 								}
-							// TODO: ver como se mostrarian los resultados.
-							}
+*/
 								
-							
-	//						if (pipeResult == ResultadosIndices::OK) {
-	//							
-	//							do {
-	//								// Se obtiene la cantidad de registros que responden 
-	//								// a la consulta realizada.
-	//								pipe->leer(&cantRegistros); 
-	//								
-	//								if (cantRegistros > 0) {
-	//									
-	//									listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
-	//									
-	//									cout << "======= Resultado de la consulta =======" << endl << endl;
-	//									for (unsigned short i = 0; i < cantRegistros; i++){
-	//										// Se obtiene el tamaño del registro a levantar
-	//										pipe->leer(&tamRegistro);
-	//									
-	//										if (tamRegistro == 0) {
-	//											pipeResult = ResultadosIndices::ERROR_CONSULTA;
-	//											break;
-	//										}
-	//										
-	//										registro = new char[tamRegistro];
-	//										
-	//										// Se obtiene el registro de datos consultado.
-	//										pipe->leer(tamRegistro, registro);
-	//										
-	//										vista.showRegister(registro, listaTiposAtributos);
-	//										
-	//										delete[] registro;
-	//										
-	//										cout << endl;
-	//									}
-	//									cout << "========================================" << endl;
-	//									
-	//									registro = NULL;
-	//								}
-	//								
-	//								// Leo el resultado que indica si se van a recibir más bloques
-	//								pipe->leer(&pipeResult);
-	//								
-	//							} while (pipeResult == ResultadosIndices::OK);
-	//						}
+								ListaStrings& listaNombresTipos = estructuraConsulta.listaNombresTipos;
+								ListaTiposAtributos* listaTiposAtributos = NULL;
+								ListaStrings::const_iterator iterLNT;
+								// Si la listaNombresTipos contiene un solo elemento, significa que no
+								// hay joins, por lo tanto, todos los registros que se reciban van a ser
+								// del mismo tipo.
+								// En cambio, si la listaNombresTipos contiene más de un elemento,
+								// significa que hay joins, por lo tanto, cada registro que se reciba será
+								// de un tipo distinto, ordenados según la listaNombresTipos.
+								do {
+									// Se obtiene la cantidad de registros que responden 
+									// a la consulta realizada.
+									pipe->leer(&cantRegistros); 
+									
+									if (cantRegistros > 0) {
+										
+										iterLNT = listaNombresTipos.begin();
+										
+										cout << "======= Resultado de la consulta =======" << endl << endl;
+										for (unsigned short i = 0; i < cantRegistros; i++){
+											// Se obtiene el tamaño del registro a levantar
+											pipe->leer(&tamRegistro);
+										
+											if (tamRegistro == 0) {
+												pipeResult = ResultadosIndices::ERROR_CONSULTA;
+												break;
+											}
+											
+											registro = new char[tamRegistro];
+											
+											// Se obtiene el registro de datos consultado.
+											pipe->leer(tamRegistro, registro);
+											
+											// Se obtiene la listaTiposAtributos de cada registro
+											listaTiposAtributos = defManager.getListaTiposAtributos(*iterLNT);
+											if (listaNombresTipos.size() > 1) ++iterLNT;
+											
+											vista.showRegister(registro, listaTiposAtributos);
+											
+											delete[] registro;
+											
+											cout << endl;
+										}
+										cout << "========================================" << endl;
+										
+										registro = NULL;
+									}
+									
+									// Leo el resultado que indica si se van a recibir más bloques
+									pipe->leer(&pipeResult);
+									
+								} while (pipeResult == ResultadosIndices::OK);
+								
+							}
+
 						}
 					}break;
 					

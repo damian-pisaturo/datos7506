@@ -638,6 +638,44 @@
 			
 			return registro;
 		}
+		
+		/*
+		 * Retorna el registro que se encuentra en la posición 'numReg',
+		 * comenzando desde 0. En 'tamReg' devuelve el tamaño del mismo.
+		 * */
+		char* Bloque::getRegistro(unsigned short numReg, unsigned short &tamReg) const {
+			
+			unsigned short offsetToReg = this->offsetADatos;
+			unsigned short offsetEspLibre = 0, longReg = 0;
+			char* registro = NULL;
+			tamReg = 0;
+			
+			if (this->datos) {
+			
+				memcpy(&offsetEspLibre, this->datos, Tamanios::TAMANIO_ESPACIO_LIBRE);
+				
+				unsigned short i;
+				
+				for (i = 0; (i < numReg) && (offsetToReg < offsetEspLibre); ++i) {
+					
+					memcpy(&longReg, this->datos + offsetToReg, Tamanios::TAMANIO_LONGITUD);
+					
+					offsetToReg += Tamanios::TAMANIO_LONGITUD + longReg;
+					
+				}
+				
+				if (i == numReg) {
+					memcpy(&longReg, this->datos + offsetToReg, Tamanios::TAMANIO_LONGITUD);
+					tamReg = Tamanios::TAMANIO_LONGITUD + longReg;
+					registro = new char[tamReg];
+					memcpy(registro, this->datos + offsetToReg, tamReg);
+				}
+			
+			}
+			
+			return registro;
+			
+		}
 
 		/*
 		 * Este método recibe un registro, y retorna su clave primaria.

@@ -38,13 +38,69 @@ FileManager::~FileManager() {
 }
 
 
+/* Devuelve en 'registro' el registro cuya posicion en el archivo es 
+ * numReg.
+ * En tamReg devuelve el tamaño del mismo.
+ */
+int FileManager::leerRegistro(char* &registro, unsigned short numReg, unsigned short &tamReg) {
+	
+	int resultado = ResultadosMetadata::OK;
+	char* contenidoBloque = new char[this->getTamanioBloqueDatos()];
+	tamReg = 0;
+	
+	if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES) {
+		
+		// Se obtiene el siguiente bloque hasta encontrar el registro
+		int numBloque = 0;
+		unsigned short espLibre = this->getTamanioBloqueDatos() - Tamanios::TAMANIO_ESPACIO_LIBRE - Tamanios::TAMANIO_CANTIDAD_REGISTROS;
+		bool encontrado = false;
+		Bloque bloque(0, this->getTamanioBloqueDatos(), this->getTipoOrganizacion());
+		unsigned short cantRegistrosLeidos = 0, cantRegistrosEnBloque = 0;
+
+		while ( (!encontrado) && (resultado == ResultadosMetadata::OK) ) {
+			
+			resultado = ((ArchivoDatosBloques*)this->archivo)->siguienteBloque(contenidoBloque, numBloque, espLibre);
+			
+			if (resultado == ResultadosFisica::OK) {
+				
+				bloque.setDatos(contenidoBloque);
+				cantRegistrosEnBloque = bloque.getCantidadRegistros();
+				
+				if ((cantRegistrosLeidos + cantRegistrosEnBloque) >= numReg) {
+					// Obtengo el registro
+					unsigned short nroRegistro = numReg - cantRegistrosLeidos;
+					registro = bloque.getRegistro(nroRegistro, tamReg);
+					encontrado = true;
+				} else cantRegistrosLeidos += cantRegistrosEnBloque;
+				
+				resultado = ResultadosMetadata::OK;
+			}
+				
+		}
+		
+	} else if (this->getTipoOrganizacion() == TipoOrganizacion::REG_FIJOS) {
+		// Lee el registro de datos
+		resultado = ((ArchivoDatosRegistros*)this->archivo)->leerRegistro(contenidoBloque, numReg);
+		
+		if (resultado == ResultadosFisica::OK) {
+			registro = contenidoBloque;
+			tamReg = this->getTamanioBloqueDatos();
+			resultado = ResultadosMetadata::OK;
+		}
+	}
+	
+	return resultado;
+	
+}
+
+
 /* Escribe en el archivo de datos el registro pasado por parametro
  * en la posicion del primer registro libre que encuentre, utilizando
  * el archivo de control de espacio libre. Si todos los registro
  * se encuentran ocupados, appendea al final del archivo.
  * Devuelve la posicion en donde fue escrito finalmente.
  */
-int FileManager::escribirRegistro(void* registro, unsigned short tamRegistro) {
+int FileManager::escribirRegistro(char* registro, unsigned short tamRegistro) {
 	
 	int resultado = ResultadosMetadata::OK;
 	int nroBloque = -1;
@@ -89,6 +145,16 @@ int FileManager::escribirRegistro(void* registro, unsigned short tamRegistro) {
 	return resultado;
 	 
 }
+
+
+/*
+ * Método que posiciona el puntero interno del archivo el comienzo
+ * del mismo.
+ */
+void FileManager::comienzo() {
+	this->archivo->posicionarse(0);
+}
+
 
 int FileManager::getNextBloque(char* &registro, unsigned short &tamRegistro) {
 	
@@ -159,7 +225,7 @@ int FileManager::siguienteRegistro(char* &registro, unsigned short &tamRegistro)
 
 void FileManager::eliminarArchivosTemporales(const string &extension) {
 	
-	string operacion("rm *." + extension);
+	string operacion("rm -fv *." + extension);
 	system(operacion.c_str());
 	
 }
@@ -167,7 +233,7 @@ void FileManager::eliminarArchivosTemporales(const string &extension) {
 
 void FileManager::eliminarArchivoTemporal(const string &nombre, const string &extension) {
 	
-	string operacion("rm " + nombre + "." + extension);
+	string operacion("rm -fv " + nombre + "." + extension);
 	system(operacion.c_str());
 	
 }

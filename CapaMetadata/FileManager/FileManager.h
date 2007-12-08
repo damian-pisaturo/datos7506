@@ -26,13 +26,19 @@ class FileManager {
 		
 		virtual ~FileManager();
 		
+		/* Devuelve en 'registro' el registro cuya posicion en el archivo es 
+		 * numReg.
+		 * En tamReg devuelve el tamaño del mismo.
+		 */
+		int leerRegistro(char* &registro, unsigned short numReg, unsigned short &tamReg);
+		
 		/* Escribe en el archivo de datos el registro pasado por parametro
 		 * en la posicion del primer registro libre que encuentre, utilizando
 		 * el archivo de control de espacio libre. Si todos los registro
 		 * se encuentran ocupados, appendea al final del archivo.
 		 * Devuelve la posicion en donde fue escrito finalmente.
 		 */
-		int escribirRegistro(void* registro, unsigned short tamRegistro);
+		int escribirRegistro(char* registro, unsigned short tamRegistro);
 		
 		/* Devuelve el siguiente registro con datos validos en el archivo de
 		 * datos. Si pudo obtener un registro, lo devuelve en 'registro' y
@@ -41,6 +47,12 @@ class FileManager {
 		 * retorna ResultadosMetadata::FIN_REGISTROS.
 		 */
 		int siguienteRegistro(char* &registro, unsigned short &tamRegistro);
+		
+		/*
+		 * Método que posiciona el puntero interno del archivo el comienzo
+		 * del mismo.
+		 */
+		void comienzo();
 		
 		unsigned short getTamanioBloqueDatos() const { return this->tamBloque; }
 		
@@ -65,7 +77,8 @@ class FileManager {
 		 * Ejemplo: tmp, tmp.nfo
 		 */
 		static void renombrarArchivosTemporales(ListaStrings &listaNombres,
-												const string &extVieja, const string &extNueva);
+												const string &extVieja,
+												const string &extNueva);
 		
 	private:
 		int getNextBloque(char* &registro, unsigned short &tamRegistro);

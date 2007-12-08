@@ -579,14 +579,17 @@ int guardarRegistro(const string &nombreTipo, char* registro, unsigned short tam
 int join(const MapaRestricciones &mapaOp, MapaExtensiones &mapaExt) {
 	
 	int resultado = ResultadosMetadata::OK;
-	string nombreTipo1, nombreTipo2, nombreArchivo;
+	string nombreTipo1, nombreTipo2, nombreTipoAux, nombreArchivo;
 	string extensionVieja1, extensionVieja2, extensionNueva1, extensionNueva2;
+	string extensionViejaAux, extensionNuevaAux;
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
 	ListaOperaciones* listaOp = NULL;
 	char *registro1 = NULL, *registro2 = NULL, *auxReg = NULL;
-	unsigned short tamRegistro1 = 0, tamRegistro2 = 0, tamRegAnterior = 0;
-	bool cumpleRestriccion = false, registrosJoineados = false, registrosIguales = false;
-	unsigned short tamBloque = 0;
+	unsigned short tamRegistro1 = 0, tamRegistro2 = 0, tamRegAux = 0;
+	bool cumpleRestriccion = false, registrosJoineados = false;
+	unsigned short tamBloque = 0, nroRegistro = 0;
+	unsigned char tipoOrg = 0;
+	ListaTiposAtributos* listaTiposAtributos = NULL;
 	ListaStrings* listaExtensiones = NULL;
 	
 	for (MapaRestricciones::const_iterator it = mapaOp.begin(); it != mapaOp.end(); ++it) {
@@ -594,115 +597,127 @@ int join(const MapaRestricciones &mapaOp, MapaExtensiones &mapaExt) {
 		nombreTipo1 = it->first;
 		listaOp = it->second; // Lista de restricciones del join
 		
-		extensionVieja1 = *(mapaExt[nombreTipo1]->rbegin());
-		extensionNueva1 = generarSiguienteExtension(extensionVieja1);
-		
-		nombreArchivo = nombreTipo1 + "." + extensionVieja1;
-		tamBloque = defManager.getTamBloqueDatos(nombreTipo1);
-		FileManager* archivoViejo1 = new FileManager(nombreArchivo, tamBloque,
-								  					defManager.getTipoOrgRegistro(nombreTipo1),
-								  					defManager.getListaTiposAtributos(nombreTipo1));
-		
-		nombreArchivo = nombreTipo1 + "." + extensionNueva1;
-		FileManager* archivoNuevo1 = new FileManager(nombreArchivo, tamBloque,
-								  					defManager.getTipoOrgRegistro(nombreTipo1),
-								  					defManager.getListaTiposAtributos(nombreTipo1));
-		
 		for (ListaOperaciones::iterator itTipo1 = listaOp->begin();
 			 itTipo1 != listaOp->end(); ++itTipo1) {
 			
-			resultado = archivoViejo1->siguienteRegistro(registro1, tamRegistro1);
+			extensionVieja1 = *(mapaExt[nombreTipo1]->rbegin());
+			extensionNueva1 = generarSiguienteExtension(extensionVieja1);
 			
-			if (resultado == ResultadosMetadata::OK) {
+			nombreArchivo = nombreTipo1 + "." + extensionVieja1;
+			tamBloque = defManager.getTamBloqueDatos(nombreTipo1);
+			tipoOrg = defManager.getTipoOrgRegistro(nombreTipo1);
+			listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo1);
+			
+			FileManager* archivoViejo1 = new FileManager(nombreArchivo, tamBloque, tipoOrg, listaTiposAtributos);
+			
+			nombreArchivo = nombreTipo1 + "." + extensionNueva1;
+			FileManager* archivoNuevo1 = new FileManager(nombreArchivo, tamBloque, tipoOrg, listaTiposAtributos);
+			
+			nroRegistro = 0;
+			
+			while (archivoViejo1->siguienteRegistro(registro1, tamRegistro1) == ResultadosMetadata::OK) {
 				
-				// Se chequea que el registro actual no sea el mismo que el anterior,
-				// ya que en los archivos joineados puede haber registros duplicados.
-				if (!auxReg) {
+				nombreTipo2 = itTipo1->estructuraNombresDer.nombreTipo;
+				
+				extensionVieja2 = *(mapaExt[nombreTipo2]->rbegin());
+				extensionNueva2 = generarSiguienteExtension(extensionVieja2);
+				
+				nombreArchivo = nombreTipo2 + "." + extensionVieja2;
+				tamBloque = defManager.getTamBloqueDatos(nombreTipo2);
+				tipoOrg = defManager.getTipoOrgRegistro(nombreTipo2);
+				listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo2);
+				
+				FileManager* archivoViejo2 = new FileManager(nombreArchivo, tamBloque, tipoOrg, listaTiposAtributos);
+				
+				nombreArchivo = nombreTipo2 + "." + extensionNueva2;
+				FileManager* archivoNuevo2 = new FileManager(nombreArchivo, tamBloque, tipoOrg, listaTiposAtributos);
+				
+				while (archivoViejo2->siguienteRegistro(registro2, tamRegistro2) == ResultadosMetadata::OK) {
 					
-					tamRegAnterior = tamRegistro1;
-					auxReg = new char[tamRegistro1];
-					memcpy(auxReg, registro1, tamRegistro1);
-					registrosIguales = false;
-					
-				} else {
-					
-					registrosIguales = ((tamRegAnterior == tamRegistro1) && (compararRegistros(auxReg, registro1, tamRegistro1)));
-					
-					if (!registrosIguales) {
-						tamRegAnterior = tamRegistro1;
-						delete[] auxReg;
-						auxReg = new char[tamRegistro1];
-						memcpy(auxReg, registro1, tamRegistro1);
-					}
-				}
-					
-				if (!registrosIguales) {
-					
-					nombreTipo2 = itTipo1->estructuraNombresDer.nombreTipo;
-					
-					extensionVieja2 = *(mapaExt[nombreTipo2]->rbegin());
-					extensionNueva2 = generarSiguienteExtension(extensionVieja2);
-					
-					nombreArchivo = nombreTipo2 + "." + extensionVieja2;
-					FileManager* archivoViejo2 = new FileManager(nombreArchivo, Tamanios::TAMANIO_BLOQUE_DATO,
-											  					defManager.getTipoOrgRegistro(nombreTipo2),
-											  					defManager.getListaTiposAtributos(nombreTipo2));
-					
-					nombreArchivo = nombreTipo2 + "." + extensionNueva2;
-					FileManager* archivoNuevo2 = new FileManager(nombreArchivo, Tamanios::TAMANIO_BLOQUE_DATO,
-										  						defManager.getTipoOrgRegistro(nombreTipo2),
-											  					defManager.getListaTiposAtributos(nombreTipo2));
-					
-					while (archivoViejo2->siguienteRegistro(registro2, tamRegistro2) == ResultadosMetadata::OK) {
+					cumpleRestriccion = compararCamposRegistros(*defManager.getListaNombresAtributos(nombreTipo1),
+																*defManager.getListaNombresAtributos(nombreTipo2),
+																*defManager.getListaTiposAtributos(nombreTipo1),
+																*defManager.getListaTiposAtributos(nombreTipo2),
+																itTipo1->estructuraNombresIzq.nombreCampo,
+																itTipo1->estructuraNombresDer.nombreCampo,
+																registro1, registro2, itTipo1->operacion);
+					if (cumpleRestriccion) {
+						archivoNuevo1->escribirRegistro(registro1, tamRegistro1);
+						archivoNuevo2->escribirRegistro(registro2, tamRegistro2);
 						
-						cumpleRestriccion = compararCamposRegistros(*defManager.getListaNombresAtributos(nombreTipo1),
-																	*defManager.getListaNombresAtributos(nombreTipo2),
-																	*defManager.getListaTiposAtributos(nombreTipo1),
-																	*defManager.getListaTiposAtributos(nombreTipo2),
-																	itTipo1->estructuraNombresIzq.nombreCampo,
-																	itTipo1->estructuraNombresDer.nombreCampo,
-																	registro1, registro2, itTipo1->operacion);
-						if (cumpleRestriccion) {
-							archivoNuevo1->escribirRegistro(registro1, tamRegistro1);
-							archivoNuevo2->escribirRegistro(registro2, tamRegistro2);
+						// Se escriben los registros que habian joineado anteriormente con nombreTipo1
+						for (ListaOperaciones::iterator itLO = listaOp->begin();
+							 itLO != itTipo1; ++itLO) {
 							
-							//TODO Escribir los registros que antes habian joineado con nombreTipo1
+							nombreTipoAux = itLO->estructuraNombresDer.nombreTipo;
 							
-							registrosJoineados = true;
+							extensionViejaAux = *(mapaExt[nombreTipoAux]->rbegin());
+							extensionNuevaAux = generarSiguienteExtension(extensionViejaAux);
+							
+							nombreArchivo = nombreTipoAux + "." + extensionViejaAux;
+							tamBloque = defManager.getTamBloqueDatos(nombreTipoAux);
+							tipoOrg = defManager.getTipoOrgRegistro(nombreTipoAux);
+							listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipoAux);
+							
+							FileManager* archivoViejoAux = new FileManager(nombreArchivo, tamBloque, tipoOrg, listaTiposAtributos);
+							
+							nombreArchivo = nombreTipoAux + "." + extensionNuevaAux;
+							FileManager* archivoNuevoAux = new FileManager(nombreArchivo, tamBloque, tipoOrg, listaTiposAtributos);
+							
+							archivoViejoAux->leerRegistro(auxReg, nroRegistro, tamRegAux);
+							archivoNuevoAux->escribirRegistro(auxReg, tamRegAux);
+							
+							listaExtensiones = mapaExt[nombreTipoAux];
+							listaExtensiones->push_back(extensionNuevaAux);
+							if (listaExtensiones->size() > 2) {
+								FileManager::eliminarArchivoTemporal(nombreTipoAux, listaExtensiones->front());
+								listaExtensiones->pop_front();
+							}
+							
+							delete[] auxReg;
+							auxReg = NULL;
+							delete archivoViejoAux;
+							delete archivoNuevoAux;
 						}
-					
+						
+						registrosJoineados = true;
 					}
-					
-					// Guardo las extensiones de los nuevos archivos
-					if (registrosJoineados) {
-						listaExtensiones = mapaExt[nombreTipo2];
-						listaExtensiones->push_back(extensionNueva2);
-						if (listaExtensiones->size() > 2) {
-							FileManager::eliminarArchivoTemporal(nombreTipo2, listaExtensiones->front());
-							listaExtensiones->pop_front();
-						}
-					}
-					
-					delete archivoViejo2;
-					delete archivoNuevo2;
-					
+				
 				}
+				
+				// Guardo las extensiones de los nuevos archivos
+				if (registrosJoineados) {
+					listaExtensiones = mapaExt[nombreTipo2];
+					listaExtensiones->push_back(extensionNueva2);
+					if (listaExtensiones->size() > 2) {
+						FileManager::eliminarArchivoTemporal(nombreTipo2, listaExtensiones->front());
+						listaExtensiones->pop_front();
+					}
+				}
+				
+				delete archivoViejo2;
+				delete archivoNuevo2;
+				
+				++nroRegistro;
 			
 			}
 			
-		}
-		
-		// Guardo las extensiones de los nuevos archivos
-		if (registrosJoineados) {
-			listaExtensiones = mapaExt[nombreTipo1];
-			listaExtensiones->push_back(extensionNueva1);
-			if (listaExtensiones->size() > 2) {
-				FileManager::eliminarArchivoTemporal(nombreTipo1, listaExtensiones->front());
-				listaExtensiones->pop_front();
+			// Guardo las extensiones de los nuevos archivos
+			if (registrosJoineados) {
+				listaExtensiones = mapaExt[nombreTipo1];
+				listaExtensiones->push_back(extensionNueva1);
+				if (listaExtensiones->size() > 2) {
+					FileManager::eliminarArchivoTemporal(nombreTipo1, listaExtensiones->front());
+					listaExtensiones->pop_front();
+				}
 			}
+			
+			delete archivoViejo1;
+			delete archivoNuevo1;
+			
+			registrosJoineados = false;
 		}
 		
-		registrosJoineados = false;
 	}
 	
 	return resultado;
@@ -1195,7 +1210,25 @@ int alta(const string& nombreTipo, MapaValoresAtributos& mapaValoresAtributos)
 }
 
 
-int consulta(EstructuraConsulta &estructura) {
+void eliminarArchivosTemporales(const MapaExtensiones &mapaExt) {
+	
+	ListaStrings* listaExtensiones = NULL;
+	
+	for (MapaExtensiones::const_iterator iterMapa = mapaExt.begin();
+		 iterMapa != mapaExt.end(); ++iterMapa) {
+		
+		listaExtensiones = iterMapa->second;
+		
+		for (ListaStrings::const_iterator iterLista = listaExtensiones->begin();
+			 iterLista != listaExtensiones->end(); ++iterLista)
+			FileManager::eliminarArchivosTemporales(*iterLista);
+		
+	}
+	
+}
+
+
+int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 	
 	char* registro = NULL;
 	unsigned short tamRegistro   = 0; 	 // Tamaño de un registro.
@@ -1204,7 +1237,7 @@ int consulta(EstructuraConsulta &estructura) {
 	string nombreTipo("");
 	int pipeResult;
 	unsigned char operacionCapaIndices = 0;
-	bool mapasCargados = false;
+	bool seGuardoRegistro = true;
 	
 	// Se instancia el DefinitionsManager (conocedor absoluto del universo).
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
@@ -1213,36 +1246,42 @@ int consulta(EstructuraConsulta &estructura) {
 	MapaRestricciones mapaJoins, mapaWhere;
 	MapaExtensiones mapaExt;
 	
+	// Se verifica si la consulta se debe devolver ordenada
+	if (estructura.listaOrderBy.size() > 0) {
+		// Se invierten los campos y los operadores lógicos de las restricciones
+		// para que siempre quede como primer tabla la tabla por la que se debe ordenar.
+		invertirOperacionLogica(estructura.listaOrderBy.begin()->nombreTipo, estructura.estructuraWhere.listaOperaciones);
+		invertirOperacionLogica(estructura.listaOrderBy.begin()->nombreTipo, estructura.estructuraJoins.listaOperaciones);
+		// Cargo los mapas de restricciones con las listas ordenadas por la tabla
+		// por la que se debe ordenar la consulta.
+		cargarMapasRestricciones(estructura.estructuraJoins.listaOperaciones, mapaJoins);
+		cargarMapasRestricciones(estructura.estructuraWhere.listaOperaciones, mapaWhere);
+	} else {
+		// Cargo las restricciones sin ordenarlas
+		cargarMapasRestricciones(estructura.estructuraJoins.listaOperaciones, mapaJoins);
+		cargarMapasRestricciones(estructura.estructuraWhere.listaOperaciones, mapaWhere);
+	}
+	
 	// Itero la lista con los nombres de los distintos tipos (tablas) que
 	// intervienen en la consulta.
 	ListaStrings& listaNombresTipos = estructura.listaNombresTipos;
 	
 	for (ListaStrings::iterator it = listaNombresTipos.begin();
-		 (it != listaNombresTipos.end()) && (pipeResult != ResultadosIndices::ERROR_NO_HAY_INDICE); ++it) {
+		 (it != listaNombresTipos.end()) && (seGuardoRegistro)
+		 && (pipeResult != ResultadosIndices::ERROR_NO_HAY_INDICE);
+		 ++it) {
 	
 		nombreTipo = *it;
+		seGuardoRegistro = false;
 		
 		// Se verifica si la consulta se debe devolver ordenada
 		if ((estructura.listaOrderBy.size() > 0) && (estructura.listaOrderBy.begin()->nombreTipo == nombreTipo)) {
-			// Se invierten los campos y los operadores lógicos de las restricciones
-			// para que siempre quede como primer tabla la tabla por la que se debe ordenar.
-			invertirOperacionLogica(nombreTipo, estructura.estructuraWhere.listaOperaciones);
-			invertirOperacionLogica(nombreTipo, estructura.estructuraJoins.listaOperaciones);
-			// Cargo los mapas de restricciones con las listas ordenadas por la tabla
-			// por la que se debe ordenar la consulta.
-			cargarMapasRestricciones(estructura.estructuraJoins.listaOperaciones, mapaJoins);
-			cargarMapasRestricciones(estructura.estructuraWhere.listaOperaciones, mapaWhere);
 			// Se serializa la clave para indicarle a la capa de índices los campos por los
 			// que debe ordenar. Si no se encuentra un índice para ordenar por esos campos,
 			// se devuelve un error.
 			serializarListaClaves(valoresClaves, estructura.listaOrderBy);
 			operacionCapaIndices = OperacionesCapas::INDICES_CONSULTAR;
 		} else {
-			if (!mapasCargados) { // Cargo las restricciones sin ordenarlas
-				cargarMapasRestricciones(estructura.estructuraJoins.listaOperaciones, mapaJoins);
-				cargarMapasRestricciones(estructura.estructuraWhere.listaOperaciones, mapaWhere);
-				mapasCargados = true;
-			}
 			if (estructura.estructuraWhere.operacion == ExpresionesLogicas::AND) {
 				// Se construye la clave para enviar a la capa de índices
 				serializarListaClaves(valoresClaves, estructura.estructuraWhere.listaOperaciones);
@@ -1259,7 +1298,7 @@ int consulta(EstructuraConsulta &estructura) {
 		
 		// Codigo de operacion de consulta para la Capa de Indices
 		pipe->agregarParametro(operacionCapaIndices, 0); 
-		// Nombre del tipo de dato a ser dado de alta (Persona/Pelicula/etc)
+		// Nombre del tipo de dato a ser dado de alta
 		pipe->agregarParametro(nombreTipo, 1);
 		
 		// Se lanza el proceso de la Capa Indices.
@@ -1267,7 +1306,6 @@ int consulta(EstructuraConsulta &estructura) {
 		
 		if (pipeResult == ComuDatos::OK){						
 			// Envio de los valores de las claves a consultar por el pipe
-		//	pipe->escribir((unsigned short)valoresClaves.length());
 			pipe->escribir(valoresClaves);
 	
 			// Obtencion del resultado de la operacion
@@ -1302,8 +1340,10 @@ int consulta(EstructuraConsulta &estructura) {
 																	estructura.estructuraWhere.operacion,
 																	*defManager.getListaNombresAtributos(nombreTipo),
 																	*defManager.getListaTiposAtributos(nombreTipo));
-							if (cumpleRestriccion)
+							if (cumpleRestriccion) {
 								guardarRegistro(nombreTipo, registro, tamRegistro);
+								seGuardoRegistro = true;
+							}
 							
 							delete[] registro;
 							
@@ -1318,10 +1358,12 @@ int consulta(EstructuraConsulta &estructura) {
 					
 				} while (pipeResult == ResultadosIndices::OK);
 				
-				// Se agrega la extensión del primer archivo temporal
-				ListaStrings* listaExtensiones = new ListaStrings();
-				listaExtensiones->push_back(EXTENSION_TEMPORAL_INICIAL);
-				mapaExt[nombreTipo] = listaExtensiones;
+				if (seGuardoRegistro) {
+					// Se agrega la extensión del primer archivo temporal
+					ListaStrings* listaExtensiones = new ListaStrings();
+					listaExtensiones->push_back(EXTENSION_TEMPORAL_INICIAL);
+					mapaExt[nombreTipo] = listaExtensiones;
+				}
 				
 			}
 			
@@ -1333,14 +1375,66 @@ int consulta(EstructuraConsulta &estructura) {
 	
 	// Una vez que se terminaron de aplicar los filtros/restricciones a los registros
 	// de las distintas tablas, se resuelven los joins (en caso que haya).
-	pipeResult = resolverJoins(mapaJoins, mapaWhere, mapaExt);
+	if (seGuardoRegistro) {
+		pipeResult = resolverJoins(mapaJoins, mapaWhere, mapaExt);
+		pipeCapaConsultas.escribir(pipeResult);
+		
+		if (pipeResult == ResultadosMetadata::OK) {
+			
+			// Se envian los registros a la capa de consultas
+			ListaStrings& listaNombresTipos = estructura.listaNombresTipos;
+			ListaTiposAtributos* listaTiposAtributos = NULL;
+			unsigned short nroRegistro = 0, tamBloque = 0, tamRegistro = 0;
+			string nombreArchivo, extension;
+			char* registro = NULL;
+			unsigned char tipoOrg;
+			
+			// Se envía la cantidad de registros
+			pipeCapaConsultas.escribir((unsigned short)listaNombresTipos.size());
+			
+			while (pipeResult == ResultadosMetadata::OK) {
+				
+				for (ListaStrings::const_iterator it = listaNombresTipos.begin();
+					 (it != listaNombresTipos.end()) && (pipeResult == ResultadosMetadata::OK); ++it) {
+					
+					nombreTipo = *it;
+					extension = mapaExt[nombreTipo]->back();
+					nombreArchivo = nombreTipo + "." + extension;
+					tamBloque = defManager.getTamBloqueDatos(nombreTipo);
+					tipoOrg = defManager.getTipoOrgRegistro(nombreTipo);
+					listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+					
+					FileManager* archivoResultados = new FileManager(nombreArchivo, tamBloque, tipoOrg, listaTiposAtributos);
+					pipeResult = archivoResultados->leerRegistro(registro, nroRegistro, tamRegistro);
+					
+					// Si se produce un error tamRegistro es 0 y la capa superior lo interpreta
+					pipeCapaConsultas.escribir(tamRegistro);
+					
+					if (pipeResult == ResultadosMetadata::OK) {
+						pipeCapaConsultas.escribir(registro, tamRegistro);
+						delete[] registro;
+						registro = NULL;
+					}
+					
+					delete archivoResultados;
+					
+				}
+				
+				++nroRegistro;
+				
+			}
+			
+		}
+	}
 	
-	// TODO Mandar los registros a la capa de consultas
-	
-	
-	// Se destruyen los mapas de las restricciones y el mapa de las extensiones
+	// Se destruyen los mapas de las restricciones
 	destruirMapaRestricciones(mapaWhere);
 	destruirMapaRestricciones(mapaJoins);
+	
+	//Se eliminan los archivos temporales
+	eliminarArchivosTemporales(mapaExt);
+	
+	// Se destruye el mapa de las extensiones de los archivos temporales
 	destruirMapaExtensiones(mapaExt);
 	
 	return pipeResult;
@@ -1430,10 +1524,7 @@ int main(int argc, char* argv[])
 				}
 				
 				// CONSULTAS LLAMANDO A CAPA INDICES
-				pipeResult = consulta(estructuraConsulta);
-				
-				// TODO Ver si hay que enviar un resultado a CapaConsultas
-				pipe->escribir(pipeResult);
+				pipeResult = consulta(estructuraConsulta, *pipe);
 				
 			}break;
 			
