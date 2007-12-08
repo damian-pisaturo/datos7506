@@ -2,7 +2,7 @@
 ################
 
 
-SUBDIRS = testParserOperaciones
+SUBDIRS = testParserOperaciones testArboles
 
 
 # REGLAS

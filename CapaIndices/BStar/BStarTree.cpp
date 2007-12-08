@@ -334,7 +334,7 @@ void BStarTree::eliminarInterno(NodoBStar* &nodoTarget, char* codigo, Clave* cla
 				(iterPadre != nodoPadre->getClaves()->end()) &&
 				((*iterPadre)->getHijoDer() != nodoTarget->getPosicionEnArchivo());
 				++iterPadre);
-			
+
 			//Se verifica si nodoTarget tiene hermano derecho y hermano izquierdo
 			if ( iterPadre == nodoPadre->getClaves()->end() ) {
 				//nodoTarget es el hijo izquierdo de nodoPadre
@@ -566,7 +566,7 @@ int BStarTree::modificar(Clave* claveVieja, Clave* claveNueva) {
 
 
 void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer, Clave* &clavePadre){
-	
+
 	char codigo;
 	unsigned short bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(true);
@@ -574,6 +574,8 @@ void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodo
 	
 	nodoPadre->extraerClave(clavePadre);
 	clavePadre->setHijoDer(nodoHnoDer->getHijoIzq());
+	
+	if (nodoDestino->getNivel() == 0) tamanioClavePadre -= Tamanios::TAMANIO_REFERENCIA;
 	
 	if ( tamanioClavePadre < bytesRequeridos){
 		setIntercambio = nodoHnoDer->cederBytes(bytesRequeridos - tamanioClavePadre);
@@ -603,17 +605,20 @@ void BStarTree::pasarClaveHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodo
 
 
 void BStarTree::pasarMaximoPosibleHaciaIzquierda(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoDer, Clave* &clavePadre){
-	
+
 	char codigo;
 	unsigned short bytesAEntregar;
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(true);
 	SetClaves* setIntercambio = NULL;
 	
-	if (nodoHnoDer->getTamanioEnDiscoSetClaves() > nodoHnoDer->getTamanioMinimo()){
-		bytesAEntregar = nodoHnoDer->getTamanioEnDiscoSetClaves() - nodoHnoDer->getTamanioMinimo();
+	bytesAEntregar = nodoHnoDer->obtenerBytesSobreMinimo();
+	
+	if (bytesAEntregar > 0){
 	
 		nodoPadre->extraerClave(clavePadre);
 		clavePadre->setHijoDer(nodoHnoDer->getHijoIzq());
+		
+		if (nodoDestino->getNivel() == 0) tamanioClavePadre -= Tamanios::TAMANIO_REFERENCIA;
 		
 		if ( tamanioClavePadre < bytesAEntregar){
 			setIntercambio = nodoHnoDer->cederBytes(bytesAEntregar - tamanioClavePadre);
@@ -645,7 +650,7 @@ void BStarTree::pasarMaximoPosibleHaciaIzquierda(NodoBStar* nodoDestino, NodoBSt
 
 
 void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq, Clave* &clavePadre) {
-	
+
 	char codigo;
 	
 	unsigned short bytesRequeridos = nodoDestino->obtenerBytesRequeridos();
@@ -654,6 +659,8 @@ void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPa
 	
 	nodoPadre->extraerClave(clavePadre);
 	clavePadre->setHijoDer(nodoDestino->getHijoIzq());
+		
+	if (nodoDestino->getNivel() == 0) tamanioClavePadre -= Tamanios::TAMANIO_REFERENCIA;
 	
 	if ( tamanioClavePadre < bytesRequeridos){
 		setIntercambio = nodoHnoIzq->cederBytes(bytesRequeridos - tamanioClavePadre, false);
@@ -683,18 +690,21 @@ void BStarTree::pasarClaveHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPa
 
 
 void BStarTree::pasarMaximoPosibleHaciaDerecha(NodoBStar* nodoDestino, NodoBStar* nodoPadre, NodoBStar* nodoHnoIzq, Clave* &clavePadre) {
-	
+
 	char codigo;
 	
 	unsigned short bytesAEntregar;
 	unsigned short tamanioClavePadre = clavePadre->getTamanioEnDisco(true);
 	SetClaves* setIntercambio = NULL;
 	
-	if (nodoHnoIzq->getTamanioEnDiscoSetClaves() > nodoHnoIzq->getTamanioMinimo()){
-		bytesAEntregar = nodoHnoIzq->getTamanioEnDiscoSetClaves() - nodoHnoIzq->getTamanioMinimo();
+	bytesAEntregar = nodoHnoIzq->obtenerBytesSobreMinimo(false);
+	
+	if (bytesAEntregar > 0){
 			
 		nodoPadre->extraerClave(clavePadre);
 		clavePadre->setHijoDer(nodoDestino->getHijoIzq());
+			
+		if (nodoDestino->getNivel() == 0) tamanioClavePadre -= Tamanios::TAMANIO_REFERENCIA;
 		
 		if ( tamanioClavePadre < bytesAEntregar){
 			setIntercambio = nodoHnoIzq->cederBytes(bytesAEntregar - tamanioClavePadre, false);

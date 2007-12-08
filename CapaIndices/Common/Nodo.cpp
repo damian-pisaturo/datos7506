@@ -329,6 +329,28 @@ unsigned short Nodo::obtenerBytesSobrantes(unsigned short &cantClaves, bool izqu
 	
 }
 
+unsigned short Nodo::obtenerBytesSobreMinimo(bool izquierda) const {
+	
+	unsigned short tamanioEnDiscoSetClaves = this->getTamanioEnDiscoSetClaves();
+	unsigned short suma = 0, sumaAnterior = 0;
+	unsigned short tamanioMinimo = this->getTamanioMinimo();
+	
+	if (izquierda){
+		for(SetClaves::iterator iter = this->getClaves()->begin(); ( iter != this->getClaves()->end() ) && ( (tamanioEnDiscoSetClaves - suma) > tamanioMinimo ); ++iter){
+			sumaAnterior = suma;
+			suma += (*iter)->getTamanioEnDisco(bstar);
+		}
+	}
+	else{ //if (derecha)
+		for(SetClaves::reverse_iterator iter = this->getClaves()->rbegin(); ( iter != this->getClaves()->rend() ) && ( (tamanioEnDiscoSetClaves - suma) > tamanioMinimo ); ++iter){
+			sumaAnterior = suma;
+			suma += (*iter)->getTamanioEnDisco(bstar);
+		}
+	}
+	
+	return sumaAnterior;
+	
+}
 
 bool Nodo::esPadre(const Nodo* hijo, Clave* &claveProxNodo, Clave* claveNodoHijo) const {
 	
