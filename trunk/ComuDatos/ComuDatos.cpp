@@ -322,7 +322,7 @@
 	
 		if (size <= TOPE_ENVIAR_STRING){		
 			read(this->fd_pipeH, s, size);
-			*(s + size) = 0;		
+		//	*(s + size) = 0;		
 		}else resultado = EXCEDE_TOPE;
 		
 		return resultado;

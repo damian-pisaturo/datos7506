@@ -53,9 +53,10 @@
 		unsigned char tipo = 0; //Indica si el tipo de campo del registro es variable o fijo
 		NodoInfoRegistro regAttribute;
 		
-		unsigned short offsetToCampo = 0;
+		unsigned short offsetToCampo = 0, longVariable = 0;
 		unsigned short longRegistro = this->getTamanioRegistro(listaTipos,listaVA);
 		char *registro = new char[longRegistro];
+		memset(registro, 0, longRegistro);
 		string campoRegistro;
 		
 		// Tipos de datos posibles
@@ -75,7 +76,7 @@
 		// Si el registro es de tipo variable le guardo la longitud al registro
 		if(regAttribute.tipoDato == TipoDatos::TIPO_VARIABLE){
 			// Guardo la longitud del registro en los primeros dos bytes del mismo
-			unsigned short longVariable = longRegistro - Tamanios::TAMANIO_LONGITUD;
+			longVariable = longRegistro - Tamanios::TAMANIO_LONGITUD;
 			memcpy(registro,&longVariable,Tamanios::TAMANIO_LONGITUD);
 			offsetToCampo = Tamanios::TAMANIO_LONGITUD;
 		}

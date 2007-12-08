@@ -43,6 +43,10 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
  	  	  	   Indice *indice, Clave *clave,
  	  	  	   DefinitionsManager &defManager, ComuDatos &pipe);
 
+void insertar(const string &nombreTipo, MapaIndices &mapaIndices,
+		   	  Indice *indice, Clave *clave,
+		   	  DefinitionsManager &defManager, ComuDatos &pipe);
+
 int main(int argc, char* argv[]);
 
 

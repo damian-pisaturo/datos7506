@@ -962,13 +962,19 @@ char IndiceHashManager::leerTabla(unsigned int* tamanio, unsigned int* &buckets)
 			if (tamanio > 0) {
 				unsigned int sizeTabla = (sizeof(unsigned int))*(*tamanio);
 		
-				bucketsTabla = new char[sizeTabla];
+				buckets      = new unsigned int[*tamanio];
+				bucketsTabla = new char[sizeTabla + 1];
 		
 				//Obtener datos de la tabla				
 				pipe->leer(sizeTabla, bucketsTabla);
+								
+				for (unsigned char i = 0; i < *tamanio; i++)
+					buckets[i] = ((unsigned int*)bucketsTabla)[i];
+					
+				if (bucketsTabla)
+					delete[] bucketsTabla;
 			}
 		
-			buckets = (unsigned int*) bucketsTabla;
 		}
 	}
 
