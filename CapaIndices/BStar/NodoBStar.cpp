@@ -46,8 +46,7 @@ unsigned short NodoBStar::getTamanioEspacioClaves() const {
 
 unsigned short NodoBStar::getTamanioMinimo() const {
 	
-	if (this->getPosicionEnArchivo() == 0) return 0; //Nodo Raíz
-	else return (2*(this->getTamanioEspacioClaves())/3);
+	return (2*(this->getTamanioEspacioClaves())/3);
 	
 }
 
