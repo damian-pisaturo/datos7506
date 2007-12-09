@@ -307,7 +307,7 @@ int main(int argc, char* argv[]) {
 		}
 		*/
 		
-	unsigned short tamNodo = 96;
+	unsigned short tamNodo = 80;
 	IndiceManager* indiceManager = IndiceManagerFactory::getInstance().getIndiceManager(TipoIndices::GRIEGO,
 																						TipoDatos::TIPO_ENTERO,
 																					   	NULL,TipoIndices::ARBOL_BS,
@@ -317,21 +317,41 @@ int main(int argc, char* argv[]) {
 	BStarTree indice(*indiceManager, tamNodo);
 	
 	int entero;
-	for (int i = 0; i < 1000; i++){
-		entero = 1000-i;//rand() % 1000;
+	for (int i = 0; i < 5000; i++){
+		entero = 5000-i;//rand() % 1000;
 		cout << "insertando " << entero << "..." << endl;
 		indice.insertar(new ClaveEntera(entero));
 	}
-
+	
 	Clave* clave = NULL;
 	
-	for (int i = 100; i < 901; i++){
+	for (int i = 100; i < 800; i++){
 		clave = new ClaveEntera(i);
 		cout << "Borrando " << *((int*)clave->getValor()) << "..." << endl;
 		indice.eliminar(clave);
 		delete clave;
 	}
+	
+	for (int i = 0; i < 400; i++){
+		clave = new ClaveEntera(4800-i);
+		cout << "Borrando " << *((int*)clave->getValor()) << "..." << endl;
+		indice.eliminar(clave);
+		delete clave;
+	}
+	
+	/*
+	clave = new ClaveEntera(100);
+	if (indice.eliminar(clave))
+		cout << "La elimine" << endl;
+	else cout << "NO estaba" << endl;
 
+	clave = new ClaveEntera(101);
+	if (indice.eliminar(clave))
+		cout << "La elimine" << endl;
+	else cout << "NO estaba" << endl;
+*/
+
+	
 	cout << "Buscando el primero..." << endl;
 	indice.primero();
 	

@@ -7,18 +7,7 @@ BStarTree::BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
 	this->tamanioRaiz = 2*this->tamanioNodo;
 	this->claveCorriente = NULL;
 	this->getRaiz();
-	
-	if (this->nodoRaiz){
-		SetClaves* set = this->nodoRaiz->getClaves();
 
-		cout << "LA RAIZ DEL ARBOL B* TIENE:" << endl << endl;
-		SetClaves::const_iterator iter;
-		for (iter = set->begin(); iter != set->end(); ++iter){
-			(*iter)->imprimir(cout);
-			cout << endl;
-		}
-	}
-	
 }
 
 BStarTree::~BStarTree() {
@@ -291,10 +280,7 @@ bool BStarTree::eliminar(Clave* clave) {
 	
 	
 	if (nodoTarget) delete nodoTarget;
-	
-	cout << "Eliminando clave del ArbolB*" << endl;
-	clave->imprimir(cout);
-	cout << endl;
+
 
 	return true;
 }
