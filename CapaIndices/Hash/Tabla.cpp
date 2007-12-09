@@ -111,13 +111,18 @@ void Tabla::considerarReduccion()
 	bool reducir   = true;	
 	unsigned int i = 0;
 	
-	while ((i < (getTamanio()/2)) && reducir)
-	{
-		if (getNroBucket(i) != getNroBucket(getTamanio()/2 + i))
-			reducir = false;
-		i++;
+	if (getTamanio() >= 2){
+		
+		while ((i < (getTamanio()/2)) && reducir)
+		{
+			if (getNroBucket(i) != getNroBucket(getTamanio()/2 + i))
+				reducir = false;
+			i++;
+		}
 	}
-	
+	else
+		reducir = false;
+
 	if (reducir)
 		this->reducirTabla();
 }

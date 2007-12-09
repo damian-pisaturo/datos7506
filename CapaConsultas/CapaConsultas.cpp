@@ -99,7 +99,32 @@ ComuDatos* instanciarPipe()
 	return new ComuDatos(path);
 }
 
-
+/*
+ * Carga un mapa que devuelve para cada tipo, una lista con los nombres de los campos que han sido 
+ * seleccionados para ser impresos en una consulta.
+ * */
+void cargarMapaCamposSeleccionadosPorTipo(ListaEstructuraNombres &lista, MapaCamposSeleccionados &mapa){
+	
+	ListaStrings* listaNombres = NULL;
+	MapaCamposSeleccionados::iterator iterMapa;
+	string nombreTipo("");
+	
+	for(ListaEstructuraNombres::iterator it = lista.begin(); it != lista.end(); ++it) {
+		nombreTipo = it->nombreTipo;
+		
+		iterMapa = mapa.find(nombreTipo);
+		
+		if (iterMapa != mapa.end()) // Si se encontró el nombre del tipo en el mapa.
+			iterMapa->second->push_back(it->nombreCampo);
+		else {
+			if (it->nombreCampo != TODOS_LOS_CAMPOS) {
+				listaNombres = new ListaStrings();
+				listaNombres->push_back(it->nombreCampo);
+				mapa[nombreTipo] = listaNombres;
+			}
+		}
+	}
+}
 
 int main(int argc, char* argv[]) {
 	
@@ -242,32 +267,11 @@ int main(int argc, char* argv[]) {
 								if (pipeResult == ResultadosMetadata::OK) {
 									
 									// TODO: Adaptar la clase vista para mostrar determinados campos de un registro
-	/*								
-									// Obtiene la cantidad de tipos involucrados en la consulta.
-									cantidadElementos = estructuraConsulta.listaNombresTipos.size(); 
-									
-									// Crea una lista de nombres de los campos a mostrar por cada tipo.
-									ListaStrings* listasNombresCamposAMostrarPorTipo;
-									listasNombresCamposAMostrarPorTipo = new ListaStrings[cantidadElementos];
-		
-									// Se crea un mapa por tipo y su lista de nombres de campos a mostrar.
-									std::map<std::string, ListaStrings*> mapaNombresCamposAImprimir;
-									unsigned int i = 0;
-									for (itLNT = estructuraConsulta.listaNombresTipos.begin(); 
-										 itLNT != estructuraConsulta.listaNombresTipos.end(); ++itLNT, i++) 
-										mapaNombresCamposAImprimir[*itLNT] = &listasNombresCamposAMostrarPorTipo[i];
-									
-									
-									// Se itera la lista de campos seleccionados, y se van agregando dichos campos a las 
-									// listas del mapa.
-									ListaStrings *lista;
-									for (itLEN = estructuraConsulta.listaCamposSeleccionados.begin();
-										 itLEN != estructuraConsulta.listaCamposSeleccionados.end(); ++itLEN) {
-			
-										lista = mapaNombresCamposAImprimir[itLEN->nombreTipo];
-										lista->push_back(itLEN->nombreCampo);
-									}
-	*/
+
+									// Obtiene las estructuras necesarias para hacer impresiones de campos determinados.
+									MapaCamposSeleccionados mapaCamposSeleccionados;
+									cargarMapaCamposSeleccionadosPorTipo(estructuraConsulta.listaCamposSeleccionados, mapaCamposSeleccionados);
+						//			ListaNombresAtributos* listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);
 									
 									ListaStrings& listaNombresTipos = estructuraConsulta.listaNombresTipos;
 									ListaTiposAtributos* listaTiposAtributos = NULL;

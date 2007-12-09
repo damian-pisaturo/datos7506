@@ -43,6 +43,8 @@ Bucket::Bucket(IndiceHashManager* indiceHash, unsigned int nroBucket)
 Bucket::Bucket(unsigned int nroBucket,unsigned short tamDisp,unsigned int tamanioBloque)
 :Bloque(nroBucket,tamanioBloque){
 	
+	if (tamDisp == 0)
+		tamDisp = 1;
 	this->tamDispersion = tamDisp;
 	this->cantRegs = 0;
 	char* datos = getDatos();
@@ -72,6 +74,8 @@ Bucket::Bucket(unsigned int nroBucket,unsigned short tamDisp,unsigned int tamani
 Bucket::Bucket(unsigned int nroBucket, unsigned short tamDispersion, unsigned int tamanioBloque, int tipoOrg)
 			  : Bloque(nroBucket, tamanioBloque, tipoOrg) {
 	
+	if (tamDispersion == 0)
+			tamDispersion = 1;
 	this->tamDispersion = tamDispersion;
 	this->cantRegs = 0;
 	char* datos = getDatos();
@@ -121,16 +125,22 @@ Bucket::~Bucket()
 ///////////////////////////////////////////////////////////////////////
 void Bucket::setTamDispersion(unsigned short tDisp)
 {
+	if (tDisp == 0)
+		tDisp = 1;
+	
 	this->tamDispersion = tDisp;
 	char * datos = getDatos();
 	
 	// Actualizo el tamaño de dispersión tambien en "datos".
 	memcpy(&datos[Tamanios::TAMANIO_ESPACIO_LIBRE + Tamanios::TAMANIO_CANTIDAD_REGISTROS],
-			&tDisp, Tamanios::TAMANIO_DISPERSION);	
+			&tDisp, Tamanios::TAMANIO_DISPERSION);
+	
 } 
 
 unsigned short Bucket::getTamDispersion()
 {
+	if (this->tamDispersion == 0)
+		this->tamDispersion = 1;
 	return this->tamDispersion;
 }
 
