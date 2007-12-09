@@ -280,7 +280,7 @@ bool BStarTree::eliminar(Clave* clave) {
 	
 	
 	if (nodoTarget) delete nodoTarget;
-	
+
 	return true;
 }
 
