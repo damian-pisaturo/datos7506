@@ -650,7 +650,6 @@ int IndiceArbolManager::leerBloqueDoble(unsigned short numBloque, BloqueIndice* 
 				
 				//Recorrer el buffer desde donde quedo hasta que supere
 				//el espacio libre, interpretando clave por clave.
-				cout << "Espacio libre que levanto de disco: " << headerNodo.espacioLibre << endl;
 				const char* punteroFinal = punteroAux + (2*this->getTamanioBloque() - headerNodo.espacioLibre);
 				
 				if (nodoLeido->getNivel() == 0) {

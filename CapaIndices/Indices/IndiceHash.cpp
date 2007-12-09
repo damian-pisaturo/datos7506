@@ -397,8 +397,6 @@
 		for (ListaTipos::iterator it = this->listaTiposClave->begin();
 			 it != this->listaTiposClave->end(); ++it) {
 			
-			cout << "esoty armando la listanodosClave, inserto el tipo: " << (int)*it << endl;
-			
 			nodoIR.tipoDato = *it;
 			lista->push_back(nodoIR);
 		}

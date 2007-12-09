@@ -27,10 +27,12 @@ class FileManager {
 		virtual ~FileManager();
 		
 		/* Devuelve en 'registro' el registro cuya posicion en el archivo es 
-		 * numReg.
-		 * En tamReg devuelve el tamaño del mismo.
+		 * 'numReg'.
+		 * En 'tamReg' devuelve el tamaño del mismo.
+		 * En 'quedanRegistros' indican si quedan registros en el archivo de datos.
 		 */
-		int leerRegistro(char* &registro, unsigned short numReg, unsigned short &tamReg);
+		int leerRegistro(char* &registro, unsigned short numReg,
+						 unsigned short &tamReg, bool &quedanRegistros);
 		
 		/* Escribe en el archivo de datos el registro pasado por parametro
 		 * en la posicion del primer registro libre que encuentre, utilizando
@@ -69,6 +71,12 @@ class FileManager {
 		 * Ejemplo: tmp, tmp.nfo
 		 */
 		static void eliminarArchivoTemporal(const string &nombre, const string &extension);
+		
+		/*
+		 * Recibe el nombre del archivo incluyendo la extensión.
+		 * Ejemplo: persona.tmp, persona.tmp.nfo
+		 */
+		static void eliminarArchivoTemporal(const string &nombreArchivo);
 		
 		/*
 		 * Recibe la lista con los nombres de los archivos a renombrar (sin la extensión),
