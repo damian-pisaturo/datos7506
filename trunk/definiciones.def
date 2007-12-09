@@ -50,7 +50,7 @@ atributoTipo = fecha
 [definicionIndices]
 
 [griego]
-tipoIndice = arbolb+
+tipoIndice = Arbolb+
 tamanoNodoIndice = 512
 campoIndice = DNI
 

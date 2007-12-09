@@ -89,6 +89,13 @@ class ArchivoELFijo : public ArchivoEL
 		 * Método que busca un bloque que contenga información útil.
 		 */
 		int buscarBloqueOcupado(unsigned short numBloque);
+		
+		/* Consulta el estado del bloque (libre u ocupado)
+		 * cuyo numero es pasado por parametro. Devuelve true
+		 * en caso de que se encuentre marcado como libre en
+		 * el archivo de espacio libre; false, en caso contrario.
+		 */
+		bool estaLibre(const unsigned short numBloque);
 };
 
 ///////////////////////////////////////////////////////////////////////////

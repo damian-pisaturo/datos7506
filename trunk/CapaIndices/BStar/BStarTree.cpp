@@ -8,6 +8,17 @@ BStarTree::BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
 	this->claveCorriente = NULL;
 	this->getRaiz();
 	
+	if (this->nodoRaiz){
+		SetClaves* set = this->nodoRaiz->getClaves();
+
+		cout << "LA RAIZ DEL ARBOL B* TIENE:" << endl << endl;
+		SetClaves::const_iterator iter;
+		for (iter = set->begin(); iter != set->end(); ++iter){
+			(*iter)->imprimir(cout);
+			cout << endl;
+		}
+	}
+	
 }
 
 BStarTree::~BStarTree() {
@@ -17,7 +28,7 @@ BStarTree::~BStarTree() {
 
 NodoBStar* BStarTree::getRaiz()
 {
-	//Lee el primer registro del archivo -> la raiz
+	//Lee el primer nodo del archivo -> la raiz
 	this->nodoRaiz = new NodoBStar(0, 0, this->tamanioRaiz);
 	
 	int resultado = indiceManager.leerBloqueDoble(0, this->nodoRaiz);
@@ -281,6 +292,9 @@ bool BStarTree::eliminar(Clave* clave) {
 	
 	if (nodoTarget) delete nodoTarget;
 	
+	cout << "Eliminando clave del ArbolB*" << endl;
+	clave->imprimir(cout);
+	cout << endl;
 
 	return true;
 }

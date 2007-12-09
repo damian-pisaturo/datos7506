@@ -100,11 +100,17 @@
 		}
 		
 		char ArchivoIndice::leerBloque(void* bloque, unsigned short numBloque)
-		{	
-			char resultado = this->posicionarse(numBloque);
+		{
+			char resultado = ResultadosFisica::OK;
+		
+			ArchivoELFijo* archivoEL = static_cast<ArchivoELFijo*>(this->getArchivoEL());
 			
-			if (resultado == ResultadosFisica::OK)
-				resultado = this->leer(bloque);
+			if (!archivoEL->estaLibre(numBloque)){
+				resultado = this->posicionarse(numBloque);
+			
+				if (resultado == ResultadosFisica::OK)
+					resultado = this->leer(bloque);
+			}else resultado = ResultadosFisica::ERROR_LECTURA;
 			
 			return resultado;			
 		}	 
@@ -379,8 +385,7 @@
 			}
 			
 			return resultado;
-		}
-		
+		}		
 
 		char ArchivoIndiceArbol::eliminarBloqueDoble(unsigned short numNodo)
 		{
