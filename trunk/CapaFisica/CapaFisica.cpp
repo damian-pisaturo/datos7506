@@ -152,14 +152,14 @@
 				//Se informa a la capa superior que el archivo es valido.
 				pipe.escribir(resultado);
 				
-				//Se marca en el archivo de espacio libre, que el bloque esta vacio
-				//y puede ser re-utilizado.
-				resultado = ((ArchivoIndiceArbol*)archivo)->eliminarBloque(numBloque);
-				
 				//Se inicializa con 0's el bloque eliminado.
 				buffer = new char[tamBloque];
 				memset(buffer, 0, tamBloque);
 				((ArchivoIndiceArbol*)archivo)->escribirBloque(buffer, numBloque);
+				
+				//Se marca en el archivo de espacio libre, que el bloque esta vacio
+				//y puede ser re-utilizado.
+				resultado = ((ArchivoIndiceArbol*)archivo)->eliminarBloque(numBloque);
 				
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
@@ -461,13 +461,13 @@
 				//Se informa a la capa superior que el archivo es valido.
 				pipe.escribir(resultado);
 				
-				//Eliminacion de ambos nodos				
-				resultado = ((ArchivoIndiceArbol*)archivo)->eliminarBloqueDoble(numBloque);
-				
 				// Se inicializa con 0's el bloque doble eliminado.
 				buffer = new char[2*tamBloque*sizeof(char)];
 				memset(buffer, 0, 2*tamBloque*sizeof(char));
 				((ArchivoIndiceArbol*)archivo)->escribirBloqueDoble(buffer,numBloque);
+				
+				//Eliminacion de ambos nodos				
+				resultado = ((ArchivoIndiceArbol*)archivo)->eliminarBloqueDoble(numBloque);
 				
 				//Envio del resultado de la operacion a traves del pipe.
 				pipe.escribir(resultado);
