@@ -194,10 +194,14 @@
 	 **/
 	int IndiceHash::modificar(Clave *claveVieja, Clave *claveNueva, char* &bloque, unsigned short tamanioRegistroNuevo) 
 	{
-		if (this->buscar(claveNueva) == ResultadosIndices::CLAVE_ENCONTRADA)
-			return ResultadosIndices::CLAVE_DUPLICADA;
+		int resultado = this->buscar(claveNueva);
+		
+		if ((resultado == ResultadosIndices::CLAVE_NO_ENCONTRADA) || (*claveVieja == *claveNueva))
+			resultado = hash->modificarRegistro(*claveVieja, *claveNueva, bloque);
 		else
-			return this->hash->modificarRegistro(*claveVieja, *claveNueva, bloque);
+			resultado = ResultadosIndices::CLAVE_DUPLICADA; 
+		
+		return resultado;
 	}		
 	
 	//El Hash no necesita esta funcionalidad por lo que retorna 0 para indicar que es un índice de este tipo

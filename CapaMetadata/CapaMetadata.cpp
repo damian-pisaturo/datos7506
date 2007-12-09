@@ -1048,23 +1048,23 @@ int modificacion(const string& nombreTipo, MapaValoresAtributos &mapaValoresAtri
 					listaOperaciones.push_back(nodoListaOperaciones);
 				}
 				
-				cout << "CM: voy a ver si cumple las restricciones." << endl;
+		
 				if(cumpleRestricciones(registro, listaOperaciones, estructuraCampos.operacion, *listaNombresAtributos, *listaTiposAtributos)) { 
-					cout << "CM: cumple."<< endl;
+		
 					// Si el registro debe ser eliminado, se le avisa a capa indices para que lo haga.
 					operacion = OperacionesCapas::INDICES_MODIFICAR;
 					// Avisa a CapaIndices que tiene que modificar el registro.
-					cout <<"CM: voy a escribir la operacion: "<< (int)OperacionesCapas::INDICES_MODIFICAR << endl;
+		
 					pipe->escribir(operacion);
-					cout << "CM: escribio la operacion, va a leer si encontro al registro. "<< endl;
+		
 				
 					// Lee si encontro la clave del registro a modificar en el indice.
 					pipe->leer(&resultadoModificacion);
-					cout << "CM: leyo el resultado: "<< resultadoModificacion << endl;
+		
 					if (resultadoModificacion == ResultadosIndices::OK) {
 						
 						pipe->leer(&tamRegistro);
-						pipe->leer(registro);
+						pipe->leer(tamRegistro, registro);
 						
 						// Crea un nuevo registro con las modificaciones pertinentes. Devuelve su nueva longitud.
 						tamRegistro = dataManager.crearRegistroModificacion(*listaTiposAtributos, *listaValAtributos, registro);
@@ -1079,12 +1079,12 @@ int modificacion(const string& nombreTipo, MapaValoresAtributos &mapaValoresAtri
 					// Lee el resultado de la modificación.
 					pipe->leer(&resultadoModificacion);
 					
-					cout << "CM: resultado de la modificacion q llega: " << resultadoModificacion << endl;
+		
 				}
 				else {
 					// Si el registro no debe ser eliminado, se le avisa a indices que no lo haga.
 					operacion = OperacionesCapas::INDICES_NO_OPERACION;
-					cout <<"no cumple. " << endl;
+		
 					pipe->escribir(operacion);
 				}
 				
