@@ -84,7 +84,6 @@
 		
 		if (encontrada){
 			// Si la clave secundaria está en el indice, obtiene su lista de claves primarias.
-			
 			// Obtiene el offset a la lista.
 			unsigned int referenciaALista = this->getOffsetToList(registro, tamanioRegistro);
 			
@@ -100,6 +99,7 @@
 				// Si ya no quedan claves primarias en la lista, elimina la clave secundaria del indice.
 				if (bloque->getCantidadRegistros() == 0) {
 					this->hash->eliminarRegistro(*claveSecundaria);
+		
 					this->bloqueManager->eliminarBloqueDatos(referenciaALista);
 				} else 
 					this->bloqueManager->escribirBloqueDatos(referenciaALista, bloque->getDatos());

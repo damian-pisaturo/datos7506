@@ -735,15 +735,16 @@ int eliminarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 							  defManager.getListaNombresAtributos(nombreTipo));
 			
 			for (MapaIndices::iterator iter = mapaIndices.begin();
-				iter != mapaIndices.end(); ++iter) {
+				(iter != mapaIndices.end() && resultado == ResultadosIndices::OK); ++iter) {
 				
 				//Obtengo la clave secundaria
 				claveSecundaria = registro.getClave(iter->first);
 				//Obtengo el índice secundario
 				indiceSecundario = iter->second;
+				resultado = indiceSecundario->eliminar(claveSecundaria, clave);
 		
-				indiceSecundario->eliminar(claveSecundaria, clave);
-		
+				
+				
 				delete claveSecundaria;
 				
 			}

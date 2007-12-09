@@ -164,19 +164,19 @@
 
 				// Se actualiza la baja en disco.
 				this->archivo->escribirBloque(nroBucket, bucket);				
-				 
+				
 				// Si hay un solo registro se debe verificar si se puede borrar el bucket del archivo.
 				// Si el tamaño de dispersión del bucket coincide con el tamaño de la tabla, se elimina el bucket.
-				if ( (cantRegs == 1) && (bucket->getTamDispersion() == this->tabla->getTamanio())) {
+				// Si el tamaño de la tabla es 1, no se puede eliminar el último bucket, queda el mismo vacío.
+				if ( (cantRegs == 1) && (bucket->getTamDispersion() == this->tabla->getTamanio()) && (this->tabla->getTamanio() > 1) ) {
 					
+
 					// Se llama a marcar al bucket como vacío en el archivo.
 					this->archivo->eliminarBloque(nroBucket);
-					
 					// Se renueva la referencia de la tabla que antes apuntaba al bucket que se eliminó.
 					unsigned int nroBucketIgualDisp = this->tabla->buscarBucketIgualDispersion(posicion, bucket->getTamDispersion());
 					
 					this->tabla->setNroBucket(posicion, nroBucketIgualDisp);
-
 					// Se actualiza el tamaño de dispersión del bloque y se lo guarda en archivo.
 					this->dividirDispersion(nroBucketIgualDisp);
 
@@ -410,12 +410,19 @@
 		 **/
 		void Hash::dividirDispersion(unsigned int nroBucket)
 		{
+			
 			// Se levanta el bucket de disco.
 			Bucket* bucket = new Bucket(this->archivo, nroBucket);
 			
 			// Se divide el tamaño de dispersión.
-			bucket->setTamDispersion(bucket->getTamDispersion()/2);
+		
+			unsigned short aux = (bucket->getTamDispersion())/2;
 			
+			if (aux < 1)
+				aux = 1;
+		
+			bucket->setTamDispersion(aux);
+		
 			this->archivo->escribirBloque(nroBucket, bucket);
 			
 			if (bucket)
