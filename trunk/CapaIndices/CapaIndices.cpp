@@ -859,12 +859,14 @@ int modificarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 	// Busca el registro viejo.
 	resultado = indicePrimario->buscar(clavePrimariaVieja, registroViejo, tamRegistro);
-	cout << "CI: resultado de la busqueda me dio: " << resultado << endl;
+	
 	pipe.escribir(resultado);
 	
 	if (resultado == ResultadosIndices::OK) {
+		
 		// Se envía el tamaño del registro a modificar.
 		pipe.escribir(tamRegistro);
+	
 		//	Se envía el registro viejo
 		pipe.escribir(registroViejo, tamRegistro);
 		
@@ -892,7 +894,6 @@ int modificarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 		
 		resultado = indicePrimario->modificar(clavePrimariaVieja, clavePrimariaNueva, registroNuevo, tamRegistro);
 		
-		cout << "CI: resultado de la modificacion del indice primario: " << resultado << endl;
 		if (resultado == ResultadosIndices::OK) {
 			
 			//Actualizo los indices secundarios
@@ -964,15 +965,10 @@ void modificacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaI
 			
 			pipe.leer(&operacion);
 			
-			cout << "CI: lei la operacion: "<< (int)operacion << endl;
-			
 			if (operacion == OperacionesCapas::INDICES_MODIFICAR) {		
-				cout << "CI:  tengo q modificar!"<< endl;
+				
 				clave = bloque->getClavePrimaria(listaTiposAtributos,registro);
-				cout << "CI: obtengo la clave primaria. La imprimo: "<< endl;
-				clave->imprimir(cout);
 				modificar(nombreTipo,mapaIndices,indice,clave,defManager,pipe);
-				cout << "CI: termine de modificar."<< endl;
 				delete clave;
 			}
 			
@@ -1056,9 +1052,6 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 	unsigned short cantRegistros = 1;
 		
 	if (indice->getTipoIndice() == TipoIndices::GRIEGO) {
-		
-		//Se envía la cantidad de registros que se deben modificar
-	//	pipe.escribir(cantRegistros);
 		
 		//Saco el índice primario para no volver a modificar.
 		mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));

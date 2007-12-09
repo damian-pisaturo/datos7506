@@ -329,7 +329,7 @@ int IndiceArbol::modificar(Clave* claveVieja, Clave* claveNueva, char* &registro
 	
 	int resultado = this->buscar(claveNueva);
 	
-	if (resultado == ResultadosIndices::CLAVE_NO_ENCONTRADA) {
+	if ((resultado == ResultadosIndices::CLAVE_NO_ENCONTRADA) || (*claveVieja == *claveNueva)) {
 		
 		resultado = this->eliminar(claveVieja);
 		if (resultado == ResultadosIndices::OK)
