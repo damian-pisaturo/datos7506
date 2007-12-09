@@ -447,7 +447,6 @@ int main(int argc, char* argv[]) {
 					}
 					
 					resultado << pipeResult;
-					cout << "resultado q llego a consultas: " << pipeResult << endl;
 					cout << endl << resultado << endl;
 					
 					delete pipe;
