@@ -142,23 +142,28 @@
 	{
 		char resultado = ResultadosMetadata::OK;
 		stringstream conversor;
+		string numeroEntero;
 		string::size_type posNoNumero = valorEntero.find_first_not_of(VALORES_NUMERICOS);
-		string::size_type posSignoMenos = 0;
+		string::size_type posSignoMenos = 0, posPrimerNum = 0;
 		
 		if (posNoNumero == string::npos){ // El valor entero no contiene caracteres alfabeticos
 			posSignoMenos = valorEntero.find_first_of(SIGNO_MENOS);
 			
 			if (posSignoMenos != string::npos){ // Valor entero negativo
-				conversor << INT_MIN;
-				if ( (valorEntero.size() > conversor.str().size())  || 
-				   (valorEntero.size() == conversor.str().size()) && (valorEntero < conversor.str()) )
-					resultado = ResultadosMetadata::ENTERO_INVALIDO;
+				conversor << INT_MIN;			
+				posPrimerNum = valorEntero.find_first_not_of('0', 1);
+				numeroEntero[0] = valorEntero[0];
+				numeroEntero += valorEntero.substr(posPrimerNum);
 			}else{ // Valor entero positivo
 				conversor << INT_MAX;
-				if ( (valorEntero.size() > conversor.str().size())  || 
-				   (valorEntero.size() == conversor.str().size()) && (valorEntero > conversor.str()) )
-					resultado = ResultadosMetadata::ENTERO_INVALIDO;
+				posPrimerNum = valorEntero.find_first_not_of('0');
+				numeroEntero = valorEntero.substr(posPrimerNum);
 			}
+			
+			if ( (numeroEntero.size() > conversor.str().size())  || 
+			   (numeroEntero.size() == conversor.str().size()) && (numeroEntero > conversor.str()) )
+				resultado = ResultadosMetadata::ENTERO_INVALIDO;
+		
 			
 		}else resultado = ResultadosMetadata::ENTERO_INVALIDO;
 				
@@ -169,28 +174,34 @@
 	{
 		char resultado = ResultadosMetadata::OK;
 		stringstream conversor;
+		string numeroShort;
 		string::size_type posNoNumero = valorShort.find_first_not_of(VALORES_NUMERICOS);
-		string::size_type posSignoMenos = 0;
+		string::size_type posSignoMenos = 0, posPrimerNum = 0;
 		
-		if (posNoNumero == string::npos){ // El valor short no contiene caracteres alfabeticos
+		if (posNoNumero == string::npos){ // El valor entero no contiene caracteres alfabeticos
 			posSignoMenos = valorShort.find_first_of(SIGNO_MENOS);
 			
-			if (posSignoMenos != string::npos){ // Valor short negativo
-				conversor << SHRT_MIN;
-				if ( (valorShort.size() > conversor.str().size())  || 
-				   (valorShort.size() == conversor.str().size()) && (valorShort < conversor.str()) )
-					resultado = ResultadosMetadata::SHORT_INVALIDO;
-			}else{							// Valor short positivo
+			if (posSignoMenos != string::npos){ // Valor entero negativo
+				conversor << SHRT_MIN;			
+				posPrimerNum = valorShort.find_first_not_of('0', 1);
+				numeroShort[0] = valorShort[0];
+				numeroShort += valorShort.substr(posPrimerNum);
+			}else{ // Valor entero positivo
 				conversor << SHRT_MAX;
-				if ( (valorShort.size() > conversor.str().size())  || 
-				   (valorShort.size() == conversor.str().size()) && (valorShort > conversor.str()) )
-					resultado = ResultadosMetadata::SHORT_INVALIDO;
+				posPrimerNum = valorShort.find_first_not_of('0');
+				numeroShort = valorShort.substr(posPrimerNum);
 			}
+			
+			if ( (numeroShort.size() > conversor.str().size())  || 
+			   (numeroShort.size() == conversor.str().size()) && (numeroShort > conversor.str()) )
+				resultado = ResultadosMetadata::SHORT_INVALIDO;
+		
 			
 		}else resultado = ResultadosMetadata::SHORT_INVALIDO;
 				
-		return resultado;			
+		return resultado;
 	}
+
 		
 	char ValidadorDatos::validarChar(const string& valorChar) const
 	{
