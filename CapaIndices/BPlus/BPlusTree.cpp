@@ -282,9 +282,6 @@ bool BPlusTree::eliminar(Clave* clave) {
 
 	delete nodoTarget;
 	
-	cout << "Eliminando la clave del ArbolB+" << endl;
-	clave->imprimir(cout);
-	cout << endl;
 	
 	return true;
 }
@@ -302,7 +299,6 @@ void BPlusTree::eliminarInterno(NodoBPlus* &nodoTarget, char* codigo, Clave* cla
 		Clave* clavePadreDer = NULL;
 		NodoBPlus *nodoPadre = this->buscarPadre(this->nodoRaiz, nodoTarget, claveEliminada);
 		NodoBPlus *nodoHnoDer = NULL, *nodoHnoIzq = NULL;
-
 		if (!nodoPadre) {//nodoTarget es el nodo raíz, no se chequea underflow.
 			*codigo = Codigo::MODIFICADO;
 			if (nodoTarget->getCantidadClaves() == 0) {
@@ -385,7 +381,7 @@ void BPlusTree::eliminarInterno(NodoBPlus* &nodoTarget, char* codigo, Clave* cla
 				if (!pudoRedistribuir) this->pasarMaximoPosibleHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
 				
 			}
-			
+
 			if (!pudoRedistribuir) { //Se realiza la concatenación de 'nodoTarget' con un nodo hermano. Si es un nodo
 									//interno, también se concatena con un separador del padre.
 
@@ -434,12 +430,15 @@ void BPlusTree::eliminarInterno(NodoBPlus* &nodoTarget, char* codigo, Clave* cla
 							nodoPadre->eliminarClave(clavePadreIzq, codigo);
 						}
 					}
-					
-					if (!pudoMerge)	*codigo = Codigo::MODIFICADO;
-					
-					//Se resuelve posible underflow al eliminar la clave separadora. Si no hay underflow,
-					//este método se encargará de escribir nodoPadre en disco.
-					this->eliminarInterno(nodoPadre, codigo, claveEliminada);
+	
+					if (!pudoMerge){
+						*codigo = Codigo::MODIFICADO;
+						this->eliminarInterno(nodoTarget, codigo, claveEliminada);
+					}
+					else
+						//Se resuelve posible underflow al eliminar la clave separadora. Si no hay underflow,
+						//este método se encargará de escribir nodoPadre en disco.
+						this->eliminarInterno(nodoPadre, codigo, claveEliminada);
 					
 				}		
 			}
