@@ -1013,7 +1013,7 @@ NodoBStar* BStarTree::buscarMayorMenores(NodoBStar* nodo, Clave* clave) const {
 
 VectorClaves* BStarTree::mergeSplitOverflow(NodoBStar* nodoTarget, NodoBStar* nodoHno, Clave* clavePadre){
 	
-	clavePadre->setHijoDer(/*nodoHno->getHijoIzq()*/nodoTarget->getHijoIzq()); //TODO: EN BETA.
+	clavePadre->setHijoDer(nodoTarget->getHijoIzq()); 
 	
 	nodoTarget->merge(nodoHno, clavePadre);
 	
