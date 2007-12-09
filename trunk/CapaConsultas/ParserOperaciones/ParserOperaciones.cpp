@@ -473,7 +473,7 @@ void ParserOperaciones::removerCaracter(string* s, char caracter) {
 	for (iter = s->begin(); iter != (s->end() - 1); ++iter){
 		if (*iter == caracter) s->erase(iter);
 	}
-	if (*iter == caracter) s->erase(iter); //TODO: PARCHE
+	if (*iter == caracter) s->erase(iter); 
 }
 
 string* ParserOperaciones::mayus(string* s){
