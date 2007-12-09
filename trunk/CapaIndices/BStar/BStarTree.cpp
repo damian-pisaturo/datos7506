@@ -7,7 +7,7 @@ BStarTree::BStarTree(IndiceManager& indiceManager, unsigned short tamanioNodo)
 	this->tamanioRaiz = 2*this->tamanioNodo;
 	this->claveCorriente = NULL;
 	this->getRaiz();
-
+	
 }
 
 BStarTree::~BStarTree() {
@@ -280,8 +280,7 @@ bool BStarTree::eliminar(Clave* clave) {
 	
 	
 	if (nodoTarget) delete nodoTarget;
-
-
+	
 	return true;
 }
 

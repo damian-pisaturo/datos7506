@@ -42,7 +42,8 @@ FileManager::~FileManager() {
  * numReg.
  * En tamReg devuelve el tamaño del mismo.
  */
-int FileManager::leerRegistro(char* &registro, unsigned short numReg, unsigned short &tamReg) {
+int FileManager::leerRegistro(char* &registro, unsigned short numReg,
+							  unsigned short &tamReg, bool &quedanRegistros) {
 	
 	int resultado = ResultadosMetadata::OK;
 	char* contenidoBloque = new char[this->getTamanioBloqueDatos()];
@@ -66,12 +67,19 @@ int FileManager::leerRegistro(char* &registro, unsigned short numReg, unsigned s
 				bloque.setDatos(contenidoBloque);
 				cantRegistrosEnBloque = bloque.getCantidadRegistros();
 				
-				if ((cantRegistrosLeidos + cantRegistrosEnBloque) >= numReg) {
+				if ((cantRegistrosLeidos + cantRegistrosEnBloque) > numReg) {
 					// Obtengo el registro
 					unsigned short nroRegistro = numReg - cantRegistrosLeidos;
 					registro = bloque.getRegistroPorNro(nroRegistro, tamReg);
 					encontrado = true;
-				} else cantRegistrosLeidos += cantRegistrosEnBloque;
+				} else {
+					cantRegistrosLeidos += cantRegistrosEnBloque;
+					++numBloque;
+				}
+				
+				if (this->archivo->fin())
+					quedanRegistros = false;
+				else quedanRegistros = true;
 				
 				resultado = ResultadosMetadata::OK;
 				
@@ -239,6 +247,14 @@ void FileManager::eliminarArchivosTemporales(const string &extension) {
 void FileManager::eliminarArchivoTemporal(const string &nombre, const string &extension) {
 	
 	string operacion("rm -fv " + nombre + "." + extension);
+	system(operacion.c_str());
+	
+}
+
+
+void FileManager::eliminarArchivoTemporal(const string &nombreArchivo) {
+	
+	string operacion("rm -fv " + nombreArchivo);
 	system(operacion.c_str());
 	
 }

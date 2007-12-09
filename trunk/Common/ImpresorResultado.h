@@ -123,7 +123,7 @@ ostream& operator << (ostream &out, const Resultado &e) {
         case ArchivoMaestro::TAMANIO_BLOQUE_INVALIDO:
         	out << "Error: Se ha intentado definir un tamaño de bloque inválido. El tamaño debe ser múltiplo de 512 bytes."; break;
         case ArchivoMaestro::TIPO_EXISTENTE:
-        	out << "Advertencia: Alguno de los tipos definidos en el archivo de definiciones ya existe en la Base de Datos."; break;
+        	out << "Advertencia: Alguno de los tipos definidos en el archivo de definiciones ya existe.\nSe utilizará la definición que se encontraba cargada en la Base de Datos."; break;
         case ArchivoMaestro::TIPO_INEXISTENTE:
         	out << "Error: Se ha intentado obtener definiciones de un tipo inexistente."; break;
         case ArchivoMaestro::OK:

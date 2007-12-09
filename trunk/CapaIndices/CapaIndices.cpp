@@ -205,13 +205,15 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 	int resultado = indice->siguienteBloque(bloque);
 	
 	 while (resultado == ResultadosIndices::OK) {
+
 		// Se obtiene un registro.
 		registro = bloque->getNextRegister();
 	
 		while (registro) {
-			// Indica a Metadata que tiene un registro para enviarle.
+
+			// Indica a metadata que tiene un registro para enviarle.
 			pipe.escribir(resultado);
-				
+			
 			// Obtiene el tamaño del registro a enviar.
 			tamanioRegistro = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, registro);
 			
@@ -221,7 +223,7 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 			
 			pipe.leer(&operacion);
 			
-			if (operacion == OperacionesCapas::INDICES_ELIMINAR) {		
+			if (operacion == OperacionesCapas::INDICES_ELIMINAR) {
 				clave = bloque->getClavePrimaria(listaTiposAtributos,registro);
 				eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 				delete clave;
@@ -236,7 +238,8 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 		resultado = indice->siguienteBloque(bloque);
 	}
 	 // Indica que no hay mas registros.
-	 pipe.escribir(resultado);	 
+	 pipe.escribir(resultado);
+	 
 }
 
 
@@ -330,6 +333,7 @@ void enviarClavesMayoresOIguales(const string &nombreTipo, MapaIndices &mapaIndi
 		if (indice->getTipoIndice() == TipoIndices::GRIEGO) { // Índice Primario
 			
 			resultado = indice->buscar(claveSiguiente, registro, tamRegistro);
+			
 			delete claveSiguiente;
 			
 			if (resultado == ResultadosIndices::OK) {
@@ -711,6 +715,7 @@ int eliminarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 	//Antes de eliminar la clave primaria obtengo su registro de datos
 	//para luego armar las claves secundarias.
 	resultado = indicePrimario->buscar(clave, registroDatos, tamRegistro);
+
 	if (resultado == ResultadosIndices::OK) {
 		
 		//Elimino la clave primaria
@@ -760,14 +765,16 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 	int resultado = ResultadosIndices::OK;
 	
 	if (indice->getTipoIndice() == TipoIndices::GRIEGO) {
+	
 		//Saco el índice primario para no volver a eliminar.
 		mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
 		//Elimino la clave primaria y actualizo los índices secundarios.
 		resultado = eliminarClavePrimaria(nombreTipo, mapaIndices, indice, clave, defManager);
-	
 		// Vuelve a insertar el indice que saco del mapa.
-		mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indice;		
+		mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indice;
+		
 	} else { //Indice Secundario
+		
 		SetClaves* setClavesPrimarias = NULL;
 		resultado = indice->buscar(clave, setClavesPrimarias);
 		
@@ -788,8 +795,10 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 			
 			mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indicePrimario;
 			
-			delete setClavesPrimarias;			
-		}		
+			delete setClavesPrimarias;
+			
+		}
+		
 	}
 	
 	//Envía el resultado de la eliminación a la capa de metadata
@@ -1116,60 +1125,61 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	//Se crean los indices correspondientes al tipo 'nombreTipo'
 	crearIndices(nombreTipo, mapaIndices, defManager);
 	
-	if (buffer.size() > 5) {
+	if (codOp == OperacionesCapas::INDICES_CONSULTAR_TODO)
+		indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
+	else {
 		
-		if (codOp == OperacionesCapas::INDICES_CONSULTAR_TODO)
-			indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
-		else {
-			// Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes
-			// (NOMBRE_CLAVE-COMIENZO_OPERADOR-OPERADOR-FIN_OPERADOR-VALOR_CLAVE)
-			posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
-			while ( (posActual != string::npos) ) {
-				auxStr = buffer.substr(posAnterior, posActual - posAnterior);
-				// En auxStr tengo (NOMBRE_CLAVE-COMIENZO_OPERADOR-OPERADOR-FIN_OPERADOR-VALOR_CLAVE)
-				// sin los guiones.
-				posSeparador = auxStr.find(CodigosPipe::COMIENZO_OPERADOR);
-				operador = auxStr[posSeparador + 1];
-				listaNombresClaves.push_back(auxStr.substr(0, posSeparador));
-				valorClave = auxStr.substr(posSeparador+3);
-				if (valorClave.size() > 0) listaValoresClaves.push_back(valorClave);
-				posAnterior = posActual + 1;
+		if (buffer.size() > 5) {
+			
+				// Se parsea el buffer obteniendo los nombres de la claves y sus valores correspondientes
+				// (NOMBRE_CLAVE-COMIENZO_OPERADOR-OPERADOR-FIN_OPERADOR-VALOR_CLAVE)
 				posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
-			}
-			
-			// Busco el índice correspondiente a los nombres de los campos que componen la clave.
-			// Si no se encuentra el índice, significa que esos campos no están indexados, por lo
-			// que habrá que hacer una búsqueda secuencial para resolver la operación.
-			// Además, si la lista de nombres de claves contiene elementos y la lista
-			// de valores de claves está vacia, significa que la operación es un order by
-			// por los campos cuyos nombres figuran el 'listaNombresClaves'
-			
-			if ( (listaNombresClaves.size() > 0) && (listaValoresClaves.size() == 0) ) {
-				// La operación es una consulta con un OrderBy
-				indice = obtenerIndiceParaOrderBy(mapaIndices, listaNombresClaves);
-				if (!indice) {
-					// No se encontró un índice para devolver los registros ordenados
-					// por los campos indicados. Se devuelve el error correspondiente.
-					resultado = ResultadosIndices::ERROR_NO_HAY_INDICE;
-					pipe.escribir(resultado);
+				while ( (posActual != string::npos) ) {
+					auxStr = buffer.substr(posAnterior, posActual - posAnterior);
+					// En auxStr tengo (NOMBRE_CLAVE-COMIENZO_OPERADOR-OPERADOR-FIN_OPERADOR-VALOR_CLAVE)
+					// sin los guiones.
+					posSeparador = auxStr.find(CodigosPipe::COMIENZO_OPERADOR);
+					operador = auxStr[posSeparador + 1];
+					listaNombresClaves.push_back(auxStr.substr(0, posSeparador));
+					valorClave = auxStr.substr(posSeparador+3);
+					if (valorClave.size() > 0) listaValoresClaves.push_back(valorClave);
+					posAnterior = posActual + 1;
+					posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
 				}
-				clave = NULL;				
-			} else {
-				MapaIndices::iterator it = mapaIndices.find(listaNombresClaves);
-				if (it != mapaIndices.end()) indice = it->second;
-
-				listaTipos = defManager.getListaTiposClaves(nombreTipo, listaNombresClaves);
-				clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *listaTipos);
-
-				delete listaTipos;
-			}
-
+				
+				// Busco el índice correspondiente a los nombres de los campos que componen la clave.
+				// Si no se encuentra el índice, significa que esos campos no están indexados, por lo
+				// que habrá que hacer una búsqueda secuencial para resolver la operación.
+				// Además, si la lista de nombres de claves contiene elementos y la lista
+				// de valores de claves está vacia, significa que la operación es un order by
+				// por los campos cuyos nombres figuran el 'listaNombresClaves'
+				
+				if ( (listaNombresClaves.size() > 0) && (listaValoresClaves.size() == 0) ) {
+					// La operación es una consulta con un OrderBy
+					indice = obtenerIndiceParaOrderBy(mapaIndices, listaNombresClaves);
+					if (!indice) {
+						// No se encontró un índice para devolver los registros ordenados
+						// por los campos indicados. Se devuelve el error correspondiente.
+						resultado = ResultadosIndices::ERROR_NO_HAY_INDICE;
+						pipe.escribir(resultado);
+					}
+					clave = NULL;				
+				} else {
+					MapaIndices::iterator it = mapaIndices.find(listaNombresClaves);
+					if (it != mapaIndices.end()) indice = it->second;
+	
+					listaTipos = defManager.getListaTiposClaves(nombreTipo, listaNombresClaves);
+					clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *listaTipos);
+	
+					delete listaTipos;
+				}
+			
+		} else {
+			
+			resultado = ResultadosIndices::ERROR_VALORES_CLAVES;
+			pipe.escribir(resultado);
+			
 		}
-		
-	} else {
-		
-		resultado = ResultadosIndices::ERROR_VALORES_CLAVES;
-		pipe.escribir(resultado);
 		
 	}
 	

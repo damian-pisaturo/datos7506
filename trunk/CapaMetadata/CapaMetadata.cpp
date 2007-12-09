@@ -566,7 +566,7 @@ string generarSiguienteExtension(const string &extension) {
 int guardarRegistro(const string &nombreTipo, char* registro, unsigned short tamRegistro) {
 	
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
-	string nombreArchivo(nombreTipo + EXTENSION_TEMPORAL_INICIAL);
+	string nombreArchivo(nombreTipo + "." + EXTENSION_TEMPORAL_INICIAL);
 	unsigned short tamBloque = defManager.getTamBloqueDatos(nombreTipo);
 	FileManager fileManager(nombreArchivo, tamBloque,
 							defManager.getTipoOrgRegistro(nombreTipo),
@@ -586,7 +586,7 @@ int join(const MapaRestricciones &mapaOp, MapaExtensiones &mapaExt) {
 	ListaOperaciones* listaOp = NULL;
 	char *registro1 = NULL, *registro2 = NULL, *auxReg = NULL;
 	unsigned short tamRegistro1 = 0, tamRegistro2 = 0, tamRegAux = 0;
-	bool cumpleRestriccion = false, registrosJoineados = false;
+	bool cumpleRestriccion = false, registrosJoineados = false, quedanRegistros = false;
 	unsigned short tamBloque = 0, nroRegistro = 0;
 	unsigned char tipoOrg = 0;
 	ListaTiposAtributos* listaTiposAtributos = NULL;
@@ -664,13 +664,16 @@ int join(const MapaRestricciones &mapaOp, MapaExtensiones &mapaExt) {
 							nombreArchivo = nombreTipoAux + "." + extensionNuevaAux;
 							FileManager* archivoNuevoAux = new FileManager(nombreArchivo, tamBloque, tipoOrg, listaTiposAtributos);
 							
-							archivoViejoAux->leerRegistro(auxReg, nroRegistro, tamRegAux);
+							archivoViejoAux->leerRegistro(auxReg, nroRegistro, tamRegAux, quedanRegistros);
 							archivoNuevoAux->escribirRegistro(auxReg, tamRegAux);
 							
 							listaExtensiones = mapaExt[nombreTipoAux];
 							listaExtensiones->push_back(extensionNuevaAux);
 							if (listaExtensiones->size() > 2) {
-								FileManager::eliminarArchivoTemporal(nombreTipoAux, listaExtensiones->front());
+								nombreArchivo = nombreTipoAux + "." + listaExtensiones->front();
+								FileManager::eliminarArchivoTemporal(nombreArchivo);
+								nombreArchivo = nombreTipoAux + "." + listaExtensiones->front() + "." + EXTENSION_ESPACIO_LIBRE;
+								FileManager::eliminarArchivoTemporal(nombreArchivo);
 								listaExtensiones->pop_front();
 							}
 							
@@ -690,7 +693,10 @@ int join(const MapaRestricciones &mapaOp, MapaExtensiones &mapaExt) {
 					listaExtensiones = mapaExt[nombreTipo2];
 					listaExtensiones->push_back(extensionNueva2);
 					if (listaExtensiones->size() > 2) {
-						FileManager::eliminarArchivoTemporal(nombreTipo2, listaExtensiones->front());
+						nombreArchivo = nombreTipo2 + "." + listaExtensiones->front();
+						FileManager::eliminarArchivoTemporal(nombreArchivo);
+						nombreArchivo = nombreTipo2 + "." + listaExtensiones->front() + "." + EXTENSION_ESPACIO_LIBRE;
+						FileManager::eliminarArchivoTemporal(nombreArchivo);
 						listaExtensiones->pop_front();
 					}
 				}
@@ -707,7 +713,10 @@ int join(const MapaRestricciones &mapaOp, MapaExtensiones &mapaExt) {
 				listaExtensiones = mapaExt[nombreTipo1];
 				listaExtensiones->push_back(extensionNueva1);
 				if (listaExtensiones->size() > 2) {
-					FileManager::eliminarArchivoTemporal(nombreTipo1, listaExtensiones->front());
+					nombreArchivo = nombreTipo1 + "." + listaExtensiones->front();
+					FileManager::eliminarArchivoTemporal(nombreArchivo);
+					nombreArchivo = nombreTipo1 + "." + listaExtensiones->front() + "." + EXTENSION_ESPACIO_LIBRE;
+					FileManager::eliminarArchivoTemporal(nombreArchivo);
 					listaExtensiones->pop_front();
 				}
 			}
@@ -1202,8 +1211,12 @@ void eliminarArchivosTemporales(const MapaExtensiones &mapaExt) {
 		listaExtensiones = iterMapa->second;
 		
 		for (ListaStrings::const_iterator iterLista = listaExtensiones->begin();
-			 iterLista != listaExtensiones->end(); ++iterLista)
+			 iterLista != listaExtensiones->end(); ++iterLista) {
+			
 			FileManager::eliminarArchivosTemporales(*iterLista);
+			FileManager::eliminarArchivosTemporales(*iterLista + "." + EXTENSION_ESPACIO_LIBRE);
+			
+		}
 		
 	}
 	
@@ -1220,9 +1233,6 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 	int pipeResult;
 	unsigned char operacionCapaIndices = 0;
 	bool seGuardoRegistro = true;
-	
-	// Objeto validador de los datos de entrada
-	ValidadorDatos validador;
 	
 	// Se instancia el DefinitionsManager (conocedor absoluto del universo).
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
@@ -1300,17 +1310,20 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 				
 				bool cumpleRestriccion = false;
 				
+				if (mapaWhere.size() == 0) // No hay restricciones, se devuelven todos los registros
+					cumpleRestriccion = true;
+				
 				do {
 					// Se obtiene la cantidad de registros que responden 
 					// a la consulta realizada.
-					pipe->leer(&cantRegistros); 
+					pipe->leer(&cantRegistros);
 					
 					if (cantRegistros > 0) {
 						
 						for (unsigned short i = 0; i < cantRegistros; i++){
 							// Se obtiene el tamaño del registro a levantar
 							pipe->leer(&tamRegistro);
-						
+							
 							if (tamRegistro == 0) {
 								pipeResult = ResultadosIndices::ERROR_CONSULTA;
 								break;
@@ -1321,10 +1334,11 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 							// Se obtiene el registro de datos consultado.
 							pipe->leer(tamRegistro, registro);
 							
-							cumpleRestriccion = cumpleRestricciones(registro, *mapaWhere[nombreTipo],
-																	estructura.estructuraWhere.operacion,
-																	*defManager.getListaNombresAtributos(nombreTipo),
-																	*defManager.getListaTiposAtributos(nombreTipo));
+							if (!cumpleRestriccion)
+								cumpleRestriccion = cumpleRestricciones(registro, *mapaWhere[nombreTipo],
+																		estructura.estructuraWhere.operacion,
+																		*defManager.getListaNombresAtributos(nombreTipo),
+																		*defManager.getListaTiposAtributos(nombreTipo));
 							if (cumpleRestriccion) {
 								guardarRegistro(nombreTipo, registro, tamRegistro);
 								seGuardoRegistro = true;
@@ -1332,7 +1346,6 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 							
 							delete[] registro;
 							
-							cout << endl;
 						}
 						
 						registro = NULL;
@@ -1369,10 +1382,10 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 			// Se envian los registros a la capa de consultas
 			ListaStrings& listaNombresTipos = estructura.listaNombresTipos;
 			ListaTiposAtributos* listaTiposAtributos = NULL;
-			unsigned short nroRegistro = 0, tamBloque = 0, tamRegistro = 0;
+			unsigned short nroRegistro = 0, tamBloque = 0;
 			string nombreArchivo, extension;
-			char* registro = NULL;
 			unsigned char tipoOrg;
+			bool quedanRegistros = false;
 			
 			while (pipeResult == ResultadosMetadata::OK) {
 				
@@ -1391,7 +1404,7 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 					listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 					
 					FileManager* archivoResultados = new FileManager(nombreArchivo, tamBloque, tipoOrg, listaTiposAtributos);
-					pipeResult = archivoResultados->leerRegistro(registro, nroRegistro, tamRegistro);
+					pipeResult = archivoResultados->leerRegistro(registro, nroRegistro, tamRegistro, quedanRegistros);
 					
 					// Si se produce un error tamRegistro es 0 y la capa superior lo interpreta
 					pipeCapaConsultas.escribir(tamRegistro);
@@ -1405,6 +1418,9 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 					delete archivoResultados;
 					
 				}
+				
+				if (!quedanRegistros)
+					pipeResult = ResultadosMetadata::FIN_REGISTROS;
 				
 				// Se indica a la capa superior si debe seguir recibiendo bloques
 				pipeCapaConsultas.escribir(pipeResult);
@@ -1625,8 +1641,7 @@ int main(int argc, char* argv[])
 	
 	cout.flush();
 
-	cout << "Fin Capa Metadata" << endl;
-	cout << endl;
+	cout << "Fin Capa Metadata" << endl << endl;
 	
 	return pipeResult;	
 }

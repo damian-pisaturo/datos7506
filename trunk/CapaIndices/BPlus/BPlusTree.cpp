@@ -282,7 +282,6 @@ bool BPlusTree::eliminar(Clave* clave) {
 
 	delete nodoTarget;
 	
-	
 	return true;
 }
 
@@ -299,6 +298,7 @@ void BPlusTree::eliminarInterno(NodoBPlus* &nodoTarget, char* codigo, Clave* cla
 		Clave* clavePadreDer = NULL;
 		NodoBPlus *nodoPadre = this->buscarPadre(this->nodoRaiz, nodoTarget, claveEliminada);
 		NodoBPlus *nodoHnoDer = NULL, *nodoHnoIzq = NULL;
+
 		if (!nodoPadre) {//nodoTarget es el nodo raíz, no se chequea underflow.
 			*codigo = Codigo::MODIFICADO;
 			if (nodoTarget->getCantidadClaves() == 0) {
@@ -381,7 +381,7 @@ void BPlusTree::eliminarInterno(NodoBPlus* &nodoTarget, char* codigo, Clave* cla
 				if (!pudoRedistribuir) this->pasarMaximoPosibleHaciaDerecha(nodoTarget, nodoPadre, nodoHnoIzq, clavePadreIzq);
 				
 			}
-
+			
 			if (!pudoRedistribuir) { //Se realiza la concatenación de 'nodoTarget' con un nodo hermano. Si es un nodo
 									//interno, también se concatena con un separador del padre.
 
