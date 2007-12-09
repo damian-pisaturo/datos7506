@@ -44,7 +44,7 @@ BPlusTree::~BPlusTree() {
 
 NodoBPlus* BPlusTree::getRaiz()
 {
-	//Lee el primer registro del archivo -> la raiz
+	//Lee el primer bloque del archivo -> la raiz
 	this->nodoRaiz = new NodoBPlus(0, 0, this->tamanioNodo);
 	int resultado = indiceManager.leerBloque(0, this->nodoRaiz);
 	if (resultado != ResultadosFisica::OK) this->nodoRaiz = NULL;
@@ -259,14 +259,14 @@ void BPlusTree::insertarInterno(NodoBPlus* &nodoDestino, char* codigo, Clave* cl
 
 
 bool BPlusTree::eliminar(Clave* clave) {
-	
+
 	if ( (!clave) || (this->vacio()) ) return false;
 	
 	NodoBPlus* nodoTarget = buscarLugar(clave);
 	
 	Clave* claveBuscada = nodoTarget->buscar(clave);
 
-	char codigo;
+	char codigo = 0;
 	
 	if ( (claveBuscada) && (*claveBuscada == *clave) ) {
 		nodoTarget->eliminarClave(claveBuscada, &codigo);
@@ -281,6 +281,10 @@ bool BPlusTree::eliminar(Clave* clave) {
 		*(this->nodoRaiz) = *nodoTarget;
 
 	delete nodoTarget;
+	
+	cout << "Eliminando la clave del ArbolB+" << endl;
+	clave->imprimir(cout);
+	cout << endl;
 	
 	return true;
 }

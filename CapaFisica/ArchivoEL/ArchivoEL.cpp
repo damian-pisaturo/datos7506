@@ -158,6 +158,16 @@
 
 			return resultado;
 		}
+		
+		bool ArchivoELFijo::estaLibre(const unsigned short numBloque)
+		{
+			bool estaLibre = false;
+			
+			this->posicionarse(numBloque);
+			this->leer(&estaLibre);
+			
+			return estaLibre;
+		}
 
 ///////////////////////////////////////////////////////////////////////////
 // Clase

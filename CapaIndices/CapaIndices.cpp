@@ -196,7 +196,7 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 	
 	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	
-	Clave* clave = NULL;
+	Clave* clave   = NULL;
 	Bloque* bloque = NULL;
 	char* registro = NULL;
 	unsigned short tamanioRegistro = 0;
@@ -205,37 +205,27 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 	int resultado = indice->siguienteBloque(bloque);
 	
 	 while (resultado == ResultadosIndices::OK) {
-		cout << "CI: entre en el while de q hay bloques" << endl;
 		// Se obtiene un registro.
 		registro = bloque->getNextRegister();
 	
 		while (registro) {
-			cout << "CI: entre el el while de q hay registros" << endl;
-			// Indica a metadata que tiene un registro para enviarle.
+			// Indica a Metadata que tiene un registro para enviarle.
 			pipe.escribir(resultado);
 				
-			cout << "CI: escribi que hay mas registros:" << resultado << endl;
 			// Obtiene el tamaño del registro a enviar.
 			tamanioRegistro = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, registro);
 			
-			cout << "CI: mando el tamaño: "<< tamanioRegistro << endl;
 			pipe.escribir(tamanioRegistro);
 			
-			cout << "CI: mando el registro."<< endl;
 			pipe.escribir(registro, tamanioRegistro);
-			cout << "CI: ya mande el registro."<< endl;
 			
-			cout << "CI: voy a leer la operacion."<< endl;
 			pipe.leer(&operacion);
 			
 			if (operacion == OperacionesCapas::INDICES_ELIMINAR) {		
-				cout << "CI: lei la operacion, tengo q eliminar."<< endl;
 				clave = bloque->getClavePrimaria(listaTiposAtributos,registro);
-				cout << "CI: busque la clave primaria." << endl;
 				eliminar(nombreTipo, mapaIndices, indice, clave, defManager, pipe);
 				delete clave;
-			}else
-				cout << "CI: lei la operacion, es no op: "<< (int)operacion << endl;
+			}
 			
 			delete[] registro;
 			registro = bloque->getNextRegister();	
@@ -246,8 +236,7 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 		resultado = indice->siguienteBloque(bloque);
 	}
 	 // Indica que no hay mas registros.
-	 pipe.escribir(resultado);
-	 
+	 pipe.escribir(resultado);	 
 }
 
 
@@ -721,15 +710,11 @@ int eliminarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 	//Antes de eliminar la clave primaria obtengo su registro de datos
 	//para luego armar las claves secundarias.
-	cout << "CI: Busco la clave primaria." << endl;
 	resultado = indicePrimario->buscar(clave, registroDatos, tamRegistro);
-	cout << "resultado de la busqueda: " << resultado << endl;
 	if (resultado == ResultadosIndices::OK) {
 		
-		cout << "CI: resultado = OK, mando a eliminar..." << endl;
 		//Elimino la clave primaria
 		resultado = indicePrimario->eliminar(clave);
-		cout << "CI: elimine la primaria. Resultado: " << resultado << endl;
 		
 		if (resultado == ResultadosIndices::OK) {
 			
@@ -775,22 +760,16 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 	int resultado = ResultadosIndices::OK;
 	
 	if (indice->getTipoIndice() == TipoIndices::GRIEGO) {
-	
-		cout << "CI: es un indice primario." << endl;
 		//Saco el índice primario para no volver a eliminar.
 		mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));
 		//Elimino la clave primaria y actualizo los índices secundarios.
-		cout << "CI: voy a eliminar la clave primaria." << endl;
 		resultado = eliminarClavePrimaria(nombreTipo, mapaIndices, indice, clave, defManager);
-		cout << "CI: elimine la clave primaria." << endl;
+	
 		// Vuelve a insertar el indice que saco del mapa.
-		mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indice;
-		cout << "CI: reinserte el indice primario en el mapa." << endl;
-		
+		mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indice;		
 	} else { //Indice Secundario
-		cout << "CI: es un indice secundario." << endl;
 		SetClaves* setClavesPrimarias = NULL;
-		int resultado = indice->buscar(clave, setClavesPrimarias);
+		resultado = indice->buscar(clave, setClavesPrimarias);
 		
 		if (resultado == ResultadosIndices::OK) {
 			
@@ -809,14 +788,11 @@ void eliminar(const string &nombreTipo, MapaIndices &mapaIndices,
 			
 			mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)] = indicePrimario;
 			
-			delete setClavesPrimarias;
-			
-		}
-		
+			delete setClavesPrimarias;			
+		}		
 	}
 	
 	//Envía el resultado de la eliminación a la capa de metadata
-	cout << "CI: Termine de eliminar. Resultado: "<< resultado << ". lo mando." << endl;
 	pipe.escribir(resultado);
 	
 }
