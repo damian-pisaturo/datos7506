@@ -22,7 +22,7 @@
 
 	unsigned int Clave::getTamanioEnDisco(bool bstar) const
 	{
-		unsigned int tamanio = this->getTamanioValor() + Tamanios::TAMANIO_REFERENCIA;
+		unsigned int tamanio = this->getTamanioValorConPrefijo() + Tamanios::TAMANIO_REFERENCIA;
 		
 		//Si la clave se inserta en un nodo interno de un árbol B*
 		//agrego el tamaño de una referencia
