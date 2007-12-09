@@ -859,6 +859,7 @@ int modificarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 	// Busca el registro viejo.
 	resultado = indicePrimario->buscar(clavePrimariaVieja, registroViejo, tamRegistro);
+	cout << "CI: resultado de la busqueda me dio: " << resultado << endl;
 	pipe.escribir(resultado);
 	
 	if (resultado == ResultadosIndices::OK) {
@@ -891,6 +892,7 @@ int modificarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 		
 		resultado = indicePrimario->modificar(clavePrimariaVieja, clavePrimariaNueva, registroNuevo, tamRegistro);
 		
+		cout << "CI: resultado de la modificacion del indice primario: " << resultado << endl;
 		if (resultado == ResultadosIndices::OK) {
 			
 			//Actualizo los indices secundarios
@@ -928,7 +930,64 @@ int modificarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 }
 void modificacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndices,
 									DefinitionsManager &defManager, ComuDatos &pipe) {
+
+	// Obtiene el indice primario para poder obtener luego los bloques de datos.
+	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
 	
+	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	
+	Clave* clave = NULL;
+	Bloque* bloque = NULL;
+	char* registro = NULL;
+	unsigned short tamanioRegistro = 0;
+	char operacion = 0;
+	
+	// Obtiene un bloque de datos.
+	int resultado = indice->siguienteBloque(bloque);
+	
+	 while (resultado == ResultadosIndices::OK) {
+		 
+		// Se obtiene un registro.
+		registro = bloque->getNextRegister();
+	
+		while (registro) {
+
+			// Indica a metadata que tiene un registro para enviarle.
+			pipe.escribir(resultado);
+				
+			// Obtiene el tamaño del registro a enviar.
+			tamanioRegistro = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, registro);
+			
+			pipe.escribir(tamanioRegistro);
+			
+			pipe.escribir(registro, tamanioRegistro);
+			
+			pipe.leer(&operacion);
+			
+			cout << "CI: lei la operacion: "<< (int)operacion << endl;
+			
+			if (operacion == OperacionesCapas::INDICES_MODIFICAR) {		
+				cout << "CI:  tengo q modificar!"<< endl;
+				clave = bloque->getClavePrimaria(listaTiposAtributos,registro);
+				cout << "CI: obtengo la clave primaria. La imprimo: "<< endl;
+				clave->imprimir(cout);
+				modificar(nombreTipo,mapaIndices,indice,clave,defManager,pipe);
+				cout << "CI: termine de modificar."<< endl;
+				delete clave;
+			}
+			
+			delete[] registro;
+			registro = bloque->getNextRegister();	
+		}	
+
+		delete bloque;
+		bloque = NULL;
+		resultado = indice->siguienteBloque(bloque);
+	}
+	 // Indica que no hay mas registros.
+	 pipe.escribir(resultado);
+	
+	/*	
 	// Obtiene el indice primario para poder obtener luego los bloques de datos.
 	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
 	
@@ -985,6 +1044,8 @@ void modificacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaI
 		bloque = NULL;
 		resultado = indice->siguienteBloque(bloque);
 	}
+	
+	*/
 }
 
 void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
@@ -997,7 +1058,7 @@ void modificar(const string &nombreTipo, MapaIndices &mapaIndices,
 	if (indice->getTipoIndice() == TipoIndices::GRIEGO) {
 		
 		//Se envía la cantidad de registros que se deben modificar
-		pipe.escribir(cantRegistros);
+	//	pipe.escribir(cantRegistros);
 		
 		//Saco el índice primario para no volver a modificar.
 		mapaIndices.erase(*defManager.getListaNombresClavesPrimarias(nombreTipo));

@@ -447,24 +447,24 @@
 				}
 		
 				// Se obtiene el registro.
-				registro = getRegistro(longReg, offsetToReg);
-		
+				registro = getRegistro((int)longReg,(int) offsetToReg);
+
 				//Itero la lista de atributos del registro
 				for (++it; ((it != listaInfoRegistro->end()) && (!checkPk)); ++it) {
 					regAtribute = *it;
-		
+
 					//Obtengo el tipo de atributo del registro
 					tipo = regAtribute.tipoDato;
 					//Obtengo el indicador de clave primaria
 					pk = regAtribute.esPk;
 					if (tipo == TipoDatos::TIPO_STRING) {
-		
+
 						//obtengo la longitud del campo variable
 						memcpy(&longCampo, &registro[offsetToProxCampo],
 								Tamanios::TAMANIO_LONGITUD_CADENA);
+
 						offsetToProxCampo += Tamanios::TAMANIO_LONGITUD_CADENA;
 						//Si es pk, me preocupo por obtener el campo en si
-		
 						if (pk) {
 							char* campo = new char[longCampo +1];
 							memcpy(campo, &registro[offsetToProxCampo], longCampo);
@@ -481,7 +481,7 @@
 						//Seteo el nuevo offset del próximo campo para la siguiente iteración
 						offsetToProxCampo += longCampo;
 					} else if (tipo == TipoDatos::TIPO_ENTERO) {
-		
+
 						if (pk) {
 							memcpy(&campoNumericoInt, &registro[offsetToProxCampo], sizeof(int));
 		
@@ -492,6 +492,7 @@
 						}
 						offsetToProxCampo += sizeof(int);
 					} else if (tipo == TipoDatos::TIPO_SHORT) {
+
 						if (pk) {
 							memcpy(&campoShort, &registro[offsetToProxCampo],
 									sizeof(short int));
@@ -502,6 +503,7 @@
 						}
 						offsetToProxCampo += sizeof(short int);
 					} else if (tipo == TipoDatos::TIPO_FLOAT) {
+
 						if (pk) {
 							memcpy(&campoNumerico, &registro[offsetToProxCampo],
 									sizeof(float));
@@ -513,6 +515,7 @@
 						}
 						offsetToProxCampo += sizeof(float);
 					} else if (tipo == TipoDatos::TIPO_CHAR) {
+
 						if (pk) {
 							char* campo = new char[2];
 							campo[0] = registro[offsetToProxCampo];
@@ -527,6 +530,7 @@
 						}
 						offsetToProxCampo += sizeof(char);
 					} else if (tipo == TipoDatos::TIPO_FECHA) {
+
 						if (pk) {
 							ClaveFecha::TFECHA fecha;
 							memcpy(&fecha.anio, &registro[offsetToProxCampo], sizeof(unsigned short));
@@ -545,6 +549,7 @@
 						}
 						offsetToProxCampo += Tamanios::TAMANIO_FECHA;
 					}
+					
 					if (clavesChequeadas == cantClaves) {
 						checkPk = true;
 						if (clavesChequeadas == clavesIguales) {
