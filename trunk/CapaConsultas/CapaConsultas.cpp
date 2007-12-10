@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
 			int resultadoProxOp = 0;
 			
 			while ((resultadoProxOp = parserOperaciones.proximaOperacion()) != ResultadosParserOperaciones::FIN_ARCHIVO) {
-	
+			
 				if (resultadoProxOp != ResultadosParserOperaciones::SINTAXIS_CORRECTA){
 					resultado << resultadoProxOp;
 					cout << resultado << endl;
@@ -190,7 +190,7 @@ int main(int argc, char* argv[]) {
 		
 					switch(operacion){
 						case OperacionesCapas::CONSULTAS_CONSULTA:
-						{					
+						{	
 							// Codigo de operacion de consulta para la Capa de Metadata
 							pipe->agregarParametro((unsigned char)OperacionesCapas::METADATA_CONSULTA, 0); 
 							
@@ -258,6 +258,7 @@ int main(int argc, char* argv[]) {
 								
 								for (itLEN = estructuraConsulta.listaOrderBy.begin();
 									 itLEN != estructuraConsulta.listaOrderBy.end(); ++itLEN) {
+									
 									pipe->escribir(itLEN->nombreTipo);
 									pipe->escribir(itLEN->nombreCampo);				
 								}

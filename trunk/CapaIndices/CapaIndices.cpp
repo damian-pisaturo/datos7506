@@ -310,8 +310,6 @@ void enviarClavesMayoresOIguales(const string &nombreTipo, MapaIndices &mapaIndi
 	unsigned short tamRegistro = 0, cantRegistros = 1;
 	int resultado = ResultadosIndices::OK;
 	
-	
-	
 	claveSiguiente = indice->siguiente();
 	if (!claveSiguiente) resultado = ResultadosIndices::FIN_BLOQUES;
 	// Se le indica a la capa de metadata si va a recibir un bloque de datos

@@ -31,8 +31,10 @@ char invertirOperadorLogico(char operador) {
 		case ExpresionesLogicas::MENOR_O_IGUAL:
 			return ExpresionesLogicas::MAYOR_O_IGUAL;
 		default:
-			return operador;	
-	}	
+			return operador;
+	
+	}
+	
 }
 
 void invertirOperacionLogica(const string &nombreTipo, ListaOperaciones &lista) {
@@ -1444,11 +1446,14 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 					ListaStrings* listaExtensiones = new ListaStrings();
 					listaExtensiones->push_back(EXTENSION_TEMPORAL_INICIAL);
 					mapaExt[nombreTipo] = listaExtensiones;
-				}				
-			}			
+				}
+				
+			}
+			
 		}
 		
-		delete pipe;		
+		delete pipe;
+		
 	}
 	
 	// Una vez que se terminaron de aplicar los filtros/restricciones a los registros
@@ -1505,17 +1510,21 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 				// Se indica a la capa superior si debe seguir recibiendo bloques
 				pipeCapaConsultas.escribir(pipeResult);
 				
-				++nroRegistro;				
-			}			
+				++nroRegistro;
+				
+			}
+			
 		}
 		
 	} else {
 		
-		pipeResult = ResultadosMetadata::CONSULTA_SIN_RESULTADOS;
+		if (pipeResult == ResultadosIndices::FIN_BLOQUES)
+			pipeResult = ResultadosMetadata::CONSULTA_SIN_RESULTADOS;
+		
 		pipeCapaConsultas.escribir(pipeResult);
 		
 	}
-
+	
 	// Se destruyen los mapas de las restricciones
 	destruirMapaRestricciones(mapaWhere);
 	destruirMapaRestricciones(mapaJoins);
@@ -1528,6 +1537,8 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 	
 	return pipeResult;
 }
+
+
 
 int main(int argc, char* argv[]) 
 {
