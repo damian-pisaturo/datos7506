@@ -110,14 +110,15 @@ void Vista::showRegister(char *registro, ListaTiposAtributos  *listaTiposAtribut
 void Vista::showRegister(char *registro, ListaTiposAtributos* listaTiposAtributos, ListaNombresAtributos *listaNombresAtributos,
 						 ListaStrings& listaNombresCampos){
 	
-	ListaTiposAtributos ::const_iterator itTiposAtributos = listaTiposAtributos->begin();
 	ListaNombresAtributos::const_iterator itNombresAtributos;
+	ListaTiposAtributos ::const_iterator itTiposAtributos = listaTiposAtributos->begin();
 	ListaStrings::const_iterator itNombresCampos;
 	bool seguirBuscando;
 	unsigned short offsetToCampo = 0;
 	
 	// Itero la lista de nombres de campos a mostrar
 	for(itNombresCampos = listaNombresCampos.begin(); itNombresCampos != listaNombresCampos.end(); ++itNombresCampos){
+		itTiposAtributos = listaTiposAtributos->begin();
 		seguirBuscando = true;
 		offsetToCampo = 0;
 		if(itTiposAtributos->tipoDato == TipoDatos::TIPO_VARIABLE)
@@ -172,18 +173,22 @@ void Vista::mostrarRegistro(char *registro, ListaTiposAtributos  *listaTiposAtri
 			ListaStrings& listaCamposSeleccionados) {
 	
 	ListaStrings::iterator itCampos;
+	bool muestroTodosLosCampos = false;
 	
 	for(itCampos = listaCamposSeleccionados.begin(); itCampos != listaCamposSeleccionados.end(); ++itCampos) {
-		
-		// Si hay que mostrar todos los campos, se llama al método que imprime el
-		// registro completo.
 		if ( (*itCampos) == TODOS_LOS_CAMPOS )
-			showRegister(registro, listaTiposAtributos);
-		
-		// Sino, solo se imprimen los campos que están en la listaCamposSeleccionados.
-		else 
-			showRegister(registro, listaTiposAtributos, listaNombresAtributos, listaCamposSeleccionados);		
+			muestroTodosLosCampos = true;
 	}
+
+	// Si hay que mostrar todos los campos, se llama al método que imprime el
+	// registro completo.
+	if (muestroTodosLosCampos)
+		showRegister(registro, listaTiposAtributos);
+	// Sino, solo se imprimen los campos que están en la listaCamposSeleccionados.
+	else{ 
+		showRegister(registro, listaTiposAtributos, listaNombresAtributos, listaCamposSeleccionados);			
+	}
+	
 }
 
 void Vista::showTipoContent(ListaStrings& listaNombresCampos){
