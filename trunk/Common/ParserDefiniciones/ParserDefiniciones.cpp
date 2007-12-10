@@ -77,6 +77,7 @@
 	///////////////////////////////////////////////////////////////////////
 	void ParserDefiniciones::leerLinea(string& linea)
 	{
+		this->archivo.sync();
 		getline(this->archivo,linea);
 		this->aMayuscula(linea);
 	}
@@ -106,9 +107,9 @@
 		do{
 			this->leerLinea(linea);
 			this->aMayuscula(linea);
-			posPrimerChar = linea.find_first_not_of(C_VACIO, 0);
+			posPrimerChar = linea.find_first_not_of(C_VACIO);
 			continuarTipo = (linea != HEADER_ATRIBUTOS) && (linea != HEADER_INDICES) && (linea != HEADER_INTEGRIDAD)
-						&& (linea != HEADER_ORGREG);
+						&& (linea != HEADER_ORGREG) && (linea != HEADER_FIN);
 		}while ( ((linea[posPrimerChar] == C_COMENTARIO) || (linea.find(NOMBRE_TIPO, posPrimerChar) == string::npos)) && 
 				(continuarTipo) && (!this->archivo.fail()) );
 		
@@ -134,8 +135,9 @@
 		
 		do{
 			this->leerLinea(linea);
-			continuarOrgRegistro = (linea != HEADER_ATRIBUTOS) && (linea != HEADER_INDICES) && (linea != HEADER_INTEGRIDAD);
-			if (continuarOrgRegistro) posPrimerChar = linea.find_first_not_of(C_VACIO, 0);
+			continuarOrgRegistro = (linea != HEADER_ATRIBUTOS) && (linea != HEADER_INDICES) && 
+								(linea != HEADER_INTEGRIDAD) && (linea != HEADER_FIN);
+			if (continuarOrgRegistro) posPrimerChar = linea.find_first_not_of(C_VACIO);
 		}while ( ( (linea[posPrimerChar] == C_COMENTARIO) || (linea.find(ORG_REGISTROS, posPrimerChar) == string::npos)) && 
 				(continuarOrgRegistro) && (!this->archivo.fail()) );
 		
@@ -162,13 +164,13 @@
 		                  posUltimoChar   = 0;
 		string linea(""), valor(""), atributo("");
 		bool continuarAtributos = (linea != HEADER_ORGREG) && (linea != HEADER_INDICES) 
-									&& (linea != HEADER_INTEGRIDAD);
+									&& (linea != HEADER_INTEGRIDAD) && (linea != HEADER_FIN);
 		
 		while (continuarAtributos){			
 			do{
 				this->leerLinea(linea);
 				continuarAtributos = (linea != HEADER_ORGREG) && (linea != HEADER_INDICES) 
-										&& (linea != HEADER_INTEGRIDAD);
+									&& (linea != HEADER_INTEGRIDAD) && (linea != HEADER_FIN);
 				if (continuarAtributos) posPrimerChar = linea.find_first_not_of(C_VACIO, 0);
 				
 			}while (  (linea[posPrimerChar] == C_COMENTARIO) || 
@@ -224,15 +226,15 @@
 		                  posUltimoChar   = 0;
 		string linea(""), valor(""), atributo("");		
 		bool continuarIndices = (linea != HEADER_ORGREG) && (linea != HEADER_ATRIBUTOS) 
-								&& (linea != HEADER_INTEGRIDAD);
+								&& (linea != HEADER_INTEGRIDAD) && (linea != HEADER_FIN);
 		bool continuarDefiniciones = true, continuarCampoIndice = true;
 		
 		while (continuarIndices){			
 			do{
 				this->leerLinea(linea);
 				continuarIndices = (linea != HEADER_ORGREG) && (linea != HEADER_ATRIBUTOS) 
-									&& (linea != HEADER_INTEGRIDAD);
-				if (continuarIndices) posPrimerChar = linea.find_first_not_of(C_VACIO, 0);
+									&& (linea != HEADER_INTEGRIDAD) && (linea != HEADER_FIN);
+				if (continuarIndices) posPrimerChar = linea.find_first_not_of(C_VACIO);
 			}while ( (linea[posPrimerChar] == C_COMENTARIO) || 
 					( (linea.find(HEADER_GRIEGO, posPrimerChar) == string::npos) && (linea.find(HEADER_ROMANO, posPrimerChar) == string::npos))  
 					&& (continuarIndices) && (!this->archivo.fail()) );
@@ -240,6 +242,7 @@
 			if ( (!this->archivo.fail()) && (continuarIndices) ){
 				
 				continuarDefiniciones = true;
+				
 				if (linea == HEADER_GRIEGO) datosIndices = datosIndicesGriegos;
 				else if (linea == HEADER_ROMANO) datosIndices = datosIndicesRomanos;
 				
@@ -248,8 +251,8 @@
 						this->leerLinea(linea);
 						continuarDefiniciones = (linea != HEADER_ORGREG) && (linea != HEADER_ATRIBUTOS) 
 											&& (linea != HEADER_INTEGRIDAD) && (linea != HEADER_GRIEGO)
-											&& (linea != HEADER_ROMANO);
-						if (continuarDefiniciones) posPrimerChar = linea.find_first_not_of(C_VACIO, 0);
+											&& (linea != HEADER_ROMANO) && (linea != HEADER_FIN);
+						if (continuarDefiniciones) posPrimerChar = linea.find_first_not_of(C_VACIO);
 					}while ( (linea[posPrimerChar] == C_COMENTARIO) || 
 							( (linea.find(TIPO_INDICE, posPrimerChar) == string::npos) && (linea.find(CAMPO_INDICE, posPrimerChar) == string::npos)
 							&& (linea.find(TAM_NODO, posPrimerChar) == string::npos) && (linea.find(TAM_BUCKET, posPrimerChar) == string::npos) ) 
@@ -285,11 +288,12 @@
 							while (continuarCampoIndice){
 								do{
 									this->leerLinea(linea);
-									posPrimerChar = linea.find_first_not_of(C_VACIO, 0);
+									posPrimerChar = linea.find_first_not_of(C_VACIO);
 									continuarCampoIndice = (linea != HEADER_ORGREG) 
 														&& (linea != HEADER_ATRIBUTOS) 
 														&& (linea != HEADER_INTEGRIDAD)
 														&& (linea != HEADER_ROMANO) && (linea != HEADER_GRIEGO)
+														&& (linea != HEADER_FIN)
 														&& (linea.find(TAM_NODO, posPrimerChar) == string::npos)
 														&& (linea.find(TAM_BUCKET, posPrimerChar) == string::npos)
 														&& (linea.find(TIPO_INDICE, posPrimerChar) == string::npos);									
@@ -319,12 +323,12 @@
 						
 					continuarDefiniciones = (linea != HEADER_ORGREG) && (linea != HEADER_ATRIBUTOS) 
 										&& (linea != HEADER_INTEGRIDAD) && (linea != HEADER_GRIEGO)
-										&& (linea != HEADER_ROMANO);					
+										&& (linea != HEADER_ROMANO) && (linea != HEADER_FIN);					
 				}		
 			}
 			
 			continuarIndices = (linea != HEADER_ORGREG) && (linea != HEADER_ATRIBUTOS) 
-								&& (linea != HEADER_INTEGRIDAD);
+								&& (linea != HEADER_INTEGRIDAD) && (linea != HEADER_FIN);
 		}
 		
 		
