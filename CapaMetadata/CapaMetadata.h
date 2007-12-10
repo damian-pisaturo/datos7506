@@ -32,6 +32,7 @@ bool cumpleRestricciones(char* registro, ListaOperaciones &listaOperaciones,
 int modificacion(const string& nombreTipo, MapaValoresAtributos &mapaValoresAtributos, 
 				 EstructuraCampos &estructuraCampos);
 int alta(const string& nombreTipo, MapaValoresAtributos& mapaValoresAtributos);
+int baja(const string& nombreTipo,  EstructuraCampos &estructuraCampos);
 
 int main(int argc, char* argv[]);
 
