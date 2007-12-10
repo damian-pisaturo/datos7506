@@ -203,8 +203,6 @@ int main(int argc, char* argv[]) {
 								
 								estructuraConsulta = parserOperaciones.getEstructuraConsulta();
 								
-								cout << "voy a mandar las estructuras para la consulta" << endl;
-								
 								// Envia el contenido de la estructuraConsulta por el pipe.
 								
 								// Envia la listaNombresTipos
@@ -454,7 +452,6 @@ int main(int argc, char* argv[]) {
 					}
 					
 					resultado << pipeResult;
-					cout << "resultado q llego a consultas: " << pipeResult << endl;
 					cout << endl << resultado << endl;
 					
 					delete pipe;

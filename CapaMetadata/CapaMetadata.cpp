@@ -116,6 +116,7 @@ bool compararRegistros(char* registro1, char* registro2, unsigned short longitud
 bool compararClaves(Clave *clave, char operacion, Clave* claveAComparar)
 {
 	bool comparacion = false;
+	
 	switch (operacion) {
 		case ExpresionesLogicas::IGUAL:
 			comparacion = (*clave == *claveAComparar);
@@ -133,6 +134,7 @@ bool compararClaves(Clave *clave, char operacion, Clave* claveAComparar)
 			comparacion = ((*clave < *claveAComparar) || (*clave == *claveAComparar));
 			break;
 	}
+	
 	return comparacion;
 }
 
@@ -1253,7 +1255,8 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 	string nombreTipo("");
 	int pipeResult;
 	unsigned char operacionCapaIndices = 0;
-	bool seGuardoRegistro = true;
+	bool seGuardoRegistro = true, cumpleRestriccion = true, hayRestricciones = false;
+	ListaOperaciones listaOperaciones;
 	
 	// Se instancia el DefinitionsManager (conocedor absoluto del universo).
 	DefinitionsManager& defManager = DefinitionsManager::getInstance();
@@ -1302,8 +1305,6 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 				// Se construye la clave para enviar a la capa de índices
 				serializarListaClaves(valoresClaves, estructura.estructuraWhere.listaOperaciones);
 				
-				cout << "serializo la clave: " << valoresClaves << endl;
-				
 				// Codigo de operacion de consulta para la Capa de Indices
 				if (valoresClaves.size() > 0)
 					operacionCapaIndices = OperacionesCapas::INDICES_CONSULTAR;
@@ -1332,17 +1333,12 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 			
 			if (pipeResult == ResultadosIndices::OK) {
 				
-				bool cumpleRestriccion = false;
-				
-				if (mapaWhere.size() == 0) // No hay restricciones, se devuelven todos los registros
-					cumpleRestriccion = true;
+				hayRestricciones = (mapaWhere.find(nombreTipo) != mapaWhere.end());
 				
 				do {
 					// Se obtiene la cantidad de registros que responden 
 					// a la consulta realizada.
 					pipe->leer(&cantRegistros);
-					
-					cout << "leo la cant de reg: " << cantRegistros << endl;
 					
 					if (cantRegistros > 0) {
 						
@@ -1360,18 +1356,16 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 							// Se obtiene el registro de datos consultado.
 							pipe->leer(tamRegistro, registro);
 							
-							cout << "recibo un registro" << endl;
-							
-							if (!cumpleRestriccion)
-								cumpleRestriccion = cumpleRestricciones(registro, *mapaWhere[nombreTipo],
+							if (hayRestricciones) {
+								listaOperaciones = *mapaWhere[nombreTipo];
+								cumpleRestriccion = cumpleRestricciones(registro, listaOperaciones,
 																		estructura.estructuraWhere.operacion,
 																		*defManager.getListaNombresAtributos(nombreTipo),
 																		*defManager.getListaTiposAtributos(nombreTipo));
+							}
+							
 							if (cumpleRestriccion) {
 								guardarRegistro(nombreTipo, registro, tamRegistro);
-								
-								cout << "guarde un registro" << endl;
-								
 								seGuardoRegistro = true;
 							}
 							
@@ -1386,6 +1380,9 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 					pipe->leer(&pipeResult);
 					
 				} while (pipeResult == ResultadosIndices::OK);
+				
+				if (hayRestricciones)
+					*mapaWhere[nombreTipo] = listaOperaciones;
 				
 				if (seGuardoRegistro) {
 					// Se agrega la extensión del primer archivo temporal
