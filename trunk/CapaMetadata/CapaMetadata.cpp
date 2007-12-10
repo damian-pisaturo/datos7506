@@ -1308,7 +1308,7 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 	unsigned short cantRegistros = 0;    // Cant. de registros que responden a la consulta dada.
 	string valoresClaves("");
 	string nombreTipo("");
-	int pipeResult;
+	int pipeResult = 0;
 	unsigned char operacionCapaIndices = 0;
 	bool seGuardoRegistro = true, cumpleRestriccion = true, hayRestricciones = false;
 	ListaOperaciones listaOperaciones;
@@ -1515,7 +1515,7 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 		pipeCapaConsultas.escribir(pipeResult);
 		
 	}
-	
+
 	// Se destruyen los mapas de las restricciones
 	destruirMapaRestricciones(mapaWhere);
 	destruirMapaRestricciones(mapaJoins);
