@@ -29,7 +29,7 @@
 	
 	Archivo::Archivo(const string& nomArchivo): fstream()
 	{
-		unsigned long id = this->generarID(nomArchivo);
+		int id = this->generarID(nomArchivo);
 		
 		//Abre el archivo en modo lectura - escritura binario  
 		this->open(nomArchivo.c_str(), ios::in |ios::out |ios::binary);
@@ -52,13 +52,13 @@
 		    this->archivoValido = true;
 		    
 		}else{			
-			unsigned long idPresente = 0;
+			int idPresente = 0;
 			this->read((char*)&idPresente, Tamanios::TAMANIO_IDENTIFICADOR);				
 			this->archivoValido = (id == idPresente);
 		}
 	}
 	
-	Archivo::Archivo(const string& nomArchivo, unsigned long magicNumber): fstream()
+	Archivo::Archivo(const string& nomArchivo, int magicNumber): fstream()
 	{		
 		//Abre el archivo en modo lectura - escritura binario  
 		this->open(nomArchivo.c_str(), ios::in |ios::out |ios::binary);
@@ -81,7 +81,7 @@
 		    this->archivoValido = true;
 		    
 		}else{			
-			unsigned long id = 0;
+			int id = 0;
 			this->read((char*)&id, Tamanios::TAMANIO_IDENTIFICADOR);				
 			this->archivoValido = (id == magicNumber);
 		}
@@ -259,9 +259,9 @@
 // Metodo privado
 ///////////////////////////////////////////////////////////////////////
 
-	unsigned long Archivo::generarID(const string& nomArchivo)
+	int Archivo::generarID(const string& nomArchivo)
 	{
-		unsigned long id = 0;
+		int id = 0;
 		string idString, nombre, extension;
 		size_t posPunto = nomArchivo.rfind('.');			
 	
