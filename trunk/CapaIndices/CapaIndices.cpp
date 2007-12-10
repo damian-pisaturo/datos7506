@@ -1111,9 +1111,10 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	//Se crean los indices correspondientes al tipo 'nombreTipo'
 	crearIndices(nombreTipo, mapaIndices, defManager);
 	
-	if (codOp == OperacionesCapas::INDICES_CONSULTAR_TODO)
+	if (codOp == OperacionesCapas::INDICES_CONSULTAR_TODO){
+		
 		indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
-	else {
+	}else {
 		
 		if (buffer.size() > 5) {
 			
