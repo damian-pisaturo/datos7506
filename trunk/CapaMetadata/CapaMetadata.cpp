@@ -774,7 +774,7 @@ void serializarListaClaves(string& s, ListaInfoClave* listaClaves)
 	for (iter = listaClaves->begin(); iter != listaClaves->end(); ++iter)
 	{
 		s += (*iter).nombreClave;
-		s += CodigosPipe::COMIENZO_OPERADOR ;
+		s += CodigosPipe::COMIENZO_OPERADOR;
 		s += ExpresionesLogicas::IGUAL;
 		s += CodigosPipe::FIN_OPERADOR;
 		s += (*iter).valorClave;
@@ -819,7 +819,9 @@ void serializarListaClaves(string &s, const ListaOperaciones &listaOp)
 				continuar = false;
 			}
 			
-			s += CodigosPipe::COMIENZO_OPERADOR + iter->operacion + CodigosPipe::FIN_OPERADOR;
+			s += CodigosPipe::COMIENZO_OPERADOR;
+			s += iter->operacion;
+			s += CodigosPipe::FIN_OPERADOR;
 			s += iter->estructuraNombresDer.nombreCampo;
 			s += CodigosPipe::COD_FIN_CLAVE;
 			
@@ -849,6 +851,7 @@ void armarListaClaves(EstructuraCampos &estructuraCampos, ListaInfoClave &listaC
 	}
 	
 }
+
 
 int baja(const string& nombreTipo,  EstructuraCampos &estructuraCampos)
 {
@@ -1298,6 +1301,9 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 			if (estructura.estructuraWhere.operacion == ExpresionesLogicas::AND) {
 				// Se construye la clave para enviar a la capa de índices
 				serializarListaClaves(valoresClaves, estructura.estructuraWhere.listaOperaciones);
+				
+				cout << "serializo la clave: " << valoresClaves << endl;
+				
 				// Codigo de operacion de consulta para la Capa de Indices
 				if (valoresClaves.size() > 0)
 					operacionCapaIndices = OperacionesCapas::INDICES_CONSULTAR;
@@ -1336,6 +1342,8 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 					// a la consulta realizada.
 					pipe->leer(&cantRegistros);
 					
+					cout << "leo la cant de reg: " << cantRegistros << endl;
+					
 					if (cantRegistros > 0) {
 						
 						for (unsigned short i = 0; i < cantRegistros; i++){
@@ -1352,6 +1360,8 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 							// Se obtiene el registro de datos consultado.
 							pipe->leer(tamRegistro, registro);
 							
+							cout << "recibo un registro" << endl;
+							
 							if (!cumpleRestriccion)
 								cumpleRestriccion = cumpleRestricciones(registro, *mapaWhere[nombreTipo],
 																		estructura.estructuraWhere.operacion,
@@ -1359,6 +1369,9 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 																		*defManager.getListaTiposAtributos(nombreTipo));
 							if (cumpleRestriccion) {
 								guardarRegistro(nombreTipo, registro, tamRegistro);
+								
+								cout << "guarde un registro" << endl;
+								
 								seGuardoRegistro = true;
 							}
 							
@@ -1448,6 +1461,12 @@ int consulta(EstructuraConsulta &estructura, ComuDatos &pipeCapaConsultas) {
 			}
 			
 		}
+		
+	} else {
+		
+		pipeResult = ResultadosMetadata::CONSULTA_SIN_RESULTADOS;
+		pipeCapaConsultas.escribir(pipeResult);
+		
 	}
 	
 	// Se destruyen los mapas de las restricciones

@@ -56,7 +56,7 @@ int FileManager::leerRegistro(char* &registro, unsigned short numReg,
 		unsigned short espLibre = this->getTamanioBloqueDatos() - Tamanios::TAMANIO_ESPACIO_LIBRE - Tamanios::TAMANIO_CANTIDAD_REGISTROS;
 		bool encontrado = false;
 		Bloque bloque(0, this->getTamanioBloqueDatos(), this->getTipoOrganizacion());
-		unsigned short cantRegistrosLeidos = 0, cantRegistrosEnBloque = 0;
+		unsigned short cantRegistrosLeidos = 0, cantRegistrosEnBloque = 0, nroRegistroEnBloque = 0;
 
 		while ( (!encontrado) && (resultado == ResultadosMetadata::OK) ) {
 			
@@ -69,15 +69,15 @@ int FileManager::leerRegistro(char* &registro, unsigned short numReg,
 				
 				if ((cantRegistrosLeidos + cantRegistrosEnBloque) > numReg) {
 					// Obtengo el registro
-					unsigned short nroRegistro = numReg - cantRegistrosLeidos;
-					registro = bloque.getRegistroPorNro(nroRegistro, tamReg);
+					nroRegistroEnBloque = numReg - cantRegistrosLeidos;
+					registro = bloque.getRegistroPorNro(nroRegistroEnBloque, tamReg);
 					encontrado = true;
 				} else {
 					cantRegistrosLeidos += cantRegistrosEnBloque;
 					++numBloque;
 				}
 				
-				if (this->archivo->fin())
+				if ( (this->archivo->fin()) && (cantRegistrosEnBloque == (nroRegistroEnBloque + 1)) )
 					quedanRegistros = false;
 				else quedanRegistros = true;
 				
@@ -97,6 +97,10 @@ int FileManager::leerRegistro(char* &registro, unsigned short numReg,
 			registro = contenidoBloque;
 			tamReg = this->getTamanioBloqueDatos();
 			resultado = ResultadosMetadata::OK;
+			
+			if (this->archivo->fin())
+				quedanRegistros = false;
+			else quedanRegistros = true;
 			
 		} else if (resultado == ResultadosFisica::ERROR_POSICION)
 			resultado = ResultadosMetadata::FIN_REGISTROS;

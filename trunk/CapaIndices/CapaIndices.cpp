@@ -49,27 +49,35 @@ void crearIndices(const string &nombreTipo, MapaIndices &mapaIndices,
 }
 
 
-Indice* obtenerIndiceParaOrderBy(const MapaIndices &mapaIndices, const ListaNombresClaves &listaNombresClaves) {
+Indice* obtenerIndice(const MapaIndices &mapaIndices, const ListaNombresClaves &listaNombresClaves) {
 	Indice* indice = NULL;
-	bool encontrado = false;
-	ListaNombresClaves::const_iterator itLNC, itLNCMapa;
+//	bool encontrado = false;
+//	ListaNombresClaves::const_iterator itLNC, itLNCMapa;
+	MapaIndices::const_iterator itMapa;
 	
-	for (MapaIndices::const_iterator it = mapaIndices.begin();
-		 (it != mapaIndices.end()) && (!encontrado); ++it) {
-		
-		if (it->first.size() >= listaNombresClaves.size()) {
+	if ((itMapa = mapaIndices.find(listaNombresClaves)) != mapaIndices.end())
+		indice = itMapa->second;
+/*
+	else {
+	
+		for (itMapa = mapaIndices.begin(); (itMapa != mapaIndices.end()) && (!encontrado); ++itMapa) {
 			
-			for (itLNC = listaNombresClaves.begin(), itLNCMapa = it->first.begin();
-				 (itLNC != listaNombresClaves.end()) && (*itLNCMapa == *itLNC);
-				 ++itLNC, ++itLNCMapa);
-			
-			if ( (itLNC != listaNombresClaves.end()) && (it->second->getTipoEstructura() != TipoIndices::HASH) ) {
-				indice = it->second;
-				encontrado = true;
+			if (itMapa->first.size() > listaNombresClaves.size()) {
+				
+				for (itLNC = listaNombresClaves.begin(), itLNCMapa = itMapa->first.begin();
+					 (itLNC != listaNombresClaves.end()) && (*itLNCMapa == *itLNC);
+					 ++itLNC, ++itLNCMapa);
+				
+				if (itLNC == listaNombresClaves.end()) {
+					indice = itMapa->second;
+					encontrado = true;
+				}
 			}
+			
 		}
 		
 	}
+*/
 	
 	return indice;
 }
@@ -262,6 +270,8 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 	int resultado = indice->siguienteBloque(bloque);
 	pipe.escribir(resultado);
+	
+	cout << "CONSULTA NO INDEXADA - resultado: " << resultado << endl;
 
 	while (resultado == ResultadosIndices::OK) {
 		seguirBuscando = true;
@@ -274,6 +284,8 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 				
 				cantidadRegistros = 1;
 				pipe.escribir(cantidadRegistros);
+				
+				cout << "envie la cant de reg: " << cantidadRegistros << endl;
 				
 				
 				// Obtengo la longitud del registro corriente
@@ -322,6 +334,8 @@ void enviarClavesMayoresOIguales(const string &nombreTipo, MapaIndices &mapaIndi
 	char* registro = NULL;
 	unsigned short tamRegistro = 0, cantRegistros = 1;
 	int resultado = ResultadosIndices::OK;
+	
+	
 	
 	claveSiguiente = indice->siguiente();
 	if (!claveSiguiente) resultado = ResultadosIndices::FIN_BLOQUES;
@@ -423,16 +437,36 @@ void enviarClavesMenoresOIguales(const string &nombreTipo, MapaIndices &mapaIndi
 	indice->primero();
 	claveSiguiente = indice->siguiente();
 	
+	cout << "estoy en ENVIAR_CLAVES_MENORES_O_IGUALES" << endl;
+	cout << "operador: " << (int)operador << endl;
+	cout << "tipo indice: " << (int)indice->getTipoIndice() << endl;
+	cout << "tipo estructura: " << (int)indice->getTipoEstructura() << endl;
+	cout << "clave: ";
+	if (claveSiguiente) claveSiguiente->imprimir(cout);
+	else cout << "NULL" << endl;
+	cout << "CLAVE RECIBIDA POR PARAMETRO: ";
+	if (clave) clave->imprimir(cout);
+	else cout << "NULL" << endl;
+	
 	if (!claveSiguiente)
 		resultado = ResultadosIndices::FIN_BLOQUES;
 	else {
-		if (operador == ExpresionesLogicas::MENOR)
+		if (operador == ExpresionesLogicas::MENOR) {
+			
+			cout << "operador MENOR" << endl;
+			
 			continuar = (*claveSiguiente < *clave);
-		else
+			
+			cout << "despues de comparar las claves" << endl;
+			cout << "continuar: " << continuar << endl;
+			
+		} else
 			continuar = ((*claveSiguiente < *clave) || (*claveSiguiente == *clave));
 		
 		if (!continuar) resultado = ResultadosIndices::FIN_BLOQUES;
 	}
+	
+	cout << "envio el resultado: " << resultado << endl;
 	
 	// Se le indica a la capa de metadata si va a recibir un bloque de datos
 	pipe.escribir(resultado);
@@ -485,6 +519,8 @@ void enviarClavesMenoresOIguales(const string &nombreTipo, MapaIndices &mapaIndi
 			
 			if (resultado == ResultadosIndices::OK) {
 				
+				cout << "obtuve un set de claves primarias" << endl;
+				
 				//Obtengo el índice primario
 				ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
 				indice = mapaIndices[*listaNombresClaves];
@@ -501,8 +537,12 @@ void enviarClavesMenoresOIguales(const string &nombreTipo, MapaIndices &mapaIndi
 					//Si el tamaño del registro es 0, la capa de metadata sabe que se produjo un error. 
 					pipe.escribir(tamRegistro);
 					
-					if (resultado == ResultadosIndices::OK)
+					if (resultado == ResultadosIndices::OK) {
 						pipe.escribir(registro, tamRegistro);
+						
+						cout << "envie un registro" << endl;
+						
+					}
 					else break;
 				}
 				
@@ -633,6 +673,12 @@ void consultaIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndices
 			   		  		  Indice *indice, Clave *clave, char operador,
 			   		  		  DefinitionsManager &defManager, ComuDatos &pipe) {
 	
+	cout << "CONSULTA INDEXADA POR RANGO" << endl;
+	cout << "operador: " << (int)operador << endl;
+	cout << "clave:" << endl;
+	clave->imprimir(cout);
+	
+	
 	if (operador == ExpresionesLogicas::MAYOR) {
 		
 		indice->mayor(clave);
@@ -742,8 +788,6 @@ int eliminarClavePrimaria(const string &nombreTipo, MapaIndices &mapaIndices,
 				//Obtengo el índice secundario
 				indiceSecundario = iter->second;
 				resultado = indiceSecundario->eliminar(claveSecundaria, clave);
-		
-				
 				
 				delete claveSecundaria;
 				
@@ -1148,31 +1192,36 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 					posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
 				}
 				
+				cout << "voy a armar la clave" << endl;
+				
+				// Armo la clave para resolver la operación
+				if (listaValoresClaves.size() > 0) {
+					listaTipos = defManager.getListaTiposClaves(nombreTipo, listaNombresClaves);
+					clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *listaTipos);
+					delete listaTipos;
+				}
+				
+				cout << "voy a obtener el indice" << endl;
+				
 				// Busco el índice correspondiente a los nombres de los campos que componen la clave.
 				// Si no se encuentra el índice, significa que esos campos no están indexados, por lo
 				// que habrá que hacer una búsqueda secuencial para resolver la operación.
 				// Además, si la lista de nombres de claves contiene elementos y la lista
 				// de valores de claves está vacia, significa que la operación es un order by
 				// por los campos cuyos nombres figuran el 'listaNombresClaves'
+				indice = obtenerIndice(mapaIndices, listaNombresClaves);
 				
-				if ( (listaNombresClaves.size() > 0) && (listaValoresClaves.size() == 0) ) {
-					// La operación es una consulta con un OrderBy
-					indice = obtenerIndiceParaOrderBy(mapaIndices, listaNombresClaves);
-					if (!indice) {
-						// No se encontró un índice para devolver los registros ordenados
-						// por los campos indicados. Se devuelve el error correspondiente.
-						resultado = ResultadosIndices::ERROR_NO_HAY_INDICE;
-						pipe.escribir(resultado);
-					}
-					clave = NULL;				
-				} else {
-					MapaIndices::iterator it = mapaIndices.find(listaNombresClaves);
-					if (it != mapaIndices.end()) indice = it->second;
-	
-					listaTipos = defManager.getListaTiposClaves(nombreTipo, listaNombresClaves);
-					clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *listaTipos);
-	
-					delete listaTipos;
+				cout << "obtuve el indice" << endl;
+				
+				if ( (listaValoresClaves.size() == 0)
+					 && ((!indice) || (indice->getTipoEstructura() == TipoIndices::HASH)) ) {
+					
+					// Consulta con OrderBy
+					// No se encontró un índice para devolver los registros ordenados
+					// por los campos indicados. Se devuelve el error correspondiente.
+					resultado = ResultadosIndices::ERROR_NO_HAY_INDICE;
+					pipe.escribir(resultado);
+					
 				}
 			
 		} else {
