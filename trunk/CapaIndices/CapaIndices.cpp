@@ -252,77 +252,52 @@ void eliminacionNoIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIn
 
 
 void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
-						Clave *clave, DefinitionsManager &defManager, ComuDatos &pipe) {
+						DefinitionsManager &defManager, ComuDatos &pipe) {
 	
 	// Obtiene el indice primario para poder obtener luego los bloques de datos.
 	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
 	
+	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+	
 	Bloque* bloque = NULL;
-	char *registro = NULL;
-	unsigned short offsetToReg = 0;
-	unsigned short longReg = 0;
-	bool seguirBuscando = false;
-	unsigned short cantidadRegistros = 0;
+	char* registro = NULL;
+	unsigned short tamanioRegistro = 0, cantRegistros = 0;
 	
-	// Se obtiene la lista de los tipos de datos de los atributos del tipo 'nombreTipo', con
-	// los campos pk en "true" para los atributos cuyos nombres figuran en la listaNombresClaves.
-	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo, listaNombresClaves);
-	
+	// Obtiene un bloque de datos.
 	int resultado = indice->siguienteBloque(bloque);
+	
 	pipe.escribir(resultado);
 	
-	cout << "CONSULTA NO INDEXADA - resultado: " << resultado << endl;
-
 	while (resultado == ResultadosIndices::OK) {
-		seguirBuscando = true;
+	
+		cantRegistros = bloque->getCantidadRegistros();
 		
-		// Sigue buscando mientras encuentra registros, ya que si encuentra uno es probable que mas adelante
-		// haya otro. Si ya no encuentra un registro dentro del bloque se cesa la busqueda dentro del mismo.
-		while(seguirBuscando){
-
-			if(bloque->buscarRegistro(listaTiposAtributos, *clave, &offsetToReg)){
-				
-				cantidadRegistros = 1;
-				pipe.escribir(cantidadRegistros);
-				
-				cout << "envie la cant de reg: " << cantidadRegistros << endl;
-				
-				
-				// Obtengo la longitud del registro corriente
-				longReg = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, bloque->getDatos() + offsetToReg);				
-
-				// Envío su longitud
-				pipe.escribir(longReg);
-				
-				// Actualizo el offset a datos
-				bloque->setOffsetADatos(offsetToReg + longReg);
-				
-				// Obtengo el registro
-				registro = bloque->getRegistro(longReg, offsetToReg);
-				
-				// Envío el registro
-				pipe.escribir(registro, longReg);
-				
-				delete[] registro;
-				
-				pipe.escribir(resultado);
-			}
-			// Si no encontro mas registros ceso la busqueda dentro del bloque
-			else {
-				seguirBuscando = false;
-				cantidadRegistros = 0;
-				pipe.escribir(cantidadRegistros);
-			}	
-				
-		}
+		// Envío la cantidad de registros
+		pipe.escribir(cantRegistros);
 		
+		// Se obtiene un registro.
+		registro = bloque->getNextRegister();
+	
+		while (registro) {
+			
+			// Obtiene el tamaño del registro a enviar.
+			tamanioRegistro = bloque->getTamanioRegistroConPrefijo(listaTiposAtributos, registro);
+			
+			pipe.escribir(tamanioRegistro);
+			
+			pipe.escribir(registro, tamanioRegistro);
+			
+			delete[] registro;
+			
+			registro = bloque->getNextRegister();	
+		}	
+	
 		delete bloque;
-		
+		bloque = NULL;
 		resultado = indice->siguienteBloque(bloque);
+		// Se indica a la capa superior si debe recibir más bloques
 		pipe.escribir(resultado);
 	}
-	
-	delete listaTiposAtributos;
 	
 }
 
@@ -437,36 +412,16 @@ void enviarClavesMenoresOIguales(const string &nombreTipo, MapaIndices &mapaIndi
 	indice->primero();
 	claveSiguiente = indice->siguiente();
 	
-	cout << "estoy en ENVIAR_CLAVES_MENORES_O_IGUALES" << endl;
-	cout << "operador: " << (int)operador << endl;
-	cout << "tipo indice: " << (int)indice->getTipoIndice() << endl;
-	cout << "tipo estructura: " << (int)indice->getTipoEstructura() << endl;
-	cout << "clave: ";
-	if (claveSiguiente) claveSiguiente->imprimir(cout);
-	else cout << "NULL" << endl;
-	cout << "CLAVE RECIBIDA POR PARAMETRO: ";
-	if (clave) clave->imprimir(cout);
-	else cout << "NULL" << endl;
-	
 	if (!claveSiguiente)
 		resultado = ResultadosIndices::FIN_BLOQUES;
 	else {
-		if (operador == ExpresionesLogicas::MENOR) {
-			
-			cout << "operador MENOR" << endl;
-			
+		if (operador == ExpresionesLogicas::MENOR)
 			continuar = (*claveSiguiente < *clave);
-			
-			cout << "despues de comparar las claves" << endl;
-			cout << "continuar: " << continuar << endl;
-			
-		} else
+		else
 			continuar = ((*claveSiguiente < *clave) || (*claveSiguiente == *clave));
 		
 		if (!continuar) resultado = ResultadosIndices::FIN_BLOQUES;
 	}
-	
-	cout << "envio el resultado: " << resultado << endl;
 	
 	// Se le indica a la capa de metadata si va a recibir un bloque de datos
 	pipe.escribir(resultado);
@@ -519,8 +474,6 @@ void enviarClavesMenoresOIguales(const string &nombreTipo, MapaIndices &mapaIndi
 			
 			if (resultado == ResultadosIndices::OK) {
 				
-				cout << "obtuve un set de claves primarias" << endl;
-				
 				//Obtengo el índice primario
 				ListaNombresClaves* listaNombresClaves = defManager.getListaNombresClavesPrimarias(nombreTipo);
 				indice = mapaIndices[*listaNombresClaves];
@@ -537,12 +490,8 @@ void enviarClavesMenoresOIguales(const string &nombreTipo, MapaIndices &mapaIndi
 					//Si el tamaño del registro es 0, la capa de metadata sabe que se produjo un error. 
 					pipe.escribir(tamRegistro);
 					
-					if (resultado == ResultadosIndices::OK) {
+					if (resultado == ResultadosIndices::OK)
 						pipe.escribir(registro, tamRegistro);
-						
-						cout << "envie un registro" << endl;
-						
-					}
 					else break;
 				}
 				
@@ -672,12 +621,6 @@ void consultaIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 void consultaIndexadaPorRango(const string &nombreTipo, MapaIndices &mapaIndices,
 			   		  		  Indice *indice, Clave *clave, char operador,
 			   		  		  DefinitionsManager &defManager, ComuDatos &pipe) {
-	
-	cout << "CONSULTA INDEXADA POR RANGO" << endl;
-	cout << "operador: " << (int)operador << endl;
-	cout << "clave:" << endl;
-	clave->imprimir(cout);
-	
 	
 	if (operador == ExpresionesLogicas::MAYOR) {
 		
@@ -1192,16 +1135,12 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 					posActual = buffer.find(CodigosPipe::COD_FIN_CLAVE, posAnterior);
 				}
 				
-				cout << "voy a armar la clave" << endl;
-				
 				// Armo la clave para resolver la operación
 				if (listaValoresClaves.size() > 0) {
 					listaTipos = defManager.getListaTiposClaves(nombreTipo, listaNombresClaves);
 					clave = ClaveFactory::getInstance().getClave(listaValoresClaves, *listaTipos);
 					delete listaTipos;
 				}
-				
-				cout << "voy a obtener el indice" << endl;
 				
 				// Busco el índice correspondiente a los nombres de los campos que componen la clave.
 				// Si no se encuentra el índice, significa que esos campos no están indexados, por lo
@@ -1210,8 +1149,6 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 				// de valores de claves está vacia, significa que la operación es un order by
 				// por los campos cuyos nombres figuran el 'listaNombresClaves'
 				indice = obtenerIndice(mapaIndices, listaNombresClaves);
-				
-				cout << "obtuve el indice" << endl;
 				
 				if ( (listaValoresClaves.size() == 0)
 					 && ((!indice) || (indice->getTipoEstructura() == TipoIndices::HASH)) ) {
@@ -1261,7 +1198,7 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 					}
 					
 				} else
-					consultaNoIndexada(nombreTipo, mapaIndices, clave, defManager, pipe);
+					consultaNoIndexada(nombreTipo, mapaIndices, defManager, pipe);
 				break;
 			case OperacionesCapas::INDICES_CONSULTAR_TODO:
 				// Se devuelven todos los registros ordenados según el índice primario
