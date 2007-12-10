@@ -296,7 +296,7 @@
 		{
 			unsigned int aux = 0;
 			void ** claveHash      = clave.getValorParaHash();
-			char* claveSerializada = serializarClave(claveHash);
+			unsigned char* claveSerializada = (unsigned char *)serializarClave(claveHash);
 			
 			int valorHash = hashInterno(claveSerializada);
 			
@@ -320,9 +320,9 @@
 		/*
 		 * Método utilizado internamente cuando se aplica la función de dispersión a una clave.
 		 **/
-		int Hash::hashInterno(char* clave)
+		int Hash::hashInterno(unsigned char* clave)
 		{
-			int acumulador = 0;
+		/*	int acumulador = 0;
 			int largo      = strlen(clave);
 			
 			// Necesito que largo sea par. Para eso, si es impar le sumo 1, con lo cual
@@ -336,6 +336,19 @@
 				// de las claves. Además evita un overflow del acumulador.
 			
 			return acumulador;
+			*/
+			
+			// Algoritmo djb2
+			unsigned long hash = 5381;
+	        int c;
+	        
+	        c = *clave++;
+	        while (c){
+	           //djb2 hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	        	hash = c + (hash << 6) + (hash << 16) - hash; // sdbm
+	            c = *clave++;
+	        }
+	        return hash;
 		}
 
 		/*
