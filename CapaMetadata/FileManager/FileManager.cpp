@@ -46,8 +46,7 @@ int FileManager::leerRegistro(char* &registro, unsigned short numReg,
 							  unsigned short &tamReg, bool &quedanRegistros) {
 	
 	int resultado = ResultadosMetadata::OK;
-	char* contenidoBloque = new char[this->getTamanioBloqueDatos()];
-	char* aux = new char[this->getTamanioBloqueDatos()];
+	char* contenidoBloque = NULL;
 	tamReg = 0;
 	
 	if (this->getTipoOrganizacion() == TipoOrganizacion::REG_VARIABLES) {
@@ -60,12 +59,12 @@ int FileManager::leerRegistro(char* &registro, unsigned short numReg,
 		Bloque bloque(0, this->getTamanioBloqueDatos(), this->getTipoOrganizacion());
 
 		while ( (!encontrado) && (resultado == ResultadosMetadata::OK) ) {
+			contenidoBloque = new char[this->getTamanioBloqueDatos()];
 			memset(contenidoBloque, 0, this->getTamanioBloqueDatos());
 			resultado = ((ArchivoDatosBloques*)this->archivo)->siguienteBloque(contenidoBloque, numBloque, espLibre);
 			
 			if (resultado == ResultadosFisica::OK) {
-				memcpy(aux,contenidoBloque,this->getTamanioBloqueDatos());
-				bloque.setDatos(aux);
+				bloque.setDatos(contenidoBloque);
 				cantRegistrosEnBloque = bloque.getCantidadRegistros();
 				
 				if ((cantRegistrosLeidos + cantRegistrosEnBloque) > numReg) {
