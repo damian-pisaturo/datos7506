@@ -116,7 +116,7 @@
 					this->archivo << offsetProxTipo;
 				}
 			}
-			
+		
 			return resultado;
 		}
 		
@@ -125,9 +125,9 @@
 			char resultado = ArchivoMaestro::OK;
 			ListaDefinicionesTipos::const_iterator iter;
 			
-			for (iter = tipos.begin(); (iter != tipos.end()) && (resultado == ArchivoMaestro::OK); ++iter) 
+			for (iter = tipos.begin(); (iter != tipos.end()) && (resultado == ArchivoMaestro::OK); ++iter)
 				resultado = agregarTipo(*iter);
-		
+			
 			return resultado;			
 		}
 				

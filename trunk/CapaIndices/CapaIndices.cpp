@@ -256,17 +256,19 @@ void consultaNoIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 	
 	// Obtiene el indice primario para poder obtener luego los bloques de datos.
 	Indice* indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
-	
+
 	ListaTiposAtributos *listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
 	
 	Bloque* bloque = NULL;
 	char* registro = NULL;
 	unsigned short tamanioRegistro = 0, cantRegistros = 0;
 	
+	
 	// Obtiene un bloque de datos.
 	int resultado = indice->siguienteBloque(bloque);
 	
 	pipe.escribir(resultado);
+	
 	
 	while (resultado == ResultadosIndices::OK) {
 	
@@ -527,20 +529,24 @@ void enviarTodasLasClavesPrimarias(const string &nombreTipo, MapaIndices &mapaIn
 								   Indice *indice, DefinitionsManager &defManager,
 								   ComuDatos &pipe) {
 	
-	// Se devuelven todos los registros almacenados en el indice.
-	indice->primero();
-	Clave* primeraClave = indice->siguiente();
-	
-	if (primeraClave) {
-		indice->mayorOIgual(primeraClave);
-		enviarClavesMayoresOIguales(nombreTipo, mapaIndices, indice, defManager, pipe);
-		delete primeraClave;
-	} else {
-		// Le indico a la capa superior que no va a recibir mas bloques
-		int resultado = ResultadosIndices::FIN_BLOQUES;
-		pipe.escribir(resultado);
-	}
-	
+	if (indice->getTipoEstructura() != TipoIndices::HASH) {
+		
+		// Se devuelven todos los registros almacenados en el indice.
+		indice->primero();
+		Clave* primeraClave = indice->siguiente();
+		
+		if (primeraClave) {
+			indice->mayorOIgual(primeraClave);
+			enviarClavesMayoresOIguales(nombreTipo, mapaIndices, indice, defManager, pipe);
+			delete primeraClave;
+		} else {
+			// Le indico a la capa superior que no va a recibir mas bloques
+			int resultado = ResultadosIndices::FIN_BLOQUES;
+			pipe.escribir(resultado);
+		}
+		
+	} else // El índice es un hash, se devuelven los registros desordenados
+		consultaNoIndexada(nombreTipo, mapaIndices, defManager, pipe);
 }
 
 void consultaIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
@@ -577,6 +583,7 @@ void consultaIndexada(const string &nombreTipo, MapaIndices &mapaIndices,
 			
 			SetClaves* setClaves = NULL;
 			resultado = indice->buscar(clave, setClaves);
+			
 			pipe.escribir(resultado);
 			
 			if (resultado == ResultadosIndices::OK) {
@@ -1111,10 +1118,9 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 	//Se crean los indices correspondientes al tipo 'nombreTipo'
 	crearIndices(nombreTipo, mapaIndices, defManager);
 	
-	if (codOp == OperacionesCapas::INDICES_CONSULTAR_TODO){
-		
+	if (codOp == OperacionesCapas::INDICES_CONSULTAR_TODO)
 		indice = mapaIndices[*defManager.getListaNombresClavesPrimarias(nombreTipo)];
-	}else {
+	else {
 		
 		if (buffer.size() > 5) {
 			
@@ -1187,12 +1193,8 @@ int procesarOperacion(unsigned char codOp, const string &nombreTipo, ComuDatos &
 						
 						if (indice->getTipoEstructura() != TipoIndices::HASH)
 							consultaIndexadaPorRango(nombreTipo, mapaIndices, indice, clave, operador, defManager, pipe);
-						else {
-							// No se encontró un índice para devolver los registros ordenados
-							// por los campos indicados. Se devuelve el error correspondiente.
-							resultado = ResultadosIndices::ERROR_NO_HAY_INDICE;
-							pipe.escribir(resultado);
-						}
+						else
+							consultaNoIndexada(nombreTipo, mapaIndices, defManager, pipe);
 						
 					}
 					
