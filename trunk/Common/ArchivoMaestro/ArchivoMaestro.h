@@ -166,7 +166,7 @@ class ArchivoMaestro
 		 * numero dentro del indice de tipos en el archivo
 		 * maestro.
 		 */
-		unsigned long hashNombreTipo(const string& nombreTipo) const;
+		unsigned int hashNombreTipo(const string& nombreTipo) const;
 		
 		/* Metodos de validacion del tipo definido
 		 * en el archivo de definiciones.
@@ -181,7 +181,7 @@ class ArchivoMaestro
 		/* Buscar el tipo de dato en el archivo maestro cuyo ID coincide
 		 * con el pasado por parametro.
 		 */
-		char buscarTipo(int idTipo);
+		char buscarTipo(unsigned int idTipo);
 		
 		/* Genera un nombre de archivo a partir del nombre del tipo
 		 * de dato a persistir.
