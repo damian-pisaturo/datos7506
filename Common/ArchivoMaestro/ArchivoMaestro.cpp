@@ -61,7 +61,7 @@
 	///////////////////////////////////////////////////////////////////////
 		char ArchivoMaestro::buscarTipo(const string& nombreTipo)
 		{
-			int idTipo = this->hashNombreTipo(nombreTipo);
+			unsigned int idTipo = this->hashNombreTipo(nombreTipo);
 			return this->buscarTipo(idTipo);
 		}
 		
@@ -77,7 +77,7 @@
 			ListaTiposIndices tiposIndices;
 			
 			// ID unico del tipo a insertar.
-			int idTipo = this->hashNombreTipo(tipo.nombreTipo);
+			unsigned int idTipo = this->hashNombreTipo(tipo.nombreTipo);
 			
 			// Busqueda del tipo por su numero de ID.
 			resultado = this->buscarTipo(idTipo);
@@ -148,7 +148,7 @@
 						
 			// Si el tipo no existe, se retorna TIPO_INEXISTENTE
 			if (resultado == ArchivoMaestro::TIPO_EXISTENTE){
-				offsetTipo = sizeof(int) + nombreTipo.size() + 1;
+				offsetTipo = sizeof(unsigned int) + nombreTipo.size() + 1;
 				this->archivo.seekg(offsetTipo, ios_base::cur);
 				
 				this->recuperarListaInfoRegistro();
@@ -164,9 +164,9 @@
 	///////////////////////////////////////////////////////////////////////
 	// Metodos privados
 	///////////////////////////////////////////////////////////////////////
-		unsigned long ArchivoMaestro::hashNombreTipo(const string& nombreTipo) const
+		unsigned int ArchivoMaestro::hashNombreTipo(const string& nombreTipo) const
 		{
-			unsigned long hash = 5381;
+			unsigned int hash = 5381;
 	        string::const_iterator iter = nombreTipo.begin();
 	        
 	        while (iter++ != nombreTipo.end())
@@ -175,13 +175,13 @@
 	        return hash;			
 		}
 		
-		char ArchivoMaestro::buscarTipo(int idTipo)
+		char ArchivoMaestro::buscarTipo(unsigned int idTipo)
 		{
 			bool encontrado = false;
-			int id = 0, offsetProxTipo = 0;
+			unsigned int id = 0, offsetProxTipo = 0;
 			char resultado = ArchivoMaestro::TIPO_INEXISTENTE;
 			
-			if (this->archivo.size() > sizeof(int)){
+			if (this->archivo.size() > sizeof(unsigned long)){
 				this->archivo.rewind();
 				
 				while ( (!encontrado) && (!this->archivo.eof()) ){
