@@ -1,0 +1,79 @@
+[definicionTipo]
+nombreTipo = Persona
+
+[organizacionRegistro]
+organizacionRegistros = RVB
+
+[definicionAtributos]
+atributoNombre = NOMBRE
+atributoTipo = string
+atributoNombre = DNI
+atributoTipo = entero
+atributoNombre = FECHA
+atributoTipo = fecha
+
+[definicionIndices]
+
+[griego]
+tipoIndice = arbolb+
+tamanoNodoIndice = 512
+campoIndice = DNI
+
+[romanos]
+tipoIndice = arbolb*
+tamanoNodoIndice = 512
+campoIndice = NOMBRE
+campoIndice = FECHA
+
+tipoIndice = hash
+tamanoBucket = 512
+campoIndice = NOMBRE
+
+[integridad]
+
+[definicionTipo]
+nombreTipo = Alumno
+
+[organizacionRegistro]
+organizacionRegistro = RVB
+
+[definicionAtributos]
+atributoNombre = NOMBRE
+atributoTipo = string
+atributoNombre = PADRON
+atributoTipo = entero
+
+[definicionesIndices]
+
+[griego]
+tipoIndice = hash
+tamanoBucket = 512
+campoIndice = PADRON
+
+[romanos]
+tipoIndice = arbolb*
+tamanoNodoIndice = 512
+campoIndice = NOMBRE
+
+[definicionTipo]
+nombreTipo = Empleado
+
+[organizacionRegistro]
+organizacionRegistro = RVB
+
+[definicionAtributos]
+atributoNombre = NOMBRE
+atributoTipo = string
+atributoNombre = DNI
+atributoTipo = entero
+atributoNombre = OCUPACION
+atributoTipo = string
+
+[definicionesIndices]
+
+[griego]
+tipoIndice = arbolb*
+tamanoNodoIndice = 512
+campoIndice = DNI
+
+[fin]
