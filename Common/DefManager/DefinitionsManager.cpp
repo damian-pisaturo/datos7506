@@ -79,8 +79,7 @@ ListaValoresAtributos* DefinitionsManager::getListaValoresAtributos(const string
 				valorAtributo = iterMap->second;
 			else valorAtributo = "";
 			
-			listaValoresAtributos->push_back(valorAtributo);
-			
+			listaValoresAtributos->push_back(valorAtributo);			
 		}
 	}
 	

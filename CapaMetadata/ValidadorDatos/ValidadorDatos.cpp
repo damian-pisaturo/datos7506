@@ -95,18 +95,16 @@
 		MapaValoresAtributos::const_iterator iterMap;
 		ListaNombresAtributos::const_iterator iterNA;
 		
-		if (nombresAtributos.size() == mapValAtributos.size()){
 			
-			for (iterMap = mapValAtributos.begin(); (iterMap != mapValAtributos.end()) && (nombreEncontrado);
-				++iterMap){
-				
-				nombreEncontrado = false;
-				for (iterNA = nombresAtributos.begin(); (iterNA != nombresAtributos.end()) && (!nombreEncontrado);
-					++iterNA)
-					if (*iterNA == iterMap->first) nombreEncontrado = true;			
-			}
+		for (iterMap = mapValAtributos.begin(); (iterMap != mapValAtributos.end()) && (nombreEncontrado);
+			++iterMap){
 			
-		}else nombreEncontrado = false;
+			nombreEncontrado = false;
+			for (iterNA = nombresAtributos.begin(); (iterNA != nombresAtributos.end()) && (!nombreEncontrado);
+				++iterNA)
+				if (*iterNA == iterMap->first) nombreEncontrado = true;			
+		}
+			
 		
 		if (!nombreEncontrado) resultado = ResultadosMetadata::NOM_ATRIBUTO_INVALIDO;
 		
