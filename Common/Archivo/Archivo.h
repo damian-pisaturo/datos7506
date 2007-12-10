@@ -47,7 +47,7 @@ class Archivo : public fstream
 	///////////////////////////////////////////////////////////////////////
 		Archivo();
 		Archivo(const string& nomArchivo);
-		Archivo(const string& nomArchivo, unsigned long magicNumber);
+		Archivo(const string& nomArchivo, int magicNumber);
 		virtual ~Archivo();
 		
 	///////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ class Archivo : public fstream
 		
 		/* Crea y devuelve un identificador unico para el archivo actual.
 		 */
-		unsigned long generarID(const string &nomArchivo);
+		int generarID(const string &nomArchivo);
 };
 
 #endif /*ARCHIVO_H_*/

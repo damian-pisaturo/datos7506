@@ -32,7 +32,7 @@
 	// Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////
 	ArchivoMaestro::ArchivoMaestro():
-		archivo(NOM_ARCHIVO_MAESTRO, *(unsigned long*)MASTER_MAGIC_NUMBER)
+		archivo(NOM_ARCHIVO_MAESTRO, *(int*)MASTER_MAGIC_NUMBER)
 	{
 		this->magicNumber      = 97;
 		this->infoRegistros    = NULL;
