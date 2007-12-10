@@ -108,7 +108,7 @@ class Hash
 		/*
 		 * Método utilizado internamente cuando se aplica la función de dispersión a una clave.
 		 **/
-		int hashInterno(char *clave);
+		int hashInterno(unsigned char *clave);
 		
 		/*
 		 * Este método se encarga de redistribuir los registros contenidos en bucket 
