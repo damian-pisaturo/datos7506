@@ -117,13 +117,21 @@ void cargarMapaCamposSeleccionadosPorTipo(ListaEstructuraNombres &lista, MapaCam
 		if (iterMapa != mapa.end()) // Si se encontró el nombre del tipo en el mapa.
 			iterMapa->second->push_back(it->nombreCampo);
 		else {
-			if (it->nombreCampo != TODOS_LOS_CAMPOS) {
+		//	if (it->nombreCampo != TODOS_LOS_CAMPOS) {
 				listaNombres = new ListaStrings();
 				listaNombres->push_back(it->nombreCampo);
 				mapa[nombreTipo] = listaNombres;
-			}
+		//	}
 		}
 	}
+}
+
+void destruirMapaCamposSeleccionadosPorTipo(MapaCamposSeleccionados &mapa) {
+	
+	for (MapaCamposSeleccionados::iterator it = mapa.begin();
+		 it != mapa.end(); ++it)
+		delete it->second;
+	
 }
 
 int main(int argc, char* argv[]) {
@@ -166,6 +174,7 @@ int main(int argc, char* argv[]) {
 			if ( (resultadoParser == ArchivoMaestro::OK) || (resultadoParser == ArchivoMaestro::TIPO_EXISTENTE) )
 				resultadoParser = ResultadosConsultas::OK;
 		}
+	
 		
 		if (resultadoParser == ResultadosConsultas::OK) {
 			
@@ -178,7 +187,7 @@ int main(int argc, char* argv[]) {
 			int resultadoProxOp = 0;
 			
 			while ((resultadoProxOp = parserOperaciones.proximaOperacion()) != ResultadosParserOperaciones::FIN_ARCHIVO) {
-			
+	
 				if (resultadoProxOp != ResultadosParserOperaciones::SINTAXIS_CORRECTA){
 					resultado << resultadoProxOp;
 					cout << resultado << endl;
@@ -190,7 +199,7 @@ int main(int argc, char* argv[]) {
 		
 					switch(operacion){
 						case OperacionesCapas::CONSULTAS_CONSULTA:
-						{	
+						{					
 							// Codigo de operacion de consulta para la Capa de Metadata
 							pipe->agregarParametro((unsigned char)OperacionesCapas::METADATA_CONSULTA, 0); 
 							
@@ -258,7 +267,6 @@ int main(int argc, char* argv[]) {
 								
 								for (itLEN = estructuraConsulta.listaOrderBy.begin();
 									 itLEN != estructuraConsulta.listaOrderBy.end(); ++itLEN) {
-									
 									pipe->escribir(itLEN->nombreTipo);
 									pipe->escribir(itLEN->nombreCampo);				
 								}
@@ -273,7 +281,8 @@ int main(int argc, char* argv[]) {
 									// Obtiene las estructuras necesarias para hacer impresiones de campos determinados.
 									MapaCamposSeleccionados mapaCamposSeleccionados;
 									cargarMapaCamposSeleccionadosPorTipo(estructuraConsulta.listaCamposSeleccionados, mapaCamposSeleccionados);
-						//			ListaNombresAtributos* listaNombresAtributos = defManager.getListaNombresAtributos(nombreTipo);
+									ListaNombresAtributos* listaNombresAtributos = NULL; 
+									ListaStrings listaCamposSeleccionados;
 									
 									ListaStrings& listaNombresTipos = estructuraConsulta.listaNombresTipos;
 									ListaTiposAtributos* listaTiposAtributos = NULL;
@@ -306,11 +315,14 @@ int main(int argc, char* argv[]) {
 												// Se obtiene el registro de datos consultado.
 												pipe->leer(tamRegistro, registro);
 												
-												// Se obtiene la listaTiposAtributos de cada registro
+												// Se obtiene las estructuras necesarias para imprimir el registro.
 												listaTiposAtributos = defManager.getListaTiposAtributos(*iterLNT);
+												listaNombresAtributos = defManager.getListaNombresAtributos(*iterLNT);
+												listaCamposSeleccionados = * mapaCamposSeleccionados[*iterLNT];
+											
+												// Se muestra el registro.
+												vista.mostrarRegistro(registro, listaTiposAtributos, listaNombresAtributos, listaCamposSeleccionados );
 												if (listaNombresTipos.size() > 1) ++iterLNT;
-												
-												vista.showRegister(registro, listaTiposAtributos);
 												
 												delete[] registro;
 												

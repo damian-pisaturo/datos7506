@@ -88,7 +88,16 @@ void Vista::showRegister(char *registro, ListaTiposAtributos  *listaTiposAtribut
 			
 			cout << campoShort << endl;
 			break;
+			
+		case TipoDatos::TIPO_FLOAT:
+			float campoFloat;
+			memcpy(&campoFloat, (registro + offset), sizeof(float));
+			offset += sizeof(float);
+			
+			cout << campoFloat << endl;
+			break;
 		}
+		
 		
 	}
 	
@@ -156,6 +165,26 @@ void Vista::showRegister(char *registro, ListaTiposAtributos* listaTiposAtributo
 	
 }
 
+/*
+ * Este método imprime los campos de registro seleccionados en la listaCamposSeleccionados 
+ * */
+void Vista::mostrarRegistro(char *registro, ListaTiposAtributos  *listaTiposAtributos,  ListaNombresAtributos *listaNombresAtributos, 
+			ListaStrings& listaCamposSeleccionados) {
+	
+	ListaStrings::iterator itCampos;
+	
+	for(itCampos = listaCamposSeleccionados.begin(); itCampos != listaCamposSeleccionados.end(); ++itCampos) {
+		
+		// Si hay que mostrar todos los campos, se llama al método que imprime el
+		// registro completo.
+		if ( (*itCampos) == TODOS_LOS_CAMPOS )
+			showRegister(registro, listaTiposAtributos);
+		
+		// Sino, solo se imprimen los campos que están en la listaCamposSeleccionados.
+		else 
+			showRegister(registro, listaTiposAtributos, listaNombresAtributos, listaCamposSeleccionados);		
+	}
+}
 
 void Vista::showTipoContent(ListaStrings& listaNombresCampos){
 	ListaStrings::const_iterator it;
@@ -219,6 +248,13 @@ void Vista::showCampo(unsigned short offset, char *registro, int tipoCampo){
 		memcpy(&campoShort, (registro + offset), sizeof(short));
 		cout << campoShort << endl;
 		break;
+		
+	case TipoDatos::TIPO_FLOAT:
+		float campoFloat;
+		memcpy(&campoFloat, (registro + offset), sizeof(float));
+		cout << campoFloat << endl;
+		break;
+		
 	}
 
 }

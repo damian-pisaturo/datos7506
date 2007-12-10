@@ -14,8 +14,6 @@
 
 using namespace std;
 
-#define TODOS_LOS_CAMPOS 		"*"
-
 typedef map<string, ListaStrings*> MapaCamposSeleccionados;
 
 int main(int argc, char* argv[]);

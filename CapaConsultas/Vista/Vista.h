@@ -4,6 +4,8 @@
 #include "../../Common/DefManager/DefinitionsManager.h"
 #include "../../Common/Bloque/Bloque.h"
 
+#define TODOS_LOS_CAMPOS 		"*"
+
 class Vista
 {
 public:
@@ -16,6 +18,12 @@ public:
 
 	void showRegister(char *registro, ListaTiposAtributos  *listaTiposAtributos,  ListaNombresAtributos *listaNombresAtributos, 
 			ListaStrings& listaNombresCampos);
+	
+	/*
+	 * Este método imprime los campos de registro seleccionados en la listaCamposSeleccionados 
+	 * */
+	void mostrarRegistro(char *registro, ListaTiposAtributos *listaTiposAtributos, ListaNombresAtributos *listaNombresAtributos, 
+						 ListaStrings& listaNombresCampos);
 	
 	/*
 	 * Muestra por consola los campos de un tipo correspondiente

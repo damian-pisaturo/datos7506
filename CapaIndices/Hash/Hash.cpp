@@ -339,7 +339,7 @@
 			*/
 			
 			// Algoritmo djb2
-			unsigned long hash = 5381;
+			int hash = 5381;
 	        int c;
 	        
 	        c = *clave++;

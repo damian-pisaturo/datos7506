@@ -116,7 +116,7 @@
 					this->archivo << offsetProxTipo;
 				}
 			}
-		
+			
 			return resultado;
 		}
 		
@@ -125,9 +125,9 @@
 			char resultado = ArchivoMaestro::OK;
 			ListaDefinicionesTipos::const_iterator iter;
 			
-			for (iter = tipos.begin(); (iter != tipos.end()) && (resultado == ArchivoMaestro::OK); ++iter)
+			for (iter = tipos.begin(); (iter != tipos.end()) && (resultado == ArchivoMaestro::OK); ++iter) 
 				resultado = agregarTipo(*iter);
-			
+		
 			return resultado;			
 		}
 				
@@ -181,7 +181,7 @@
 			unsigned int id = 0, offsetProxTipo = 0;
 			char resultado = ArchivoMaestro::TIPO_INEXISTENTE;
 			
-			if (this->archivo.size() > sizeof(unsigned long)){
+			if (this->archivo.size() > Tamanios::TAMANIO_IDENTIFICADOR){
 				this->archivo.rewind();
 				
 				while ( (!encontrado) && (!this->archivo.eof()) ){
