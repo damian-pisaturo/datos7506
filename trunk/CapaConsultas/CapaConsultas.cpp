@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
 			int resultadoProxOp = 0;
 			
 			while ((resultadoProxOp = parserOperaciones.proximaOperacion()) != ResultadosParserOperaciones::FIN_ARCHIVO) {
-			
+	
 				if (resultadoProxOp != ResultadosParserOperaciones::SINTAXIS_CORRECTA){
 					resultado << resultadoProxOp;
 					cout << resultado << endl;
