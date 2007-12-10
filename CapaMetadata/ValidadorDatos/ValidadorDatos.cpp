@@ -152,7 +152,7 @@
 			if (posSignoMenos != string::npos){ // Valor entero negativo
 				conversor << INT_MIN;			
 				posPrimerNum = valorEntero.find_first_not_of('0', 1);
-				numeroEntero[0] = valorEntero[0];
+				numeroEntero += valorEntero[0];
 				numeroEntero += valorEntero.substr(posPrimerNum);
 			}else{ // Valor entero positivo
 				conversor << INT_MAX;
@@ -184,7 +184,7 @@
 			if (posSignoMenos != string::npos){ // Valor entero negativo
 				conversor << SHRT_MIN;			
 				posPrimerNum = valorShort.find_first_not_of('0', 1);
-				numeroShort[0] = valorShort[0];
+				numeroShort += valorShort[0];
 				numeroShort += valorShort.substr(posPrimerNum);
 			}else{ // Valor entero positivo
 				conversor << SHRT_MAX;

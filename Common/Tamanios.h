@@ -20,7 +20,7 @@ class Tamanios
 		static const unsigned char TAMANIO_DISPERSION		  = sizeof(unsigned short);
 		static const unsigned char TAMANIO_FECHA			  = sizeof(unsigned short) + 2*sizeof(unsigned char);
 		static const unsigned short TAMANIO_BLOQUE_DATO		  = 4096;
-		static const unsigned short TAMANIO_IDENTIFICADOR	  = sizeof(int);
+		static const unsigned short TAMANIO_IDENTIFICADOR	  = sizeof(unsigned long);
 };
 
 #endif /*TAMANIOS_H*/

@@ -1,1 +1,1 @@
-delete from PERSONA where DNI = 3;
+delete from PERSONA where nombre < 'z';
