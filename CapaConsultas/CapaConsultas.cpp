@@ -178,6 +178,7 @@ int main(int argc, char* argv[]) {
 			int resultadoProxOp = 0;
 			
 			while ((resultadoProxOp = parserOperaciones.proximaOperacion()) != ResultadosParserOperaciones::FIN_ARCHIVO) {
+			
 				if (resultadoProxOp != ResultadosParserOperaciones::SINTAXIS_CORRECTA){
 					resultado << resultadoProxOp;
 					cout << resultado << endl;
@@ -201,6 +202,8 @@ int main(int argc, char* argv[]) {
 								EstructuraConsulta estructuraConsulta;
 								
 								estructuraConsulta = parserOperaciones.getEstructuraConsulta();
+								
+								cout << "voy a mandar las estructuras para la consulta" << endl;
 								
 								// Envia el contenido de la estructuraConsulta por el pipe.
 								
@@ -282,6 +285,8 @@ int main(int argc, char* argv[]) {
 									// En cambio, si la listaNombresTipos contiene más de un elemento,
 									// significa que hay joins, por lo tanto, cada registro que se reciba será
 									// de un tipo distinto, ordenados según la listaNombresTipos.
+									cout << "======= Resultado de la consulta =======" << endl;
+									cout << "========================================" << endl;
 									do {
 										// Se obtiene la cantidad de registros que responden 
 										// a la consulta realizada.
@@ -291,7 +296,6 @@ int main(int argc, char* argv[]) {
 											
 											iterLNT = listaNombresTipos.begin();
 											
-											cout << "======= Resultado de la consulta =======" << endl << endl;
 											for (unsigned short i = 0; i < cantRegistros; i++){
 												// Se obtiene el tamaño del registro a levantar
 												pipe->leer(&tamRegistro);
@@ -311,7 +315,6 @@ int main(int argc, char* argv[]) {
 												
 												delete[] registro;
 												
-												cout << endl;
 											}
 											cout << "========================================" << endl;
 											
@@ -451,6 +454,7 @@ int main(int argc, char* argv[]) {
 					}
 					
 					resultado << pipeResult;
+					cout << "resultado q llego a consultas: " << pipeResult << endl;
 					cout << endl << resultado << endl;
 					
 					delete pipe;

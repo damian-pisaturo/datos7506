@@ -84,6 +84,8 @@ ostream& operator << (ostream &out, const Resultado &e) {
         	out << "El tipo de dato por el cual se esta intentando consultar es invalido o no fue previamente definido.\nSi desea ingresar un nuevo tipo, cree un archivo de definiciones con su especificacion y ejecute\n\t./capaConsultas -d <archivoDfiniciones>\nY a continuacion, vuelva a realizar la consulta."; break;
         case ResultadosMetadata::FIN_REGISTROS:
         	out << "Se terminaron de consultar los registros de datos."; break;
+        case ResultadosMetadata::CONSULTA_SIN_RESULTADOS:
+        	out << "No se ha encontrado ningún registro para esta consulta."; break;
         case Resultado::SIN_RESULTADO:
         	out << "No se ha registrado ningún resultado."; break;
         case ResultadosParserOperaciones::ERROR_SINTAXIS_INTO:
