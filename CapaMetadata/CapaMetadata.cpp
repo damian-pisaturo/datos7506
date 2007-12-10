@@ -1739,3 +1739,57 @@ int main(int argc, char* argv[])
 	return pipeResult;	
 }
 
+
+
+/*
+int main(int argc, char* argv[]) {
+char* registro = NULL;
+unsigned short nroRegistro = 0, tamRegistro = 0;
+bool quedanRegistros = true;
+string nombreArchivo("PERSONA.tmp0");
+string nombreTipo("PERSONA");
+DefinitionsManager& defManager = DefinitionsManager::getInstance();
+ListaTiposAtributos* listaTiposAtributos = defManager.getListaTiposAtributos(nombreTipo);
+
+
+tamRegistro = 207;
+string s("Este es un texto bastante largo, como para demostrar que es posible insertar textos bastante extensos en nuestros indices, sin que se resquebrajen los simientos sobre los que se amolda la aplicacion");
+unsigned char length = s.size();
+unsigned short anio = 1988;
+unsigned char mes = 11, dia = 10;
+int dni = 0;	
+//Vista vista;
+cout << "Metiendo registros en archivo temporal..." << endl;
+for (char i = 0; i < 19; i++){
+	registro = new char[209];
+	
+	memcpy(registro, &tamRegistro, 2);
+	memcpy(registro + 2, &length, 1);
+	memcpy(registro + 3, s.c_str(), length);
+	dni = rand();
+	memcpy(registro + 3 + length, &dni, 4);
+	memcpy(registro + 7 + length, &anio, 2);
+	memcpy(registro + length + 9, &mes, 1);
+	memcpy(registro + length + 10, &dia, 1);
+	
+	guardarRegistro(nombreTipo, registro, tamRegistro + 2);
+	 
+	delete[] registro;
+}	
+
+FileManager fmanager(nombreArchivo, 4096, TipoOrganizacion::REG_VARIABLES, listaTiposAtributos);
+
+registro = NULL;
+cout << "Leyendo registros..." << endl; 
+while ( (quedanRegistros) && (tamRegistro != 0) ){
+	fmanager.leerRegistro(registro, nroRegistro++, tamRegistro, quedanRegistros);
+	if (!registro) cout << "NULL" <<endl;
+}
+
+cout << "Fin" << endl;
+return 0;
+
+}
+
+*/
+

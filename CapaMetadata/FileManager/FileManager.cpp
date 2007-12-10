@@ -61,12 +61,13 @@ int FileManager::leerRegistro(char* &registro, unsigned short numReg,
 		while ( (!encontrado) && (resultado == ResultadosMetadata::OK) ) {
 			
 			resultado = ((ArchivoDatosBloques*)this->archivo)->siguienteBloque(contenidoBloque, numBloque, espLibre);
-			
+	
 			if (resultado == ResultadosFisica::OK) {
+				
 				
 				bloque.setDatos(contenidoBloque);
 				cantRegistrosEnBloque = bloque.getCantidadRegistros();
-				
+		
 				if ((cantRegistrosLeidos + cantRegistrosEnBloque) > numReg) {
 					// Obtengo el registro
 					nroRegistroEnBloque = numReg - cantRegistrosLeidos;
@@ -141,6 +142,7 @@ int FileManager::escribirRegistro(char* registro, unsigned short tamRegistro) {
 																			  this->bloque->getTamanioEspacioLibre());
 		}else{
 			
+			this->bloque->clear();
 			// Inserta el registro.
 			this->bloque->altaRegistro(this->listaInfoReg, (char*)registro);
 			

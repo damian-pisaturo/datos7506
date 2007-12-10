@@ -275,8 +275,6 @@ int main(int argc, char* argv[]) {
 								pipe->leer(&pipeResult);
 								
 								if (pipeResult == ResultadosMetadata::OK) {
-									
-									// TODO: Adaptar la clase vista para mostrar determinados campos de un registro
 
 									// Obtiene las estructuras necesarias para hacer impresiones de campos determinados.
 									MapaCamposSeleccionados mapaCamposSeleccionados;
@@ -337,6 +335,7 @@ int main(int argc, char* argv[]) {
 										
 									} while (pipeResult == ResultadosMetadata::OK);
 									
+								destruirMapaCamposSeleccionadosPorTipo(mapaCamposSeleccionados);
 								}
 	
 							}
