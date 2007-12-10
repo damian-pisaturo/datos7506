@@ -35,7 +35,7 @@ campoIndice = NOMBRE
 nombreTipo = Alumno
 
 [organizacionRegistro]
-organizacionRegistro = RVB
+organizacionRegistros = RVB
 
 [definicionAtributos]
 atributoNombre = NOMBRE
@@ -43,7 +43,7 @@ atributoTipo = string
 atributoNombre = PADRON
 atributoTipo = entero
 
-[definicionesIndices]
+[definicionIndices]
 
 [griego]
 tipoIndice = hash
@@ -55,11 +55,13 @@ tipoIndice = arbolb*
 tamanoNodoIndice = 512
 campoIndice = NOMBRE
 
+[integridad]
+
 [definicionTipo]
 nombreTipo = Empleado
 
 [organizacionRegistro]
-organizacionRegistro = RVB
+organizacionRegistros = RVB
 
 [definicionAtributos]
 atributoNombre = NOMBRE
@@ -69,11 +71,13 @@ atributoTipo = entero
 atributoNombre = OCUPACION
 atributoTipo = string
 
-[definicionesIndices]
+[definicionIndices]
 
 [griego]
 tipoIndice = arbolb*
 tamanoNodoIndice = 512
 campoIndice = DNI
+
+[romanos]
 
 [fin]

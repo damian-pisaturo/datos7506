@@ -6,18 +6,18 @@ organizacionRegistros = RVB
 
 [definicionAtributos]
 atributoNombre = NOMBRE
-atributoTipo = string
+atributoTipo = String
 atributoNombre = DIRECTOR
 atributoTipo = String
 atributoNombre = GENERO
 atributoTipo = Char
 atributoNombre = FECHALANZAMIENTO
-atributoTipo = FECHA
+atributoTipo = Fecha
 
 [definicionIndices]
 
 [griego]
-tipoIndice = Arbolb*
+tipoIndice = ArbolB*
 tamanoNodoIndice = 1024
 campoIndice = DIRECTOR
 campoIndice = NOMBRE
@@ -41,24 +41,28 @@ organizacionRegistros = RVB
 
 [definicionAtributos]
 atributoNombre = NOMBRE
-atributoTipo = string
+atributoTipo = String
 atributoNombre = DNI
-atributoTipo = entero
+atributoTipo = Entero
 atributoNombre = FECHA
-atributoTipo = fecha
+atributoTipo = Fecha
 
 [definicionIndices]
 
 [griego]
-tipoIndice = Arbolb+
-tamanoNodoIndice = 512
+tipoIndice = ArbolB+
+tamanoNodoIndice = 1024
 campoIndice = DNI
 
 [romanos]
 tipoIndice = ArbolB*
-tamanoBucket = 512
+tamanoNodoIndice = 1024
 campoIndice = NOMBRE
 campoIndice = FECHA
+
+tipoIndice = Hash
+tamanoBucket = 512
+campoIndice = NOMBRE
 
 [integridad]
 
