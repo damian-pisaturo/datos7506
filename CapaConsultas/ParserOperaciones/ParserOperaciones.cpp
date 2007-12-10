@@ -60,6 +60,7 @@ int ParserOperaciones::proximaOperacion() {
 		getline(cin, linea, FIN_OPERACION);
 		
 		reemplazarCaracter(&linea, '\n', SEPARATOR_CAMPOS);
+		
 		limpiarInicio(&linea, SEPARATOR_CAMPOS);
 
 		if ( (linea.size() != 0) && (linea[0] != CARACTER_COMENTARIO) ) {
@@ -463,17 +464,16 @@ void ParserOperaciones::reemplazarCaracter(string* s, char caracterViejo, char c
 }
 
 void ParserOperaciones::limpiarInicio(string* s, char caracterALimpiar){
-	for (string::iterator iter = s->begin(); (iter != s->end()) && (*iter == caracterALimpiar); ++iter) {
-		s->erase(iter);
-	}
+	string::iterator iter;
+	for (iter = s->begin(); (iter != s->end()) && (*iter == caracterALimpiar); ++iter);
+	s->erase(s->begin(), iter);
 }
 
 void ParserOperaciones::removerCaracter(string* s, char caracter) {
-	string::iterator iter; 
-	for (iter = s->begin(); iter != (s->end() - 1); ++iter){
-		if (*iter == caracter) s->erase(iter);
+	for (string::iterator iter = s->begin(); iter != s->end(); ){
+		if (*iter == caracter) iter = s->erase(iter);
+		if (iter != s->end()) ++iter;
 	}
-	if (*iter == caracter) s->erase(iter); 
 }
 
 string* ParserOperaciones::mayus(string* s){
