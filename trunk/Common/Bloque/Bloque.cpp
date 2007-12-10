@@ -147,6 +147,7 @@
 			float campoNumerico  = 0;
 			int campoNumericoInt = 0;
 			short campoShort     = 0;
+			bool campoBooleano	 = false;
 		
 			int i = 1;
 			it = listaInfoRegistro->begin();
@@ -258,7 +259,18 @@
 							clavesChequeadas++;
 						}
 						offsetToProxCampo += sizeof(float);
-					} else if (tipo == TipoDatos::TIPO_CHAR) {
+					}else if (tipo == TipoDatos::TIPO_BOOL) {
+						if (pk) {
+							memcpy(&campoBooleano, &registro[offsetToProxCampo], sizeof(bool));
+							
+							if (campoBooleano == *((bool*)clavePrimaria[clavesChequeadas])) {
+								*offsetReg = offsetToReg;
+								clavesIguales ++;
+							}
+							clavesChequeadas++;
+						}
+						offsetToProxCampo += sizeof(bool);
+					}else if (tipo == TipoDatos::TIPO_CHAR) {
 						if (pk) {
 							campo = new char[2];
 							campo[0] = registro[offsetToProxCampo];
@@ -292,6 +304,8 @@
 						}
 						offsetToProxCampo += Tamanios::TAMANIO_FECHA;
 					}
+					
+					
 					if (clavesChequeadas == cantClaves) {
 						checkPk = true;
 						if (clavesChequeadas == clavesIguales)
@@ -403,6 +417,7 @@
 			unsigned char longCampo  = 0;
 			int campoNumericoInt      = 0;
 			float campoNumerico       = 0;
+			bool campoBooleano		  = false;
 			unsigned short campoShort = 0;
 			unsigned short bytesLongitud = 0;
 			unsigned char cantClaves     = 0;
@@ -514,7 +529,17 @@
 							clavesChequeadas++;
 						}
 						offsetToProxCampo += sizeof(float);
-					} else if (tipo == TipoDatos::TIPO_CHAR) {
+					}else if (tipo == TipoDatos::TIPO_BOOL) {
+						
+						if(pk) {
+							memcpy(&campoBooleano, &registro[offsetToProxCampo], sizeof(bool));
+							if (campoBooleano == *((bool*)clavePrimaria[clavesChequeadas]))
+								clavesIguales++;
+							
+							clavesChequeadas++;
+						}
+						offsetToProxCampo += sizeof(bool);
+					}else if (tipo == TipoDatos::TIPO_CHAR) {
 
 						if (pk) {
 							char* campo = new char[2];
@@ -701,6 +726,7 @@
 			float campoNumerico  = 0;
 			int campoNumericoInt = 0;
 			short int campoShort = 0;
+			bool campoBooleano	 = false;
 			ClaveFecha::TFECHA campoFecha;
 			unsigned char cantClaves        = 0;
 			unsigned char clavesEncontradas = 0;			
@@ -774,7 +800,16 @@
 						clavesEncontradas++;
 					}
 					offsetToProxCampo += sizeof(float);
-				} else if (tipo == TipoDatos::TIPO_CHAR) {
+				}else if (tipo == TipoDatos::TIPO_BOOL) {
+					if (pk) {
+						memcpy(&campoBooleano, &registro[offsetToProxCampo], sizeof(bool));
+						
+						listaClaves.push_back(new ClaveBoolean(campoBooleano));
+						
+						clavesEncontradas++;
+					}
+					offsetToProxCampo += sizeof(bool);
+				}else if (tipo == TipoDatos::TIPO_CHAR) {
 					if (pk) {
 						memcpy(&campoChar, &registro[offsetToProxCampo], sizeof(char));
 						listaClaves.push_back(new ClaveChar(campoChar));
