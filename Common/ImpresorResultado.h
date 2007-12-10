@@ -52,7 +52,7 @@ ostream& operator << (ostream &out, const Resultado &e) {
         case ResultadosIndices::CLAVE_NO_ENCONTRADA:
         	out << "La clave solicitada no existe."; break;
         case ResultadosIndices::ERROR_NO_HAY_INDICE:
-        	out << "No existe un índice por el campo pedido."; break; 
+        	out << "No existe un índice por el campo solicitado, o existe pero no soporta recorridos en orden."; break; 
         case ResultadosIndices::ERROR_INDICE_NO_SOPORTA:
         	out << "El índice no soporta la operación requerida."; break;         	
         case ResultadosIndices::FIN_BLOQUES:

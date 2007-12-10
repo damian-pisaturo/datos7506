@@ -22,6 +22,7 @@ using namespace std;
 
 typedef map<string, ListaOperaciones*> MapaRestricciones;
 typedef map<string, ListaStrings*> MapaExtensiones;
+typedef vector<bool> VectorBooleanos;
 
 ComuDatos* instanciarPipe();
 void serializarListaClaves(string& s, ListaInfoClave* listaClaves);

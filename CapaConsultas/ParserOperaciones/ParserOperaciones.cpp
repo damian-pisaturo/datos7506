@@ -362,7 +362,7 @@ int ParserOperaciones::proximaOperacion() {
 									nodoOperaciones.estructuraNombresDer.nombreTipo = "";
 									removerCaracter(&(*campo.begin()), CARACTER_AGRUPADOR);
 									nodoOperaciones.estructuraNombresDer.nombreCampo = *(campo.begin());
-									mayus(&(nodoOperaciones.estructuraNombresDer.nombreCampo));
+									//mayus(&(nodoOperaciones.estructuraNombresDer.nombreCampo));
 									this->estructuraConsulta.estructuraWhere.listaOperaciones.push_front(nodoOperaciones);
 								}
 								else{
